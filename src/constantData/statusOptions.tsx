@@ -1,0 +1,1 @@
+export const statusOption = [{ value: "active", label: "Active" }, { value: "disable", label: "Disable" }]

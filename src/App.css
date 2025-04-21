@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  /* COLORS */
+  --color-primaryColorLight: #CED8D2;
+  --color-textColor: #171717;
+  --color-redColor: red;
+  --color-inputBgColor: #F0F2F3;
+  --color-greenColor: #2C9993;
+  --color-lightGreyColor: #808B97;
+  --color-primaryColorDark: #2C9993;
+  --color-textGreyColor: #808B97;
+  --color-redColor: #F91F1F;
+  --color-greyColor: #BACBD4;
+
+}
+
+
+
+
+.heading {
+  @apply capitalize font-bold text-textColor text-[24px] md:text-[28px] lg:text-[32px] font-[Montserrat];
+}
+
+.headingMedium {
+  @apply capitalize font-bold text-textColor text-[16px] md:text-[20px] lg:text-[24px] font-[Poppins];
+}
+
+
+.headingMediumSmall {
+  @apply font-semibold text-textColor text-[16px] lg:text-[18px] font-[Montserrat];
+}
+
+
+.labelMedium {
+  @apply font-medium text-textColor text-[14px] font-[Poppins];
+}
+
+.labelNormal {
+  @apply text-textColor text-[16px] font-[Poppins];
+}
+
+.errorText {
+  @apply font-normal text-redColor text-[12px] font-[Poppins];
+}
+
+.borderClass {
+  @apply border-[1px] border-solid border-lightGreyColor;
+}
+
+.hoverCLass {
+  @apply hover:bg-primaryColorLight transition-all duration-300
+}
+
+
+.triangle-shape {
+  @apply relative bg-red-300 text-left w-40 h-40;
+  transform: rotate(-0deg) skewX(-30deg) scale(1, 0.866);
+  border-top-right-radius: 10px;
+}
+
+.triangle-shape::before,
+r {
+  content: '';
+  position: absolute;
+  background-color: inherit;
+  width: 10px;
+  height: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* .triangle-shape::before {
+  transform: rotate(-100deg) skewX(-45deg) scale(1.414, 0.707) translateY(-50%);
+} */
+
+/* .triangle-shape::after {
+  transform: rotate(135deg) skewY(-45deg) scale(0.707, 1.414) translateX(50%);
+} */

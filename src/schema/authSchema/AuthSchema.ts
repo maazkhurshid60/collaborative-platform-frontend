@@ -1,0 +1,42 @@
+import { z } from "zod";
+
+export const LoginSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(10, "Password is required and should not less then 10characters"),
+})
+
+
+
+export const CnicSchema = z.object({
+    cnic: z.string().min(1, "CNIC is required."),
+})
+
+
+
+
+
+export const ClientSignupSchema = z.object({
+    email: z.string().email(),
+    fullName: z.string().min(1, "Full Name is required"),
+    cnic: z.string().min(1, "CNIC is required"),
+    password: z.string().min(1, "Password is required"),
+    confirmPassword: z.string().min(1, "Confirm Password is required"),
+
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"], // Error will be associated with confirmPassword field
+});
+
+
+export const ProviderSignupSchema = z.object({
+    email: z.string().email(),
+    fullName: z.string().min(1, "Full Name is required"),
+    department: z.string().min(1, "Department is required"),
+    password: z.string().min(10, "Password is required and should not less then 10characters"),
+    confirmPassword: z.string().min(1, "Confirm Password is required"),
+    cnic: z.string().min(1, "CNIC is required"),
+
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"], // Error will be associated with confirmPassword field
+});
