@@ -34,7 +34,11 @@ const ClientList = () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId);
 
-                return response?.data?.clients; // Ensure it always returns an array
+                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
+                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
+                );
+
+                return matchedClient; // Ensure it always returns an array
 
 
             } catch (error) {

@@ -31,13 +31,17 @@ const Clients = () => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
     const isModalDelete = useSelector((state: RootState) => state.modalSlice.isModalDelete)
     const [selectedClientId, setSelectedClientId] = useState<string>("")
+    // const [matchedClient, setMatchedClient] = useState()
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
         queryFn: async () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId);
+                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
+                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
+                );
 
-                return response?.data?.clients; // Ensure it always returns an array
+                return matchedClient; // Ensure it always returns an array
 
 
             } catch (error) {
@@ -47,6 +51,15 @@ const Clients = () => {
         }
 
     })
+    // console.log("<<<<<<<<<<<<<<<<", clientData && clientData[0]?.providerList?.some((provider) => provider?.user?.id === loginUserId));
+
+    // const matchedClient =
+    //     clientData?.filter(client =>
+    //         client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
+    //     );
+
+    console.log("Matched Client:", clientData);
+
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
             await clientApiService.deleteClientApi(id);
