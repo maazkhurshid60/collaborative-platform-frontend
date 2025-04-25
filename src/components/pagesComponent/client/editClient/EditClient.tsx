@@ -1,9 +1,15 @@
 import OutletLayout from '../../../../layouts/outletLayout/OutletLayout'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import EditClientetails from '../editClientDetail/EditClientDetail'
 import ShareClientDoc from '../shareClientDoc/ShareClientDoc'
 import BackIcon from '../../../icons/back/Back'
+import { useQuery } from '@tanstack/react-query'
+import { ClientType } from '../../../../types/clientType/ClientType'
+import clientApiService from '../../../../apiServices/clientApi/ClientApi'
+import { RootState } from '../../../../redux/store'
+import { useSelector } from 'react-redux'
+import Loader from '../../../loader/Loader'
 
 
 const EditClient = () => {
@@ -11,8 +17,40 @@ const EditClient = () => {
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState(0)
     const tabData = ["Details", "Documents"]
+    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const [selectedClientData, setSelectedClientData] = useState<ClientType>()
+    //FETCH ALL CLIENTS
+    const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
+        queryKey: ["clients"],
+        queryFn: async () => {
+            try {
+                const response = await clientApiService.getAllClient(loginUserId);
+
+                return response?.data?.clients; // Ensure it always returns an array
+
+
+            } catch (error) {
+                console.error("Error fetching client:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
+
+    })
+
+    useEffect(() => {
+        setSelectedClientData(clientData?.find(data => data?.id === id));
+
+    }, [])
+
+
+    if (isLoading) {
+        return <Loader text='Loading...' />
+    }
+    if (isError) {
+        return <p>somethingwent wrong</p>
+    }
     return (
-        <OutletLayout heading='Update Client'>
+        <OutletLayout heading='Client Profile'>
             <div className='relative'>
                 <div className='absolute  -left-6 -top-12 md:-top-14 lg:-left-5'>
                     <BackIcon onClick={() => navigate("/clients")} />
@@ -42,7 +80,7 @@ const EditClient = () => {
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
-            {activeTab === 0 ? <EditClientetails id={id} /> : <ShareClientDoc />}
+            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc />}
         </OutletLayout>
     )
 }

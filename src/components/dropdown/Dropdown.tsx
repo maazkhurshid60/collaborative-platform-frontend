@@ -83,7 +83,7 @@ const Dropdown = <T extends FieldValues>({
         <div className="relative ">
             <div className="flex mb-1">
                 <p className="labelMedium">{label}</p>
-                {required && <p className="errorText ml-1">*</p>}
+                {required && <p className="text-redColor ml-1">*</p>}
             </div>
 
             <Controller

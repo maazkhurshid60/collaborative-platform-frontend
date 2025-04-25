@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../redux/store';
 import UploadFile from '../../../inputField/UploadFile';
 import { RxCross2 } from "react-icons/rx";
+import Checkbox from '../../../checkbox/Checkbox';
 
 interface ViewDocModalProps {
     sharedDocs?: string
@@ -48,9 +49,15 @@ const ModalBodyContent: React.FC<{ docs: string }> = ({ docs }) => {
             </div>
             <div className='mt-4 mb-4'>
                 <div className='flex items-center gap-x-2.5'>
-                    <input type='checkbox' onChange={() => setIsAgree(!isAgree)} />
-                    <p>I agree to the terms and condition mentioned above.</p>
+
+                    <Checkbox
+                        text="I agree to the terms and condition mentioned above."
+                        onChange={() => setIsAgree(!isAgree)}
+                        checked={isAgree}
+                    />
                 </div>
+
+
             </div>
             {signAdd ? <div className='relative'> <img
                 src={signAdd}

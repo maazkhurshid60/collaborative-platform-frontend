@@ -1,12 +1,53 @@
 
 import OutletLayout from '../../../../layouts/outletLayout/OutletLayout'
 import BackIcon from '../../../../components/icons/back/Back'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import LabelData from '../../../../components/labelText/LabelData'
 import UserIcon from '../../../../components/icons/user/User'
+import Loader from '../../../../components/loader/Loader'
+import { useQuery } from '@tanstack/react-query'
+import { ProviderType } from '../../../../types/providerType/ProviderType'
+import providerApiService from '../../../../apiServices/providerApi/ProviderApi'
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../../redux/store'
+import { GoDotFill } from 'react-icons/go'
 
 const ProviderProfile = () => {
     const navigate = useNavigate()
+    const { id } = useParams()
+    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const [selectedProviderData, setSelectedProviderData] = useState<ProviderType>()
+    //FETCH ALL PROVIDERS
+    const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
+        queryKey: ["providers"],
+        queryFn: async () => {
+            try {
+                const response = await providerApiService.getAllProviders(loginUserId);
+                return response?.data?.providers; // Ensure it always returns an array
+
+            } catch (error) {
+                console.error("Error fetching providers:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
+
+    })
+
+
+    useEffect(() => {
+        setSelectedProviderData(providerData?.find(data => data?.id === id));
+
+    }, [])
+
+    if (isLoading) {
+        return <Loader text='Loading...' />
+    }
+    if (isError) {
+        console.log(isError);
+
+        return <p>somethingwent wrong</p>
+    }
     return (
         <OutletLayout heading='Provider profile'>
             <div className='relative'>
@@ -24,29 +65,38 @@ const ProviderProfile = () => {
                 {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
                     <div className=''>
-                        <LabelData label='Full Name' data='Provider1' />
+                        <LabelData label='Full Name' data={selectedProviderData?.user?.fullName} />
                     </div>
                     <div className=''>
-                        <LabelData label='CNIC Number' data='0000-0000000-00' />
+                        <LabelData label='CNIC Number' data={selectedProviderData?.user?.cnic} />
                     </div>
                     <div className=''>
-                        <LabelData label='Age' data='23' />
+                        <LabelData label='Age' data={selectedProviderData?.user?.age ?? ""} />
                     </div>
                     <div className=''>
-                        <LabelData label='Email' data='provider@gmail.com' />
+                        <LabelData label='Email' data={selectedProviderData?.email ?? ""} />
                     </div>
                     <div className=''>
-                        <LabelData label='Contact No' data='0000-0000000' />
+                        <LabelData label='Contact No' data={selectedProviderData?.user?.contactNo ?? ""} />
                     </div>
                     <div className=''>
-                        <LabelData label='Address' data='Islamabad' />
+                        <LabelData label='Address' data={selectedProviderData?.user?.address ?? ""} />
                     </div>
                     <div className=' '>
                         <LabelData label='List of Active Clients' />
-                        <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                            <li>Client2</li>
-                            <li>Client4</li>
-                        </ul>
+
+
+
+                        {selectedProviderData?.clientList?.length === 0 || selectedProviderData?.clientList === undefined
+                            ? <p>No Clients</p>
+                            : selectedProviderData?.clientList.map((provider: ProviderType, index) => (
+                                <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                    <GoDotFill size={10} />     {provider?.client?.user?.fullName}
+
+                                </p>
+                            ))
+                        }
+
                     </div>
                 </div>
             </div>

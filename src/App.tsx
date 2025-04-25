@@ -4,27 +4,32 @@ import { BrowserRouter } from 'react-router-dom'
 import Routing from './routing/Routing'
 import { Provider } from 'react-redux'
 import store from './redux/store'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 function App() {
+  const queryClient = new QueryClient();
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <Routing />
+    <QueryClientProvider client={queryClient}>
 
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      </BrowserRouter>
-    </Provider>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routing />
+
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
+        </BrowserRouter>
+      </Provider>
+    </QueryClientProvider>
 
   )
 }

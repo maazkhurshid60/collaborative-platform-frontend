@@ -65,7 +65,7 @@ const Settings = () => {
             {isEdit ?
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-12 mt-5 md:mt-10">
                         <div className=''>
                             <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         </div>

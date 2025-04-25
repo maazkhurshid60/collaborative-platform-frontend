@@ -6,6 +6,8 @@ import ClientDocShareModal from '../../../modals/providerModal/clientDocShareMod
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../redux/store';
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
+import { FaRegShareFromSquare } from "react-icons/fa6";
+import Checkbox from '../../../checkbox/Checkbox';
 
 const docs = [{ name: "Privacy Policy", status: true }, { name: "What makes you think that you need help", status: false }, { name: "Consent Form", status: true }, { name: "Agreement", status: false }, { name: "Policies", status: true }]
 const ShareClientDoc = () => {
@@ -29,19 +31,20 @@ const ShareClientDoc = () => {
 
             <div className='mt-8 flex items-center justify-between mb-2' >
                 <p className='font-semibold text-[14px] '>Needs to be Completed</p>
-                <div className='w-[120px]'>
+                <div className='w-[95px]'>
 
-                    <Button text='Share' sm onclick={() => dispatch(isModalShowReducser(true))} />
+                    <Button text='Share' sm onclick={() => dispatch(isModalShowReducser(true))} icon={<FaRegShareFromSquare />} />
                 </div>
             </div>
             <div className='grid  grid-cols-1 sm:grid-cols-2 gap-y-3'>
                 {completed?.map(data => (
                     <div key={data.name} className='flex items-center gap-x-3 font-medium text-[14px]'>
-                        <input
-                            type='checkbox'
-                            className='cursor-pointer'
+
+
+                        <Checkbox
                             onChange={(e) => selectDoc(data.name, e.target.checked)}
                             checked={sharedDocs?.includes(data.name) ?? false}
+
                         />
                         <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />
                         {data.name}

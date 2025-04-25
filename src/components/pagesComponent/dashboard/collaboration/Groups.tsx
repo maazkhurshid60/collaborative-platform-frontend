@@ -15,7 +15,7 @@ const Groups: React.FC<GroupsProps> = (props) => {
     const Img = data.img;
 
     return (
-        <NavLink to="/chat-message" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 border-b-[1px] border-b-solid border-b-textGreyColor/30 hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md hover:border-b-primaryColorLight'>
+        <NavLink to="/chat" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 border-b-[1px] border-b-solid border-b-textGreyColor/30 hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md hover:border-b-primaryColorLight'>
             < Img size={30} />
             <div className='w-[80%]'>
                 <p className='font-[Poppins] font-semibold text-[16px] text-textColor'>{data.userName}</p>

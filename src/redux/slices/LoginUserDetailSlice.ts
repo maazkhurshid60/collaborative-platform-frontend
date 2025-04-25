@@ -12,10 +12,11 @@ const initialState = {
         isAccountCreatedByOwnClient: false,
         password: "",
         updatedAt: "",
+        department: "",
         user: {
             address: null,
             age: null,
-            blockedMembers: [],
+            blockedMembers: [] as string[],
             cnic: "",
             contactNo: null,
             createdAt: "",
@@ -27,6 +28,19 @@ const initialState = {
             status: null,
             updatedAt: ""
         }
+    },
+    cnicResult: {
+        email: "",
+        cnic: "",
+        fullName: "",
+        clientId: "",
+        gender: null,
+        age: null,
+        contactNo: null,
+        address: null,
+        status: null,
+        isClientExist: false,
+        isAccountCreatedByOwnClient: true
     }
 }
 
@@ -36,9 +50,56 @@ const LoginUserDetail = createSlice({
     reducers: {
         saveLoginUserDetailsReducer: ((state, action) => {
             state.userDetails = action.payload
-        })
+        }),
+        updateBlockedMembers: (state, action) => {
+            state.userDetails.user.blockedMembers = action.payload;
+        },
+        saveCNICResult: (state, action) => {
+            state.cnicResult = action.payload;
+        },
+        emptyResult: (state) => {
+            state.cnicResult = {
+                email: "",
+                cnic: "",
+                fullName: "",
+                clientId: "",
+                gender: null,
+                age: null,
+                contactNo: null,
+                address: null,
+                status: null,
+                isClientExist: false,
+                isAccountCreatedByOwnClient: true
+            }
+            state.userDetails = {
+                createAt: "",
+                eSignature: null,
+                email: "",
+                id: "",
+                isAccountCreatedByOwnClient: false,
+                password: "",
+                updatedAt: "",
+                department: "",
+                user: {
+                    address: null,
+                    age: null,
+                    blockedMembers: [] as string[],
+                    cnic: "",
+                    contactNo: null,
+                    createdAt: "",
+                    fullName: "",
+                    gender: null,
+                    id: "",
+                    profileImage: null,
+                    role: "",
+                    status: null,
+                    updatedAt: ""
+                }
+            }
+        }
     }
 
+
 })
-export const { saveLoginUserDetailsReducer } = LoginUserDetail.actions
+export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveCNICResult, emptyResult } = LoginUserDetail.actions
 export default LoginUserDetail.reducer

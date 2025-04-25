@@ -8,12 +8,12 @@ interface UsePaginationHookProps<T> {
 const usePaginationHook = <T,>({ data, recordPerPage = 10 }: UsePaginationHookProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
 
-    const totalPages = Math.ceil(data.length / recordPerPage);
+    const totalPages = Math.ceil(data?.length / recordPerPage);
 
     const getCurrentRecords = () => {
         const start = (currentPage - 1) * recordPerPage;
         const end = start + recordPerPage;
-        return data.slice(start, end);
+        return data?.slice(start, end);
     };
 
     const handlePageChange = (page: number) => {
@@ -21,7 +21,7 @@ const usePaginationHook = <T,>({ data, recordPerPage = 10 }: UsePaginationHookPr
     };
 
     useEffect(() => {
-        if (getCurrentRecords().length === 0 && currentPage > 1) {
+        if (getCurrentRecords()?.length === 0 && currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
     }, [data, currentPage]);

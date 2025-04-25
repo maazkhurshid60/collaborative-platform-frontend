@@ -20,7 +20,6 @@ const Sidebar = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
     const [sideBarData, setSideBarData] = useState<sideBarDataType[]>()
-    console.log("isSideBarClose", loginUserRole);
     const logoutFunction = () => {
         localStorage.removeItem("token")
         navigate("/")

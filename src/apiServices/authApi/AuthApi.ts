@@ -6,6 +6,10 @@ interface LoginData {
     password: string;
 }
 
+interface CNICData {
+    cnic?: string;
+}
+
 class AuthService {
     private api: AxiosInstance;
     constructor() {
@@ -20,6 +24,21 @@ class AuthService {
 
         try {
             const response = await this.api.post("/login", data);
+            return response.data;
+        } catch (error: unknown) {
+            throw error || "Sign up failed";
+
+        }
+    }
+
+
+
+    async findCnic(data: CNICData) {
+
+        console.log(data);
+
+        try {
+            const response = await this.api.post("/cnic-found", data);
             return response.data;
         } catch (error: unknown) {
             throw error || "Sign up failed";

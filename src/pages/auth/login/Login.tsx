@@ -40,15 +40,22 @@ const Login = () => {
 
         try {
             const response = await authService.login(data);
-            console.log(response?.data?.user?.user?.role);
-            localStorage.setItem("token", response?.data?.token)
-            toast.success(response?.message);
-            dispatch(saveLoginUserDetailsReducer(response?.data?.user))
-            if (response?.data?.user?.user?.role === "client") {
+
+            if (response?.data?.user?.user?.status !== "active") {
+                toast.error("Opps! Your account has been disabled. Contact with super admin.");
+
+                navigate("/")
+
+            } else if (response?.data?.user?.user?.role === "client") {
+                localStorage.setItem("token", response?.data?.token)
+                dispatch(saveLoginUserDetailsReducer(response?.data?.user))
+                toast.success(response?.message);
                 navigate("/documents")
 
             } else {
-
+                localStorage.setItem("token", response?.data?.token)
+                dispatch(saveLoginUserDetailsReducer(response?.data?.user))
+                toast.success(response?.message);
                 navigate("/dashboard")
             }
 

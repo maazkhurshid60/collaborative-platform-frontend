@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import Document from "../pages/clientPages/documents/Document";
 import Settings from "../pages/clientPages/settings/Settings";
+import CnicScreen from "../pages/auth/cnicScreen/CnicScreen";
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -32,6 +33,7 @@ const Routing = () => {
             <Route path="/provider-signup" element={<ProviderSignup />} />
             <Route path="/client-signup" element={<ClientSignup />} />
             <Route path="/invite-chat" element={<NonUserChat />} />
+            <Route path="/signup-with-cnic" element={<CnicScreen />} />
 
             {/* Protected Routes */}
             <Route

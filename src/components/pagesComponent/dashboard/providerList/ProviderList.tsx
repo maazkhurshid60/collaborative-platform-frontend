@@ -2,50 +2,69 @@
 import Table from '../../../table/Table'
 import CustomPagination from '../../../customPagination/CustomPagination'
 import usePaginationHook from '../../../../hook/usePaginationHook'
-interface clientType {
-    name?: string,
-    clientId?: string,
-    gender?: string,
-    email: string,
-    status?: string,
-    providers: string[],
-    cnic?: string
-}
+import { useQuery } from '@tanstack/react-query'
+import { ProviderType } from '../../../../types/providerType/ProviderType'
+import providerApiService from '../../../../apiServices/providerApi/ProviderApi'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../../redux/store'
+import Loader from '../../../loader/Loader'
+
 const ProviderList = () => {
     const heading = ["name", "CNIC", "gender", "email", "status", "clients"]
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
 
-    const clientData = [{ name: "Provider1", cnic: "52435235-45 ", gender: "Male", email: "Provider1@gmail.com", status: "Active", providers: ["client1", "client2"] },
-    { name: "Provider2", cnic: "52435235-45 ", gender: "Female", email: "Provider2@gmail.com", status: "Disable", providers: ["client1", "client2"] },
-    { name: "Provider3", cnic: "52435235-45 ", gender: "Male", email: "Provider3@gmail.com", status: "Active", providers: ["client3", "client4", "client5"] },
-    { name: "Provider4", cnic: "52435235-45 ", gender: "Male", email: "Provider4@gmail.com", status: "Disable", providers: ["client4"] },
-    { name: "Provider5", cnic: "52435235-45 ", gender: "Female", email: "Provider5@gmail.com", status: "Active", providers: ["client2", "client1"] },
-    { name: "Provider6", cnic: "52435235-45 ", gender: "Male", email: "Provider6@gmail.com", status: "Active", providers: ["client2", "client5"] },
 
-    ]
+    const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
+        queryKey: ["providers"],
+        queryFn: async () => {
+            try {
+                const response = await providerApiService.getAllProviders(loginUserDetail);
+                return response?.data?.providers; // Ensure it always returns an array
+
+            } catch (error) {
+                console.error("Error fetching providers:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
+
+    })
+
 
     const { totalPages,
         getCurrentRecords,
         handlePageChange, currentPage,
-    } = usePaginationHook({ data: clientData, recordPerPage: 4 })
+    } = usePaginationHook({ data: providerData ?? [], recordPerPage: 4 })
+    const filteredData = getCurrentRecords()?.filter(data => !data?.user?.blockedMembers?.includes(loginUserDetail))
 
 
-
+    if (isLoading) {
+        return <Loader text='Loading...' />
+    }
+    if (isError) {
+        return <p>somethingwent wrong</p>
+    }
     return (<>
         <div className='mt-2'>
             <Table heading={heading} >
-                {getCurrentRecords()
-                    .map((data: clientType, id: number) => (
+                {filteredData
+                    .map((data: ProviderType, id: number) => (
 
                         <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                            <td className="px-2 py-2">{data.name}</td>
-                            <td className="px-2 py-2">{data.cnic}</td>
-                            <td className="px-2 py-2">{data.gender}</td>
-                            <td className="px-2 py-2">{data.email}</td>
-                            <td className="px-2 py-2">{data.status}</td>
+                            <td className="px-2 py-2">{data?.user?.fullName?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2">{data?.user?.cnic?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2">{data?.user?.gender}</td>
+                            <td className="px-2 py-2 lowercase">{data.email?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2">{data.user?.status}</td>
                             <td className="px-2 py-2 w-[100px]">
-                                {data.providers?.slice(0, 3).map((provider, id) => (
-                                    <p key={id}>{provider}{id === 2 && data.providers.length > 2 ? ', ...' : ','}</p>
-                                ))}
+                                {data?.clientList?.length === 0 || data?.clientList === undefined
+                                    ? <p>No Clients</p>
+                                    : data?.clientList.map((provider: ProviderType, index) => (
+                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                            {provider?.client?.user?.fullName?.slice(0, 12) + "..."},
+
+                                        </p>
+                                    ))
+                                }
                             </td>
 
 

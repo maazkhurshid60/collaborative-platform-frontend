@@ -40,7 +40,7 @@ const ProviderSignup = () => {
     const navigate = useNavigate()
     //FUNCTIONS
     const signupFunction = async (data: FormFields) => {
-        const dataSendToBackend = { email: data?.email, passwoed: data?.password, fullName: data?.fullName, cnic: data?.cnic, department: data?.department, role: "provider" };
+        const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, cnic: data?.cnic, department: data?.department, role: "provider" };
         console.log(dataSendToBackend);
 
         try {
@@ -64,7 +64,15 @@ const ProviderSignup = () => {
                     <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                 </div>
                 <div className='mb-1.5'>
-                    <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                    <InputField required label='Email ID' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                </div>
+
+                <div className='mb-1.5'>
+                    <InputField required
+                        label='CNIC No'
+                        register={register("cnic")}
+                        name='cnic' placeHolder='Enter CNIC.'
+                        error={errors.cnic?.message} />
                 </div>
                 <div className='mb-1.5'>
                     <Dropdown<FormFields>
@@ -75,13 +83,6 @@ const ProviderSignup = () => {
                         placeholder="Choose an option"
                         error={errors.department?.message}
                     />                </div>
-                <div className='mb-1.5'>
-                    <InputField required
-                        label='CNIC No'
-                        register={register("cnic")}
-                        name='cnic' placeHolder='Enter CNIC.'
-                        error={errors.cnic?.message} />
-                </div>
                 <div className='mb-1.5'>
                     <InputField required label='Password' type='password' register={register("password")} name='password' placeHolder='Enter Password.' error={errors.password?.message} />
                 </div>

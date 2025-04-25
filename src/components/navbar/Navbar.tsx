@@ -12,6 +12,7 @@ import UserIcon from '../icons/user/User';
 
 const Navbar = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const dispatch = useDispatch<AppDispatch>()
     const [isDropDownOpen, setIsDropDownOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
@@ -41,8 +42,8 @@ const Navbar = () => {
 
                     <div className='flex items-center gap-x-10 bg-white z-20'>
                         <div className='font-[Montserrat]'>
-                            <p className=' text-textColor font-bold text-[16px] md:text-[18px] lg:text-[20px]'>John Doe</p>
-                            <p className='text-lightGreyColor font-medium text-[12px] md:text-[14px] lg:text-[16px]'>Doctor</p>
+                            <p className=' text-textColor font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName}</p>
+                            <p className='text-lightGreyColor font-medium text-[12px] md:text-[14px] lg:text-[16px] capitalize'>{loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>
                         </div>
                         <div className=''>
                             <IoIosArrowDown className={`text-textColor transition-all duration-700 ease-in-out  ${isDropDownOpen ? 'rotate-180' : 'rotate-0'} cursor-pointer`} size={22} onClick={() => setIsDropDownOpen(!isDropDownOpen)} />

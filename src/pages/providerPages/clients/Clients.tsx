@@ -8,62 +8,136 @@ import CustomPagination from '../../../components/customPagination/CustomPaginat
 import EditIcon from '../../../components/icons/edit/Edit';
 import DeleteIcon from '../../../components/icons/delete/DeleteIcon';
 import { useNavigate } from 'react-router-dom';
-import { clientData } from './DummyData';
 import DeleteClientModal from '../../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { isModalDeleteReducer } from '../../../redux/slices/ModalSlice';
 import { AppDispatch, RootState } from '../../../redux/store';
+import Loader from '../../../components/loader/Loader';
+import { toast } from 'react-toastify';
+import clientApiService from '../../../apiServices/clientApi/ClientApi';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { ClientType, Provider } from '../../../types/clientType/ClientType';
+import { ProviderType } from '../../../types/providerType/ProviderType';
+import { IoMdAdd } from "react-icons/io";
 
-interface clientType {
-    name?: string,
-    clientId?: string,
-    gender?: string,
-    email: string,
-    status?: string,
-    providers: string[],
-    cnic?: string
-}
+
 const Clients = () => {
+    const navigate = useNavigate()
+    const heading = ["S.No", "name", "CNIC", "gender", "email", "status", "providers", "action"]
+    const [isLoader, setIsLoader] = useState(false)
+    const queryClient = useQueryClient()
+    const dispatch = useDispatch<AppDispatch>()
+    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const isModalDelete = useSelector((state: RootState) => state.modalSlice.isModalDelete)
+    const [selectedClientId, setSelectedClientId] = useState<string>("")
+    const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
+        queryKey: ["clients"],
+        queryFn: async () => {
+            try {
+                const response = await clientApiService.getAllClient(loginUserId);
 
-    const heading = ["name", "CNIC", "gender", "email", "status", "providers", "action"]
+                return response?.data?.clients; // Ensure it always returns an array
 
-    const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
+
+            } catch (error) {
+                console.error("Error fetching client:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
+
+    })
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            await clientApiService.deleteClientApi(id);
+        },
+        onMutate: () => {
+            setIsLoader(true);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['clients'] });
+            queryClient.invalidateQueries({ queryKey: ['totalclients'] });
+            toast.success("Account has deleted successfully")
+
+            setIsLoader(false)
+        },
+        onError: () => {
+            toast.error('Failed to delete the department!');
+            setIsLoader(false)
+        },
+
+    });
 
 
     const { totalPages,
         getCurrentRecords,
         handlePageChange, currentPage,
-    } = usePaginationHook({ data: clientData, recordPerPage: 8 })
-    console.log("totalpages", clientData[2]?.providers?.map(data => console.log(data.lastIndexOf)
-    ));
-    const navigate = useNavigate()
-    const dispatch = useDispatch<AppDispatch>()
+    } = usePaginationHook({ data: clientData ?? [], recordPerPage: 6 })
+
+    const handleDeleteFun = (id: string) => {
+        dispatch(isModalDeleteReducer(true))
+        setSelectedClientId(id)
+    }
+    const handleDeleteConfirm = () => {
+        deleteMutation.mutate(selectedClientId);
+        dispatch(isModalDeleteReducer(false))
+    }
+
+
+    if (isLoading) {
+        return <Loader text='Loading...' />
+    }
+    if (isError) {
+        return <p>somethingwent wrong</p>
+    }
 
     return (
-        <OutletLayout heading='Client List' button={<Button text='Add' onclick={() => navigate("add-client")} />}>
-            {isShowDeleteModal && <DeleteClientModal />}
+        <OutletLayout heading='Client List' button={<Button text='Add New' onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}>
+            {isLoader && <Loader text='Deleting...' />}
+            {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} />}
             <div className='mt-10 w-[100%]'>
                 <Table heading={heading} >
                     {getCurrentRecords()
-                        .map((data: clientType, id: number) => (
+                        .map((data: ClientType, id: number) => (
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                <td className="px-2 py-2">{data.name}</td>
-                                <td className="px-2 py-2">{data.cnic}</td>
-                                <td className="px-2 py-2">{data.gender}</td>
-                                <td className="px-2 py-2">{data.email}</td>
-                                <td className="px-2 py-2">{data.status}</td>
+                                <td className="px-2 py-2">{id + 1}</td>
+                                <td className="px-2 py-2">{data?.user?.fullName?.slice(0, 12) + "..."}</td>
+                                <td className="px-2 py-2">{data?.user?.cnic?.slice(0, 12) + "..."}</td>
+                                <td className="px-2 py-2">{data?.user?.gender}</td>
+                                <td className="px-2 py-2 lowercase">{data?.email?.slice(0, 16) + "..."}</td>
+                                <td className="px-2 py-2">{data?.user?.status}</td>
                                 <td className="px-2 py-2 w-[100px]">
-                                    {data.providers?.slice(0, 3).map((provider, id) => (
-                                        <p key={id}>{provider}{id === 2 && data.providers.length > 2 ? ', ...' : ','}</p>
-                                    ))}
+                                    {data?.providerList?.length === 0 || data?.providerList === undefined
+                                        ? <p>No Providers Found</p>
+                                        : data?.providerList.map((providerList: Provider, index) => (
+                                            <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                                {providerList?.provider?.user?.fullName?.slice(0, 12) + "..."}
+
+                                            </p>
+                                        ))
+                                    }
+
                                 </td>
 
-
                                 <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
+                                    {data?.providerList?.length !== 0 || data?.providerList !== undefined
+                                        &&
+                                        data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId) ? (
+                                        <>
+                                            <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
+                                            <DeleteIcon onClick={() => handleDeleteFun(data?.userId ?? "")} />{/* delete those client which are present in logined provider list */}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <EditIcon disable />
+                                            <DeleteIcon disable />
+                                        </>
+                                    )
 
-                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${id}`) }} />{/* edit those client which are present in logined provider list */}
-                                    <DeleteIcon onClick={() => dispatch(isModalDeleteReducer(true))} />{/* delete those client which are present in logined provider list */}
+
+                                    }
+
 
                                 </td>
                             </tr>

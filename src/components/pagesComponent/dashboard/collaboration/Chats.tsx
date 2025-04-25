@@ -16,7 +16,7 @@ const Chats: React.FC<ChatsProps> = ({ chatData }) => {
     const Img = chatData.img;
 
     return (
-        <NavLink to="/chat-message" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 border-b-[1px] border-b-solid border-b-textGreyColor/30  hover:border-b-primaryColorLight  hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md'>
+        <NavLink to="/chat" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 border-b-[1px] border-b-solid border-b-textGreyColor/30  hover:border-b-primaryColorLight  hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md'>
             <Img size={30} />
             <div className='w-[80%]'>
                 <p className='font-[Poppins] font-semibold text-[16px] text-textColor'>

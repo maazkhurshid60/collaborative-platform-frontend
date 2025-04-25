@@ -1,9 +1,7 @@
-
-;
 import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
 import LabelData from '../../../components/labelText/LabelData';
 import Button from '../../../components/button/Button';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,6 +16,10 @@ import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import { providerSchema } from "../../../schema/providerSchema/ProviderSchema";
 import UserIcon from '../../../components/icons/user/User';
 import BackIcon from '../../../components/icons/back/Back';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ProviderType, User } from '../../../types/providerType/ProviderType';
+import Loader from '../../../components/loader/Loader';
+import loginUserApiService from '../../../apiServices/loginUserApi/LoginUserApi';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -30,23 +32,86 @@ const departmentOptions = [
 const UserProfile = () => {
     const [isEdit, setIsEdit] = useState(false)
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
+    const [getMeDetail, setGetMeDetail] = useState<ProviderType | undefined>(undefined);
+    const [isLoader, setIsLoader] = useState(false)
+    const queryClient = useQueryClient()
+
     const dispatch = useDispatch()
     const {
         register,
         handleSubmit,
-        formState: { errors }, control
+        formState: { errors }, control, setValue
     } = useForm<FormFields>({
         resolver: zodResolver(providerSchema),
     });
 
     const updateFunction = (data: FormFields) => {
-        console.log(data);
-        toast.success("User has updated successfully")
-        setIsEdit(false)
+        // toast.success("User has updated successfully")
+        updateMutation.mutate(data)
 
     }
+
+
+    const { data: getMeData, isLoading, isError } = useQuery<ProviderType>({
+        queryKey: ["loginUser"],
+        queryFn: async () => {
+            const dataSendToBackend = { role: loginUserDetail?.user?.role, loginUserId: loginUserDetail.id }
+            const response = await loginUserApiService.getMeApi(dataSendToBackend);
+            return response?.data?.data; // Should be a single object, not array
+        }
+    })
+
+
+    useEffect(() => {
+        if (getMeData) {
+            setGetMeDetail(getMeData);
+
+            setValue("fullName", getMeData.user?.fullName ?? "")
+            setValue("cnic", getMeData.user?.cnic ?? "")
+            setValue("age", getMeData.user?.age ?? "")
+            setValue("contactNo", getMeData.user?.contactNo ?? "")
+            setValue("email", getMeData.email ?? "")
+            setValue("department", getMeData.department ?? "")
+            setValue("address", getMeData.user?.address ?? "")
+        }
+    }, [getMeData])
+
+
+    console.log(" getMeDetail?.user.contactNo", getMeData?.user?.age);
+
+
+    const updateMutation = useMutation({
+        mutationFn: async (data: User) => {
+            const dataSendToBackend = { ...data, loginUserId: loginUserDetail?.user.id, age: data && parseInt(data?.age ?? "18"), role: getMeDetail?.user?.role }
+            await loginUserApiService.updateMeApi(dataSendToBackend);
+        },
+        onMutate: () => {
+            setIsLoader(true);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['loginUser'] });
+            toast.success("Account has updated successfully")
+            setIsEdit(false)
+
+            setIsLoader(false)
+        },
+        onError: () => {
+            toast.error('Failed to update the your account!');
+            setIsLoader(false)
+        },
+
+    });
+    if (isLoading) {
+        return <Loader text='Loading...' />
+    }
+    if (isError) {
+        return <p>somethingwent wrong</p>
+    }
     return (
-        <OutletLayout heading='User profile'>
+        <OutletLayout heading='Provider profile'>
+            {isLoader && <Loader text='Updating...' />}
+
             {isEdit && <div className='relative'>
                 <div className='absolute  -left-6 -top-12 md:-top-14 lg:-left-5'>
 
@@ -61,7 +126,7 @@ const UserProfile = () => {
                         <LabelData label='User Image' />
                         <UserIcon className='text-6xl mt-2' />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
                         <div className=''>
                             <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         </div>
@@ -80,7 +145,7 @@ const UserProfile = () => {
                         </div>
 
                         <div className=''>
-                            <InputField required label='Contact' register={register("contact")} name='contact' placeHolder='Enter contact.' error={errors.contact?.message} />
+                            <InputField required label='Contact' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         </div>
 
                         <div className=''>
@@ -94,20 +159,19 @@ const UserProfile = () => {
                                 options={departmentOptions}
                                 placeholder="Choose an option"
                                 error={errors.department?.message}
+                                required
                             />                </div>
 
                         <div className=' '>
                             <LabelData label='Your List of Active Clients' />
                             <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                                <li className="flex items-center gap-x-4">
-                                    Client2
-                                    <DeleteIcon onClick={() => dispatch(isModalDeleteReducer(true))} />
-                                </li>
-                                <li className="flex items-center gap-x-4">
-                                    Client4
-                                    <DeleteIcon onClick={() => dispatch(isModalDeleteReducer(true))} />
+                                {getMeDetail?.clientList?.map((data, index) => (
+                                    <li key={index} className="flex items-center gap-x-4">
+                                        {data?.client?.user?.fullName}
+                                        <DeleteIcon onClick={() => dispatch(isModalDeleteReducer(true))} />
+                                    </li>
+                                ))}
 
-                                </li>
                             </ul>
                         </div>
                     </div>
@@ -128,33 +192,36 @@ const UserProfile = () => {
                         </div>
 
                         {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                             <div className=''>
-                                <LabelData label='Full Name' data='John Doe' />
+                                <LabelData label='Full Name' data={getMeData?.user?.fullName} />
                             </div>
                             <div className=''>
-                                <LabelData label='CNIC Number' data='XXXXX-1234567-X' />
+                                <LabelData label='CNIC Number' data={getMeData?.user?.cnic} />
                             </div>
                             <div className=''>
-                                <LabelData label='Age' data='41' />
+                                <LabelData label='Age' data={getMeData?.user?.age ?? ""} />
                             </div>
                             <div className=''>
-                                <LabelData label='Email' data='johnDoe@gmail.com' />
+                                <LabelData label='Email' data={getMeData?.email} />
                             </div>
                             <div className=''>
-                                <LabelData label='Contact No' data='0000-0000000' />
+                                <LabelData label='Contact No' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
                             <div className=''>
-                                <LabelData label='Address' data='123 House No, ABC Street, City' />
+                                <LabelData label='Address' data={getMeData?.user?.address ?? ""} />
                             </div>
                             <div className=''>
-                                <LabelData label='Profession' data='Physiotherapist' />
+                                <LabelData label='Profession' data={getMeData?.department} />
                             </div>
                             <div className=' '>
                                 <LabelData label='Your List of Active Clients' />
                                 <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                                    <li>Client2</li>
-                                    <li>Client4</li>
+                                    {getMeData?.clientList?.map((data, index: number) => (
+                                        <li key={index} className="flex items-center gap-x-4">
+                                            {data?.client?.user?.fullName}
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -164,7 +231,6 @@ const UserProfile = () => {
                         <div className='w-[100px]'>
                             <Button text='Edit' sm onclick={() => setIsEdit(true)} />
                         </div>
-
                     </div>
                 </>
             }
