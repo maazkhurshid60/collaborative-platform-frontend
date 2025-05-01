@@ -78,9 +78,9 @@ const ClientSignup = () => {
     }
 
     useEffect(() => {
-        setValue("fullName", cnicData.fullName)
-        setValue("cnic", cnicData.cnic)
-        setValue("email", cnicData.email)
+        setValue("fullName", cnicData?.fullName)
+        setValue("cnic", cnicData?.cnic)
+        setValue("email", cnicData?.email)
     }, [cnicData])
     return (
         <AuthLayout heading="Sign up">
@@ -91,7 +91,7 @@ const ClientSignup = () => {
                         register={register("fullName")}
                         name='fullName'
                         placeHolder='Enter Full Name.'
-                        error={errors.fullName?.message} />
+                        error={errors?.fullName?.message} />
                 </div>
                 <div className='mb-3.5'>
                     <InputField required
@@ -99,14 +99,14 @@ const ClientSignup = () => {
                         register={register("email")}
                         name='email'
                         placeHolder='Enter Email.'
-                        error={errors.email?.message} />
+                        error={errors?.email?.message} />
                 </div>
                 <div className='mb-3.5'>
                     <InputField required
                         label='CNIC No'
                         register={register("cnic")}
                         name='cnic' placeHolder='Enter CNIC.'
-                        error={errors.cnic?.message} />
+                        error={errors?.cnic?.message} />
                 </div>
                 <div className='mb-3.5'>
                     <InputField required
@@ -115,7 +115,7 @@ const ClientSignup = () => {
                         register={register("password")}
                         name='password'
                         placeHolder='Enter Password.'
-                        error={errors.password?.message} />
+                        error={errors?.password?.message} />
                 </div>
                 <div className='mb-3.5'>
                     <InputField required
@@ -124,7 +124,7 @@ const ClientSignup = () => {
                         register={register("confirmPassword")}
                         name='confirmPassword'
                         placeHolder='Enter Confirm Password.'
-                        error={errors.confirmPassword?.message} />
+                        error={errors?.confirmPassword?.message} />
                 </div>
                 <div className='mt-10'>
                     <Button
