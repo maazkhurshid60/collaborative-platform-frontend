@@ -51,8 +51,7 @@ const ChatMessages: React.FC<chatMessagesProps> = ({ messageData }) => {
 
 
                 </div>
-                    <div className="triangle-shape -top-[65px] right-6  text-left w-20 h-20 before:content-[''] 
-                                        absolute"></div>
+                  
                 </div> : <div className='flex items-start gap-x-4 mb-6' >
                     <UserIcon size={30} />
                     <div className='max-w-[75%]'>
