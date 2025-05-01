@@ -69,7 +69,19 @@ const Chat = () => {
                 </div>
                 <div className='w-[100%] lg:w-[65%] xl:w-[74.5%] bg-white h-[80vh] rounded-[10px]'>
                     <IoIosArrowBack size={24} className='mb-2  text-textGreyColor lg:hidden' onClick={() => setIsChatSideBarClose(true)} />
-                    {messageData && <ChatMessages messageData={messageData} />}
+                    {messageData ? (
+                        <ChatMessages messageData={messageData} />
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                            <img
+                                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                                alt="Select chat"
+                                className="w-32 h-32 opacity-70 mb-4"
+                            />
+                            <h2 className="text-xl font-semibold text-gray-600">No Chat Selected</h2>
+                            <p className="text-gray-400 mt-2 text-sm">Please choose a conversation to start messaging.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </OutletLayout>)
