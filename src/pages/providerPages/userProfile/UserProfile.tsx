@@ -2,7 +2,6 @@ import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
 import LabelData from '../../../components/labelText/LabelData';
 import Button from '../../../components/button/Button';
 import { useEffect, useState } from "react";
-import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,9 +9,8 @@ import InputField from "../../../components/inputField/InputField";
 import Dropdown from "../../../components/dropdown/Dropdown";
 import { toast } from "react-toastify";
 import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
-import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import { providerSchema } from "../../../schema/providerSchema/ProviderSchema";
 import UserIcon from '../../../components/icons/user/User';
 import BackIcon from '../../../components/icons/back/Back';
@@ -20,6 +18,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ProviderType, User } from '../../../types/providerType/ProviderType';
 import Loader from '../../../components/loader/Loader';
 import loginUserApiService from '../../../apiServices/loginUserApi/LoginUserApi';
+import { LuDot } from 'react-icons/lu';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -37,7 +36,6 @@ const UserProfile = () => {
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
 
-    const dispatch = useDispatch()
     const {
         register,
         handleSubmit,
@@ -67,18 +65,17 @@ const UserProfile = () => {
         if (getMeData) {
             setGetMeDetail(getMeData);
 
-            setValue("fullName", getMeData.user?.fullName ?? "")
-            setValue("cnic", getMeData.user?.cnic ?? "")
-            setValue("age", getMeData.user?.age ?? "")
-            setValue("contactNo", getMeData.user?.contactNo ?? "")
-            setValue("email", getMeData.email ?? "")
-            setValue("department", getMeData.department ?? "")
-            setValue("address", getMeData.user?.address ?? "")
+            setValue("fullName", getMeData?.user?.fullName ?? "")
+            setValue("cnic", getMeData?.user?.cnic ?? "")
+            setValue("age", getMeData?.user?.age?.toString() ?? "")
+            setValue("contactNo", getMeData?.user?.contactNo ?? "")
+            setValue("email", getMeData?.email ?? "")
+            setValue("department", getMeData?.department ?? "")
+            setValue("address", getMeData?.user?.address ?? "")
         }
     }, [getMeData])
 
 
-    console.log(" getMeDetail?.user.contactNo", getMeData?.user?.age);
 
 
     const updateMutation = useMutation({
@@ -109,7 +106,7 @@ const UserProfile = () => {
         return <p>somethingwent wrong</p>
     }
     return (
-        <OutletLayout heading='Provider profile'>
+        <OutletLayout heading='User profile'>
             {isLoader && <Loader text='Updating...' />}
 
             {isEdit && <div className='relative'>
@@ -124,7 +121,7 @@ const UserProfile = () => {
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
                     <div>
                         <LabelData label='User Image' />
-                        <UserIcon className='text-6xl mt-2' />
+                        <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon")} />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
                         <div className=''>
@@ -141,17 +138,6 @@ const UserProfile = () => {
                             <InputField required label='Age' register={register("age")} name='age' placeHolder='Enter Age.' error={errors.age?.message} />
                         </div>
                         <div className=''>
-                            <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
-                        </div>
-
-                        <div className=''>
-                            <InputField required label='Contact' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                        </div>
-
-                        <div className=''>
-                            <InputField required label='Address' register={register("address")} name='address' placeHolder='Enter Address.' error={errors.address?.message} />
-                        </div>
-                        <div className=''>
                             <Dropdown<FormFields>
                                 name="department"
                                 label="Profession"
@@ -161,10 +147,20 @@ const UserProfile = () => {
                                 error={errors.department?.message}
                                 required
                             />                </div>
+                        <div className=''>
+                            <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                        </div>
+
+                        <div className=''>
+                            <InputField required label='Contact No' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        </div>
+
+
+
 
                         <div className=' '>
                             <LabelData label='Your List of Active Clients' />
-                            <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
+                            {/* <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
                                 {getMeDetail?.clientList?.map((data, index) => (
                                     <li key={index} className="flex items-center gap-x-4">
                                         {data?.client?.user?.fullName}
@@ -172,14 +168,37 @@ const UserProfile = () => {
                                     </li>
                                 ))}
 
+                            </ul> */}
+                            <ul className="text-[14px] font-medium text-textGreyColor ml-6">
+                                {getMeDetail?.clientList?.map((data, index) => (
+                                    <li key={index}>
+                                        <div className="flex items-center gap-x-3">
+                                            <div className="flex items-center gap-x-2 w-[150px]">
+
+                                                <LuDot size={16} />
+
+                                                {data?.client?.user?.fullName}
+                                            </div>
+                                            {/* <DeleteIcon
+                                            onClick={() => dispatch(isModalDeleteReducer(true))}
+                                            /> */}
+
+                                        </div>
+                                    </li>
+                                ))}
                             </ul>
+
+
+                        </div>
+                        <div className=''>
+                            <InputField required label='Address' register={register("address")} name='address' placeHolder='Enter Address.' error={errors.address?.message} />
                         </div>
                     </div>
                     <div className="flex items-center justify-end">
 
                         <div className='mt-10  w-[100px]'>
 
-                            <Button text='Update' />
+                            <Button text='Update' sm />
                         </div>
                     </div>
                 </form>
@@ -191,7 +210,6 @@ const UserProfile = () => {
                             <UserIcon className='text-6xl mt-2' />
                         </div>
 
-                        {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                             <div className=''>
                                 <LabelData label='Full Name' data={getMeData?.user?.fullName} />
@@ -203,32 +221,44 @@ const UserProfile = () => {
                                 <LabelData label='Age' data={getMeData?.user?.age ?? ""} />
                             </div>
                             <div className=''>
+                                <LabelData label='Profession' data={getMeData?.department} />
+                            </div>
+                            <div className=''>
                                 <LabelData label='Email' data={getMeData?.email} />
                             </div>
                             <div className=''>
                                 <LabelData label='Contact No' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
-                            <div className=''>
-                                <LabelData label='Address' data={getMeData?.user?.address ?? ""} />
-                            </div>
-                            <div className=''>
-                                <LabelData label='Profession' data={getMeData?.department} />
-                            </div>
+
+
                             <div className=' '>
                                 <LabelData label='Your List of Active Clients' />
-                                <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                                    {getMeData?.clientList?.map((data, index: number) => (
-                                        <li key={index} className="flex items-center gap-x-4">
-                                            {data?.client?.user?.fullName}
-                                        </li>
-                                    ))}
+                                <ul className="text-[14px] font-medium text-textGreyColor ml-6">
+                                    {getMeDetail?.clientList && getMeDetail?.clientList?.length > 0 ?
+                                        getMeDetail?.clientList?.map((data, index) => (
+                                            <li key={index}>
+                                                <div className="flex items-center gap-x-3">
+                                                    <div className="flex items-center gap-x-2 w-[150px]">
+
+                                                        <LuDot size={16} />
+
+                                                        {data?.client?.user?.fullName}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))
+                                        :
+                                        <p>No Clients Found</p>}
                                 </ul>
+                            </div>
+                            <div className=''>
+                                <LabelData label='Address' data={getMeData?.user?.address ?? ""} />
                             </div>
                         </div>
 
                     </div>
                     <div className='flex items-center justify-end w-full'>
-                        <div className='w-[100px]'>
+                        <div className='w-[100px] mt-10'>
                             <Button text='Edit' sm onclick={() => setIsEdit(true)} />
                         </div>
                     </div>

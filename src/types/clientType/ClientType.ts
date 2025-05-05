@@ -11,6 +11,7 @@ export interface ClientType {
     sharedDocument?: []
     providerList?: Provider[]
     providerId?: string
+    age?: number | string
 
 }
 

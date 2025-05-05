@@ -56,7 +56,7 @@ const AddClient = () => {
             setIsLoader(false)
         },
         onError: () => {
-            toast.error('Failed to add the client!');
+            // toast.error('Failed to add the client!');
             setIsLoader(false)
         },
 

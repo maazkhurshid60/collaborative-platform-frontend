@@ -27,7 +27,7 @@ const CustomPagination: React.FC<PaginationProps> = ({ totalPages, onPageChange,
 
   return (
     <div className="w-full flex justify-center items-center gap-x-4 sm:justify-end mt-1 mb-2 p-3 font-[Poppins] text-textGreyColor text-[16px] font-medium">
-      <p className='text-[10px] md:text-[14px] lg:text-[16px]'>Showing Pages {currentPage} of {totalPages}</p>
+      <p className='text-[10px] md:text-[14px] lg:text-[16px]'>Showing Pages {currentPage} Of {totalPages}</p>
       <nav aria-label="Page navigation example">
         <ul className="inline-flex -space-x-px text-base">
           {/* Previous Button with Arrow Icon */}

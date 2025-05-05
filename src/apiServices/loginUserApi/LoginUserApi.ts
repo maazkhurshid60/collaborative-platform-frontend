@@ -1,9 +1,18 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../axiosInstance/AxiosInstance";
+import axios from "axios";
 
 interface blockUserApiType {
     blockUserid: string
     loginUserId: string
+}
+
+interface changePasswordApiType {
+    role: string
+    loginUserId: string
+    newPassword: string
+    oldPassword: string
+    confirmPassword: string
 }
 class LoginUserApiService {
     private api = axiosInstance;
@@ -93,6 +102,41 @@ class LoginUserApiService {
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
+        }
+    }
+
+    // async changePasswordApi(data: changePasswordApiType) {
+    //     console.log(data);
+
+    //     try {
+    //         const response = await this.api.patch("auth/change-password", data)
+    //         return response.data
+
+    //     } catch (error: unknown) {
+    //         console.log(error);
+
+    //         const errMsg = error instanceof Error ? error.response.data.message : "Failed to update the password."
+    //         throw new Error(errMsg)
+
+    //     }
+    // }
+
+    async changePasswordApi(data: changePasswordApiType) {
+        console.log(data);
+
+        try {
+            const response = await this.api.patch("auth/change-password", data);
+            return response.data;
+        } catch (error: unknown) {
+            console.log(error);
+
+            let errMsg = "Failed to update the password.";
+
+            if (axios.isAxiosError(error) && error.response?.data?.message) {
+                errMsg = error.response.data.message;
+            }
+
+            throw new Error(errMsg);
         }
     }
 }

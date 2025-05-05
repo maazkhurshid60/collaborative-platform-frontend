@@ -18,7 +18,7 @@ import DeleteIcon from '../../../icons/delete/DeleteIcon';
 import { ProviderType } from '../../../../types/providerType/ProviderType';
 
 const ClientList = () => {
-    const heading = ["name", "CNIC", "gender", "email", "status", "providers", "action"]
+    const heading = ["name", "CNIC Number", "gender", "email", "status", "providers", "action"]
 
 
     const [isLoader, setIsLoader] = useState(false)

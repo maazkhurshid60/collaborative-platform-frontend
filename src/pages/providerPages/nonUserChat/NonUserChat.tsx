@@ -1,30 +1,52 @@
 import Button from '../../../components/button/Button'
 import { NavLink } from 'react-router-dom'
-import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/ChatMessages'
+import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages'
 const messageData = {
     id: "1234rewq",
     groupName: "Group1",
     totalUnread: 1,
     isGroup: true,
-    groupMembers: ["Provider1,", "Provider2"],
-    chatMessage: [{
-        sender: "Provider2",
-        message: "Hi"
-    }, {
-        sender: "Provider3",
-        message: "Hi"
-    }, {
-        sender: "You",
-        message: "Hi"
-    }, {
-        sender: "You",
-        message: "What is the report of client 2?"
-    }, {
-        sender: "Provider3",
-        message: "He is not well?"
-    },
+    groupMembers: ["Provider1", "Provider2"],
+    chatMessage: [
+        {
+            id: "m1",
+            senderId: "provider2",
+            message: "Hi",
+            chatChannelId: "1234rewq",
+            createdAt: new Date().toISOString(),
+            sender: {
+                user: {
+                    fullName: "Provider 2"
+                }
+            }
+        },
+        {
+            id: "m2",
+            senderId: "provider3",
+            message: "Hi",
+            chatChannelId: "1234rewq",
+            createdAt: new Date().toISOString(),
+            sender: {
+                user: {
+                    fullName: "Provider 3"
+                }
+            }
+        },
+        {
+            id: "m3",
+            senderId: "providerYou",
+            message: "Hi",
+            chatChannelId: "1234rewq",
+            createdAt: new Date().toISOString(),
+            sender: {
+                user: {
+                    fullName: "You"
+                }
+            }
+        }
     ]
 }
+
 const NonUserChat = () => {
     return (<>
         <div className='p-4 flex items-center justify-between'>
@@ -42,7 +64,7 @@ const NonUserChat = () => {
         </div>
         <div className='bg-inputBgColor min-h-[90vh] flex items-center justify-center'>
             <div className='w-[90%] md:w-[60%] bg-white m-auto mt-4 p-4 rounded-md min-h-[86vh] max-h-[86vh] overflow-auto'>
-                <ChatMessages messageData={messageData} />
+                <NonUserChatMessages messageData={messageData?.chatMessage} />
             </div>
         </div>
     </>

@@ -17,7 +17,7 @@ const Table: React.FC<TableProps> = ({
     <div className="container mx-auto w-full overflow-x-auto ">
 
       <div className=" overflow-x-auto ">
-        <div className=" px-4 sm:px-8 overflow-x-auto ">
+        <div className=" px-4 sm:px-0 overflow-x-auto ">
 
           <table className="min-w-full text-primaryColor  overflow-x-auto ">
             <thead className=" bg-inputBgColor mb-2 capitalize tracking-wider font-normal text-[14px] font-[Poppins]  overflow-x-auto ">

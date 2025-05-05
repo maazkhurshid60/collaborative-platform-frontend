@@ -2,7 +2,7 @@
 import { RxCross2 } from "react-icons/rx";
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
-import { isModalDeleteReducer, isModalShowReducser } from '../../../redux/slices/ModalSlice';
+import { isModalDeleteReducer, isModalShowReducser, isNewChatModalShowReducser } from '../../../redux/slices/ModalSlice';
 interface ModalLayout {
     modalBodyContent: React.ReactNode
     heading: string
@@ -21,7 +21,7 @@ const ModalLayout: React.FC<ModalLayout> = (props) => {
                             <p className='text-center font-semibold text-[18px]'>{props.heading}</p>
 
                         </div>
-                        <RxCross2 size={24} className='cursor-pointer' onClick={() => { dispatch(isModalShowReducser(false)); dispatch(isModalDeleteReducer(false)) }} />
+                        <RxCross2 size={24} className='cursor-pointer' onClick={() => { dispatch(isModalShowReducser(false)); dispatch(isModalDeleteReducer(false)); dispatch(isNewChatModalShowReducser(false)) }} />
                     </div>
                     <div>
                         {props.modalBodyContent}

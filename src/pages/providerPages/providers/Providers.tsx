@@ -19,7 +19,7 @@ import { saveAs } from "file-saver";
 
 const Providers = () => {
 
-    const heading = ["name", "CNIC", "gender", "email", "status", "clients", "actions"]
+    const heading = ["name", "CNIC", "gender", "email", "status", "clients", "action"]
 
 
 
@@ -86,7 +86,7 @@ const Providers = () => {
     const filteredData = getCurrentRecords()?.filter(data => !data?.user?.blockedMembers?.includes(loginUserDetail))
 
     return (
-        <OutletLayout heading='Provider List' button={<Button text='Download xls' onclick={() => downloadXLS(getCurrentRecords())} />}>
+        <OutletLayout heading='Providers List' button={<Button text='Download xls' onclick={() => downloadXLS(getCurrentRecords())} />}>
             <div className='mt-10'>
                 <Table heading={heading} >
                     {filteredData
@@ -96,7 +96,7 @@ const Providers = () => {
                                 <td className="px-2 py-2">{data?.user?.fullName?.slice(0, 12) + "..."}</td>
                                 <td className="px-2 py-2">{data?.user?.cnic?.slice(0, 12) + "..."}</td>
                                 <td className="px-2 py-2">{data?.user?.gender}</td>
-                                <td className="px-2 py-2 lowercase">{data?.email?.slice(0, 12) + "..."}</td>
+                                <td className="px-2 py-2 lowercase">{data?.email}</td>
                                 <td className="px-2 py-2">{data?.user?.status}</td>
                                 <td className="px-2 py-2 w-[100px]">
 
@@ -104,7 +104,7 @@ const Providers = () => {
                                         ? <p>No Clients</p>
                                         : data?.clientList.map((provider: ProviderType, index) => (
                                             <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                {provider?.client?.user?.fullName},
+                                                {provider?.client?.user?.fullName}
 
                                             </p>
                                         ))

@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../axiosInstance/AxiosInstance";
 import { ClientType } from "../../types/clientType/ClientType";
+import { isAxiosError } from "axios";
 
 class ClientApiService {
     private api = axiosInstance
@@ -52,20 +53,20 @@ class ClientApiService {
         }
     }
 
-
     async addClientApi(data: ClientType) {
-
         try {
             const response = await this.api.post("/client/add-client", data);
             return response.data;
         } catch (error: unknown) {
-            console.log(error);
-            throw error || "Adding client has failed";
+            if (isAxiosError(error) && error.response?.data?.data?.error) {
+                toast.error(error.response.data.data.error);
+            } else {
+                toast.error("An unexpected error occurred");
+            }
 
+            throw error || "Adding client has failed";
         }
     }
-
-
 
     async updateExistingClientApi(data: ClientType) {
 

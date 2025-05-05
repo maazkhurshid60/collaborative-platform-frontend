@@ -14,6 +14,7 @@ import { AppDispatch } from '../../../redux/store';
 import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import { AxiosError } from "axios";
 import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
+import { Client } from '../../../types/providerType/ProviderType';
 
 type FormFields = z.infer<typeof LoginSchema>;
 
@@ -36,36 +37,44 @@ const Login = () => {
 
     //FUNCTIONS
     const loginFunction = async (data: FormFields) => {
-
-
         try {
             const response = await authService.login(data);
 
-            if (response?.data?.user?.user?.status !== "active") {
-                toast.error("Opps! Your account has been disabled. Contact with super admin.");
+            const userData = response?.data?.user;
 
-                navigate("/")
-
-            } else if (response?.data?.user?.user?.role === "client") {
-                localStorage.setItem("token", response?.data?.token)
-                dispatch(saveLoginUserDetailsReducer(response?.data?.user))
-                toast.success(response?.message);
-                navigate("/documents")
-
-            } else {
-                localStorage.setItem("token", response?.data?.token)
-                dispatch(saveLoginUserDetailsReducer(response?.data?.user))
-                toast.success(response?.message);
-                navigate("/dashboard")
+            if (userData?.user?.status !== "active") {
+                toast.error("Oops! Your account has been disabled. Contact with super admin.");
+                navigate("/");
+                return;
             }
 
 
-        } catch (error) {
+            const fixedUserData = {
+                ...userData,
+                clientList: userData?.clientList?.map((item: Client) => item.client) || []
+            };
 
+            // Save token
+            localStorage.setItem("token", response?.data?.token);
+
+            // Login user detail data
+            dispatch(saveLoginUserDetailsReducer(fixedUserData));
+
+            toast.success(response?.message);
+
+            // Navigate based on role
+            if (userData?.user?.role === "client") {
+                navigate("/documents");
+            } else {
+                navigate("/dashboard");
+            }
+
+        } catch (error) {
             const err = error as AxiosError<AuthErrorResponse>;
             toast.error(`${err?.response?.data?.data?.error}`);
         }
-    }
+    };
+
     return (
         <AuthLayout heading='sign in'>
 

@@ -40,3 +40,12 @@ export const ProviderSignupSchema = z.object({
     message: "Passwords must match",
     path: ["confirmPassword"], // Error will be associated with confirmPassword field
 });
+
+export const ChangePasswordSchema = z.object({
+    oldPassword: z.string().min(10, "Old Password is required and should not less then 10 characters"),
+    newPassword: z.string().min(10, "New Password is required and should not less then 10 characters"),
+    confirmPassword: z.string().min(10, "Confirm Password is required and should not less then 10 characters"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "New and Confirm Password must matched",
+    path: ["confirmPassword"]
+})

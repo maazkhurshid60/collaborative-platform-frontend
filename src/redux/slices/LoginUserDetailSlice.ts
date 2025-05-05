@@ -13,6 +13,7 @@ const initialState = {
         password: "",
         updatedAt: "",
         department: "",
+        clientList: [],
         user: {
             address: null,
             age: null,
@@ -50,6 +51,8 @@ const LoginUserDetail = createSlice({
     reducers: {
         saveLoginUserDetailsReducer: ((state, action) => {
             state.userDetails = action.payload
+            console.log(action.payload);
+
         }),
         updateBlockedMembers: (state, action) => {
             state.userDetails.user.blockedMembers = action.payload;
@@ -80,6 +83,7 @@ const LoginUserDetail = createSlice({
                 password: "",
                 updatedAt: "",
                 department: "",
+                clientList: [],
                 user: {
                     address: null,
                     age: null,

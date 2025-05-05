@@ -43,15 +43,18 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("status", clientData?.user?.status ?? "")
             setValue("address", clientData?.user?.address ?? "")
             setValue("contactNo", clientData?.user?.contactNo ?? "")
-            setValue("age", clientData?.user?.age ?? "")
+            setValue("age", clientData?.user?.age?.toString() ?? "")
             setValue("gender", clientData?.user?.gender ?? "")
         }
     }, [clientData])
 
     const updateMutation = useMutation({
         mutationFn: async (data: ClientType) => {
-            const dataSendToBackend = { ...data, clientId: clientData?.id, age: data && parseInt(data?.user?.age ?? "18") }
-            console.log(dataSendToBackend);
+            const dataSendToBackend = {
+                ...data,
+                clientId: clientData?.id,
+                age: data?.age !== undefined ? parseInt(data.age.toString()) : undefined,
+            };
 
             await clientApiService.updateClientApi(dataSendToBackend);
         },
@@ -60,7 +63,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
-            toast.success("Account has deleted successfully")
+            toast.success("Account has updated successfully")
 
             setIsLoader(false)
         },

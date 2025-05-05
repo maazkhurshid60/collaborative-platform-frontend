@@ -22,6 +22,7 @@ import { RootState } from "../redux/store";
 import Document from "../pages/clientPages/documents/Document";
 import Settings from "../pages/clientPages/settings/Settings";
 import CnicScreen from "../pages/auth/cnicScreen/CnicScreen";
+import ChangePassword from "../pages/userSetting/ChangePassword";
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -47,6 +48,7 @@ const Routing = () => {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/notification" element={<Notification />} />
                 <Route path="/setting" element={<UserSetting />} />
+                <Route path="/setting/change-password" element={<ChangePassword />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/clients/add-client" element={<AddClient />} />

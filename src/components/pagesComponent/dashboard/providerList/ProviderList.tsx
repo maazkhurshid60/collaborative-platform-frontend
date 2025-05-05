@@ -10,7 +10,7 @@ import { RootState } from '../../../../redux/store'
 import Loader from '../../../loader/Loader'
 
 const ProviderList = () => {
-    const heading = ["name", "CNIC", "gender", "email", "status", "clients"]
+    const heading = ["S.No", "name", "CNIC Number", "email", "status", "clients"]
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
 
 
@@ -50,11 +50,11 @@ const ProviderList = () => {
                     .map((data: ProviderType, id: number) => (
 
                         <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
+                            <td className="px-2 py-2">{id + 1}</td>
                             <td className="px-2 py-2">{data?.user?.fullName?.slice(0, 12) + "..."}</td>
                             <td className="px-2 py-2">{data?.user?.cnic?.slice(0, 12) + "..."}</td>
-                            <td className="px-2 py-2">{data?.user?.gender}</td>
-                            <td className="px-2 py-2 lowercase">{data.email?.slice(0, 12) + "..."}</td>
-                            <td className="px-2 py-2">{data.user?.status}</td>
+                            <td className="px-2 py-2 lowercase">{data?.email?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2">{data?.user?.status}</td>
                             <td className="px-2 py-2 w-[100px]">
                                 {data?.clientList?.length === 0 || data?.clientList === undefined
                                     ? <p>No Clients</p>

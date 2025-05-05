@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
+import { disconnectSocket } from "../../socket/Socket";
 
 interface sideBarDataType {
     name?: string
@@ -22,6 +23,8 @@ const Sidebar = () => {
     const [sideBarData, setSideBarData] = useState<sideBarDataType[]>()
     const logoutFunction = () => {
         localStorage.removeItem("token")
+        disconnectSocket();
+
         navigate("/")
     }
     useEffect(() => {

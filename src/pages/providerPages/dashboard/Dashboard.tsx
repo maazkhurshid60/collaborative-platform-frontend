@@ -108,7 +108,7 @@ const Dashboard = () => {
                     {cardData?.map((data, id: number) => {
                         const Icon = data?.icon
                         return (
-                            <div className=" h-[120px] ">
+                            <div className=" h-[120px] " key={id}>
                                 <CardDashboardLayout>
                                     {data.isLoading && <Loader text="Loading..." />}
                                     <div key={id} className=''>
@@ -131,12 +131,12 @@ const Dashboard = () => {
                 <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-between flex-wrap'>
                     <div className=' flex flex-col gap-3 flex-wrap w-[100%] lg:w-[68%] '>
                         <div className='h-[390px] w-[100%] lg:w-[100%] overflow-auto'>
-                            <CardDashboardLayout heading='Client List'>
+                            <CardDashboardLayout heading='Clients List'>
                                 <ClientList />
                             </CardDashboardLayout>
                         </div>
                         <div className='h-[390px] w-[100%] lg:w-[100%] overflow-auto'>
-                            <CardDashboardLayout heading='Provider List'>
+                            <CardDashboardLayout heading='Providers List'>
                                 <ProviderList />
 
                             </CardDashboardLayout>

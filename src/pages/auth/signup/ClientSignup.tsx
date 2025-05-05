@@ -45,11 +45,11 @@ const ClientSignup = () => {
                 cnic: data?.cnic,
                 role: "client",
                 isAccountCreatedByOwnClient: true,
-                age: cnicData.age,
-                contactNo: cnicData.contactNo,
-                address: cnicData.address,
-                gender: cnicData.gender,
-                status: cnicData.status,
+                age: cnicData.age ?? undefined,
+                contactNo: cnicData.contactNo ?? undefined,
+                address: cnicData.address ?? undefined,
+                gender: cnicData.gender ?? undefined,
+                status: cnicData.status ?? undefined,
                 clientId: cnicData.clientId
             };
             console.log("dataSendToBackend dataSendToBackend dataSendToBackend", dataSendToBackend);

@@ -15,12 +15,16 @@ import { isModalDeleteReducer } from '../../redux/slices/ModalSlice';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
+import { NavLink } from 'react-router-dom';
 // const blockListData = [{ name: "Client1", isBlock: true }, { name: "Provider3", isBlock: false }, { name: "Client6", isBlock: false }, { name: "Provider12", isBlock: false }, { name: "Client2", isBlock: true }, { name: "Provider32", isBlock: true }]
 const UserSetting = () => {
     const isBlockListScreen = useSelector((state: RootState) => state.blockListUserSlice.isBlockScreenShow)
     const dispatch = useDispatch<AppDispatch>()
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
-    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    // const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
+    console.log("<>>>>>><><>><<<<<<<<><><>", loginUserDetail.email);
+
     const navigate = useNavigate()
     const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType[]>({
         queryKey: ["loginUser"],
@@ -39,7 +43,7 @@ const UserSetting = () => {
 
     })
 
-    const filteredData = allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail))
+    const filteredData = allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail.user.id))
     console.log("filteredData", filteredData);
     console.log("allUsersData", allUsersData && allUsersData[0]);
 
@@ -49,7 +53,7 @@ const UserSetting = () => {
 
     const deleteMeMutation = useMutation({
         mutationFn: async () => {
-            return await loginUserApiService.deleteMeApi(loginUserDetail);
+            return await loginUserApiService.deleteMeApi(loginUserDetail.user.id);
         },
         onMutate: () => {
 
@@ -82,14 +86,20 @@ const UserSetting = () => {
             {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} />}
             <UserAccount name='John Doe' email='johndoe@gmail.com' />
             <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>
-            <LabelText label='Email' text='johndoe@gmail.com' />
+            <div>
+                <p className='text-[16px] font-medium'>Email</p>
+                <p className={` text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>{loginUserDetail.email}</p>
+            </div>
 
             <div className='flex items-center justify-between mt-6'>
                 <div>
                     <p className='text-[16px] font-medium'>Password</p>
                     <p className='text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]'>Change password to secure your account</p>
                 </div>
-                <RiArrowLeftSLine className='rotate-[180deg] text-textGreyColor cursor-pointer text-4xl  md:text-2xl' />
+                <NavLink to="/setting/change-password">
+
+                    <RiArrowLeftSLine className='rotate-[180deg] text-textGreyColor cursor-pointer text-4xl  md:text-2xl' />
+                </NavLink>
             </div>
             <hr className='h-[1px] text-textGreyColor mt-4' />
 

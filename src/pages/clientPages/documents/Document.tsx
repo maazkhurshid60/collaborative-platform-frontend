@@ -73,7 +73,7 @@ const Document = () => {
                         .map((data, id: number) => (
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
-                                <td className="px-2 py-2">{data.docName.length > 14
+                                <td className="px-2 py-2 font-semibold">{data.docName.length > 14
                                     ? data.docName.slice(0, 14) + "..."
                                     : data.docName}</td>
                                 <td className="px-2 py-2">{data.doctype?.slice(0, 12) + "..."}</td>
