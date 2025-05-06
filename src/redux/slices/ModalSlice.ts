@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     isModalShow: false,
     isModalDelete: false,
-    isNewChatModal: false
+    isNewChatModal: false,
+    isNewGroupChatModal: false
 
 }
 const modalSlice = createSlice({
@@ -20,6 +21,11 @@ const modalSlice = createSlice({
 
             state.isNewChatModal = action.payload
         }),
+        isNewGroupChatModalShowReducser: ((state, action) => {
+
+
+            state.isNewGroupChatModal = action.payload
+        }),
         isModalDeleteReducer: ((state, action) => {
 
 
@@ -28,5 +34,5 @@ const modalSlice = createSlice({
 
     }
 })
-export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser } = modalSlice.actions
+export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser, isNewGroupChatModalShowReducser } = modalSlice.actions
 export default modalSlice.reducer

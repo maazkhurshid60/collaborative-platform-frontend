@@ -10,12 +10,13 @@ import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/C
 import ModalLayout from '../../../components/modals/modalLayout/ModalLayout';
 import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
 import SingleChatData from '../../../components/pagesComponent/chat/singleChatMessage/SingleChatData';
-import { IoIosAddCircleOutline } from "react-icons/io";
 import NewChatModal from '../../../components/modals/providerModal/chatModal/NewChatModal';
-import { isNewChatModalShowReducser } from '../../../redux/slices/ModalSlice';
+import { isNewChatModalShowReducser, isNewGroupChatModalShowReducser } from '../../../redux/slices/ModalSlice';
 import { toast } from 'react-toastify';
 import { ChatChannelType } from '../../../types/chatType/ChatChannelType';
 import ChatModalBodyContent from '../../../components/modals/providerModal/chatModal/ChatModalBodyContent';
+import AddIcon from '../../../components/icons/add/Add';
+import NewGroupChatModal from '../../../components/modals/providerModal/chatModal/NewGroupChatModal';
 
 
 
@@ -65,6 +66,7 @@ export interface Message {
 const Chat = () => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
     const isNewChatModal = useSelector((state: RootState) => state.modalSlice.isNewChatModal);
+    const isNewGroupChatModal = useSelector((state: RootState) => state.modalSlice.isNewGroupChatModal);
     const isModalShow = useSelector((state: RootState) => state.modalSlice.isModalShow);
     const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | undefined>(undefined);
     const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
@@ -145,6 +147,7 @@ const Chat = () => {
             {isModalShow && <ModalLayout heading="Share this chat by generating a link" modalBodyContent={ChatModalBodyContent()} />}
 
             {isNewChatModal && <ModalLayout heading="New Chat with" modalBodyContent={<NewChatModal />} />}
+            {isNewGroupChatModal && <ModalLayout heading="New Chat Group" modalBodyContent={<NewGroupChatModal />} />}
 
 
 
@@ -155,7 +158,7 @@ const Chat = () => {
                     <div className='flex items-center justify-between '>
 
                         <p className="font-medium text-[14px] text-textGreyColor">Recent Chats</p>
-                        <IoIosAddCircleOutline className='cursor-pointer text-xl text-textGreyColor' onClick={() => dispatch(isNewChatModalShowReducser(true))} />
+                        <AddIcon onClick={() => dispatch(isNewChatModalShowReducser(true))} />
                     </div>
                     <div className="min-h-[34h] max-h-[34vh] bg- p-2 lg:p-0 overflow-auto">
                         {allChannels?.map((data: ChatChannelType) => (
@@ -173,7 +176,13 @@ const Chat = () => {
                         ))}
                     </div>
                     <hr className="w-[100%] h-[1px] text-inputBgColor" />
-                    <p className="mt-4 font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">Group Chats</p>
+                    <div className='flex items-center justify-between '>
+
+                        <p className="mt-4 font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">Group Chats</p>
+                        <AddIcon onClick={() => dispatch(isNewGroupChatModalShowReducser(true))} />
+
+                    </div>
+
                     <div className="min-h-[34vh] max-h-[34vh] bg- p-2 lg:p-0 overflow-auto">{/* Group Chats here */}</div>
                 </div>
 

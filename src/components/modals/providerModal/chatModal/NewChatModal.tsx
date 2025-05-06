@@ -43,7 +43,7 @@ const NewChatModal = () => {
         return <Loader text='Loading...' />
     }
     if (isError) {
-        return <p>somethingwent wrong</p>
+        return <p>something went wrong</p>
     }
     return (<>
         <div className='mt-4'>
