@@ -132,7 +132,7 @@ const ClientSignup = () => {
                 </div>
 
                 <p className='font-normal labelNormal  text-center mt-14'>
-                    Already have an account <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>
+                    Don’t have an account? <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>
                         Sign in
                     </span>
                     or <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-cnic") }}> Enter CNIC Number</span>

@@ -101,17 +101,17 @@ const ClientList = () => {
                     ?.map((data: ClientType, id: number) => (
 
                         <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                            <td className="px-2 py-2">{data?.user?.fullName?.slice(0, 12) + "..."}</td>
-                            <td className="px-2 py-2">{data?.user?.cnic?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2">{data?.user?.fullName}</td>
+                            <td className="px-2 py-2">{data?.user?.cnic}</td>
                             <td className="px-2 py-2">{data?.user?.gender}</td>
-                            <td className="px-2 py-2 lowercase">{data?.email?.slice(0, 12) + "..."}</td>
+                            <td className="px-2 py-2 lowercase">{data?.email}</td>
                             <td className="px-2 py-2">{data?.user?.status}</td>
                             <td className="px-2 py-2 w-[100px] ">
                                 {data?.providerList?.length === 0 || data?.providerList === undefined
                                     ? <p>No Providers</p>
                                     : data?.providerList.map((provider: Provider, index) => (
                                         <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                            {provider?.provider?.user?.fullName?.slice(0, 12) + "..."}
+                                            {provider?.provider?.user?.fullName}
 
                                         </p>
                                     ))

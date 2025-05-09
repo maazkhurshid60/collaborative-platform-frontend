@@ -75,7 +75,7 @@ const AddClient = () => {
             <form onSubmit={handleSubmit(addFunction)} className="mt-6">
                 <div>
                     <LabelData label='Upload Image' />
-                    <UserIcon className='text-6xl mt-2' />
+                    <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                     <div className=''>

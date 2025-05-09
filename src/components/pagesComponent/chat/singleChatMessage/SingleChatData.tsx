@@ -2,51 +2,33 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 // import { ProviderType } from "../../../../types/providerType/ProviderType";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
+import UserIcon from "../../../icons/user/User";
 
-// interface Messages {
-//     sender?: string;
-//     message?: string;
-// }
+
 
 interface SingleChatDataType {
     data: ChatChannelType;
     activeId?: string | undefined
     onClick?: () => void;
+    unreadMessagesCount?: string | number
 
 }
 
-// interface message {
-//     id?: string
-//     providerA?: ProviderType
-//     providerB?: ProviderType
-//     providerAId?: string
-//     providerBId?: string
-//     senderId?: string
-// }
+
 
 const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId }) => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
-    // console.log("data>>>>>>>>>allchanne;>>>>>", data?.messages);
 
-    // const formattedMessages = data?.messages?.map(message => {
-    //     if (message?.senderId === loginUserId) {
-    //         return { ...message, providerA: message.senderId };
-    //     } else {
-    //         return { ...message, providerB: message.senderId };
-    //     }
-    // });
-
-    // const lastMessage = (formattedMessages || [])[formattedMessages?.length - 1];
-    // const lastMessage = formattedMessages?.[formattedMessages.length - 1];
+    console.log("data", data);
 
     const otherUser =
         data?.providerA?.id === loginUserId
             ? data.providerB?.user?.fullName
             : data.providerA?.user?.fullName;
 
+    console.log("datadatadatadata", activeId);
+    const unreadCount = Number(data?.totalUnread ?? 0);
 
-    // console.log("messages", messages?.messages?.filter(data=>data.chatChannelId === data.id));
-    // console.log("data", data);
     return (
         <div className="">
 
@@ -55,15 +37,31 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
             `}
 
                 onClick={onClick}>
-                <div className='w-[80%]'>
-                    <p className={`font-[Poppins] capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "}`}>
-                        {otherUser}
-                    </p>
-                    {/* <p className={`font-[Poppins] text-[12px]  ${lastMessage?.readStatus !== "read" ? "font-semibold text-textColor" : "font-normal text-textGreyColor "}`}>
+                <div className='w-[80%] flex items-center justify-between'>
+                    <div className="flex items-start gap-x-6">
+                        <div>
 
-                    </p> */}
+                            <UserIcon />
+                        </div>
+                        <div>
+                            <p className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "}`}>
+                                {otherUser}
+                            </p>
+                            {data?.lastMessage?.message && (
+                                <p className="text-xs text-gray-500 truncate max-w-[90%]">
+                                    {data.lastMessage.message}
+                                </p>
+                            )}
+                        </div>
+                    </div>
 
                 </div>
+                {unreadCount > 0 && (
+                    <span className="bg-primaryColorDark text-white text-xs px-2 py-1 rounded-full">
+                        {data.totalUnread}
+                    </span>
+                )}
+
 
             </div>
         </div>

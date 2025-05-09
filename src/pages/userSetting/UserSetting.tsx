@@ -86,7 +86,7 @@ const UserSetting = () => {
             {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} />}
             <UserAccount name='John Doe' email='johndoe@gmail.com' />
             <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>
-            <div>
+            <div className='mt-6'>
                 <p className='text-[16px] font-medium'>Email</p>
                 <p className={` text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>{loginUserDetail.email}</p>
             </div>

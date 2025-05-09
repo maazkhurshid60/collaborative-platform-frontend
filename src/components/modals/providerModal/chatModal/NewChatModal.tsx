@@ -7,6 +7,7 @@ import SearchBar from '../../../searchBar/SearchBar'
 import Loader from '../../../loader/Loader'
 import chatApiService from '../../../../apiServices/chatApi/ChatApi'
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
+import { ChatChannelType } from '../../../../types/chatType/ChatChannelType'
 
 const NewChatModal = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
@@ -34,6 +35,18 @@ const NewChatModal = () => {
 
         dispatch(isModalShowReducser(false))
     }
+    const { data: allChannels = [] } = useQuery({
+        queryKey: ['chatchannels'],
+        queryFn: async () => {
+            const res = await chatApiService.getAllChatChannels(loginUserDetail.id);
+            return res.data.findAllChatChannel;
+        },
+    });
+    const providers = allProviders?.filter(data => data?.id !== loginUserDetail.id)
+    const providersWithoutChat = providers?.filter(provider => {
+        return !allChannels.some((channel: ChatChannelType) => channel.providerBId === provider.id || channel.providerAId === provider.id);
+    });
+
 
 
 
@@ -50,7 +63,7 @@ const NewChatModal = () => {
 
             <SearchBar sm />
         </div>
-        <div className='mt-2'>{allProviders?.map((data: ProviderType, id: number) => {
+        <div className='mt-2'>{providersWithoutChat?.map((data: ProviderType, id: number) => {
             return <p key={id} className='capitalize text-[14px] p-2 font-medium cursor-pointer rounded-md hover:bg-primaryColorLight' onClick={() => newChatFun(data)} >
                 {data?.user?.fullName}</p>
         })}</div >

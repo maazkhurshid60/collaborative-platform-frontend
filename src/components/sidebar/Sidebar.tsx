@@ -22,8 +22,8 @@ const Sidebar = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
     const [sideBarData, setSideBarData] = useState<sideBarDataType[]>()
     const logoutFunction = () => {
-        localStorage.removeItem("token")
         disconnectSocket();
+        localStorage.removeItem("token")
 
         navigate("/")
     }

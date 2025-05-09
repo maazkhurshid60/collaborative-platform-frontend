@@ -1,53 +1,63 @@
 import Button from '../../../components/button/Button'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages'
-const messageData = {
-    id: "1234rewq",
-    groupName: "Group1",
-    totalUnread: 1,
-    isGroup: true,
-    groupMembers: ["Provider1", "Provider2"],
-    chatMessage: [
-        {
-            id: "m1",
-            senderId: "provider2",
-            message: "Hi",
-            chatChannelId: "1234rewq",
-            createdAt: new Date().toISOString(),
-            sender: {
-                user: {
-                    fullName: "Provider 2"
-                }
-            }
-        },
-        {
-            id: "m2",
-            senderId: "provider3",
-            message: "Hi",
-            chatChannelId: "1234rewq",
-            createdAt: new Date().toISOString(),
-            sender: {
-                user: {
-                    fullName: "Provider 3"
-                }
-            }
-        },
-        {
-            id: "m3",
-            senderId: "providerYou",
-            message: "Hi",
-            chatChannelId: "1234rewq",
-            createdAt: new Date().toISOString(),
-            sender: {
-                user: {
-                    fullName: "You"
-                }
-            }
-        }
-    ]
-}
+import { useQuery } from '@tanstack/react-query'
+import { Message } from '../chat/Chat'
+import { toast } from 'react-toastify'
+import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/store'
+
 
 const NonUserChat = () => {
+    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
+    const { id, type } = useParams(); // This gives you the dynamic ID from the URL
+
+    // React Query to fetch messages for the active chat
+    const { data: allMessage } = useQuery<Message[]>({
+        queryKey: ['messages', id],
+        queryFn: async () => {
+            if (!id) {
+                toast.error("Chat channel ID is missing.");
+                return;
+            }
+            const dataSendToBack = { loginUserId, chatChannelId: id };
+            try {
+                const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
+                return response?.data?.messages;
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+                return [];
+            }
+        },
+        enabled: !!id && type === 'individual',
+    });
+    // React Query to fetch messages for the active group chat
+    const { data: allGroupMessage } = useQuery<Message[]>({
+        queryKey: ['groupmessages', id],
+        queryFn: async () => {
+            if (!id) {
+                toast.error("Group channel ID is missing.");
+                return;
+            }
+            const dataSendToBack = { loginUserId, groupId: id };
+            console.log("dataSendToBack", dataSendToBack);
+
+            try {
+                const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
+                return response?.data?.groupMessages;
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+                return [];
+            }
+        },
+        enabled: !!id && type === 'group',
+    });
+
+    const selectedMessages = type === 'group' ? allGroupMessage : allMessage;
+
+    console.log("all messages for non user", selectedMessages);
+
     return (<>
         <div className='p-4 flex items-center justify-between'>
             <p>Logo</p>
@@ -64,7 +74,7 @@ const NonUserChat = () => {
         </div>
         <div className='bg-inputBgColor min-h-[90vh] flex items-center justify-center'>
             <div className='w-[90%] md:w-[60%] bg-white m-auto mt-4 p-4 rounded-md min-h-[86vh] max-h-[86vh] overflow-auto'>
-                <NonUserChatMessages messageData={messageData?.chatMessage} />
+                <NonUserChatMessages messageData={selectedMessages || []} />
             </div>
         </div>
     </>

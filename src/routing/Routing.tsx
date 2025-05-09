@@ -33,7 +33,7 @@ const Routing = () => {
             <Route path="/" element={<Login />} />
             <Route path="/provider-signup" element={<ProviderSignup />} />
             <Route path="/client-signup" element={<ClientSignup />} />
-            <Route path="/invite-chat" element={<NonUserChat />} />
+            <Route path="/invite-chat/:type/:id" element={<NonUserChat />} />
             <Route path="/signup-with-cnic" element={<CnicScreen />} />
 
             {/* Protected Routes */}

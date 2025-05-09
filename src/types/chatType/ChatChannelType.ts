@@ -7,6 +7,21 @@ export interface ChatChannelType {
     providerA: Provider;
     providerB: Provider;
     totalUnread?: string | number
+    name?: string
+    members?: Member[]
+    lastMessage?: LastMessage
+}
+
+export interface LastMessage {
+    message?: string
+}
+
+export interface Member {
+    id: string;
+    user: {
+        fullName: string;
+
+    };
 }
 
 export interface Provider {

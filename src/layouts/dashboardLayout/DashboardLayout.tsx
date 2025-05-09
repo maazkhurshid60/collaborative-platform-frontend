@@ -16,7 +16,7 @@ const DashboardLayout = () => {
                 className={`
     bg-white absolute md:relative z-50 transition-all duration-300 ease-in-out  
     ${isSideBarClose ? 'left-0' : '-left-[1000px]'} 
-    md:left-0
+    md:left-0 
   `}
             >
                 <Sidebar />
@@ -26,7 +26,7 @@ const DashboardLayout = () => {
             <div className=" flex-grow bg-gray-100 overflow-auto w-[80%]  ">
                 <div className=" w-full h-[100vh] flex flex-col bg-dashboardMainBgColor">
                     {/* Fixed Navbar */}
-                    <div className="bg-white shadow-md z-40">
+                    <div className=" shadow-md z-40">
                         <Navbar />
                     </div>
 

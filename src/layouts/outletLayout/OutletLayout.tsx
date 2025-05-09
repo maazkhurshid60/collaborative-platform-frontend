@@ -24,7 +24,7 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
             <div className='flex items-center justify-between w-full'>
 
                 <p className='headingMedium w-[150px] sm:w-[400px]'>{heading}</p>
-                <div className='w-[140px]'>
+                <div className='w-[170px]'>
 
                     {button}
                 </div>

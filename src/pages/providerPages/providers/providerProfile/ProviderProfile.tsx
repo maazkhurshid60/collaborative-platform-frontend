@@ -88,10 +88,10 @@ const ProviderProfile = () => {
 
 
                         {selectedProviderData?.clientList?.length === 0 || selectedProviderData?.clientList === undefined
-                            ? <p>No Clients</p>
+                            ? <p className='text-[14px]  py-0.5  font-medium text-textGreyColor'>No Clients</p>
                             : selectedProviderData?.clientList.map((provider: ProviderType, index) => (
-                                <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                    <GoDotFill size={10} />     {provider?.client?.user?.fullName}
+                                <p className='flex items-center gap-x-1  capitalize text-[14px]  py-0.5  font-medium text-textGreyColor' key={index}>
+                                    <GoDotFill className='text-[6px]' />     {provider?.client?.user?.fullName}
 
                                 </p>
                             ))

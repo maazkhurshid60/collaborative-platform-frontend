@@ -17,6 +17,8 @@ import { accountSchema } from '../../../schema/clientSchema/ClientSchema';
 import BackIcon from '../../../components/icons/back/Back';
 import UploadFile from '../../../components/inputField/UploadFile';
 import { RxCross2 } from 'react-icons/rx';
+import { AiOutlineDelete } from 'react-icons/ai';
+
 type FormFields = z.infer<typeof accountSchema>;
 
 
@@ -53,7 +55,8 @@ const Settings = () => {
         }
     };
     return (
-        <OutletLayout heading='Account Settings' button={!isEdit && <Button text='Delete Account' onclick={() => dispatch(isModalDeleteReducer(true))} />}>
+        <OutletLayout heading='Account Settings' button={!isEdit && <Button icon={<AiOutlineDelete size={18} className="text-white" />
+        } text='Delete Account' onclick={() => dispatch(isModalDeleteReducer(true))} />}>
             {isEdit && <div className='relative'>
                 <div className='absolute  -left-6 -top-12 md:-top-14 lg:-left-5'>
 
@@ -61,24 +64,24 @@ const Settings = () => {
                 </div>
             </div>}
             {isShowDeleteModal && <DeleteAccountModal />}
-
+            <p className='font-bold mt-6'>General Settings</p>
             {isEdit ?
-                <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
+                <form onSubmit={handleSubmit(updateFunction)} className="mt-2">
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-12 mt-5 md:mt-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-4 mt-5 md:mt-4">
                         <div className=''>
                             <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         </div>
                         <div className=''>
                             <InputField required
-                                label='CNIC No'
+                                label='CNIC Number'
                                 register={register("cnic")}
                                 name='cnic' placeHolder='Enter CNIC.'
                                 error={errors.cnic?.message} />
                         </div>
 
                         <div className=''>
-                            <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                            <InputField required label='Email ID' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
                         </div>
 
                         <div className=''>
@@ -109,11 +112,11 @@ const Settings = () => {
                 </form >
                 :
                 <>
-                    <div className='mt-6'>
+                    <div className=''>
 
 
                         {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-4 mt-5 md:mt-4'>
                             <div className=''>
                                 <LabelData label='Full Name' data='John Doe' />
                             </div>
@@ -122,7 +125,7 @@ const Settings = () => {
                             </div>
 
                             <div className=''>
-                                <LabelData label='Email' data='johnDoe@gmail.com' />
+                                <LabelData label='Email ID' data='johnDoe@gmail.com' />
                             </div>
 
                             <div className=''>

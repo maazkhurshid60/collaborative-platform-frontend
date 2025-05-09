@@ -74,9 +74,9 @@ const Document = () => {
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
                                 <td className="px-2 py-2 font-semibold">{data.docName.length > 14
-                                    ? data.docName.slice(0, 14) + "..."
+                                    ? data.docName
                                     : data.docName}</td>
-                                <td className="px-2 py-2">{data.doctype?.slice(0, 12) + "..."}</td>
+                                <td className="px-2 py-2">{data.doctype}</td>
                                 <td className="px-2 py-2 ">
                                     <p className={`p-1.5 w-auto  rounded-md text-sm ${data.isAgree ? "bg-primaryColorDark/20" : "bg-inputBgColor"}  flex items-center gap-x-3`}><span><GoDotFill className={`${data.isAgree ? "text-primaryColorDark" : "text-textColor"}`} /></span> {data.isAgree ? "Completed" : "Pending"}
                                     </p>
@@ -87,8 +87,8 @@ const Document = () => {
 
                                         <UserIcon />
                                         <div className="text-left">
-                                            <p>{data.shareBy.name?.slice(0, 12) + "..."}</p>
-                                            <p> {data.shareBy.email?.slice(0, 12) + "..."}</p>
+                                            <p>{data.shareBy.name}</p>
+                                            <p> {data.shareBy.email}</p>
                                         </div>
                                     </div>
                                 </td>

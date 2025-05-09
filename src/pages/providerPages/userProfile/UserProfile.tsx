@@ -9,8 +9,8 @@ import InputField from "../../../components/inputField/InputField";
 import Dropdown from "../../../components/dropdown/Dropdown";
 import { toast } from "react-toastify";
 import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
 import { providerSchema } from "../../../schema/providerSchema/ProviderSchema";
 import UserIcon from '../../../components/icons/user/User';
 import BackIcon from '../../../components/icons/back/Back';
@@ -18,7 +18,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ProviderType, User } from '../../../types/providerType/ProviderType';
 import Loader from '../../../components/loader/Loader';
 import loginUserApiService from '../../../apiServices/loginUserApi/LoginUserApi';
-import { LuDot } from 'react-icons/lu';
+import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
+import { GoDotFill } from 'react-icons/go';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -35,7 +36,7 @@ const UserProfile = () => {
     const [getMeDetail, setGetMeDetail] = useState<ProviderType | undefined>(undefined);
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
-
+    const dispatch = useDispatch<AppDispatch>()
     const {
         register,
         handleSubmit,
@@ -81,8 +82,12 @@ const UserProfile = () => {
     const updateMutation = useMutation({
         mutationFn: async (data: User) => {
             const dataSendToBackend = { ...data, loginUserId: loginUserDetail?.user.id, age: data && parseInt(data?.age ?? "18"), role: getMeDetail?.user?.role }
-            await loginUserApiService.updateMeApi(dataSendToBackend);
+            const response = await loginUserApiService.updateMeApi(dataSendToBackend);
+            console.log("<<<<<<response>>>>>>>", response?.data);
+            dispatch(saveLoginUserDetailsReducer(response?.data))
+
         },
+
         onMutate: () => {
             setIsLoader(true);
         },
@@ -169,14 +174,13 @@ const UserProfile = () => {
                                 ))}
 
                             </ul> */}
-                            <ul className="text-[14px] font-medium text-textGreyColor ml-6">
+                            <ul className="text-[14px] font-medium text-textGreyColor">
                                 {getMeDetail?.clientList?.map((data, index) => (
                                     <li key={index}>
                                         <div className="flex items-center gap-x-3">
                                             <div className="flex items-center gap-x-2 w-[150px]">
 
-                                                <LuDot size={16} />
-
+                                                <GoDotFill className='text-[6px]' />
                                                 {data?.client?.user?.fullName}
                                             </div>
                                             {/* <DeleteIcon
@@ -233,15 +237,14 @@ const UserProfile = () => {
 
                             <div className=' '>
                                 <LabelData label='Your List of Active Clients' />
-                                <ul className="text-[14px] font-medium text-textGreyColor ml-6">
+                                <ul className="text-[14px] font-medium text-textGreyColor ">
                                     {getMeDetail?.clientList && getMeDetail?.clientList?.length > 0 ?
                                         getMeDetail?.clientList?.map((data, index) => (
                                             <li key={index}>
                                                 <div className="flex items-center gap-x-3">
                                                     <div className="flex items-center gap-x-2 w-[150px]">
 
-                                                        <LuDot size={16} />
-
+                                                        <GoDotFill className='text-[6px]' />
                                                         {data?.client?.user?.fullName}
                                                     </div>
                                                 </div>
