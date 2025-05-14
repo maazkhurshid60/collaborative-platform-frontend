@@ -76,7 +76,7 @@ const CnicScreen = () => {
         }
     }
     return (
-        <AuthLayout heading='sign in'>
+        <AuthLayout heading='sign up'>
 
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
