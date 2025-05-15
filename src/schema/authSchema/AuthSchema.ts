@@ -34,7 +34,7 @@ export const ProviderSignupSchema = z.object({
     department: z.string().min(1, "Department is required"),
     password: z.string().min(10, "Password is required and should not less then 10 characters"),
     confirmPassword: z.string().min(1, "Confirm Password is required"),
-    cnic: z.string().min(1, "CNIC is required"),
+      cnic: z.string().min(12, "CNIC is required and should not less then 12 characters"),
 
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
