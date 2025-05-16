@@ -1,7 +1,6 @@
 import InputField from '../../../inputField/InputField'
 import Button from '../../../button/Button'
 import { PiWarningCircle } from 'react-icons/pi'
-import { FcGoogle } from "react-icons/fc";
 import { FaWhatsapp } from "react-icons/fa6";
 import { IoIosLink } from "react-icons/io";
 import { FaInstagram } from 'react-icons/fa'
@@ -48,9 +47,13 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
             <div className='flex flex-col items-center justify-center'>
 
                 <div className='w-14 h-14 mb-2 shadow-[0_0_14px_0_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center bg-white'>
-                    <FcGoogle className='text-4xl' />
+                    <img
+                        src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+                        alt="Gmail"
+                        className="w-9 h-9"
+                    />
                 </div>
-                <p>Google</p>
+                <p>Gmail</p>
             </div>
             <div className='flex flex-col items-center justify-center'>
                 <div className='w-14 h-14 mb-2 shadow-[0_0_14px_0_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center bg-[#25D366] text-white'>

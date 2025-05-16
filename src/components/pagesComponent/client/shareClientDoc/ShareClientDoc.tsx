@@ -1,32 +1,64 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import Button from '../../../button/Button'
 import { IoDocumentTextOutline } from "react-icons/io5";
 import ClientDocShareModal from '../../../modals/providerModal/clientDocShareModal/ClientDocShareModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../redux/store';
-import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
+import { isClientCompleteDocModalReducer, isModalShowReducser } from '../../../../redux/slices/ModalSlice';
 import { FaRegShareFromSquare } from "react-icons/fa6";
 import Checkbox from '../../../checkbox/Checkbox';
+import { useQuery } from '@tanstack/react-query';
+import { Document, DocumentResponseType } from '../../../../types/documentType/DocumentType';
+import documentApiService from '../../../../apiServices/documentApi/DocumentApi';
+import ClientCompleteDocShareModal from '../../../modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal';
+interface ShareClientDocProps {
+    clientId: string
+}
 
-const docs = [{ name: "Privacy Policy", status: true }, { name: "What makes you think that you need help", status: false }, { name: "Consent Form", status: true }, { name: "Agreement", status: false }, { name: "Policies", status: true }]
-const ShareClientDoc = () => {
+const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId }) => {
     const dispatch = useDispatch<AppDispatch>()
     const [sharedDocs, setSharedDocs] = useState<string[]>()
-    const completed = docs?.filter(data => data.status === true)
-    const inCompleted = docs?.filter(data => data.status === false)
+    const [sharedDocsId, setSharedDocsId] = useState<string[]>([])
+
     const isShowModal = useSelector((state: RootState) => state.modalSlice.isModalShow)
-    const selectDoc = (docName: string, isChecked: boolean) => {
+    const isClientCompleteDocModal = useSelector((state: RootState) => state.modalSlice.isClientCompleteDocModal)
+    const providerId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id)
+    const [selectedCompletedDoc, setSelectedCompletedDoc] = useState<Document | undefined>(undefined);
+
+    const selectDoc = (docName: string, isChecked: boolean, id: string) => {
         if (isChecked) {
             setSharedDocs(prev => [...(prev ?? []), docName]);
+            setSharedDocsId(prev => [...(prev ?? []), id])
         } else {
             setSharedDocs(prev => (prev ?? []).filter(doc => doc !== docName));
         }
     };
 
 
-    return (<>
-        {isShowModal && <ClientDocShareModal sharedDocs={sharedDocs} />}
+    const { data: documentData } = useQuery<DocumentResponseType>({
+        queryKey: ["documents"],
+        queryFn: async () => {
+            try {
+                const response = await documentApiService.getAllDocuments(clientId);
+
+
+                return response?.data?.data; // Ensure it always returns an array
+
+
+            } catch (error) {
+                console.error("Error fetching client:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
+
+    })
+    console.log("..................................sharedDocsId..................................", sharedDocsId);
+
+
+    return (<div>
+        {isShowModal && <ClientDocShareModal sharedDocs={sharedDocs} clientId={clientId} providerId={providerId} sharedDocsId={sharedDocsId} />}
+        {isClientCompleteDocModal && <ClientCompleteDocShareModal completedDoc={selectedCompletedDoc} clientId={clientId} />}
         <div className='relative pl-2'>
 
             <div className='mt-8 flex items-center justify-between mb-2' >
@@ -37,17 +69,17 @@ const ShareClientDoc = () => {
                 </div>
             </div>
             <div className='grid  grid-cols-1 sm:grid-cols-2 gap-y-3'>
-                {completed?.map(data => (
+                {documentData?.uncompletedDocuments?.map((data: Document) => (
                     <div key={data.name} className='flex items-center gap-x-3 font-medium text-[14px]'>
 
 
                         <Checkbox
-                            onChange={(e) => selectDoc(data.name, e.target.checked)}
+                            onChange={(e) => selectDoc(data.name, e.target.checked, data.id)}
                             checked={sharedDocs?.includes(data.name) ?? false}
 
                         />
                         <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />
-                        {data.name}
+                        {data?.name}
                     </div>
                 ))}
             </div>
@@ -59,10 +91,12 @@ const ShareClientDoc = () => {
 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
-                {inCompleted?.map(data => <div className=' flex items-center gap-x-3 font-medium text-[14px] '> <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}</div>)}
+                {documentData?.completedDocuments?.map((data: Document) => <div className=' flex items-center gap-x-3 font-medium text-[14px] '
+                    onClick={() => { dispatch(isClientCompleteDocModalReducer(true)); setSelectedCompletedDoc(data); }}
+                > <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}</div>)}
             </div>
         </div>
-    </>
+    </div>
     )
 }
 

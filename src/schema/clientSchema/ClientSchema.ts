@@ -17,6 +17,11 @@ export const accountSchema = z.object({
     cnic: z.string().nonempty().min(12, { message: "CNIC could not less then 12 character" }).max(20, { message: "CNIC could not more then 20 character" }),
 
     email: z.string().email(),
-    password: z.string().min(10, "Password is required and should not less then 10characters"),
-
+    password: z
+        .string()
+        .optional()
+        .refine(
+            (val) => !val || val.length >= 10,
+            { message: "Password is required and should not be less than 10 characters" }
+        )
 })

@@ -10,7 +10,7 @@ import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { toast } from 'react-toastify';
 import { GroupChat } from '../../../../types/chatType/GroupType';
-
+import "./chat.css"
 
 
 
@@ -55,28 +55,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         }
     }, [messageData, loginUserId]);
 
-    // Listen for incoming socket messages once
-    // useEffect(() => {
-    //     const socket = getSocket();
 
-    //     if (!socket || !activeChatObject) return;
-
-    //     const handleIncoming = (newMsg: Message) => {
-
-    //         if (newMsg.chatChannelId === activeChatObject.id) {
-    //             setMessages(prev => {
-    //                 if (prev.some(m => m.id === newMsg.id)) return prev;
-    //                 return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
-    //             });
-    //         }
-    //     };
-
-    //     socket.on('receive_direct', handleIncoming);
-
-    //     return () => {
-    //         socket.off('receive_direct', handleIncoming); // Cleanup the event listener
-    //     };
-    // }, [activeChatObject, loginUserId]);
 
     useEffect(() => {
         const socket = getSocket();
@@ -182,15 +161,31 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                         ? activeChatObject.providerB.id
                         : activeChatObject.providerA.id;
 
+                // const socket = getSocket();
+                // if (socket && socket.connected) {
+                //     socket.emit('send_direct', {
+                //         toProviderId: otherId,
+                //         content: saved.message,
+                //         chatChannelId: saved.chatChannelId,
+                //     })
+                // const res = await messageApiService.sendMessageToSingleConservation(singlePayload);
+                // const saved: Message = res.data.chatMessage;
+
+                setMessages(prev =>
+                    prev.map(m => (m.id === tempId ? { ...saved, you: true } : m))
+                );
+
+                // ✅ Send full saved message to backend
                 const socket = getSocket();
                 if (socket && socket.connected) {
                     socket.emit('send_direct', {
                         toProviderId: otherId,
-                        content: saved.message,
-                        chatChannelId: saved.chatChannelId,
+                        message: saved, // 👈 send full saved message
                     });
                 }
+
             } else {
+
                 const groupPayload = {
                     message: sendMessageText,
                     groupId: activeChatObject.id,
@@ -198,23 +193,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                     type: 'text',
                     senderId: loginUserId,
                 };
+
                 const res = await messageApiService.sendMessagesOfGroupChatChannel(groupPayload);
                 const saved: Message = res.data.chatMessage;
-                console.log("save>>>>>>>>>", saved);
 
-                // Replace temp with saved
-                // setMessages(prev =>
-                //     prev.map(m => (m.id === tempId ? { ...saved, you: true } : m))
-                // );
-
-                // setMessages(prev => prev.filter(m => m.id !== tempId));
                 const socket = getSocket();
                 if (socket && socket.connected) {
                     socket.emit('send_group', {
-                        content: saved.message,
-                        groupId: saved.groupId,
+                        message: saved, // ✅ send full saved message
                     });
                 }
+
             }
 
 
@@ -224,6 +213,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             setMessages(prev => prev.filter(m => m.id !== tempId)); // Remove temp message
         }
     };
+
 
 
 
@@ -308,12 +298,24 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                         {msg?.you ? 'You' : msg?.sender?.user?.fullName}
                                     </p>
                                     <div className="flex items-center gap-x-4 text-[14px]">
-                                        <p className={`p-4 rounded-lg ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}>
+                                        {msg?.you && <p className="text-textGreyColor text-[12px]">
+                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
+                                        </p>}
+                                        {/* <p className={`p-4 rounded-lg ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}>
+                                            {msg?.message}
+                                        </p> */}
+                                        <p className={`relative p-4 rounded-lg max-w-xs 
+                                         ${msg?.you
+                                                ? 'bg-primaryColorDark text-white bubble-right'
+                                                : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}
+                                        `}>
                                             {msg?.message}
                                         </p>
-                                        <p className="text-textGreyColor text-[12px]">
+
+
+                                        {!msg?.you && <p className="text-textGreyColor text-[12px]">
                                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
-                                        </p>
+                                        </p>}
                                     </div>
                                 </div>
                                 {msg.you && <UserIcon size={30} />}

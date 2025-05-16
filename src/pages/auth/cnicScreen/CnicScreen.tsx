@@ -76,7 +76,7 @@ const CnicScreen = () => {
         }
     }
     return (
-        <AuthLayout heading='sign in'>
+        <AuthLayout heading='sign up'>
 
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
@@ -87,7 +87,7 @@ const CnicScreen = () => {
                     <Button text='sign up' />
                 </div>
 
-                <p className='font-normal labelNormal  text-center mt-14'> Don’t have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/provider-signup") }}>Sign up</span></p>
+                <p className='font-normal labelNormal  text-center mt-14'> Already an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
             </form>
 
         </AuthLayout>

@@ -38,10 +38,15 @@ const EditClient = () => {
     })
 
     useEffect(() => {
-        setSelectedClientData(clientData?.find(data => data?.id === id));
+        if (clientData && id) {
+            const selected = clientData.find(data => data?.id === id);
+            setSelectedClientData(selected);
+        }
+    }, [clientData, id])
 
-    }, [])
-
+    if (!id) {
+        return <p>Invalid client ID</p>;
+    }
 
     if (isLoading) {
         return <Loader text='Loading...' />
@@ -80,7 +85,7 @@ const EditClient = () => {
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
-            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc />}
+            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} />}
         </OutletLayout>
     )
 }

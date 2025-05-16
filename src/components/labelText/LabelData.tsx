@@ -7,7 +7,7 @@ const LabelData: React.FC<LabelDataProps> = (props) => {
     return (
         <div>
             <p className='labelMedium font-medium text-textColor'>{props.label}</p>
-            <p className='text-[14px]  py-2 capitalize font-medium text-textGreyColor'>{props.data}</p>
+            <p className={`text-[14px]  py-2  font-medium text-textGreyColor ${props?.label === "Email ID" ? "lowercase" : "capitalize"}`}>{props.data}</p>
         </div>
     )
 }

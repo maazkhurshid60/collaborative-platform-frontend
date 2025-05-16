@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ProviderType } from '../../../../types/providerType/ProviderType'
 import providerApiService from '../../../../apiServices/providerApi/ProviderApi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from '../../../../redux/store'
 import SearchBar from '../../../searchBar/SearchBar'
 import Loader from '../../../loader/Loader'
 import chatApiService from '../../../../apiServices/chatApi/ChatApi'
-import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
+import { isModalShowReducser, isNewGroupChatModalShowReducser } from '../../../../redux/slices/ModalSlice'
 import AddIcon from '../../../icons/add/Add'
 
 import { useState } from 'react'
@@ -18,12 +18,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Button from '../../../button/Button'
 import { FiMinusCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
+import { GroupChat } from '../../../../types/chatType/GroupType'
 type FormFields = z.infer<typeof groupSchema>
 const NewGroupChatModal = () => {
     const { register, formState: { errors }, handleSubmit } = useForm<FormFields>({ resolver: zodResolver(groupSchema) })
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const [groupMembers, setGroupMembers] = useState<string[]>([])
     const dispatch = useDispatch<AppDispatch>()
+    const queryClient = useQueryClient()
     const { data: allProviders, isLoading, isError } = useQuery<ProviderType[]>({
         queryKey: ["providers"],
         queryFn: async () => {
@@ -38,17 +40,46 @@ const NewGroupChatModal = () => {
     })
 
 
-    const newGorupChatFun = async (data: FormFields) => {
-        if (groupMembers?.length === 0)
-            return toast.warn("Select atleast one group member")
+    // const newGorupChatFun = async (data: FormFields) => {
+    //     if (groupMembers?.length === 0)
+    //         return toast.warn("Select atleast one group member")
 
-        const dataSendToBack = { membersId: [...groupMembers, loginUserDetail?.id], groupName: data?.name }
-        console.log("dataSendToBack", dataSendToBack);
-        const response = await chatApiService.createGroupChatChannels(dataSendToBack)
-        console.log(response);
+    //     const dataSendToBack = { membersId: [...groupMembers, loginUserDetail?.id], groupName: data?.name }
+    //     console.log("dataSendToBack", dataSendToBack);
+    //     const response = await chatApiService.createGroupChatChannels(dataSendToBack)
+    //     console.log(response);
+    //     queryClient.setQueryData(['groupChatchannels'], (old = []) => {
+    //         if (old.some(group => group.id === newGroup.id)) return old;
+    //         return [newGroup, ...old];
+    //     });
+    //     await queryClient.invalidateQueries({ queryKey: ['groupChatchannels'] });
 
-        dispatch(isModalShowReducser(false))
-    }
+
+    //     dispatch(isNewGroupChatModalShowReducser(false))
+    // }
+
+
+    const { mutate: createGroupChat } = useMutation({
+        mutationFn: async (payload: FormFields) => {
+            const dataSendToBack = {
+                membersId: [...groupMembers, loginUserDetail?.id],
+                groupName: payload.name,
+            };
+            const response = await chatApiService.createGroupChatChannels(dataSendToBack);
+            return response?.data?.group;
+        },
+        onSuccess: (newGroup) => {
+            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (old = []) => {
+                const exists = old.find((g) => g.id === newGroup.id);
+                return exists ? old : [newGroup, ...old];
+            });
+
+            queryClient.invalidateQueries({ queryKey: ['groupChatchannels'] });
+            dispatch(isModalShowReducser(false));
+            dispatch(isNewGroupChatModalShowReducser(false))
+        },
+    });
+
 
 
 
@@ -61,7 +92,15 @@ const NewGroupChatModal = () => {
         return <p>something went wrong</p>
     }
     return (<>
-        <form action="" onSubmit={handleSubmit(newGorupChatFun)}>
+        <form
+            onSubmit={handleSubmit((data) => {
+                if (groupMembers.length === 0) {
+                    toast.warn('Select at least one group member');
+                    return;
+                }
+                createGroupChat(data);
+            })}
+        >
             <div className='mt-4'>
 
                 <InputField required label='Group Name' register={register("name")} name='name' placeHolder='Enter Full Name.' error={errors.name?.message} />
@@ -100,7 +139,7 @@ const NewGroupChatModal = () => {
             </div>
 
             <Button text='Create Group' sm />
-        </form>
+        </form >
     </>
     )
 }

@@ -48,8 +48,8 @@ const InputField: React.FC<InputFieldProps> = ({ name,
                     readOnly={readOnly}
                 />
                 {type === "password" && (
-                    isHidden ? <FaRegEye className=" absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
-                        onClick={() => setIsHidden(false)} /> : <FaRegEyeSlash onClick={() => setIsHidden(true)}
+                    isHidden ? <FaRegEyeSlash className=" absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
+                        onClick={() => setIsHidden(false)} /> : <FaRegEye onClick={() => setIsHidden(true)}
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer" />
                 )}
             </div>

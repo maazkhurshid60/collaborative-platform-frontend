@@ -24,7 +24,6 @@ const UserSetting = () => {
     // const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     console.log("<>>>>>><><>><<<<<<<<><><>", loginUserDetail.email);
-
     const navigate = useNavigate()
     const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType[]>({
         queryKey: ["loginUser"],
@@ -43,9 +42,9 @@ const UserSetting = () => {
 
     })
 
+    console.log("allUsersData", allUsersData && allUsersData[0]);
     const filteredData = allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail.user.id))
     console.log("filteredData", filteredData);
-    console.log("allUsersData", allUsersData && allUsersData[0]);
 
     const deleteMe = () => {
         deleteMeMutation.mutate()
@@ -83,7 +82,8 @@ const UserSetting = () => {
     return (
         <OutletLayout heading='Settings'>
             {isBlockListScreen && <BlockList blockListData={filteredData} />}
-            {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} />}
+            {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
+            />}
             <UserAccount name='John Doe' email='johndoe@gmail.com' />
             <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>
             <div className='mt-6'>

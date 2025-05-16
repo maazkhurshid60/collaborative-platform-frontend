@@ -4,6 +4,11 @@ import axiosInstance from "../axiosInstance/AxiosInstance";
 interface createChatChannel {
     providerId?: string
     toProviderId?: string
+
+}
+
+interface CreateGroupChannel {
+
     groupName?: string
     membersId?: string[]
 }
@@ -31,13 +36,15 @@ class ChatApiService {
             const response = await this.api.post("/chat-channel/create-chat-channel", data)
             return response?.data
         } catch (error) {
+            console.log(error)
+
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
         }
     }
 
     //GROUP CHATS APIS
-    async createGroupChatChannels(data: createChatChannel) {
+    async createGroupChatChannels(data: CreateGroupChannel) {
         try {
 
             const response = await this.api.post("/chat-group/create-group", data)

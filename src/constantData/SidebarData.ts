@@ -42,7 +42,7 @@ export const ClientSidebarData = [
         icon: CgLoadbarDoc
     },
     {
-        name: "Settings",
+        name: "Account Settings",
         url: "/settings",
         icon: IoSettingsOutline
     }

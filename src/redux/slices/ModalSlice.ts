@@ -3,7 +3,8 @@ const initialState = {
     isModalShow: false,
     isModalDelete: false,
     isNewChatModal: false,
-    isNewGroupChatModal: false
+    isNewGroupChatModal: false,
+    isClientCompleteDocModal: false
 
 }
 const modalSlice = createSlice({
@@ -31,8 +32,13 @@ const modalSlice = createSlice({
 
             state.isModalDelete = action.payload
         }),
+        isClientCompleteDocModalReducer: ((state, action) => {
+
+
+            state.isClientCompleteDocModal = action.payload
+        }),
 
     }
 })
-export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser, isNewGroupChatModalShowReducser } = modalSlice.actions
+export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser, isNewGroupChatModalShowReducser, isClientCompleteDocModalReducer } = modalSlice.actions
 export default modalSlice.reducer

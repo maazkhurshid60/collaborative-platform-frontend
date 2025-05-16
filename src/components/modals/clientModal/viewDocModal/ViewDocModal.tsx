@@ -8,44 +8,72 @@ import { AppDispatch } from '../../../../redux/store';
 import UploadFile from '../../../inputField/UploadFile';
 import { RxCross2 } from "react-icons/rx";
 import Checkbox from '../../../checkbox/Checkbox';
+import { documentSignByClientType } from '../../../../types/documentType/DocumentType';
+import documentApiService from '../../../../apiServices/documentApi/DocumentApi';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 interface ViewDocModalProps {
     sharedDocs?: string
+    data: documentSignByClientType
 }
 
-const ModalBodyContent: React.FC<{ docs: string }> = ({ docs }) => {
+const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType }> = ({ docs, data }) => {
     const [isAgree, setIsAgree] = useState(false);
     const dispatch = useDispatch<AppDispatch>()
     const [signAdd, setSignAdd] = useState<string | null>(null);
-    const submitFunction = () => {
+    const [signatureFile, setSignatureFile] = useState<File | null>(null);
+    const queryClient = useQueryClient();
+
+    // --- useMutation hook ---
+    const mutation = useMutation({
+        mutationFn: (formData: FormData) => documentApiService.documentSignByClientApi(formData),
+        onSuccess: () => {
+            toast.success("Document signed successfully!");
+            queryClient.invalidateQueries({ queryKey: ['documents'] }); // Adjust key to match your app
+            dispatch(isModalShowReducser(false));
+        },
+        onError: (err: unknown) => {
+            const axiosError = err as AxiosError<{ error: string }>;
+            const errorMessage = axiosError.response?.data?.error || "Something went wrong";
+            toast.error(errorMessage);
+        }
+    });
+    const submitFunction = async () => {
         if (!isAgree) {
             toast.error("Please agree to the terms and conditions.");
             return;
         }
-
-        if (!signAdd) {
+        if (!signatureFile) {
             toast.error("Please upload your signature.");
             return;
         }
-        const dataToBackend = { isAgree, docText: docs };
-        console.log(dataToBackend);
-        toast.success("This feature is comming soon.")
+        console.log("signatureFile", signatureFile);
 
-        dispatch(isModalShowReducser(false))
+        const formData = new FormData();
+        formData.append("isAgree", String(isAgree));
+        formData.append("eSignature", signatureFile);
+        formData.append("clientId", data?.clientId);
+        formData.append("sharedDocumentId", data?.documentId);
+        mutation.mutate(formData);
+
+        // dispatch(isModalShowReducser(false))
     };
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const imageUrl = URL.createObjectURL(file);
-            setSignAdd(imageUrl);
+            setSignAdd(imageUrl); // for preview
+            setSignatureFile(file); // for uploading
         }
     };
+
     return (
         <div className='mt-4'>
             <div className='h-[300px]  overflow-auto'>
 
-                <p className="p-4 text-textColor">{docs}</p>
+                <div className="p-4 text-textColor" dangerouslySetInnerHTML={{ __html: docs }} />
+
             </div>
             <div className='mt-4 mb-4'>
                 <div className='flex items-center gap-x-2.5'>
@@ -75,11 +103,11 @@ const ModalBodyContent: React.FC<{ docs: string }> = ({ docs }) => {
     );
 };
 
-const ViewDocModal: React.FC<ViewDocModalProps> = ({ sharedDocs }) => {
+const ViewDocModal: React.FC<ViewDocModalProps> = ({ sharedDocs, data }) => {
     return (
         <ModalLayout
             heading='Privacy Policy Consent'
-            modalBodyContent={<ModalBodyContent docs={sharedDocs ?? ""} />}
+            modalBodyContent={<ModalBodyContent docs={sharedDocs ?? ""} data={data} />}
         />
     );
 };

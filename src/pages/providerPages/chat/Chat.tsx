@@ -252,6 +252,7 @@ const Chat = () => {
         enabled: !!activeChatObject?.id && activeChatType === 'individual',
     });
 
+    console.log("allMessageallMessageallMessageallMessageallMessage", allMessage)
 
 
     // React Query to fetch messages for the active group chat
@@ -310,7 +311,7 @@ const Chat = () => {
                 return bTime - aTime;
             });
     }, [allChannels, providerData]);
-    console.log("allGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroups", allGroups[0]);
+    console.log("allGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroups", isNewChatModal)
 
 
 

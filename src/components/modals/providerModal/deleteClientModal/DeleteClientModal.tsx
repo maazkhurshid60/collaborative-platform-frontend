@@ -7,14 +7,15 @@ import { useDispatch } from 'react-redux'
 
 
 interface DeleteModalProps {
-    onDeleteConfirm?: () => void
+    onDeleteConfirm?: () => void,
+    text?: React.ReactNode
 }
 
 
-const deleteClientModalBody = (dispatch: AppDispatch, onDeleteConfirm: () => void) => {
+const deleteClientModalBody = (dispatch: AppDispatch, onDeleteConfirm: () => void, text: React.ReactNode) => {
 
     return <div className='w-[100%] m-auto'>
-        <p className='text-center mt-10'>By Deleting this you account you won’t be able to restore this client. Are you sure that you want to Delete this Client?.</p>
+        <p className='text-center mt-10'>{text}</p>
         <div className='flex items-center justify-center gap-x-4 mt-10'>
             <div className='w-[100%]'>
                 <Button text='Cancel' borderButton onclick={() => dispatch(isModalDeleteReducer(false))} />
@@ -29,7 +30,7 @@ const deleteClientModalBody = (dispatch: AppDispatch, onDeleteConfirm: () => voi
 const DeleteClientModal: React.FC<DeleteModalProps> = (props) => {
     const dispatch = useDispatch<AppDispatch>()
     return (
-        <ModalLayout heading='Delete Client' modalBodyContent={deleteClientModalBody(dispatch, props.onDeleteConfirm || (() => { }))} />
+        <ModalLayout heading='Delete Client' modalBodyContent={deleteClientModalBody(dispatch, props.onDeleteConfirm || (() => { }), props?.text)} />
     )
 }
 

@@ -1,0 +1,24 @@
+.bubble-right::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    background-color: #169C99;
+    /* match your primaryColorDark */
+    border-bottom-left-radius: 20px;
+    clip-path: polygon(100% 0, 0 0, 0 100%);
+}
+
+.bubble-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 20px;
+    height: 20px;
+    background-color: #EAF5F4;
+    border-bottom-right-radius: 20px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+}

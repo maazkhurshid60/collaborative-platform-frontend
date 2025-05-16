@@ -8,7 +8,11 @@ export const initSocket = (providerId: string): Socket => {
         socket = undefined;
     }
 
-    socket = io("http://localhost:8000", {
+    // socket = io("http://localhost:8000", {
+    //     transports: ["websocket"],
+    //     query: { providerId },
+    // });
+    socket = io("https://collaborative-platform-backend.onrender.com", {
         transports: ["websocket"],
         query: { providerId },
     });

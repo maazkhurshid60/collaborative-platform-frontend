@@ -35,7 +35,7 @@ const Navbar = () => {
                     {isSideBarClose === false && <IoMdMenu size={24} onClick={() => dispatch(isSideBarCloseReducser(true))} />}
 
                 </div>
-                <div className='hidden md:block lg:w-[500px] xl:w-[607px]'> <SearchBar /></div>
+                <div className='hidden md:block lg:w-[500px] xl:w-[507px]'> <SearchBar /></div>
                 {/* ACCOUNT DROP DOWN */}
                 <div className='flex items-center  relative gap-x-2 bg-white' ref={dropdownRef}>
                     <UserIcon className="text-[32px] md:text-[40px] lg:text-[48px]" />

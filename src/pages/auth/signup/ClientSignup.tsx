@@ -132,10 +132,10 @@ const ClientSignup = () => {
                 </div>
 
                 <p className='font-normal labelNormal  text-center mt-14'>
-                    Don’t have an account? <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>
+                    Don’t have an account? <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/"); dispatch(emptyResult()) }}>
                         Sign in
                     </span>
-                    or <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-cnic") }}> Enter CNIC Number</span>
+                    or <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-cnic"); dispatch(emptyResult()) }}> Enter CNIC Number</span>
                 </p>
             </form>
 
