@@ -20,6 +20,7 @@ export interface DocumentFile {
     id?: string;
     name?: string;
     url?: string;
+    type?: string
     createdAt?: string;
     updatedAt?: string;
 }
@@ -79,7 +80,7 @@ export interface documentSharedWithClientType {
 }
 export interface documentSignByClientType {
     clientId: string, sharedDocumentId: string, eSignature: string, isAgree?: boolean, documentId: string
-
+    recipientId: string,
     providerId: string
 }
 
@@ -91,4 +92,5 @@ export interface DocModalData {
     sharedDocumentId?: string;
     eSignature?: string;
     isAgree?: boolean;
+    recipientId: string
 }

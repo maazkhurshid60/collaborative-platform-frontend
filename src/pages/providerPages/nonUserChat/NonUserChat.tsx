@@ -2,11 +2,11 @@ import Button from '../../../components/button/Button'
 import { NavLink, useParams } from 'react-router-dom'
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages'
 import { useQuery } from '@tanstack/react-query'
-import { Message } from '../chat/Chat'
 import { toast } from 'react-toastify'
 import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../redux/store'
+import { Message } from '../../../types/chatType/ChatType'
 
 
 const NonUserChat = () => {

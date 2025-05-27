@@ -11,9 +11,13 @@ import providerApiService from '../../../apiServices/providerApi/ProviderApi';
 import Loader from '../../../components/loader/Loader';
 import { useEffect, useState } from 'react';
 import clientApiService from '../../../apiServices/clientApi/ClientApi';
+import { ClientType } from '../../../types/clientType/ClientType';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 
 const Dashboard = () => {
+    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
 
 
@@ -42,8 +46,11 @@ const Dashboard = () => {
         queryKey: ['totalclients'],
         queryFn: async () => {
             try {
-                const response = await clientApiService.getAllTotalClient();
-                return response?.data?.totalDocument || 0; // Ensure it always returns an array
+                const response = await clientApiService.getAllClient(loginUserId);
+                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
+                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
+                );
+                return matchedClient?.length; // Ensure it always returns an array
             } catch (error) {
                 console.error("Error fetching providers:", error);
                 return [];

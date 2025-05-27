@@ -6,17 +6,19 @@ import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../redux/store';
 import UploadFile from '../../../inputField/UploadFile';
-import { RxCross2 } from "react-icons/rx";
 import Checkbox from '../../../checkbox/Checkbox';
 import { documentSignByClientType } from '../../../../types/documentType/DocumentType';
 import documentApiService from '../../../../apiServices/documentApi/DocumentApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import CrossIcon from '../../../icons/cross/Cross';
+import notificationApiService from '../../../../apiServices/notification/NotificationApi';
 
 interface ViewDocModalProps {
     sharedDocs?: string
     data: documentSignByClientType
 }
+
 
 const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType }> = ({ docs, data }) => {
     const [isAgree, setIsAgree] = useState(false);
@@ -24,10 +26,19 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
     const [signAdd, setSignAdd] = useState<string | null>(null);
     const [signatureFile, setSignatureFile] = useState<File | null>(null);
     const queryClient = useQueryClient();
+    console.log("clint share doc data recipientId", data);
 
     // --- useMutation hook ---
     const mutation = useMutation({
-        mutationFn: (formData: FormData) => documentApiService.documentSignByClientApi(formData),
+        mutationFn: async (formData: FormData) => {
+            documentApiService.documentSignByClientApi(formData);
+            const notificationSendToBackend = {
+                recipientId: data?.recipientId,
+                title: "Document Shared",
+                type: "DOCUMENT_SHARED"
+            }
+            await notificationApiService.sendNotification(notificationSendToBackend)
+        },
         onSuccess: () => {
             toast.success("Document signed successfully!");
             queryClient.invalidateQueries({ queryKey: ['documents'] }); // Adjust key to match your app
@@ -92,7 +103,7 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
                 alt="Signature"
                 className="m-auto min-h-[120px] max-h-[120px] object-contain rounded-md mb-4"
             />
-                <RxCross2 className='absolute top-0 right-0 cursor-pointer' onClick={() => setSignAdd(null)} />
+                <CrossIcon onClick={() => setSignAdd(null)} />
             </div> :
                 <UploadFile onChange={handleFileChange} text='Add your signature here' heading='Sign here' />
 

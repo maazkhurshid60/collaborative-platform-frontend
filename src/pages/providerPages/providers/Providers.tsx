@@ -6,7 +6,6 @@ import usePaginationHook from '../../../hook/usePaginationHook';
 import Table from '../../../components/table/Table';
 import CustomPagination from '../../../components/customPagination/CustomPagination';
 
-import { FaRegEye } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import Loader from '../../../components/loader/Loader';
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
@@ -16,6 +15,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import ViewIcon from '../../../components/icons/view/View';
+import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
 
 const Providers = () => {
 
@@ -23,7 +24,7 @@ const Providers = () => {
 
 
 
-    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
         queryKey: ["providers"],
@@ -88,39 +89,41 @@ const Providers = () => {
     return (
         <OutletLayout heading='Providers List' button={<Button text='Download xls' onclick={() => downloadXLS(getCurrentRecords())} />}>
             <div className='mt-10'>
-                <Table heading={heading} >
-                    {filteredData
-                        .map((data: ProviderType, id: number) => (
+                {filteredData?.length === 0 ? <NoRecordFound /> : <>
+                    <Table heading={heading} >
+                        {filteredData
+                            .map((data: ProviderType, id: number) => (
 
-                            <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                <td className="px-2 py-2">{data?.user?.cnic}</td>
-                                <td className="px-2 py-2">{data?.user?.gender}</td>
-                                <td className="px-2 py-2 lowercase">{data?.email}</td>
-                                <td className="px-2 py-2">{data?.user?.status}</td>
-                                <td className="px-2 py-2 w-[100px]">
+                                <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
+                                    <td className="px-2 py-2">{data?.user?.fullName}</td>
+                                    <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                    <td className="px-2 py-2">{data?.user?.gender}</td>
+                                    <td className="px-2 py-2 lowercase">{data?.email}</td>
+                                    <td className="px-2 py-2">{data?.user?.status}</td>
+                                    <td className="px-2 py-2 w-[100px]">
 
-                                    {data?.clientList?.length === 0 || data?.clientList === undefined
-                                        ? <p>No Clients</p>
-                                        : data?.clientList.map((provider: ProviderType, index) => (
-                                            <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                {provider?.client?.user?.fullName}
+                                        {data?.clientList?.length === 0 || data?.clientList === undefined
+                                            ? <p>No Clients</p>
+                                            : data?.clientList.map((provider: ProviderType, index) => (
+                                                <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                                    {provider?.client?.user?.fullName}
 
-                                            </p>
-                                        ))
-                                    }
-                                </td>
+                                                </p>
+                                            ))
+                                        }
+                                    </td>
 
 
-                                <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
-                                    <Link to={`/providers/${data?.id}`}>
-                                        <FaRegEye size={18} className='cursor-pointer  text-textGreyColor' />
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
-                </Table>
-                <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                                    <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
+                                        <Link to={`/providers/${data?.id}`}>
+                                            <ViewIcon />
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                    </Table>
+                    <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                </>}
             </div>
         </OutletLayout >)
 }

@@ -8,7 +8,8 @@ import { useDispatch } from 'react-redux'
 
 interface DeleteModalProps {
     onDeleteConfirm?: () => void,
-    text?: React.ReactNode
+    text?: React.ReactNode,
+    heading?: string
 }
 
 
@@ -30,7 +31,7 @@ const deleteClientModalBody = (dispatch: AppDispatch, onDeleteConfirm: () => voi
 const DeleteClientModal: React.FC<DeleteModalProps> = (props) => {
     const dispatch = useDispatch<AppDispatch>()
     return (
-        <ModalLayout heading='Delete Client' modalBodyContent={deleteClientModalBody(dispatch, props.onDeleteConfirm || (() => { }), props?.text)} />
+        <ModalLayout heading={props.heading ? props.heading : 'Delete Client'} modalBodyContent={deleteClientModalBody(dispatch, props.onDeleteConfirm || (() => { }), props?.text)} />
     )
 }
 

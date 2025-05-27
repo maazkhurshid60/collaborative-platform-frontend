@@ -19,6 +19,7 @@ import Button from '../../../button/Button'
 import { FiMinusCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { GroupChat } from '../../../../types/chatType/GroupType'
+import ToolTip from '../../../toolTip/ToolTip'
 type FormFields = z.infer<typeof groupSchema>
 const NewGroupChatModal = () => {
     const { register, formState: { errors }, handleSubmit } = useForm<FormFields>({ resolver: zodResolver(groupSchema) })
@@ -107,7 +108,7 @@ const NewGroupChatModal = () => {
             </div>
             <div className='mt-4'>
 
-                <SearchBar sm />
+                <SearchBar sm bgColor='bg-inputBgColor' isBorder={false} borderRounded='rounded-[8px]' />
             </div>
             <div className='mt-2 mb-4'>
                 {allProviders?.map((data: ProviderType, id: number) => {
@@ -121,16 +122,23 @@ const NewGroupChatModal = () => {
                                 {data?.user?.fullName}
                             </p>
                             {isMember ? (
-                                <FiMinusCircle
-                                    className='cursor-pointer text-xl text-textGreyColor'
-                                    onClick={() =>
-                                        setGroupMembers(prev => prev.filter(member => member !== data.id!.toString()))
-                                    }
-                                />
+                                <div className='relative group'>
+                                    <FiMinusCircle
+                                        className='cursor-pointer text-xl text-textGreyColor'
+                                        onClick={() =>
+                                            setGroupMembers(prev => prev.filter(member => member !== data.id!.toString()))
+                                        }
+                                    />
+                                    <ToolTip toolTipText='Remove Member' />
+                                </div>
                             ) : (
-                                <AddIcon
-                                    onClick={() => setGroupMembers(prev => [...prev, data.id!.toString()])}
-                                />
+                                <div className='relative group'>
+                                    <AddIcon
+                                        onClick={() => setGroupMembers(prev => [...prev, data.id!.toString()])}
+                                    />
+                                    <ToolTip toolTipText='Add Member' />
+
+                                </div>
                             )}
                         </div>
                     );

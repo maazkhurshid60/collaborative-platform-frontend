@@ -15,6 +15,8 @@ import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDeta
 import { AxiosError } from "axios";
 import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { Client } from '../../../types/providerType/ProviderType';
+import { useState } from 'react';
+import Loader from '../../../components/loader/Loader';
 
 type FormFields = z.infer<typeof LoginSchema>;
 
@@ -23,7 +25,7 @@ export interface ISigninData {
     password: string;
 }
 const Login = () => {
-
+    const [isLoading, setIsLoading] = useState(false)
     const {
         register,
         handleSubmit,
@@ -37,6 +39,7 @@ const Login = () => {
 
     //FUNCTIONS
     const loginFunction = async (data: FormFields) => {
+        setIsLoading(true)
         try {
             const response = await authService.login(data);
 
@@ -72,28 +75,33 @@ const Login = () => {
         } catch (error) {
             const err = error as AxiosError<AuthErrorResponse>;
             toast.error(`${err?.response?.data?.data?.error}`);
+        } finally {
+            setIsLoading(false)
         }
     };
 
     return (
-        <AuthLayout heading='sign in'>
+        <>
+            {isLoading && <Loader />}
+            <AuthLayout heading='sign in'>
 
-            <form onSubmit={handleSubmit(loginFunction)}>
-                <div className='mb-4'>
-                    <InputField label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
-                </div>
-                <div className='mb-4'>
-                    <InputField label='Password' type='password' register={register("password")} name='password' placeHolder='Enter Password.' error={errors.password?.message} />
-                </div>
-                <div className='mt-10'>
+                <form onSubmit={handleSubmit(loginFunction)}>
+                    <div className='mb-4'>
+                        <InputField label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                    </div>
+                    <div className='mb-4'>
+                        <InputField label='Password' type='password' register={register("password")} name='password' placeHolder='Enter Password.' error={errors.password?.message} />
+                    </div>
+                    <div className='mt-10'>
 
-                    <Button text='sign in' />
-                </div>
+                        <Button text='sign in' />
+                    </div>
 
-                <p className='font-normal labelNormal  text-center mt-14'> Don’t have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/provider-signup") }}>Sign up</span></p>
-            </form>
+                    <p className='font-normal labelNormal  text-center mt-14'> Don’t have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/provider-signup") }}>Sign up</span></p>
+                </form>
 
-        </AuthLayout>
+            </AuthLayout>
+        </>
     )
 }
 

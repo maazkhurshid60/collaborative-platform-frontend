@@ -15,11 +15,14 @@ import { providerSchema } from "../../../schema/providerSchema/ProviderSchema";
 import UserIcon from '../../../components/icons/user/User';
 import BackIcon from '../../../components/icons/back/Back';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ProviderType, User } from '../../../types/providerType/ProviderType';
+import { ProviderType } from '../../../types/providerType/ProviderType';
 import Loader from '../../../components/loader/Loader';
 import loginUserApiService from '../../../apiServices/loginUserApi/LoginUserApi';
 import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import { GoDotFill } from 'react-icons/go';
+import FileUploader from '../../../components/uploader/fileUploader/FileUploader';
+import CrossIcon from '../../../components/icons/cross/Cross';
+import { localhostBaseUrl } from '../../../apiServices/baseUrl/BaseUrl';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -35,6 +38,9 @@ const UserProfile = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const [getMeDetail, setGetMeDetail] = useState<ProviderType | undefined>(undefined);
     const [isLoader, setIsLoader] = useState(false)
+    const [showUploader, setShowUploader] = useState(false)
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
     const {
@@ -46,8 +52,24 @@ const UserProfile = () => {
     });
 
     const updateFunction = (data: FormFields) => {
-        // toast.success("User has updated successfully")
-        updateMutation.mutate(data)
+        const formData = new FormData()
+        formData.append('address', data?.address)
+        formData.append('fullName', data?.fullName)
+        formData.append('email', data?.email)
+        formData.append('cnic', data?.cnic)
+        formData.append('age', data?.age?.toString())
+        formData.append('department', data?.department)
+        formData.append('loginUserId', loginUserDetail?.user?.id)
+        formData.append('role', loginUserDetail?.user?.role)
+        formData.append('contactNo', data?.contactNo)
+        // // toast.success("User has updated successfully")
+        if (selectedFile) {
+            formData.append('profileImage', selectedFile)
+        }
+        else {
+            formData.append('profileImage', "")
+        }
+        updateMutation.mutate(formData)
 
     }
 
@@ -73,19 +95,32 @@ const UserProfile = () => {
             setValue("email", getMeData?.email ?? "")
             setValue("department", getMeData?.department ?? "")
             setValue("address", getMeData?.user?.address ?? "")
+            console.log("getMeData?.user?.profileImage", getMeData?.user?.profileImage);
+
+            if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
+                const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
+                setPreviewUrl(imagePath)
+            } else {
+                setPreviewUrl(null)
+            }
         }
     }, [getMeData])
 
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file)
+        setPreviewUrl(URL.createObjectURL(file))
+        setShowUploader(false)
+    }
 
-
+    console.log("previewUrlpreviewUrlpreviewUrlpreviewUrl", previewUrl);
 
     const updateMutation = useMutation({
-        mutationFn: async (data: User) => {
-            const dataSendToBackend = { ...data, loginUserId: loginUserDetail?.user.id, age: data && parseInt(data?.age ?? "18"), role: getMeDetail?.user?.role }
-            const response = await loginUserApiService.updateMeApi(dataSendToBackend);
-            console.log("<<<<<<response>>>>>>>", response?.data);
-            dispatch(saveLoginUserDetailsReducer(response?.data))
 
+        mutationFn: async (data: FormData) => {
+            const response = await loginUserApiService.updateMeApi(data)
+            console.log("reponse", response);
+
+            dispatch(saveLoginUserDetailsReducer(response?.data))
         },
 
         onMutate: () => {
@@ -126,7 +161,32 @@ const UserProfile = () => {
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
                     <div>
                         <LabelData label='User Image' />
-                        <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon")} />
+                        <div className="relative w-32 h-32">
+                            {!showUploader ? (
+                                previewUrl ? (
+                                    <img
+                                        src={previewUrl}
+                                        alt="Client"
+                                        className="w-32 h-32 rounded-full object-cover"
+                                    />
+                                ) : (
+
+                                    <UserIcon className="text-8xl text-textColor" />
+                                )
+                            ) : (
+                                <FileUploader onFileSelect={handleFileSelect} />
+                            )}
+
+                            {/* Show cross icon even if there's no image */}
+                            {!showUploader && (
+
+                                <CrossIcon onClick={() => {
+                                    setShowUploader(true);
+                                    setSelectedFile(null);
+                                    setPreviewUrl(null);
+                                }} />
+                            )}
+                        </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
                         <div className=''>
@@ -164,16 +224,8 @@ const UserProfile = () => {
 
 
                         <div className=' '>
-                            <LabelData label='Your List of Active Clients' />
-                            {/* <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                                {getMeDetail?.clientList?.map((data, index) => (
-                                    <li key={index} className="flex items-center gap-x-4">
-                                        {data?.client?.user?.fullName}
-                                        <DeleteIcon onClick={() => dispatch(isModalDeleteReducer(true))} />
-                                    </li>
-                                ))}
+                            <LabelData label='List of Active Clients' />
 
-                            </ul> */}
                             <ul className="text-[14px] font-medium text-textGreyColor">
                                 {getMeDetail?.clientList?.map((data, index) => (
                                     <li key={index}>
@@ -183,9 +235,7 @@ const UserProfile = () => {
                                                 <GoDotFill className='text-[6px]' />
                                                 {data?.client?.user?.fullName}
                                             </div>
-                                            {/* <DeleteIcon
-                                            onClick={() => dispatch(isModalDeleteReducer(true))}
-                                            /> */}
+
 
                                         </div>
                                     </li>
@@ -211,7 +261,24 @@ const UserProfile = () => {
                     <div className='mt-6'>
                         <div>
                             <LabelData label='User Image' />
-                            <UserIcon className='text-6xl mt-2' />
+                            {/* <UserIcon className='text-6xl mt-2' /> */}
+
+                            <div className="relative w-32 h-32">
+                                {
+                                    previewUrl ? (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Client"
+                                            className="w-32 h-32 rounded-full object-cover"
+                                        />
+                                    ) : (
+
+                                        <UserIcon className="text-8xl text-textColor" />
+                                    )
+                                }
+
+
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
@@ -236,7 +303,7 @@ const UserProfile = () => {
 
 
                             <div className=' '>
-                                <LabelData label='Your List of Active Clients' />
+                                <LabelData label='List of Active Clients' />
                                 <ul className="text-[14px] font-medium text-textGreyColor ">
                                     {getMeDetail?.clientList && getMeDetail?.clientList?.length > 0 ?
                                         getMeDetail?.clientList?.map((data, index) => (

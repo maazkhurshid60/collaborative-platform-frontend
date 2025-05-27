@@ -26,6 +26,7 @@ class DocumentApiService {
     async documentSharedWithClientApi(data: documentSharedWithClientType) {
         try {
             const response = await this.api.post("/document/document-shared-by-provider", data); // prepend /provider here
+            toast.success(`${response?.data?.data?.message}`)
             return response?.data;
         } catch (error: unknown) {
             let errMsg = "Something went wrong";

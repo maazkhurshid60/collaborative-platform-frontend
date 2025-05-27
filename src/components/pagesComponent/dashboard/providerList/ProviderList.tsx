@@ -8,10 +8,11 @@ import providerApiService from '../../../../apiServices/providerApi/ProviderApi'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import Loader from '../../../loader/Loader'
+import NoRecordFound from '../../../noRecordFound/NoRecordFound'
 
 const ProviderList = () => {
     const heading = ["S.No", "name", "CNIC Number", "email", "status", "clients"]
-    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
 
     const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
@@ -45,33 +46,35 @@ const ProviderList = () => {
     }
     return (<>
         <div className='mt-2'>
-            <Table heading={heading} >
-                {filteredData
-                    .map((data: ProviderType, id: number) => (
+            {filteredData?.length === 0 ? <NoRecordFound /> : <>
+                <Table heading={heading} >
+                    {filteredData
+                        .map((data: ProviderType, id: number) => (
 
-                        <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                            <td className="px-2 py-2">{id + 1}</td>
-                            <td className="px-2 py-2">{data?.user?.fullName}</td>
-                            <td className="px-2 py-2">{data?.user?.cnic}</td>
-                            <td className="px-2 py-2 lowercase">{data?.email}</td>
-                            <td className="px-2 py-2">{data?.user?.status}</td>
-                            <td className="px-2 py-2 w-[100px]">
-                                {data?.clientList?.length === 0 || data?.clientList === undefined
-                                    ? <p>No Clients</p>
-                                    : data?.clientList.map((provider: ProviderType, index) => (
-                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                            {provider?.client?.user?.fullName}
+                            <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
+                                <td className="px-2 py-2">{id + 1}</td>
+                                <td className="px-2 py-2">{data?.user?.fullName}</td>
+                                <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                <td className="px-2 py-2 lowercase">{data?.email}</td>
+                                <td className="px-2 py-2">{data?.user?.status}</td>
+                                <td className="px-2 py-2 w-[100px]">
+                                    {data?.clientList?.length === 0 || data?.clientList === undefined
+                                        ? <p>No Clients</p>
+                                        : data?.clientList.map((provider: ProviderType, index) => (
+                                            <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                                {provider?.client?.user?.fullName}
 
-                                        </p>
-                                    ))
-                                }
-                            </td>
+                                            </p>
+                                        ))
+                                    }
+                                </td>
 
 
-                        </tr>
-                    ))}
-            </Table>
-            <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                            </tr>
+                        ))}
+                </Table>
+                <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} /></>}
+
         </div>
     </>
 

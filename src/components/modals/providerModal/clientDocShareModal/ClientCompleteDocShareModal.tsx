@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Button from '../../../button/Button';
 import { MdOutlineFileDownload } from 'react-icons/md';
+import { localhostBaseUrl, staggingBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl';
 
 interface Document {
     url: string;
@@ -32,8 +33,15 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
             if (!completedDoc?.url) return;
             try {
                 const fileName = completedDoc.url.split('/').pop();
-                // const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
-                const response = await fetch(`https://collaborative-platform-backend.onrender.com/uploads/docs/${fileName}`);
+                const dummyLinkkk =
+                    import.meta.env.VITE_ENV === 'LOCALHOST'
+                        ? `${localhostBaseUrl}${fileName}`
+                        : `${staggingBaseUrl}${fileName}`;
+                console.log("dummyLinkdummyLinkdummyLink", dummyLinkkk);
+
+                // const response = await fetch(`${dummyLink}`);
+                const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
+                // const response = await fetch(`https://collaborative-platform-backend.onrender.com/uploads/docs/${fileName}`);
                 if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
 
                 const arrayBuffer = await response.arrayBuffer();
@@ -54,9 +62,10 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
     const handleDownloadPDF = async () => {
         if (!contentRef.current) return;
 
-        // Clone node to remove scroll limit
         const original = contentRef.current;
         const clone = original.cloneNode(true) as HTMLElement;
+
+        // Style clone for accurate rendering
         clone.style.maxHeight = 'unset';
         clone.style.overflow = 'visible';
         clone.style.position = 'absolute';
@@ -69,29 +78,33 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
 
         const canvas = await html2canvas(clone, {
             useCORS: true,
-            scale: 2,
+            scale: 3, // higher scale = better quality
         });
 
         const imgData = canvas.toDataURL('image/png');
+
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        // If the content is taller than one page, split it
+        let heightLeft = imgHeight;
         let position = 0;
-        if (pdfHeight > pdf.internal.pageSize.getHeight()) {
-            while (position < pdfHeight) {
-                pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, pdfHeight);
-                position += pdf.internal.pageSize.getHeight();
-                if (position < pdfHeight) pdf.addPage();
+
+        // Paginate content if needed
+        while (heightLeft > 0) {
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pageHeight;
+            if (heightLeft > 0) {
+                pdf.addPage();
+                position -= pageHeight;
             }
-        } else {
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
         }
 
         pdf.save('document_with_esignatures.pdf');
         document.body.removeChild(clone);
     };
+
     console.log(filteredRecords)
 
     return (
@@ -138,8 +151,10 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                         record.eSignature ? (
                                             <img
                                                 key={record.id}
-                                                // src={`http://localhost:8000/uploads/esignatures/${record.eSignature}`}
-                                                src={`https://collaborative-platform-backend.onrender.com/uploads/esignatures/${record.eSignature}`}
+
+                                                // src={import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}/uploads/esignatures/${record.eSignature}` : `${staggingBaseUrl}/uploads/esignatures/${record.eSignature}`}
+                                                src={`http://localhost:8000/uploads/esignatures/${record.eSignature}`}
+                                                // src={`https://collaborative-platform-backend.onrender.com/uploads/esignatures/${record.eSignature}`}
                                                 alt="eSignature"
                                                 crossOrigin="anonymous"
                                                 className="w-[400px] h-[200px] border rounded shadow mt-4"

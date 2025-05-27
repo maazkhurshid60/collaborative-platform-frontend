@@ -21,63 +21,19 @@ import { HiOutlineUserAdd } from "react-icons/hi";
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
 import { ProviderType } from '../../../types/providerType/ProviderType';
 import { GroupChat } from '../../../types/chatType/GroupType';
+import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
+import ToolTip from '../../../components/toolTip/ToolTip';
 
 
-interface Group {
-    id?: string
-    members?: ProviderType[]
-}
-interface NewMessage {
-    chatChannelId?: string
-    id?: string
-    message?: string
-}
-export interface Message {
-    id: string;
-    message: string;
-    type: string;
-    mediaUrl: string;
-    chatChannelId: string;
-    groupId: string | null;
-    senderId: string;
-    createdAt: string;
-    readStatus: 'read' | 'unread';
-    readReceipts: string[]; // Define more precisely if needed
 
-    sender: {
-        id: string;
-        email: string;
-        password: string;
-        department: string;
-        createdAt: string;
-        updatedAt: string;
-        userId: string;
-
-        user: {
-            id: string;
-            fullName: string;
-            age: number;
-            gender: string;
-            cnic: string;
-            contactNo: string;
-            address: string;
-            role: string;
-            status: string;
-            profileImage: string | null;
-            createdAt: string;
-            updatedAt: string;
-            blockedMembers: string[]; // Define type if available
-        };
-    };
-}
 
 const Chat = () => {
-    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
-    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
-    const isNewChatModal = useSelector((state: RootState) => state.modalSlice.isNewChatModal);
-    const isNewGroupChatModal = useSelector((state: RootState) => state.modalSlice.isNewGroupChatModal);
-    const isModalShow = useSelector((state: RootState) => state.modalSlice.isModalShow);
+    const isNewChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewChatModal);
+    const isNewGroupChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewGroupChatModal);
+    const isModalShow = useSelector((state: RootState) => state?.modalSlice?.isModalShow);
     const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
     const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
     const [activeId, setActiveId] = useState<string>()
@@ -214,25 +170,6 @@ const Chat = () => {
     }, [loginUserId, allGroups]);
 
 
-    // React Query to fetch messages for the active chat
-    // const { data: allMessage } = useQuery<Message[]>({
-    //     queryKey: ['messages', activeChatObject?.id],
-    //     queryFn: async () => {
-    //         if (!activeChatObject?.id) {
-    //             toast.error("Chat channel ID is missing.");
-    //             return;
-    //         }
-    //         const dataSendToBack = { loginUserId, chatChannelId: activeChatObject?.id };
-    //         try {
-    //             const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
-    //             return response?.data?.messages;
-    //         } catch (error) {
-    //             console.error('Error fetching messages:', error);
-    //             return [];
-    //         }
-    //     },
-    //     enabled: !!activeChatObject?.id && activeChatType === 'individual',
-    // });
     const { data: allMessage = [] } = useQuery<Message[]>({
         queryKey: ['messages', activeChatObject?.id],
         queryFn: async () => {
@@ -338,7 +275,11 @@ const Chat = () => {
                     <div className='flex items-center justify-between '>
 
                         <p className="font-medium text-[14px] text-textGreyColor">Recent Chats</p>
-                        <HiOutlineUserAdd className='cursor-pointer text-xl text-textGreyColor' onClick={() => dispatch(isNewChatModalShowReducser(true))} />
+                        <div className='relative group'>
+
+                            <HiOutlineUserAdd className='cursor-pointer text-xl text-textGreyColor' onClick={() => dispatch(isNewChatModalShowReducser(true))} />
+                            <ToolTip toolTipText='Start chat with new Provider' />
+                        </div>
                     </div>
                     <div className="min-h-[31vh] max-h-[31vh] bg- p-2 lg:p-0 overflow-auto mt-4">
                         {unBlockProviders?.map((data: ChatChannelType) => (
@@ -383,7 +324,11 @@ const Chat = () => {
                     <div className='flex items-center justify-between mt-4'>
 
                         <p className=" font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">Group Chats</p>
-                        <HiOutlineUserAdd className='cursor-pointer text-xl text-textGreyColor' onClick={() => dispatch(isNewGroupChatModalShowReducser(true))} />
+                        <div className='relative group'>
+
+                            <HiOutlineUserAdd className='cursor-pointer text-xl text-textGreyColor' onClick={() => dispatch(isNewGroupChatModalShowReducser(true))} />
+                            <ToolTip toolTipText='Add New Group' />
+                        </div>
 
                     </div>
 

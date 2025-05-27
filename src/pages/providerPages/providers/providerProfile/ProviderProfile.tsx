@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import { GoDotFill } from 'react-icons/go'
+import { localhostBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl'
 
 const ProviderProfile = () => {
     const navigate = useNavigate()
@@ -40,6 +41,9 @@ const ProviderProfile = () => {
 
     }, [])
 
+    const imagePath = `${localhostBaseUrl}uploads/eSignatures/${selectedProviderData?.user?.profileImage?.split('/').pop()}`
+
+
     if (isLoading) {
         return <Loader text='Loading...' />
     }
@@ -59,7 +63,12 @@ const ProviderProfile = () => {
             <div className='mt-6'>
                 <div>
                     <LabelData label='Provider Image' />
-                    <UserIcon className='text-6xl mt-2' />
+                    {(selectedProviderData?.user?.profileImage !== null && selectedProviderData?.user?.profileImage !== "null") ? <img
+                        src={imagePath}
+                        alt="Client"
+                        className="w-20 h-20 rounded-full object-cover"
+                    /> : <UserIcon className='text-6xl mt-2' />}
+
                 </div>
 
                 {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}

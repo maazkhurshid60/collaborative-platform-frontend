@@ -14,6 +14,7 @@ const initialState = {
         updatedAt: "",
         department: "",
         clientList: [],
+        userId: "",
         user: {
             address: null,
             age: null,
@@ -24,7 +25,7 @@ const initialState = {
             fullName: "",
             gender: null,
             id: "",
-            profileImage: null,
+            profileImage: "",
             role: "",
             status: null,
             updatedAt: ""
@@ -84,6 +85,7 @@ const LoginUserDetail = createSlice({
                 updatedAt: "",
                 department: "",
                 clientList: [],
+                userId: "",
                 user: {
                     address: null,
                     age: null,
@@ -94,7 +96,7 @@ const LoginUserDetail = createSlice({
                     fullName: "",
                     gender: null,
                     id: "",
-                    profileImage: null,
+                    profileImage: "",
                     role: "",
                     status: null,
                     updatedAt: ""

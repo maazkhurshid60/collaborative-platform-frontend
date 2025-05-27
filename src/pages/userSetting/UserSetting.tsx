@@ -43,7 +43,7 @@ const UserSetting = () => {
     })
 
     console.log("allUsersData", allUsersData && allUsersData[0]);
-    const filteredData = allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail.user.id))
+    const filteredData = allUsersData && allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail.user.id))
     console.log("filteredData", filteredData);
 
     const deleteMe = () => {

@@ -9,8 +9,9 @@ import { getSocket } from '../../../../socket/Socket';  // Corrected import
 import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { toast } from 'react-toastify';
-import { GroupChat } from '../../../../types/chatType/GroupType';
+import { GroupChat, GroupMember } from '../../../../types/chatType/GroupType';
 import "./chat.css"
+import { localhostBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl';
 
 
 
@@ -22,7 +23,7 @@ interface Message {
     chatChannelId: string;
     createdAt: string;
     sender: {
-        user: { fullName: string };
+        user: { fullName: string, profileImage?: string | null };
     };
     you?: boolean;
 }
@@ -268,6 +269,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             ? activeChatObject?.providerB?.user?.fullName
             : activeChatObject?.providerA?.user?.fullName;
 
+    console.log("activeChatObject", activeChatObject);
 
 
     return (
@@ -275,8 +277,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
         <div className="bg-white p-3 rounded-lg h-full flex flex-col">
-            <ChatNavbar name={otherName} groupMembers={activeChatObject?.members?.map(m => m?.user?.fullName)} />
-            <hr className="my-4 border-inputBgColor" />
+            <ChatNavbar
+                name={otherName}
+                groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
+            />            <hr className="my-4 border-inputBgColor" />
 
             <div className="flex-1 overflow-y-auto mb-4">
                 {messages.length === 0 && (
@@ -292,7 +296,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 key={msg.id}
                                 className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}
                             >
-                                {!msg.you && <UserIcon size={30} />}
+
+
+
+                                {!msg.you &&
+                                    <>
+                                        {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
+                                            <img className='w-10 h-10 rounded-full' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
+
+
+                                            : <UserIcon size={30} />}
+
+                                        {/*  */}
+                                    </>}
+
                                 <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
                                     <p className="font-semibold mb-2">
                                         {msg?.you ? 'You' : msg?.sender?.user?.fullName}
@@ -318,7 +335,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                         </p>}
                                     </div>
                                 </div>
-                                {msg.you && <UserIcon size={30} />}
+                                {msg.you && <>  {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
+                                    <img className='w-10 h-10 rounded-full' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
+
+
+                                    : <UserIcon size={30} />}
+                                </>
+                                }
                             </div>
                         ))}
                     </div>

@@ -12,11 +12,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Document, DocumentResponseType } from '../../../../types/documentType/DocumentType';
 import documentApiService from '../../../../apiServices/documentApi/DocumentApi';
 import ClientCompleteDocShareModal from '../../../modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal';
+import { toast } from 'react-toastify';
 interface ShareClientDocProps {
     clientId: string
+    recipientId?: string
 }
 
-const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId }) => {
+const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId }) => {
     const dispatch = useDispatch<AppDispatch>()
     const [sharedDocs, setSharedDocs] = useState<string[]>()
     const [sharedDocsId, setSharedDocsId] = useState<string[]>([])
@@ -53,11 +55,9 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId }) => {
         }
 
     })
-    console.log("..................................sharedDocsId..................................", sharedDocsId);
-
 
     return (<div>
-        {isShowModal && <ClientDocShareModal sharedDocs={sharedDocs} clientId={clientId} providerId={providerId} sharedDocsId={sharedDocsId} />}
+        {isShowModal && recipientId && <ClientDocShareModal sharedDocs={sharedDocs} clientId={clientId} providerId={providerId} sharedDocsId={sharedDocsId} recipientId={recipientId} />}
         {isClientCompleteDocModal && <ClientCompleteDocShareModal completedDoc={selectedCompletedDoc} clientId={clientId} />}
         <div className='relative pl-2'>
 
@@ -65,7 +65,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId }) => {
                 <p className='font-semibold text-[14px] '>Needs to be Completed</p>
                 <div className='w-[95px]'>
 
-                    <Button text='Share' sm onclick={() => dispatch(isModalShowReducser(true))} icon={<FaRegShareFromSquare />} />
+                    <Button text='Share' sm onclick={() => (sharedDocs && sharedDocs.length > 0) ? dispatch(isModalShowReducser(true)) : toast.warn("First Select Document")} icon={<FaRegShareFromSquare />} />
                 </div>
             </div>
             <div className='grid  grid-cols-1 sm:grid-cols-2 gap-y-3'>
@@ -91,7 +91,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId }) => {
 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
-                {documentData?.completedDocuments?.map((data: Document) => <div className=' flex items-center gap-x-3 font-medium text-[14px] '
+                {documentData?.completedDocuments?.map((data: Document) => <div className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
                     onClick={() => { dispatch(isClientCompleteDocModalReducer(true)); setSelectedCompletedDoc(data); }}
                 > <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}</div>)}
             </div>

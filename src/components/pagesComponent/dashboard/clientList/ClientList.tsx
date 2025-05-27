@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIcon from '../../../icons/edit/Edit';
 import DeleteIcon from '../../../icons/delete/DeleteIcon';
 import { ProviderType } from '../../../../types/providerType/ProviderType';
+import NoRecordFound from '../../../noRecordFound/NoRecordFound';
 
 const ClientList = () => {
     const heading = ["name", "CNIC Number", "gender", "email", "status", "providers", "action"]
@@ -25,8 +26,8 @@ const ClientList = () => {
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
     const navigate = useNavigate()
-    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
-    const isModalDelete = useSelector((state: RootState) => state.modalSlice.isModalDelete)
+    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
+    const isModalDelete = useSelector((state: RootState) => state?.modalSlice?.isModalDelete)
     const [selectedClientId, setSelectedClientId] = useState<string>("")
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
@@ -95,56 +96,65 @@ const ClientList = () => {
     return (<>
         <div className='mt-2'>
             {isLoader && <Loader text='Deleting...' />}
-            {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} />}
-            <Table heading={heading} >
-                {getCurrentRecords()
-                    ?.map((data: ClientType, id: number) => (
+            {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
+            />}
+            {getCurrentRecords()?.length === 0 ? <NoRecordFound /> : <>
+                <Table heading={heading} >
+                    {getCurrentRecords()
+                        ?.map((data: ClientType, id: number) => (
 
-                        <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                            <td className="px-2 py-2">{data?.user?.fullName}</td>
-                            <td className="px-2 py-2">{data?.user?.cnic}</td>
-                            <td className="px-2 py-2">{data?.user?.gender}</td>
-                            <td className="px-2 py-2 lowercase">{data?.email}</td>
-                            <td className="px-2 py-2">{data?.user?.status}</td>
-                            <td className="px-2 py-2 w-[100px] ">
-                                {data?.providerList?.length === 0 || data?.providerList === undefined
-                                    ? <p>No Providers</p>
-                                    : data?.providerList.map((provider: Provider, index) => (
-                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                            {provider?.provider?.user?.fullName}
+                            <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
+                                <td className="px-2 py-2">{data?.user?.fullName}</td>
+                                <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                <td className="px-2 py-2">{data?.user?.gender}</td>
+                                <td className="px-2 py-2 lowercase">{data?.email}</td>
+                                <td className="px-2 py-2">{data?.user?.status}</td>
+                                <td className="px-2 py-2 w-[100px] ">
+                                    {data?.providerList?.length === 0 || data?.providerList === undefined
+                                        ? <p>No Providers</p>
+                                        : data?.providerList.map((provider: Provider, index) => (
+                                            <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                                {provider?.provider?.user?.fullName}
 
-                                        </p>
-                                    ))
-                                }
+                                            </p>
+                                        ))
+                                    }
 
-                            </td>
+                                </td>
 
-                            <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
-                                {data?.providerList?.length !== 0 || data?.providerList !== undefined
-                                    &&
-                                    data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId) ? (
-                                    <>
-                                        <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
-                                        <DeleteIcon onClick={() => handleDeleteFun(data?.userId ?? "")} />{/* delete those client which are present in logined provider list */}
-                                    </>
-                                ) : (
-                                    <>
-                                        <EditIcon disable />
-                                        <DeleteIcon disable />
-                                    </>
-                                )
+                                <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
+                                    {data?.providerList?.length !== 0 || data?.providerList !== undefined
+                                        &&
+                                        data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId) ? (
+                                        <>
+                                            <div>
+
+                                                <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />
+                                            </div>
+                                            <div>
+
+                                                <DeleteIcon onClick={() => handleDeleteFun(data?.userId ?? "")} />{/* delete those client which are present in logined provider list */}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <EditIcon disable />
+                                            <DeleteIcon disable />
+                                        </>
+                                    )
 
 
-                                }
+                                    }
 
 
-                            </td>
+                                </td>
 
 
-                        </tr>
-                    ))}
-            </Table>
-            <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                            </tr>
+                        ))}
+                </Table>
+                <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} /></>}
+
         </div>
 
     </>

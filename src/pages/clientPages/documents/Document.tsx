@@ -17,10 +17,12 @@ import { useQuery } from "@tanstack/react-query"
 
 import * as mammoth from "mammoth";
 import { DocModalData, documentSignByClientType, DocumentType } from "../../../types/documentType/DocumentType"
+import { localhostBaseUrl, staggingBaseUrl } from "../../../apiServices/baseUrl/BaseUrl"
+import NoRecordFound from "../../../components/noRecordFound/NoRecordFound"
 
 
 const Document = () => {
-    const heading = ["document", "status", "date", "Shared by", "action"]
+    const heading = ["document", "type", "status", "date", "Shared by", "action"]
     const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow)
     const dispatch = useDispatch<AppDispatch>()
     const clientId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id)
@@ -44,17 +46,22 @@ const Document = () => {
         }
 
     })
-    const { totalPages,
-        getCurrentRecords,
-        handlePageChange, currentPage,
-    } = usePaginationHook({ data: documentData || [], recordPerPage: 7 })
+    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<formatedate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", documentData);
+    const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
+        usePaginationHook({ data: Array.isArray(documentData) ? documentData : [], recordPerPage: 7 });
+    // const { totalPages,
+    //     getCurrentRecords,
+    //     handlePageChange, currentPage,
+    // } = usePaginationHook({ data: documentData || [], recordPerPage: 7 })
 
     console.log("documentData", documentData);
 
     const handleDownload = async (fileUrl: string, fileName: string) => {
+
+
         try {
-            // const fullUrl = `http://localhost:8000/uploads/docs${fileUrl.replace("/uploads", "")}`;
-            const fullUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${fileUrl.replace("/uploads", "")}`;
+            const fullUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}`;
+            // const fullUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${fileUrl.replace("/uploads", "")}`;
 
             const response = await fetch(fullUrl);
             if (!response.ok) throw new Error("File not found");
@@ -74,11 +81,12 @@ const Document = () => {
         }
     };
 
+    console.log("getCurrentRecords()", getCurrentRecords());
 
 
 
     const [selectedDoc, setSelectedDoc] = useState("")
-    const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({ clientId: "", providerId: "", documentId: "", sharedDocumentId: "", eSignature: "", isAgree: false })
+    const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({ clientId: "", providerId: "", documentId: "", sharedDocumentId: "", eSignature: "", isAgree: false, recipientId: "" })
     return (
         <OutletLayout heading="Documents">
             {showModal && (
@@ -90,66 +98,73 @@ const Document = () => {
 
 
             <div className='mt-10 w-[100%]'>
-                <Table heading={heading} >
-                    {getCurrentRecords()?.map((data: DocumentType, id: number) => (
+                {getCurrentRecords()?.length === 0 ? <NoRecordFound />
+                    : <>
 
-                        <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
-                            <td className="px-2 py-2 font-semibold">{data?.document?.name}</td>
-                            {/* <td className="px-2 py-2">{data.doctype}</td> */}
-                            <td className="px-2 py-2 ">
-                                <p className={`p-1.5 w-auto  rounded-md text-sm 
+                        <Table heading={heading} >
+                            {getCurrentRecords()?.map((data: DocumentType, id: number) => (
+
+                                <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
+                                    <td className="px-2 py-2 font-semibold">{data?.document?.name}</td>
+                                    <td className="px-2 py-2">{data?.document?.type ? data?.document?.type : "Questionaire"}</td>
+                                    <td className="px-2 py-2 ">
+                                        <p className={`p-1.5 w-auto  rounded-md text-sm 
                                     ${data.isAgree ? "bg-primaryColorDark/20" : "bg-inputBgColor"}  flex items-center gap-x-3`}>
-                                    <span><GoDotFill className={`${data.isAgree ? "text-primaryColorDark" : "text-textColor"}`} /></span>
-                                    {data.isAgree ? "Completed" : "Pending"}
-                                </p>
-                            </td>
-                            <td className="px-2 py-2">{data.createdAt}</td>
-                            <td className="px-2 py-2 m-auto">
-                                <div className="flex items-start gap-x-4">
+                                            <span><GoDotFill className={`${data.isAgree ? "text-primaryColorDark" : "text-textColor"}`} /></span>
+                                            {data.isAgree ? "Completed" : "Pending"}
+                                        </p>
+                                    </td>
+                                    <td className="px-2 py-2">{data.createdAt.split("T")[0]}</td>
+                                    <td className="px-2 py-2 m-auto">
+                                        <div className="flex items-start gap-x-4">
 
-                                    <UserIcon />
-                                    <div className="text-left">
-                                        <p>{data.provider.user.fullName}</p>
-                                        <p className="lowercase"> {data.provider.email}</p>
-                                    </div>
-                                </div>
-                            </td>
+                                            <UserIcon />
+                                            <div className="text-left">
+                                                <p>{data.provider.user.fullName}</p>
+                                                <p className="lowercase"> {data.provider.email}</p>
+                                            </div>
+                                        </div>
+                                    </td>
 
 
 
-                            <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
-                                <ViewIcon onClick={
-                                    async () => {
-                                        if (data?.isAgree) {
-                                            toast.success("You have already signed this document");
-                                            return;
-                                        }
-                                        try {
-                                            // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                            const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                            const response = await fetch(fileUrl);
-                                            if (!response.ok) throw new Error("File not found");
+                                    <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
+                                        <ViewIcon onClick={
+                                            async () => {
+                                                if (data?.isAgree) {
+                                                    toast.success("You have already signed this document");
+                                                    return;
+                                                }
+                                                try {
+                                                    const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
 
-                                            const arrayBuffer = await response.arrayBuffer();
+                                                    // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                    // const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                    const response = await fetch(fileUrl);
+                                                    if (!response.ok) throw new Error("File not found");
 
-                                            const result = await mammoth.convertToHtml({ arrayBuffer });
-                                            const htmlContent = result.value; // this is safe HTML
+                                                    const arrayBuffer = await response.arrayBuffer();
 
-                                            setSelectedDoc(htmlContent);
-                                            setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id })
-                                            dispatch(isModalShowReducser(true));
-                                        } catch (err) {
-                                            toast.error("Unable to preview document.");
-                                            console.error(err);
-                                        }
-                                    }} />
-                                <DownloadIcon onClick={() => handleDownload(data?.document?.url ?? "", data?.document?.name ?? "")} />
+                                                    const result = await mammoth.convertToHtml({ arrayBuffer });
+                                                    const htmlContent = result.value; // this is safe HTML
 
-                            </td>
-                        </tr>
-                    ))}
-                </Table>
-                <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                                                    setSelectedDoc(htmlContent);
+                                                    setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
+                                                    dispatch(isModalShowReducser(true));
+                                                } catch (err) {
+                                                    toast.error("Unable to preview document.");
+                                                    console.error(err);
+                                                }
+                                            }} />
+                                        <DownloadIcon onClick={() => handleDownload(data?.document?.url ?? "", data?.document?.name ?? "")} />
+
+                                    </td>
+                                </tr>
+                            ))}
+                        </Table>
+                        <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                    </>}
+
             </div>
 
 

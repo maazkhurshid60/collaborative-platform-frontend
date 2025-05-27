@@ -39,10 +39,14 @@ class ClientApiService {
             toast.error(errMsg);
         }
     }
-    async updateClientApi(data: ClientType) {
+    async updateClientApi(data: FormData) {
 
         try {
-            const response = await this.api.patch("/client/update-client", data);
+            const response = await this.api.patch("/client/update-client", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
             return response.data;
         } catch (error: unknown) {
             console.log(error);
@@ -53,11 +57,17 @@ class ClientApiService {
         }
     }
 
-    async addClientApi(data: ClientType) {
+    async addClientApi(data: FormData) {
         try {
-            const response = await this.api.post("/client/add-client", data);
+            const response = await this.api.post("/client/add-client", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
             return response.data;
         } catch (error: unknown) {
+            console.log("errors", error);
+
             if (isAxiosError(error) && error.response?.data?.data?.error) {
                 toast.error(error.response.data.data.error);
             } else {

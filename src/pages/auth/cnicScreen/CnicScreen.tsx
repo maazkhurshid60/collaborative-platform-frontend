@@ -13,6 +13,8 @@ import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
 import { saveCNICResult } from '../../../redux/slices/LoginUserDetailSlice';
+import { useState } from 'react';
+import Loader from '../../../components/loader/Loader';
 
 
 type FormFields = z.infer<typeof CnicSchema>;
@@ -22,6 +24,7 @@ export interface ISigninData {
     password: string;
 }
 const CnicScreen = () => {
+    const [isLoading, setIsLoading] = useState(false)
 
     const {
         register,
@@ -36,6 +39,7 @@ const CnicScreen = () => {
 
     //FUNCTIONS
     const loginFunction = async (cnic: FormFields) => {
+        setIsLoading(true)
 
         console.log(cnic);
 
@@ -73,9 +77,13 @@ const CnicScreen = () => {
 
             const err = error as AxiosError<AuthErrorResponse>;
             toast.error(`${err?.response?.data?.data?.error}`);
+        } finally {
+            setIsLoading(false)
+
         }
     }
-    return (
+    return (<>
+        {isLoading && <Loader />}
         <AuthLayout heading='sign up'>
 
             <form onSubmit={handleSubmit(loginFunction)}>
@@ -91,6 +99,7 @@ const CnicScreen = () => {
             </form>
 
         </AuthLayout>
+    </>
     )
 }
 

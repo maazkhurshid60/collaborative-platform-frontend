@@ -65,7 +65,11 @@ class LoginUserApiService {
         console.log("datatatatat", data);
 
         try {
-            const response = await this.api.patch("/auth/update-me", data)
+            const response = await this.api.patch("/auth/update-me", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
             console.log(response.data);
 
 

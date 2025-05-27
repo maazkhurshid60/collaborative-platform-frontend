@@ -18,6 +18,7 @@ const EditClient = () => {
     const [activeTab, setActiveTab] = useState(0)
     const tabData = ["Details", "Documents"]
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+
     const [selectedClientData, setSelectedClientData] = useState<ClientType>()
     //FETCH ALL CLIENTS
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
@@ -43,6 +44,7 @@ const EditClient = () => {
             setSelectedClientData(selected);
         }
     }, [clientData, id])
+    console.log("recipientIdrecipientIdrecipientIdrecipientIdrecipientId", selectedClientData?.userId);
 
     if (!id) {
         return <p>Invalid client ID</p>;
@@ -58,7 +60,10 @@ const EditClient = () => {
         <OutletLayout heading='Client Profile'>
             <div className='relative'>
                 <div className='absolute  -left-6 -top-12 md:-top-14 lg:-left-5'>
-                    <BackIcon onClick={() => navigate("/clients")} />
+                    <div className='relative group'>
+
+                        <BackIcon onClick={() => navigate("/clients")} />
+                    </div>
                 </div>
             </div>
             <div className='flex items-center mt-4 w-[15%]'>
@@ -85,7 +90,7 @@ const EditClient = () => {
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
-            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} />}
+            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} />}
         </OutletLayout>
     )
 }

@@ -97,7 +97,7 @@ const NewChatModal = () => {
     return (<>
         <div className='mt-4'>
 
-            <SearchBar sm />
+            <SearchBar sm bgColor='bg-inputBgColor' isBorder={false} borderRounded='rounded-[8px]' />
         </div>
         <div className='mt-2'>{providersWithoutChat?.map((data: ProviderType, id: number) => {
             return <p key={id} className='capitalize text-[14px] p-2 font-medium cursor-pointer rounded-md hover:bg-primaryColorLight' onClick={() => createNewChat(data)}>

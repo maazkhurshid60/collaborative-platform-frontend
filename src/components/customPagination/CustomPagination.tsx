@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { RiArrowLeftDoubleLine, RiArrowRightDoubleFill, RiArrowLeftSLine } from "react-icons/ri";
+import ToolTip from '../toolTip/ToolTip';
 
 interface PaginationProps {
   totalPages: number;
@@ -32,21 +33,28 @@ const CustomPagination: React.FC<PaginationProps> = ({ totalPages, onPageChange,
         <ul className="inline-flex -space-x-px text-base">
           {/* Previous Button with Arrow Icon */}
           <li>
+            <div className='relative group'>
 
-            <RiArrowLeftDoubleLine size={24} onClick={() => currentPage !== 1 && handlePageChange(1)}
+              <RiArrowLeftDoubleLine size={24} onClick={() => currentPage !== 1 && handlePageChange(1)}
 
-              className={`flex items-center justify-center  leading-tight bg-transparent rounded-s-lg 
+                className={`flex items-center justify-center  leading-tight bg-transparent rounded-s-lg 
                 hover:bg-primaryColor hover:text-primaryColorDark font-inter text-[13px]
                 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} />
+              <ToolTip toolTipText='first record' />
 
+            </div>
           </li>
 
           <li>
+            <div className='relative group'>
 
-            <RiArrowLeftSLine size={24} onClick={() => currentPage !== 1 && handlePageChange(currentPage - 1)}
-              className={`flex items-center justify-center  leading-tight bg-transparent rounded-s-lg 
+              <RiArrowLeftSLine size={24} onClick={() => currentPage !== 1 && handlePageChange(currentPage - 1)}
+                className={`flex items-center justify-center  leading-tight bg-transparent rounded-s-lg 
                 hover:bg-primaryColor hover:text-primaryColorDark font-inter text-[13px] 
                 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} />
+              <ToolTip toolTipText='previous record' />
+
+            </div>
 
           </li>
 
@@ -54,21 +62,28 @@ const CustomPagination: React.FC<PaginationProps> = ({ totalPages, onPageChange,
           <p> {currentPage}</p>
           {/* Next Button with Arrow Icon */}
           <li>
+            <div className='relative group'>
 
 
-            <RiArrowLeftSLine size={24} onClick={() => currentPage !== totalPages && handlePageChange(currentPage + 1)}
+              <RiArrowLeftSLine size={24} onClick={() => currentPage !== totalPages && handlePageChange(currentPage + 1)}
 
-              className={`flex items-center justify-center bg-transparent rotate-[180deg]  leading-tight rounded-s-lg 
-                hover:bg-primaryColor hover:text-primaryColorDark font-inter text-[13px]
-                ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} />
+                className={`flex items-center justify-center bg-transparent rotate-[180deg]  leading-tight rounded-s-lg 
+  hover:bg-primaryColor hover:text-primaryColorDark font-inter text-[13px]
+  ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} />
+              <ToolTip toolTipText='next record' />
+
+            </div>
           </li>
           <li>
 
+            <div className='relative group'>
 
-            <RiArrowRightDoubleFill size={24} onClick={() => currentPage !== totalPages && handlePageChange(totalPages)}
-              className={`flex items-center justify-center   leading-tight bg-transparent   rounded-s-lg 
+              <RiArrowRightDoubleFill size={24} onClick={() => currentPage !== totalPages && handlePageChange(totalPages)}
+                className={`flex items-center justify-center   leading-tight bg-transparent   rounded-s-lg 
                 hover:bg-primaryColor hover:text-primaryColorDark font-inter text-[13px]
                 ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} />
+              <ToolTip toolTipText='last record' />
+            </div>
           </li>
 
 

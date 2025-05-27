@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { isSideBarCloseReducser } from '../../redux/slices/SideBarSlice';
 import { useNavigate } from 'react-router-dom';
 import UserIcon from '../icons/user/User';
+import { localhostBaseUrl } from '../../apiServices/baseUrl/BaseUrl';
 
 const Navbar = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
@@ -17,6 +18,22 @@ const Navbar = () => {
     const [isDropDownOpen, setIsDropDownOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
     const navigate = useNavigate()
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+    console.log("previre navbar", previewUrl);
+
+
+    useEffect(() => {
+        if (loginUserDetail?.user?.profileImage !== "null") {
+            const imagePath = `${localhostBaseUrl}uploads/eSignatures/${loginUserDetail?.user?.profileImage?.split('/').pop()}`
+            setPreviewUrl(imagePath)
+        } else {
+            setPreviewUrl(null)
+        }
+
+    }, [loginUserDetail])
+    console.log("loginUserDetail>>>>>>>>>>>>>>>>>", previewUrl);
+
     useEffect(() => {
         const handleCickOutSide = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -38,7 +55,19 @@ const Navbar = () => {
                 <div className='hidden md:block lg:w-[500px] xl:w-[507px]'> <SearchBar /></div>
                 {/* ACCOUNT DROP DOWN */}
                 <div className='flex items-center  relative gap-x-2 bg-white' ref={dropdownRef}>
-                    <UserIcon className="text-[32px] md:text-[40px] lg:text-[48px]" />
+                    {
+                        previewUrl ? (
+                            <img
+                                src={previewUrl}
+                                alt="Client"
+                                className=" w-12 h-12 rounded-full object-cover"
+                            />
+                        ) : (
+
+                            <UserIcon className="text-[32px] md:text-[40px] lg:text-[48px]" />
+
+                        )
+                    }
 
                     <div className='flex items-center gap-x-10 bg-white z-20'>
                         <div className='font-[Montserrat]'>

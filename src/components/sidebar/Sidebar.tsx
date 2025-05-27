@@ -6,14 +6,16 @@ import { RxCross2 } from "react-icons/rx";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
-import { useEffect, useState } from "react";
+import { SVGProps, useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { disconnectSocket } from "../../socket/Socket";
+import ToolTip from "../toolTip/ToolTip";
+import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
 
 interface sideBarDataType {
     name?: string
     url?: string
-    icon?: IconType
+    icon?: IconType | React.FC<SVGProps<SVGSVGElement>>;
 }
 const Sidebar = () => {
     const navigate = useNavigate()
@@ -24,6 +26,7 @@ const Sidebar = () => {
     const logoutFunction = () => {
         disconnectSocket();
         localStorage.removeItem("token")
+        dispatch(emptyResult())
 
         navigate("/")
     }
@@ -45,27 +48,44 @@ const Sidebar = () => {
             <div className="mt-8 flex flex-col  justify-between h-[85vh]">
                 <div className="flex flex-col gap-y-4">
                     {sideBarData && sideBarData.map((data, id: number) => {
-                        const Icon = data.icon;
 
                         return (
                             <NavLink
-                                to={data.url ? data.url : "#"}
+                                to={data.url ?? "#"}
                                 key={id}
-                                className={({ isActive }) =>
-                                    `flex items-center font-[Poppins] text-[14px] md:text-[16px] gap-3 rounded-md font-medium transition-all ${isActive
-                                        ? "bg-primaryColorDark text-white px-3 py-2"
-                                        : "text-textColor hover:bg-primaryColorLight px-3 py-2"
-                                    }`
-                                }
+                                className={({ isActive }) => {
+                                    const isActiveClasses = isActive
+                                        ? "bg-primaryColorDark text-white"
+                                        : "text-textColor hover:bg-primaryColorLight";
+
+                                    return `flex items-center gap-3 px-3 py-2 rounded-md font-medium text-[14px] md:text-[16px] transition-all ${isActiveClasses}`;
+                                }}
                                 onClick={() => dispatch(isSideBarCloseReducser(false))}
                             >
-                                {Icon && <Icon className="text-[24px]" />}
-                                {data.name}
+                                {({ isActive }) => {
+                                    const iconColor = isActive ? "text-white" : "text-textColor";
+                                    {
+                                        console.log("icon", iconColor);
+                                    }
+                                    const Icon = data.icon;
+                                    return (
+                                        <>
+                                            {Icon && <Icon className={`text-[24px] `} stroke={isActive ? 'white' : '#2C2C2C'} />}
+                                            {data.name}
+                                        </>
+                                    );
+                                }}
                             </NavLink>
+
+
                         );
                     })}
                 </div>
-                <TbLogout className="text-[24px] text-textColor ml-3 cursor-pointer" onClick={logoutFunction} />
+                <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
+                    <TbLogout className="text-[24px] inline-block" onClick={logoutFunction} />
+                    <ToolTip toolTipText="Logout" />
+                </span>
+
             </div>
         </div>
     );

@@ -1,11 +1,12 @@
 import { LuLayoutDashboard } from "react-icons/lu";
-import { TbMessageCircle } from "react-icons/tb";
+// import { TbMessageCircle } from "react-icons/tb";
 import { AiOutlineUser } from "react-icons/ai";
 import { PiUsers } from "react-icons/pi";
 import { TbUsersPlus } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 import { CgLoadbarDoc } from "react-icons/cg";
-
+import MessageIcon from "../assets/icons/MessageIcon.svg?react"; // ✅ forces component
+console.log("typeof MessageIcontypeof MessageIcontypeof MessageIcon", typeof MessageIcon);
 export const ProviderSidebarData = [
     {
         name: "Dashboard",
@@ -15,7 +16,7 @@ export const ProviderSidebarData = [
     {
         name: "Chat",
         url: "/chat",
-        icon: TbMessageCircle
+        icon: MessageIcon
     },
     {
         name: "Clients",

@@ -3,6 +3,7 @@ import { RootState } from "../../../../redux/store";
 // import { ProviderType } from "../../../../types/providerType/ProviderType";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
+import { localhostBaseUrl } from "../../../../apiServices/baseUrl/BaseUrl";
 
 
 
@@ -23,12 +24,12 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
 
     const otherUser =
         data?.providerA?.id === loginUserId
-            ? data.providerB?.user?.fullName
-            : data.providerA?.user?.fullName;
+            ? { fullName: data.providerB?.user?.fullName, profileImage: data.providerB?.user?.profileImage }
+            : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
 
-    console.log("datadatadatadata", activeId);
+    console.log("datadatadatadata", otherUser);
     const unreadCount = Number(data?.totalUnread ?? 0);
-
+    const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
     return (
         <div className="">
 
@@ -40,12 +41,16 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
                 <div className='w-[80%] flex items-center justify-between'>
                     <div className="flex items-start gap-x-6">
                         <div>
-
-                            <UserIcon />
+                            {
+                                otherUser?.profileImage !== null ? <img
+                                    src={imagePath}
+                                    alt="Client"
+                                    className="w-10 h-10 rounded-full object-cover"
+                                /> : <UserIcon />}
                         </div>
                         <div>
                             <p className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "}`}>
-                                {otherUser}
+                                {otherUser?.fullName}
                             </p>
                             {data?.lastMessage?.message && (
                                 <p className="text-xs text-gray-500 truncate max-w-[90%]">
