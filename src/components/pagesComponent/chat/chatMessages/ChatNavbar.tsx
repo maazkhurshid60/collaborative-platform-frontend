@@ -42,7 +42,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
 
                                         {(data?.Provider?.user?.profileImage !== null && data?.Provider?.user?.profileImage !== "null") ?
                                             <img
-                                                className='w-12 h-12 rounded-full'
+                                                className='w-12 h-12 rounded-full object-cover'
                                                 src={`${localhostBaseUrl}uploads/eSignatures/${data?.Provider?.user?.profileImage?.split('/').pop()}`} />
                                             : <UserIcon className="text-[20px] md:text-[24px] lg:text-[28px]" />}
                                     </div>
@@ -69,7 +69,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                             {props?.groupMembers?.map((data) => <div className='flex items-center gap-x-2 '>
                                                 {(data?.Provider?.user?.profileImage !== null && data?.Provider?.user?.profileImage !== "null") ?
                                                     <img
-                                                        className='w-7 h-7 rounded-full'
+                                                        className='w-7 h-7 rounded-full object-cover'
                                                         src={`${localhostBaseUrl}uploads/eSignatures/${data?.Provider?.user?.profileImage?.split('/').pop()}`} />
 
                                                     : <UserIcon className="text-[20px] md:text-[24px] lg:text-[28px]" />}

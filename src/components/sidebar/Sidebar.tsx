@@ -7,7 +7,7 @@ import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { SVGProps, useEffect, useState } from "react";
-import { IconType } from "react-icons";
+// import { IconType } from "react-icons";
 import { disconnectSocket } from "../../socket/Socket";
 import ToolTip from "../toolTip/ToolTip";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
@@ -15,7 +15,7 @@ import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
 interface sideBarDataType {
     name?: string
     url?: string
-    icon?: IconType | React.FC<SVGProps<SVGSVGElement>>;
+    icon?: React.ComponentType<SVGProps<SVGSVGElement>>;
 }
 const Sidebar = () => {
     const navigate = useNavigate()
@@ -70,7 +70,13 @@ const Sidebar = () => {
                                     const Icon = data.icon;
                                     return (
                                         <>
-                                            {Icon && <Icon className={`text-[24px] `} stroke={isActive ? 'white' : '#2C2C2C'} />}
+                                            {Icon && (
+                                                <Icon
+                                                    className="text-[24px]"
+                                                    // fill={isActive ? "white" : "#2C2C2C"}
+                                                    stroke={isActive ? "#fff" : "#2C2C2C"}
+                                                />
+                                            )}
                                             {data.name}
                                         </>
                                     );

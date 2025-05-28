@@ -11,14 +11,25 @@ export const initSocket = (providerId?: string, userId?: string): Socket => {
 
 
     const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}` : `${staggingBaseUrl}`;
+    // socket = io(`${fileUrl}`, {
+    //     transports: ["websocket"],
+    //     // query: { providerId, userId },
+    //     query: {
+    //         ...(userId && { userId }),          // ✅ only added if exists
+    //         ...(providerId && { providerId }),  // ✅ only added if exists
+    //     },
+    // });
     socket = io(`${fileUrl}`, {
         transports: ["websocket"],
-        // query: { providerId, userId },
+        reconnection: true,
+        reconnectionAttempts: 5,       // Retry 5 times
+        reconnectionDelay: 2000,       // Wait 2s between retries
         query: {
-            ...(userId && { userId }),          // ✅ only added if exists
-            ...(providerId && { providerId }),  // ✅ only added if exists
+            ...(userId && { userId }),
+            ...(providerId && { providerId }),
         },
     });
+
 
 
 
@@ -33,3 +44,6 @@ export const disconnectSocket = (): void => {
         socket = undefined;
     }
 };
+
+
+

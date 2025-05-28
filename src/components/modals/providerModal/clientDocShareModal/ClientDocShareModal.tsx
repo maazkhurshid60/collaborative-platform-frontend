@@ -4,10 +4,9 @@ import InputField from '../../../inputField/InputField'
 import Button from '../../../button/Button'
 import { IoDocumentTextOutline } from 'react-icons/io5'
 import documentApiService from '../../../../apiServices/documentApi/DocumentApi'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../../../redux/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../../../redux/store'
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
-import notificationApiService from '../../../../apiServices/notification/NotificationApi'
 
 
 interface ClientDocShareModalProps {
@@ -16,27 +15,30 @@ interface ClientDocShareModalProps {
     clientId: string
     sharedDocsId: string[]
     recipientId: string
+
 }
-export const modalBodyContent = (docs: string[], providerId: string, clientId: string, sharedDocsId: string[], dispatch: AppDispatch, recipientId: string) => {
+export const modalBodyContent = (docs: string[], providerId: string, clientId: string, sharedDocsId: string[], dispatch: AppDispatch, recipientId: string, senderId: string) => {
     const dataSendToBackend = {
         providerId: providerId,
         clientId: clientId,
         documentId: sharedDocsId,
-        recipientId: recipientId
+        recipientId: recipientId,
+        senderId: senderId
     }
     console.log("dataSendToBackend", dataSendToBackend);
-    console.log("clientId", clientId);
+    // console.log("clientId", clientId);
 
 
     const docShareFunction = async () => {
         const response = await documentApiService.documentSharedWithClientApi(dataSendToBackend)
         // ✅ Send notification to client
-        const notificationSendToBackend = {
-            recipientId: "f938f20a-a8fb-4b12-bc35-13b8f92ff88a", // userId of client
-            title: "Document Shared",
-            type: "DOCUMENT_SHARED"
-        }
-        await notificationApiService.sendNotification(notificationSendToBackend);
+        // const notificationSendToBackend = {
+        //     recipientId: "f938f20a-a8fb-4b12-bc35-13b8f92ff88a", // userId of client
+        //     title: "Document Shared",
+        //     type: "DOCUMENT_SHARED",
+        //     senderId: senderId
+        // }
+        // await notificationApiService.sendNotification(notificationSendToBackend);
         console.log("response", response);
         dispatch(isModalShowReducser(false))
 
@@ -56,10 +58,11 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
 const ClientDocShareModal: React.FC<ClientDocShareModalProps> = ({ sharedDocs, providerId, clientId, sharedDocsId, recipientId }) => {
     const dispatch = useDispatch<AppDispatch>()
     console.log("recipientId", recipientId);
+    const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
 
     return (
-        <ModalLayout heading='Share the documents with clients' modalBodyContent={modalBodyContent(sharedDocs ?? [], providerId, clientId, sharedDocsId, dispatch, recipientId)} />
+        <ModalLayout heading='Share the documents with clients' modalBodyContent={modalBodyContent(sharedDocs ?? [], providerId, clientId, sharedDocsId, dispatch, recipientId, senderId)} />
     )
 }
 

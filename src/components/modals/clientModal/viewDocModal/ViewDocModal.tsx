@@ -3,8 +3,8 @@ import Button from '../../../button/Button'
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../redux/store';
 import UploadFile from '../../../inputField/UploadFile';
 import Checkbox from '../../../checkbox/Checkbox';
 import { documentSignByClientType } from '../../../../types/documentType/DocumentType';
@@ -12,7 +12,6 @@ import documentApiService from '../../../../apiServices/documentApi/DocumentApi'
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import CrossIcon from '../../../icons/cross/Cross';
-import notificationApiService from '../../../../apiServices/notification/NotificationApi';
 
 interface ViewDocModalProps {
     sharedDocs?: string
@@ -27,17 +26,19 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
     const [signatureFile, setSignatureFile] = useState<File | null>(null);
     const queryClient = useQueryClient();
     console.log("clint share doc data recipientId", data);
+    const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     // --- useMutation hook ---
     const mutation = useMutation({
         mutationFn: async (formData: FormData) => {
             documentApiService.documentSignByClientApi(formData);
-            const notificationSendToBackend = {
-                recipientId: data?.recipientId,
-                title: "Document Shared",
-                type: "DOCUMENT_SHARED"
-            }
-            await notificationApiService.sendNotification(notificationSendToBackend)
+            // const notificationSendToBackend = {
+            //     recipientId: data?.recipientId,
+            //     title: "Document Shared",
+            //     type: "DOCUMENT_SHARED",
+            //     senderId: senderId
+            // }
+            // await notificationApiService.sendNotification(notificationSendToBackend)
         },
         onSuccess: () => {
             toast.success("Document signed successfully!");
@@ -66,6 +67,7 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
         formData.append("eSignature", signatureFile);
         formData.append("clientId", data?.clientId);
         formData.append("sharedDocumentId", data?.documentId);
+        formData.append("senderId", senderId);
         mutation.mutate(formData);
 
         // dispatch(isModalShowReducser(false))

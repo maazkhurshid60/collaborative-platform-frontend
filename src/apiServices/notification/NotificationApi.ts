@@ -5,13 +5,17 @@ interface NotificationData {
     title: string,
     type: string
 }
+interface deleteNotification {
+    notificationId: string,
+    userId: string
+}
 class NotificationServiceApi {
     private api = axiosInstance
 
-    async getAllNotification() {
+    async getAllNotification(id: string) {
         try {
 
-            const response = await this.api.get("/notification/get-notification")
+            const response = await this.api.post("/notification/get-notification", id)
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get allnotification";
@@ -23,6 +27,20 @@ class NotificationServiceApi {
         try {
 
             const response = await this.api.post("/notification/send-notification", data)
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get allnotification";
+            toast.error(errMsg);
+        }
+    }
+
+    async deleteNotification(data: deleteNotification) {
+        console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", data);
+
+
+        try {
+
+            const response = await this.api.delete("/notification/delete-notification", { data })
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get allnotification";

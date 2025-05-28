@@ -82,6 +82,7 @@ export interface documentSignByClientType {
     clientId: string, sharedDocumentId: string, eSignature: string, isAgree?: boolean, documentId: string
     recipientId: string,
     providerId: string
+    senderId: string
 }
 
 

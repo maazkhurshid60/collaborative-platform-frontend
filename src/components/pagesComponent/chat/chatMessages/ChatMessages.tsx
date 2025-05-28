@@ -302,7 +302,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 {!msg.you &&
                                     <>
                                         {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
-                                            <img className='w-10 h-10 rounded-full' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
+                                            <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
 
 
                                             : <UserIcon size={30} />}
@@ -336,7 +336,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     </div>
                                 </div>
                                 {msg.you && <>  {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
-                                    <img className='w-10 h-10 rounded-full' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
+                                    <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
 
 
                                     : <UserIcon size={30} />}
