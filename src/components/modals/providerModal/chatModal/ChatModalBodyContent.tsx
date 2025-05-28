@@ -13,7 +13,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
 
     const handleGenerateLink = () => {
         // const dummyLink = `http://localhost:5173/invite-chat/${chatType}/${id}`;
-        const dummyLink = `https://collaborative-platform-frontend.vercel.app//invite-chat/${chatType}/${id}`;
+        const dummyLink = `https://collaborative-platform-frontend.vercel.app/invite-chat/${chatType}/${id}`;
         // const dummyLink =
         //     import.meta.env.VITE_ENV === "LOCALHOST"
         //         ? `${localhostBaseUrl}${chatType}/${id}`
