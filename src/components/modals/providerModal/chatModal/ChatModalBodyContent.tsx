@@ -12,8 +12,8 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
     const [generatedLink, setGeneratedLink] = useState('');
 
     const handleGenerateLink = () => {
-        const dummyLink = `http://localhost:5173/invite-chat/${chatType}/${id}`;
-        // const dummyLink = `https://collaborative-platform-backend.onrender.com/invite-chat/${chatType}/${id}`;
+        // const dummyLink = `http://localhost:5173/invite-chat/${chatType}/${id}`;
+        const dummyLink = `https://collaborative-platform-backend.onrender.com/api/v1/invite-chat/${chatType}/${id}`;
         // const dummyLink =
         //     import.meta.env.VITE_ENV === "LOCALHOST"
         //         ? `${localhostBaseUrl}${chatType}/${id}`
