@@ -19,6 +19,7 @@ import * as mammoth from "mammoth";
 import { DocModalData, documentSignByClientType, DocumentType } from "../../../types/documentType/DocumentType"
 import { localhostBaseUrl, staggingBaseUrl } from "../../../apiServices/baseUrl/BaseUrl"
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound"
+import generateImgUrl from "../../../utils/GenerateImgUrl"
 
 
 const Document = () => {
@@ -118,10 +119,13 @@ const Document = () => {
                                     <td className="px-2 py-2 m-auto">
                                         <div className="flex items-start gap-x-4">
 
-                                            <UserIcon />
+                                            {/* <UserIcon /> */}
+                                            {(data?.provider?.user?.profileImage !== null && data?.provider?.user?.profileImage !== "null") ?
+                                                <img className='w-10 h-10 rounded-full object-cover' src={data?.provider?.user?.profileImage ? generateImgUrl(data?.provider?.user?.profileImage) : undefined} />
+                                                : <UserIcon size={30} />}
                                             <div className="text-left">
-                                                <p>{data.provider.user.fullName}</p>
-                                                <p className="lowercase"> {data.provider.email}</p>
+                                                <p>{data?.provider?.user?.fullName}</p>
+                                                <p className="lowercase"> {data?.provider?.email}</p>
                                             </div>
                                         </div>
                                     </td>

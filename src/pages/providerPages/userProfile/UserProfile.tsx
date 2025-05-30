@@ -22,7 +22,7 @@ import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDeta
 import { GoDotFill } from 'react-icons/go';
 import FileUploader from '../../../components/uploader/fileUploader/FileUploader';
 import CrossIcon from '../../../components/icons/cross/Cross';
-import { localhostBaseUrl } from '../../../apiServices/baseUrl/BaseUrl';
+import generateImgUrl from '../../../utils/GenerateImgUrl';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -63,7 +63,7 @@ const UserProfile = () => {
         formData.append('role', loginUserDetail?.user?.role)
         formData.append('contactNo', data?.contactNo)
         // // toast.success("User has updated successfully")
-        if (selectedFile) {
+        if (selectedFile !== null) {
             formData.append('profileImage', selectedFile)
         }
         else {
@@ -98,8 +98,11 @@ const UserProfile = () => {
             console.log("getMeData?.user?.profileImage", getMeData?.user?.profileImage);
 
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
-                const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
-                setPreviewUrl(imagePath)
+                // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
+                // setPreviewUrl(imagePath)
+                const url = generateImgUrl(getMeData.user.profileImage);
+                setPreviewUrl(url)
+                setSelectedFile(null)
             } else {
                 setPreviewUrl(null)
             }

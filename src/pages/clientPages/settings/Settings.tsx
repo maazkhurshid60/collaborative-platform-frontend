@@ -135,7 +135,7 @@ const Settings = () => {
                 const cleanedPath = getMeData.eSignature.replace(/\\/g, '/'); // Convert Windows slashes
                 const updatedPath = cleanedPath.replace('/uploads/', '/uploads/eSignatures/');
                 setSignAdd(`http://localhost:8000${updatedPath}`);
-                console.log("http://localhost:8000http://localhost:8000http://localhost:8000", `http://localhost:8000${cleanedPath}`);
+
                 setIsUploadedSignature(false);
             } else {
                 setSignAdd(null);

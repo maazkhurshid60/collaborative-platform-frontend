@@ -44,7 +44,7 @@ const EditClient = () => {
             setSelectedClientData(selected);
         }
     }, [clientData, id])
-    console.log("recipientIdrecipientIdrecipientIdrecipientIdrecipientId", selectedClientData?.userId);
+    console.log("recipientIdrecipientIdrecipientIdrecipientIdrecipientId", selectedClientData?.email);
 
     if (!id) {
         return <p>Invalid client ID</p>;
@@ -90,7 +90,7 @@ const EditClient = () => {
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
-            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} />}
+            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} clientEmail={selectedClientData?.email} />}
         </OutletLayout>
     )
 }

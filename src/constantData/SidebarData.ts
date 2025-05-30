@@ -5,7 +5,10 @@ import { PiUsers } from "react-icons/pi";
 import { TbUsersPlus } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 import { CgLoadbarDoc } from "react-icons/cg";
-import MessageIcon from "../assets/icons/MessageIcon.svg?react"; // ✅ forces component
+import MessageIcon from "../components/icons/message/Message";
+// import MessageIcon from "../assets/icons/MessageIcon.svg?react"; // ✅ forces component
+
+
 console.log("typeof MessageIcontypeof MessageIcontypeof MessageIcon", typeof MessageIcon);
 export const ProviderSidebarData = [
     {

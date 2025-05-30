@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../axiosInstance/AxiosInstance";
 import { ClientType } from "../../types/clientType/ClientType";
 import { isAxiosError } from "axios";
+import { selectedClientIdType } from "../../pages/providerPages/clients/Clients";
 
 class ClientApiService {
     private api = axiosInstance
@@ -27,10 +28,10 @@ class ClientApiService {
             toast.error(errMsg);
         }
     }
-    async deleteClientApi(clientId: string) {
+    async deleteClientApi(data: selectedClientIdType) {
         try {
 
-            const response = await this.api.delete("/client/delete-client", { data: { clientId } })
+            const response = await this.api.delete("/client/delete-client", { data: { clientId: data?.clientId, providerId: data?.providerId } })
             return response?.data
         } catch (error) {
             console.log(error);

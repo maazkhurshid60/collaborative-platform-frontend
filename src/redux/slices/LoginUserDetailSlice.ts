@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
+    searchByCNIC: "",
     userDetails: {
         createAt: "",
         eSignature: null,
@@ -61,6 +62,9 @@ const LoginUserDetail = createSlice({
         saveCNICResult: (state, action) => {
             state.cnicResult = action.payload;
         },
+        searchByCNICReducer: (state, action) => {
+            state.searchByCNIC = action.payload
+        },
         emptyResult: (state) => {
             state.cnicResult = {
                 email: "",
@@ -107,5 +111,5 @@ const LoginUserDetail = createSlice({
 
 
 })
-export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveCNICResult, emptyResult } = LoginUserDetail.actions
+export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveCNICResult, emptyResult, searchByCNICReducer } = LoginUserDetail.actions
 export default LoginUserDetail.reducer

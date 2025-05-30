@@ -16,9 +16,10 @@ import { toast } from 'react-toastify';
 interface ShareClientDocProps {
     clientId: string
     recipientId?: string
+    clientEmail?: string
 }
 
-const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId }) => {
+const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, clientEmail }) => {
     const dispatch = useDispatch<AppDispatch>()
     const [sharedDocs, setSharedDocs] = useState<string[]>()
     const [sharedDocsId, setSharedDocsId] = useState<string[]>([])
@@ -57,7 +58,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId }
     })
 
     return (<div>
-        {isShowModal && recipientId && <ClientDocShareModal sharedDocs={sharedDocs} clientId={clientId} providerId={providerId} sharedDocsId={sharedDocsId} recipientId={recipientId} />}
+        {isShowModal && recipientId && <ClientDocShareModal sharedDocs={sharedDocs} clientId={clientId} providerId={providerId} sharedDocsId={sharedDocsId} recipientId={recipientId} clientEmail={clientEmail} />}
         {isClientCompleteDocModal && <ClientCompleteDocShareModal completedDoc={selectedCompletedDoc} clientId={clientId} />}
         <div className='relative pl-2'>
 

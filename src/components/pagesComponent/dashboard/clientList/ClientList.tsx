@@ -17,6 +17,7 @@ import EditIcon from '../../../icons/edit/Edit';
 import DeleteIcon from '../../../icons/delete/DeleteIcon';
 import { ProviderType } from '../../../../types/providerType/ProviderType';
 import NoRecordFound from '../../../noRecordFound/NoRecordFound';
+import { selectedClientIdType } from '../../../../pages/providerPages/clients/Clients';
 
 const ClientList = () => {
     const heading = ["name", "CNIC Number", "gender", "email", "status", "providers", "action"]
@@ -26,17 +27,16 @@ const ClientList = () => {
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
     const navigate = useNavigate()
-    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
+    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails)
     const isModalDelete = useSelector((state: RootState) => state?.modalSlice?.isModalDelete)
-    const [selectedClientId, setSelectedClientId] = useState<string>("")
+    const [selectedClientId, setSelectedClientId] = useState<selectedClientIdType>({ clientId: "", providerId: "" })
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
         queryFn: async () => {
             try {
-                const response = await clientApiService.getAllClient(loginUserId);
-
+                const response = await clientApiService.getAllClient(loginUserId?.user?.id);
                 const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
-                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
+                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
                 );
 
                 return matchedClient; // Ensure it always returns an array
@@ -50,7 +50,7 @@ const ClientList = () => {
 
     })
     const deleteMutation = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (id: selectedClientIdType) => {
             await clientApiService.deleteClientApi(id);
         },
         onMutate: () => {
@@ -77,9 +77,9 @@ const ClientList = () => {
         handlePageChange, currentPage,
     } = usePaginationHook({ data: clientData ?? [], recordPerPage: 4 })
 
-    const handleDeleteFun = (id: string) => {
+    const handleDeleteFun = (id: string, loginUserId: string) => {
         dispatch(isModalDeleteReducer(true))
-        setSelectedClientId(id)
+        setSelectedClientId({ clientId: id, providerId: loginUserId })
     }
     const handleDeleteConfirm = () => {
         deleteMutation.mutate(selectedClientId);
@@ -125,7 +125,7 @@ const ClientList = () => {
                                 <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
                                     {data?.providerList?.length !== 0 || data?.providerList !== undefined
                                         &&
-                                        data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId) ? (
+                                        data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
                                         <>
                                             <div>
 
@@ -133,7 +133,7 @@ const ClientList = () => {
                                             </div>
                                             <div>
 
-                                                <DeleteIcon onClick={() => handleDeleteFun(data?.userId ?? "")} />{/* delete those client which are present in logined provider list */}
+                                                <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
                                             </div>
                                         </>
                                     ) : (

@@ -4,7 +4,7 @@ import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import UserIcon from '../../../icons/user/User';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
-import { localhostBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl';
+import generateImgUrl from '../../../../utils/GenerateImgUrl';
 
 
 
@@ -27,7 +27,9 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick, activeId }) => {
 
     console.log("datadatadatadata", activeId);
     const unreadCount = Number(data?.totalUnread ?? 0);
-    const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
+    // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
+    const imagePath = otherUser?.profileImage ? generateImgUrl(otherUser.profileImage) : null;
+
     return (
         <div className="">
             <NavLink to="/chat" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 
@@ -40,11 +42,15 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick, activeId }) => {
                     <div className='w-[80%] flex items-center justify-between'>
                         <div className="flex items-start gap-x-6">
                             <div>
-                                {(otherUser?.profileImage !== null && otherUser?.profileImage !== "null") ? <img
-                                    src={imagePath}
-                                    alt="Client"
-                                    className="w-20 h-12 rounded-full object-cover"
-                                /> : <UserIcon />}
+                                {imagePath ? (
+                                    <img
+                                        src={imagePath}
+                                        alt="Client"
+                                        className="w-20 h-12 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <UserIcon />
+                                )}
                             </div>
                             <div>
                                 <p className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "}`}>

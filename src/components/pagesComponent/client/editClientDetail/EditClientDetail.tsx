@@ -18,9 +18,9 @@ import clientApiService from '../../../../apiServices/clientApi/ClientApi'
 import { toast } from 'react-toastify'
 import Loader from '../../../loader/Loader'
 import { GoDotFill } from 'react-icons/go'
-import { localhostBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl'
 import FileUploader from '../../../uploader/fileUploader/FileUploader'
 import CrossIcon from '../../../icons/cross/Cross'
+import generateImgUrl from '../../../../utils/GenerateImgUrl'
 // Adjust the import path if needed
 
 type FormFields = z.infer<typeof clientSchema>
@@ -54,8 +54,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
             if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
                 console.log("clientData?.user?.profileImage", clientData?.user?.profileImage);
-                const imagePath = `${localhostBaseUrl}uploads/eSignatures/${clientData?.user?.profileImage?.split('/').pop()}`
+                // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${clientData?.user?.profileImage?.split('/').pop()}`
+                // setPreviewUrl(imagePath)
+                const imagePath = clientData?.user?.profileImage ? generateImgUrl(clientData?.user?.profileImage) : null;
                 setPreviewUrl(imagePath)
+                setSelectedFile(null)
             } else {
                 toast.error(".")
 
@@ -84,7 +87,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('status', data.status)
         formData.append('address', data.address)
         formData.append('contactNo', data.contactNo)
-        if (selectedFile) {
+        if (selectedFile !== null) {
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<<");
+
             formData.append('profileImage', selectedFile)
         }
 

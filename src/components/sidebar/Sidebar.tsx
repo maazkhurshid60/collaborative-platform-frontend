@@ -72,7 +72,7 @@ const Sidebar = () => {
                                         <>
                                             {Icon && (
                                                 <Icon
-                                                    className="text-[24px]"
+                                                    className="w-6 h-6"
                                                     // fill={isActive ? "white" : "#2C2C2C"}
                                                     stroke={isActive ? "#fff" : "#2C2C2C"}
                                                 />
