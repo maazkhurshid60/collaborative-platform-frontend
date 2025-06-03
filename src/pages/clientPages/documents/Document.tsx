@@ -132,36 +132,37 @@ const Document = () => {
 
 
 
-                                    <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
-                                        <ViewIcon onClick={
-                                            async () => {
-                                                if (data?.isAgree) {
-                                                    toast.success("You have already signed this document");
-                                                    return;
-                                                }
-                                                try {
-                                                    const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                    <td className="py-2 h-full align-middle">
+                                        <div className="flex items-center justify-center gap-x-2 h-full">
+                                            <ViewIcon onClick={
+                                                async () => {
+                                                    if (data?.isAgree) {
+                                                        toast.success("You have already signed this document");
+                                                        return;
+                                                    }
+                                                    try {
+                                                        const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
 
-                                                    // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                                    // const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                                    const response = await fetch(fileUrl);
-                                                    if (!response.ok) throw new Error("File not found");
+                                                        // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                        // const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                        const response = await fetch(fileUrl);
+                                                        if (!response.ok) throw new Error("File not found");
 
-                                                    const arrayBuffer = await response.arrayBuffer();
+                                                        const arrayBuffer = await response.arrayBuffer();
 
-                                                    const result = await mammoth.convertToHtml({ arrayBuffer });
-                                                    const htmlContent = result.value; // this is safe HTML
+                                                        const result = await mammoth.convertToHtml({ arrayBuffer });
+                                                        const htmlContent = result.value; // this is safe HTML
 
-                                                    setSelectedDoc(htmlContent);
-                                                    setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
-                                                    dispatch(isModalShowReducser(true));
-                                                } catch (err) {
-                                                    toast.error("Unable to preview document.");
-                                                    console.error(err);
-                                                }
-                                            }} />
-                                        <DownloadIcon onClick={() => handleDownload(data?.document?.url ?? "", data?.document?.name ?? "")} />
-
+                                                        setSelectedDoc(htmlContent);
+                                                        setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
+                                                        dispatch(isModalShowReducser(true));
+                                                    } catch (err) {
+                                                        toast.error("Unable to preview document.");
+                                                        console.error(err);
+                                                    }
+                                                }} />
+                                            <DownloadIcon onClick={() => handleDownload(data?.document?.url ?? "", data?.document?.name ?? "")} />
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

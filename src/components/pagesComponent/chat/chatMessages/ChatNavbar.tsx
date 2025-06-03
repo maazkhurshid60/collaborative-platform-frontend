@@ -1,6 +1,6 @@
 
 import Button from '../../../button/Button';
-import { FaShareFromSquare } from "react-icons/fa6";
+import { FaRegShareFromSquare } from "react-icons/fa6";
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../redux/store';
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
@@ -90,8 +90,8 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     </div>
 
 
-                    <div className='w-[60px] md:w-[70px] lg:w-[80px]'>
-                        <Button text='share' icon={<FaShareFromSquare />} sm onclick={() => {
+                    <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
+                        <Button text='share' icon={<FaRegShareFromSquare />} sm onclick={() => {
                             console.log(true);
                             ; dispatch(isModalShowReducser(true))
                         }} />

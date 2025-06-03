@@ -1,4 +1,4 @@
-import { RiFileEditLine } from 'react-icons/ri'
+import ESignatureIcon from '../icons/eSignature/ESignature'
 interface UploadFileProps {
     heading?: string
     text?: string
@@ -17,7 +17,10 @@ const UploadFile: React.FC<UploadFileProps> = (props) => {
 
 
             <label htmlFor='signature-upload' className='cursor-pointer'>
-                <RiFileEditLine className='text-primaryColorDark m-auto' size={60} />
+                <div className='flex items-center justify-center w-full'>
+
+                    <ESignatureIcon />
+                </div>
                 <p className='text-sm font-semibold mt-2'>{props.heading}</p>
                 <p className='text-sm mt-2'>{props.text}</p>
             </label>

@@ -21,10 +21,17 @@ import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDeta
 import { GetMeType } from '../../../types/clientType/ClientType';
 import DeleteClientModal from '../../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { useNavigate } from 'react-router-dom';
-import { FaRegEdit } from "react-icons/fa";
 import CrossIcon from '../../../components/icons/cross/Cross';
 
 type FormFields = z.infer<typeof accountSchema>;
+
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M24.9956 7.36083L13.6169 18.7594C12.4838 19.8945 9.1202 20.4202 8.36878 19.6674C7.61735 18.9147 8.13023 15.5453 9.26333 14.4102L20.654 2.9997C20.9349 2.6927 21.2749 2.44592 21.6538 2.27422C22.0325 2.10253 22.442 2.00945 22.8577 2.00068C23.2733 1.99192 23.6864 2.0676 24.072 2.22318C24.4576 2.37876 24.8078 2.61103 25.1014 2.90592C25.3949 3.2008 25.6258 3.55219 25.78 3.93891C25.9343 4.32564 26.0088 4.73964 25.9989 5.15598C25.989 5.57232 25.8949 5.98237 25.7225 6.3613C25.5501 6.74024 25.3028 7.08028 24.9956 7.36083Z" stroke="#2C9993" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M12.7346 4.49414H6.77095C5.50561 4.49414 4.29218 4.99766 3.39745 5.89396C2.50273 6.79025 2 8.00588 2 9.27343V21.2217C2 22.4892 2.50273 23.7048 3.39745 24.6011C4.29218 25.4974 5.50561 26.0009 6.77095 26.0009H19.8911C22.527 26.0009 23.4693 23.8503 23.4693 21.2217V15.2475" stroke="#2C9993" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>);
+
+
 
 const Settings = () => {
     const [isEdit, setIsEdit] = useState(false);
@@ -172,12 +179,15 @@ const Settings = () => {
             )}
         >
             {!isEdit && <div className='relative'>
-                <FaRegEdit className='absolute -top-8 left-[230px] text-primaryColorDark' size={20} />
+                <div className='absolute -top-8 left-[230px] text-primaryColorDark'>
+
+                    <EditIcon />
+                </div>
             </div>}
             {isLoader && <Loader text="Updating..." />}
             {isEdit && (
                 <div className="relative">
-                    <div className="absolute -left-6 -top-12 md:-top-14 lg:-left-5">
+                    <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
                         <BackIcon onClick={() => setIsEdit(false)} />
                     </div>
                 </div>

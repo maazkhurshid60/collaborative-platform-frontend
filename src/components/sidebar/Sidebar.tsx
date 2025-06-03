@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import { ClientSidebarData, ProviderSidebarData } from "../../constantData/SidebarData";
-import { TbLogout } from "react-icons/tb";
 import { RxCross2 } from "react-icons/rx";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +10,7 @@ import { SVGProps, useEffect, useState } from "react";
 import { disconnectSocket } from "../../socket/Socket";
 import ToolTip from "../toolTip/ToolTip";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
+import Logout from "../icons/logout/Logout";
 
 interface sideBarDataType {
     name?: string
@@ -88,7 +88,9 @@ const Sidebar = () => {
                     })}
                 </div>
                 <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
-                    <TbLogout className="text-[24px] inline-block" onClick={logoutFunction} />
+                    {/* <TbLogout className="text-[24px] inline-block" onClick={logoutFunction} /> */}
+
+                    <Logout onClick={logoutFunction} />
                     <ToolTip toolTipText="Logout" />
                 </span>
 

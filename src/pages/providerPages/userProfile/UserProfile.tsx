@@ -153,8 +153,7 @@ const UserProfile = () => {
             {isLoader && <Loader text='Updating...' />}
 
             {isEdit && <div className='relative'>
-                <div className='absolute  -left-6 -top-12 md:-top-14 lg:-left-5'>
-
+                <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
                     <BackIcon onClick={() => setIsEdit(false)} />
                 </div>
             </div>}

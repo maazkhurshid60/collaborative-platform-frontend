@@ -139,25 +139,24 @@ const Clients = () => {
 
                                     </td>
 
-                                    <td className="px-2 py-2 flex items-center justify-start gap-x-2 relative">
-                                        {data?.providerList?.length !== 0 || data?.providerList !== undefined
-                                            &&
-                                            data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
-                                            <>
-                                                <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
-                                                <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <EditIcon disable />
-                                                <DeleteIcon disable />
-                                            </>
-                                        )
 
-
-                                        }
-
-
+                                    <td className="py-2 h-full align-middle">
+                                        <div className="flex items-center justify-center gap-x-2 h-full">
+                                            {data?.providerList?.length !== 0 || data?.providerList !== undefined
+                                                &&
+                                                data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
+                                                <>
+                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
+                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <EditIcon disabled />
+                                                    <DeleteIcon disabled />
+                                                </>
+                                            )
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

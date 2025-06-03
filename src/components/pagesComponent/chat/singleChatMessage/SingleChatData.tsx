@@ -39,7 +39,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
             `}
 
                 onClick={onClick}>
-                <div className='w-[80%] flex items-center justify-between'>
+                <div className='w-[100%] flex items-center justify-between'>
                     <div className="flex items-start gap-x-6">
                         <div>
                             {

@@ -1,6 +1,5 @@
 
 import { io, Socket } from "socket.io-client";
-import { localhostBaseUrl, staggingBaseUrl } from "../apiServices/baseUrl/BaseUrl";
 let socket: Socket | undefined;
 
 export const initSocket = (providerId?: string, userId?: string): Socket => {
@@ -10,7 +9,7 @@ export const initSocket = (providerId?: string, userId?: string): Socket => {
     }
 
 
-    const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}` : `${staggingBaseUrl}`;
+    // const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}` : `${staggingBaseUrl}`;
     // socket = io(`${fileUrl}`, {
     //     transports: ["websocket"],
     //     // query: { providerId, userId },
@@ -19,7 +18,7 @@ export const initSocket = (providerId?: string, userId?: string): Socket => {
     //         ...(providerId && { providerId }),  // ✅ only added if exists
     //     },
     // });
-    socket = io(`${fileUrl}`, {
+    socket = io(`https://collaborative-platform-backend.onrender.com/`, {
         transports: ["websocket"],
         reconnection: true,
         reconnectionAttempts: 5,       // Retry 5 times

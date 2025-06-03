@@ -2,8 +2,6 @@ import OutletLayout from '../../../layouts/outletLayout/OutletLayout'
 import CardDashboardLayout from '../../../layouts/dashboardLayout/CardDashboardLayout'
 import Collaboration from '../../../components/pagesComponent/dashboard/collaboration/Collaboration'
 
-import { PiUsers } from "react-icons/pi";
-import { TbUsersPlus } from "react-icons/tb";
 import ClientList from '../../../components/pagesComponent/dashboard/clientList/ClientList';
 import ProviderList from '../../../components/pagesComponent/dashboard/providerList/ProviderList';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +12,8 @@ import clientApiService from '../../../apiServices/clientApi/ClientApi';
 import { ClientType } from '../../../types/clientType/ClientType';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import ClientsIcon from '../../../components/icons/dashboardIcons/providersPortalIcons/clients/Clients';
+import ProvidersIcon from '../../../components/icons/dashboardIcons/providersPortalIcons/providers/Providers';
 
 
 const Dashboard = () => {
@@ -22,9 +22,9 @@ const Dashboard = () => {
 
 
     const [cardData, setCardData] = useState([
-        { icon: PiUsers, heading: "Total Users", numbers: 200 },
-        { icon: PiUsers, heading: "Clients", numbers: 1034, isLoading: true, error: "" },
-        { icon: TbUsersPlus, heading: "Providers", numbers: 1024, isLoading: true, error: "" },
+        { icon: ClientsIcon, heading: "Total Users", numbers: 200 },
+        { icon: ClientsIcon, heading: "Clients", numbers: 1034, isLoading: true, error: "" },
+        { icon: ProvidersIcon, heading: "Providers", numbers: 1024, isLoading: true, error: "" },
     ])
 
 
@@ -120,7 +120,7 @@ const Dashboard = () => {
                                     {data.isLoading && <Loader text="Loading..." />}
                                     <div key={id} className=''>
                                         <div className='flex items-center gap-x-3 font-[Montserrat] font-semibold text-textGreyColor'>
-                                            <Icon size={30} className='text-primaryColorDark' />
+                                            <Icon className='text-primaryColorDark' />
                                             <p>{data?.heading}</p>
                                         </div>
                                         <p className='font-[Poppins] font-semibold text-textColor text-[32px] mt-3'>{data?.numbers}</p>

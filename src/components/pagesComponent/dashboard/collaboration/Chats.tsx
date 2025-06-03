@@ -39,14 +39,14 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick, activeId }) => {
             `}
 
                     onClick={onClick}>
-                    <div className='w-[80%] flex items-center justify-between'>
+                    <div className='w-[100%] flex items-center justify-between'>
                         <div className="flex items-start gap-x-6">
                             <div>
                                 {imagePath ? (
                                     <img
                                         src={imagePath}
                                         alt="Client"
-                                        className="w-20 h-12 rounded-full object-cover"
+                                        className="w-12 h-12 rounded-full object-cover"
                                     />
                                 ) : (
                                     <UserIcon />
