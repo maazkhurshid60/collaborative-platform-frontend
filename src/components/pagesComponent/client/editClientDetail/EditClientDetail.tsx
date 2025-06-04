@@ -20,7 +20,7 @@ import Loader from '../../../loader/Loader'
 import { GoDotFill } from 'react-icons/go'
 import FileUploader from '../../../uploader/fileUploader/FileUploader'
 import CrossIcon from '../../../icons/cross/Cross'
-import generateImgUrl from '../../../../utils/GenerateImgUrl'
+
 // Adjust the import path if needed
 
 type FormFields = z.infer<typeof clientSchema>
@@ -56,7 +56,8 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                 console.log("clientData?.user?.profileImage", clientData?.user?.profileImage);
                 // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${clientData?.user?.profileImage?.split('/').pop()}`
                 // setPreviewUrl(imagePath)
-                const imagePath = clientData?.user?.profileImage ? generateImgUrl(clientData?.user?.profileImage) : null;
+                // const imagePath = clientData?.user?.profileImage ? generateImgUrl(clientData?.user?.profileImage) : null;
+                const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
                 setPreviewUrl(imagePath)
                 setSelectedFile(null)
             } else {

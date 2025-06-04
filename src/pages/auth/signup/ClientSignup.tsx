@@ -40,6 +40,7 @@ const ClientSignup = () => {
     //FUNCTIONS
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
+        console.log("dataSendToBackend dataSendToBackend dataSendToBackend", cnicData);
 
         if (cnicData.isClientExist) {
             const dataSendToBackend = {
@@ -93,6 +94,8 @@ const ClientSignup = () => {
         setValue("fullName", cnicData?.fullName)
         setValue("cnic", cnicData?.cnic)
         setValue("email", cnicData?.email)
+
+
     }, [cnicData])
     return (
         <>

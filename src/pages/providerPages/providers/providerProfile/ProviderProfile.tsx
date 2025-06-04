@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import { GoDotFill } from 'react-icons/go'
-import generateImgUrl from '../../../../utils/GenerateImgUrl'
 
 const ProviderProfile = () => {
     const navigate = useNavigate()
@@ -42,7 +41,8 @@ const ProviderProfile = () => {
     }, [])
 
     // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${selectedProviderData?.user?.profileImage?.split('/').pop()}`  
-    const imagePath = selectedProviderData?.user?.profileImage ? generateImgUrl(selectedProviderData?.user?.profileImage) : null;
+    // const imagePath = selectedProviderData?.user?.profileImage ? generateImgUrl(selectedProviderData?.user?.profileImage) : null;
+    console.log("selectedProviderData?.user?.profileImage", selectedProviderData?.user?.profileImage);
 
 
     if (isLoading) {
@@ -64,8 +64,8 @@ const ProviderProfile = () => {
             <div className='mt-6'>
                 <div>
                     <LabelData label='Provider Image' />
-                    {(selectedProviderData?.user?.profileImage !== null && selectedProviderData?.user?.profileImage !== "null" && imagePath) ? <img
-                        src={imagePath}
+                    {(selectedProviderData?.user?.profileImage !== null && selectedProviderData?.user?.profileImage !== "null") ? <img
+                        src={selectedProviderData?.user?.profileImage}
                         alt="Client"
                         className="w-20 h-20 rounded-full object-cover"
                     /> : <UserIcon className='text-6xl mt-2' />}

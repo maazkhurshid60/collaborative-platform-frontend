@@ -3,7 +3,6 @@ import { RootState } from "../../../../redux/store";
 // import { ProviderType } from "../../../../types/providerType/ProviderType";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
-import generateImgUrl from "../../../../utils/GenerateImgUrl";
 
 
 
@@ -30,7 +29,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
     console.log("datadatadatadata", otherUser);
     const unreadCount = Number(data?.totalUnread ?? 0);
     // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
-    const imagePath = otherUser?.profileImage ? generateImgUrl(otherUser?.profileImage) : null;
+    const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;
     return (
         <div className="">
 

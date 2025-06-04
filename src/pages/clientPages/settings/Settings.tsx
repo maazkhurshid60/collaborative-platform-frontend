@@ -139,9 +139,10 @@ const Settings = () => {
             setValue("email", getMeData?.email ?? "");
 
             if (getMeData?.eSignature) {
-                const cleanedPath = getMeData.eSignature.replace(/\\/g, '/'); // Convert Windows slashes
-                const updatedPath = cleanedPath.replace('/uploads/', '/uploads/eSignatures/');
-                setSignAdd(`http://localhost:8000${updatedPath}`);
+                // const cleanedPath = getMeData.eSignature.replace(/\\/g, '/'); // Convert Windows slashes
+                // const updatedPath = cleanedPath.replace('/uploads/', '/uploads/eSignatures/');
+                // setSignAdd(`http://localhost:8000${updatedPath}`);
+                setSignAdd(getMeData.eSignature);
 
                 setIsUploadedSignature(false);
             } else {

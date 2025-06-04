@@ -17,9 +17,7 @@ import { useQuery } from "@tanstack/react-query"
 
 import * as mammoth from "mammoth";
 import { DocModalData, documentSignByClientType, DocumentType } from "../../../types/documentType/DocumentType"
-import { localhostBaseUrl, staggingBaseUrl } from "../../../apiServices/baseUrl/BaseUrl"
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound"
-import generateImgUrl from "../../../utils/GenerateImgUrl"
 
 
 const Document = () => {
@@ -61,10 +59,10 @@ const Document = () => {
 
 
         try {
-            const fullUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}`;
+            // const fullUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}`;
             // const fullUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${fileUrl.replace("/uploads", "")}`;
 
-            const response = await fetch(fullUrl);
+            const response = await fetch(fileUrl);
             if (!response.ok) throw new Error("File not found");
 
             const blob = await response.blob();
@@ -82,7 +80,7 @@ const Document = () => {
         }
     };
 
-    console.log("getCurrentRecords()", getCurrentRecords());
+    console.log("getCurrentRecords(documents)", getCurrentRecords()[0]?.document?.url);
 
 
 
@@ -121,7 +119,7 @@ const Document = () => {
 
                                             {/* <UserIcon /> */}
                                             {(data?.provider?.user?.profileImage !== null && data?.provider?.user?.profileImage !== "null") ?
-                                                <img className='w-10 h-10 rounded-full object-cover' src={data?.provider?.user?.profileImage ? generateImgUrl(data?.provider?.user?.profileImage) : undefined} />
+                                                <img className='w-10 h-10 rounded-full object-cover' src={data?.provider?.user?.profileImage ? data?.provider?.user?.profileImage : undefined} />
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
                                                 <p>{data?.provider?.user?.fullName}</p>
@@ -141,21 +139,25 @@ const Document = () => {
                                                         return;
                                                     }
                                                     try {
-                                                        const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                        // const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
+                                                        const fileUrl = data?.document?.url && data?.document?.url.startsWith("http") && data?.document?.url;
 
                                                         // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
                                                         // const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                                        const response = await fetch(fileUrl);
-                                                        if (!response.ok) throw new Error("File not found");
 
-                                                        const arrayBuffer = await response.arrayBuffer();
+                                                        if (fileUrl) {
+                                                            const response = await fetch(fileUrl);
+                                                            if (!response.ok) throw new Error("File not found");
 
-                                                        const result = await mammoth.convertToHtml({ arrayBuffer });
-                                                        const htmlContent = result.value; // this is safe HTML
+                                                            const arrayBuffer = await response.arrayBuffer();
 
-                                                        setSelectedDoc(htmlContent);
-                                                        setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
-                                                        dispatch(isModalShowReducser(true));
+                                                            const result = await mammoth.convertToHtml({ arrayBuffer });
+                                                            const htmlContent = result.value; // this is safe HTML
+
+                                                            setSelectedDoc(htmlContent);
+                                                            setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
+                                                            dispatch(isModalShowReducser(true));
+                                                        }
                                                     } catch (err) {
                                                         toast.error("Unable to preview document.");
                                                         console.error(err);

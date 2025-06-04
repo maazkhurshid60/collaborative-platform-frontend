@@ -49,10 +49,10 @@ const CnicScreen = () => {
             console.log("response.data.data", response.data.data);
             if (response.data.data !== null) {
                 const dataSendToRedux = {
-                    email: response?.data?.data?.client?.email,
+                    email: response?.data?.data?.clients[0]?.email,
                     cnic: response?.data?.data?.cnic,
                     fullName: response?.data?.data?.fullName,
-                    clientId: response?.data?.data?.client?.id,
+                    clientId: response?.data?.data?.clients[0]?.id,
                     isClientExist: true,
                     gender: response?.data?.data?.gender,
                     age: response?.data?.data?.age,
@@ -61,6 +61,8 @@ const CnicScreen = () => {
                     status: response?.data?.data?.status,
                 }
                 dispatch(saveCNICResult(dataSendToRedux))
+                console.log("response?.data?.dataresponse?.data?.data", response?.data?.data);
+
                 navigate("/client-signup")
             } else {
                 const dataSendToRedux = {

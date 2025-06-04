@@ -22,7 +22,6 @@ import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDeta
 import { GoDotFill } from 'react-icons/go';
 import FileUploader from '../../../components/uploader/fileUploader/FileUploader';
 import CrossIcon from '../../../components/icons/cross/Cross';
-import generateImgUrl from '../../../utils/GenerateImgUrl';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -100,8 +99,8 @@ const UserProfile = () => {
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
                 // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
                 // setPreviewUrl(imagePath)
-                const url = generateImgUrl(getMeData.user.profileImage);
-                setPreviewUrl(url)
+                // const url = generateImgUrl(getMeData.user.profileImage);
+                setPreviewUrl(getMeData?.user?.profileImage)
                 setSelectedFile(null)
             } else {
                 setPreviewUrl(null)

@@ -32,6 +32,8 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         const loadDocx = async () => {
             if (!completedDoc?.url) return;
             try {
+                console.log("completedDoc.url", completedDoc.url);
+
                 const fileName = completedDoc.url.split('/').pop();
                 const dummyLinkkk =
                     import.meta.env.VITE_ENV === 'LOCALHOST'
@@ -40,7 +42,8 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                 console.log("dummyLinkdummyLinkdummyLink", dummyLinkkk);
 
                 // const response = await fetch(`${dummyLink}`);
-                const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
+                // const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
+                const response = await fetch(completedDoc.url);
                 // const response = await fetch(`https://collaborative-platform-backend.onrender.com/uploads/docs/${fileName}`);
                 if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
 
@@ -60,6 +63,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         completedDoc?.sharedRecords?.filter((r) => r.clientId === clientId) || [];
 
     const handleDownloadPDF = async () => {
+
         if (!contentRef.current) return;
 
         const original = contentRef.current;
@@ -105,7 +109,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         document.body.removeChild(clone);
     };
 
-    console.log(filteredRecords)
+    console.log("filteredRecords", filteredRecords)
 
     return (
         <ModalLayout
@@ -153,7 +157,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                                 key={record.id}
 
                                                 // src={import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}/uploads/esignatures/${record.eSignature}` : `${staggingBaseUrl}/uploads/esignatures/${record.eSignature}`}
-                                                src={`http://localhost:8000/uploads/esignatures/${record.eSignature}`}
+                                                src={record.eSignature}
                                                 // src={`https://collaborative-platform-backend.onrender.com/uploads/esignatures/${record.eSignature}`}
                                                 alt="eSignature"
                                                 crossOrigin="anonymous"

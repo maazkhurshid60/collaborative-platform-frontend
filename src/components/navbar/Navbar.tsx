@@ -59,8 +59,8 @@ const Navbar = () => {
     useEffect(() => {
         if (loginUserDetail?.user?.profileImage !== "null") {
             // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${loginUserDetail?.user?.profileImage?.split('/').pop()}`
-            const url = generateImgUrl(loginUserDetail?.user?.profileImage);
-            setPreviewUrl(url)
+            // const url = generateImgUrl(loginUserDetail?.user?.profileImage);
+            setPreviewUrl(loginUserDetail?.user?.profileImage)
         } else {
             setPreviewUrl(null)
         }
@@ -171,7 +171,7 @@ const Navbar = () => {
                             <img
                                 src={previewUrl}
                                 alt="Client"
-                                className=" w-12 h-12 rounded-full object-cover"
+                                className=" w-12 h-12 rounded-full object-fit"
                             />
                         ) : (
 

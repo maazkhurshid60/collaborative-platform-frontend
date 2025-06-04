@@ -7,7 +7,6 @@ import { isModalShowReducser } from '../../../../redux/slices/ModalSlice';
 import UserIcon from '../../../icons/user/User';
 import { useState } from 'react';
 import { GroupMember } from '../../../../types/chatType/GroupType';
-import generateImgUrl from '../../../../utils/GenerateImgUrl';
 
 interface chatNavbarProps {
     name?: string,
@@ -44,7 +43,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                             <img
                                                 className='w-10 h-10 rounded-full object-cover'
                                                 // src={`${localhostBaseUrl}uploads/eSignatures/${data?.Provider?.user?.profileImage?.split('/').pop()}`} />
-                                                src={generateImgUrl(data?.Provider?.user?.profileImage)} />
+                                                src={data?.Provider?.user?.profileImage} />
                                             : <UserIcon className="text-[20px] md:text-[24px] lg:text-[40px]" />}
                                     </div>
                                 ))}
@@ -73,7 +72,8 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                                     <img
                                                         className='w-7 h-7 rounded-full object-cover'
                                                         // src={`${localhostBaseUrl}uploads/eSignatures/${data?.Provider?.user?.profileImage?.split('/').pop()}`} />
-                                                        src={generateImgUrl(data?.Provider?.user?.profileImage)} />
+                                                        // src={generateImgUrl(data?.Provider?.user?.profileImage)} />
+                                                        src={data?.Provider?.user?.profileImage} />
 
                                                     : <UserIcon className="text-[20px] md:text-[24px] lg:text-[28px]" />}
                                                 <div className='text-xs'>
