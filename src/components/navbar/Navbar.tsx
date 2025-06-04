@@ -9,7 +9,6 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { isSideBarCloseReducser } from '../../redux/slices/SideBarSlice';
 import { useNavigate } from 'react-router-dom';
 import UserIcon from '../icons/user/User';
-import generateImgUrl from '../../utils/GenerateImgUrl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClientType } from '../../types/clientType/ClientType';
 import clientApiService from '../../apiServices/clientApi/ClientApi';
@@ -139,7 +138,7 @@ const Navbar = () => {
                                         {
                                             data?.user?.profileImage ? (
                                                 <img
-                                                    src={generateImgUrl(data?.user?.profileImage)}
+                                                    src={data?.user?.profileImage}
                                                     alt="Client"
                                                     className=" w-8 h-8 rounded-full object-cover"
                                                 />

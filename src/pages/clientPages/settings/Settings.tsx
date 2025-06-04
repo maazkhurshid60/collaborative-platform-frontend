@@ -113,9 +113,9 @@ const Settings = () => {
             formData.append("eSignature", "");
         }
 
-        formData.append("loginUserId", loginUserId?.user.id);
+        formData.append("loginUserId", loginUserId?.user?.id);
         if (getMeDetail?.user?.role) {
-            formData.append("role", getMeDetail.user.role);
+            formData.append("role", getMeDetail?.user?.role);
         }
         updateMutation.mutate(formData);
     };
@@ -156,7 +156,7 @@ const Settings = () => {
     const deleteMe = () => deleteMeMutation.mutate();
 
     const deleteMeMutation = useMutation({
-        mutationFn: async () => await loginUserApiService.deleteMeApi(loginUserId.user.id),
+        mutationFn: async () => await loginUserApiService.deleteMeApi(loginUserId?.user?.id),
         onSuccess: () => {
             dispatch(isModalDeleteReducer(false));
             toast.error('Your Account has been deleted.');

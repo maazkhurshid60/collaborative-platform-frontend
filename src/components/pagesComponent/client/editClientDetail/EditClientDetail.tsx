@@ -61,7 +61,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                 setPreviewUrl(imagePath)
                 setSelectedFile(null)
             } else {
-                toast.error(".")
 
                 setPreviewUrl(null)
 
