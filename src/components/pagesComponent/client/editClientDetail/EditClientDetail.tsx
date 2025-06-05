@@ -77,6 +77,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     }
 
     const updateFunction = (data: FormFields) => {
+        if (selectedFile === null) {
+            return toast.error("Profile Image is require.")
+        }
         const formData = new FormData()
         formData.append('clientId', clientData?.id || '')
         formData.append('fullName', data.fullName)

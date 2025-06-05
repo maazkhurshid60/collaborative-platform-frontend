@@ -95,6 +95,9 @@ const Settings = () => {
     });
 
     const updateFunction = async (data: FormFields) => {
+        if (signAdd === null) {
+            return toast.error("E-Signature is required")
+        }
         const formData = new FormData();
         formData.append("fullName", data.fullName);
         formData.append("cnic", data.cnic);
@@ -165,6 +168,9 @@ const Settings = () => {
         onError: () => toast.error('Failed to delete account!'),
     });
 
+
+
+
     if (isLoading) return <Loader text="Loading..." />;
     if (isError) return <p>Something went wrong</p>;
 
@@ -209,7 +215,7 @@ const Settings = () => {
             <p className="font-bold mt-6">General Settings</p>
 
             {isEdit ? (
-                <form onSubmit={handleSubmit(updateFunction)} className="mt-2">
+                <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
                         <InputField required label="Full Name" register={register("fullName")} name="fullName" placeHolder="Enter Full Name." error={errors.fullName?.message} />
                         <InputField required label="CNIC Number" register={register("cnic")} name="cnic" placeHolder="Enter CNIC." error={errors.cnic?.message} />
@@ -220,7 +226,11 @@ const Settings = () => {
                     <hr className="w-full h-[1px] text-greyColor mt-10" />
 
                     <div className="w-[300px] mt-10">
-                        <p className="font-semibold mb-2">E-Signature</p>
+                        <div className='flex items-start gap-x-2.5'>
+
+                            <p className="font-semibold mb-2">E-Signature</p>
+                            <p className='text-redColor'>*</p>
+                        </div>
                         {signAdd ? (
                             <div className="relative">
                                 <img

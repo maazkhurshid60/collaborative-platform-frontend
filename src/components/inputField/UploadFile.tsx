@@ -20,9 +20,11 @@ const UploadFile: React.FC<UploadFileProps> = (props) => {
                 <div className='flex items-center justify-center w-full'>
 
                     <ESignatureIcon />
+
                 </div>
                 <p className='text-sm font-semibold mt-2'>{props.heading}</p>
                 <p className='text-sm mt-2'>{props.text}</p>
+
             </label>
 
 
