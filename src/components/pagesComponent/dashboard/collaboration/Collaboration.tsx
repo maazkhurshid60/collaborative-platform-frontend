@@ -97,7 +97,7 @@ const Collaboration = () => {
                     sm
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    placeholder={activeTab === 0 ? 'Search recipient...' : 'Search group...'}
+                    placeholder={'Search here...'}
                 />
             </div>
 

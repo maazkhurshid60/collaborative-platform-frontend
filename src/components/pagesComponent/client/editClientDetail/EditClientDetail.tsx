@@ -114,6 +114,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setIsLoader(false)
         }
     })
+    console.log("previewUrlpreviewUrlpreviewUrl", previewUrl);
 
     return (
         <div className='relative pl-2'>
