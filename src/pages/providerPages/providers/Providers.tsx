@@ -119,8 +119,8 @@ const Providers = () => {
                                     </td>
 
 
-                                    <td className="py-2 h-full align-middle">
-                                        <div className="flex items-center justify-center gap-x-2 h-full">
+                                    <td className="py-2 h-full w-[80px] align-middle ">
+                                        <div className="flex items-center justify-center   h-full">
                                             <Link to={`/providers/${data?.id}`}>
                                                 <ViewIcon />
                                             </Link>

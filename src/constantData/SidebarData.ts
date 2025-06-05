@@ -14,7 +14,7 @@ export const ProviderSidebarData = [
         icon: DashboardIcon
     },
     {
-        name: "Chat",
+        name: "Chats",
         url: "/chat",
         icon: MessageIcon
     },

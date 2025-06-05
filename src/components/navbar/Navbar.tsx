@@ -129,7 +129,7 @@ const Navbar = () => {
                 </div>
                 <div className='hidden md:block lg:w-[500px] xl:w-[507px] md:relative'>
 
-                    <SearchBar placeholder='Search by CNIC' onChange={(e) => setSearchByCNIC(e.target.value)} value={searchByCNIC} />
+                    <SearchBar placeholder='Search by CNIC...' onChange={(e) => setSearchByCNIC(e.target.value)} value={searchByCNIC} />
                     {filteredClients && filteredClients?.length > 0 &&
                         < div className='w-[100%] rounded-lg bg-white   borderClass max-h-[500px]  overflow-y-auto absolute top-12 left-0 z-50' >
                             {filteredClients?.map(data =>
