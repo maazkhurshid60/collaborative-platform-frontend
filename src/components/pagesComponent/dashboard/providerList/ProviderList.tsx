@@ -69,7 +69,7 @@ const ProviderList = () => {
                                                 </p>
                                             ))}
 
-                                            {data?.clientList.length > 5 && (
+                                            {data?.clientList.length > 2 && (
                                                 <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => navigate(`/providers/${data?.id}`)}>... View All</p>
                                             )}
                                         </>
