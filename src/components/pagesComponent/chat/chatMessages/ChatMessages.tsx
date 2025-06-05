@@ -324,7 +324,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     </>}
 
                                 <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
-                                    <p className="font-semibold mb-2">
+                                    <p className="font-semibold mb-2 capitalize">
                                         {msg?.you ? 'You' : msg?.sender?.user?.fullName}
                                     </p>
                                     <div className="flex items-center gap-x-4 text-[14px]">
