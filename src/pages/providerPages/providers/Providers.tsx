@@ -6,7 +6,7 @@ import usePaginationHook from '../../../hook/usePaginationHook';
 import Table from '../../../components/table/Table';
 import CustomPagination from '../../../components/customPagination/CustomPagination';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Loader from '../../../components/loader/Loader';
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
 import { useQuery } from '@tanstack/react-query';
@@ -22,7 +22,7 @@ const Providers = () => {
 
     const heading = ["name", "CNIC", "gender", "email", "status", "clients", "action"]
 
-
+    const navigate = useNavigate()
 
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
@@ -101,16 +101,21 @@ const Providers = () => {
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">{data?.user?.status}</td>
                                     <td className="px-2 py-2 w-[100px]">
+                                        {data?.clientList?.length === 0 || data?.clientList === undefined ? (
+                                            <p>No Clients</p>
+                                        ) : (
+                                            <>
+                                                {data?.clientList.slice(0, 2).map((provider: ProviderType, index) => (
+                                                    <p className="flex items-center gap-x-1 capitalize" key={index}>
+                                                        {provider?.client?.user?.fullName}
+                                                    </p>
+                                                ))}
 
-                                        {data?.clientList?.length === 0 || data?.clientList === undefined
-                                            ? <p>No Clients</p>
-                                            : data?.clientList.map((provider: ProviderType, index) => (
-                                                <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                    {provider?.client?.user?.fullName}
-
-                                                </p>
-                                            ))
-                                        }
+                                                {data?.clientList.length > 2 && (
+                                                    <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => navigate(`/providers/${data?.id}`)}>... View All</p>
+                                                )}
+                                            </>
+                                        )}
                                     </td>
 
 

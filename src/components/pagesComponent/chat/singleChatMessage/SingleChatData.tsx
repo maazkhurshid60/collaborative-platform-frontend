@@ -62,7 +62,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
 
                 </div>
                 {unreadCount > 0 && (
-                    <span className="bg-primaryColorDark text-white text-xs px-2 py-1 rounded-full">
+                    <span className="bg-primaryColorDark text-white text-xs px-2 py-1  mr-4 rounded-full">
                         {data.totalUnread}
                     </span>
                 )}

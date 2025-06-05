@@ -9,12 +9,13 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import Loader from '../../../loader/Loader'
 import NoRecordFound from '../../../noRecordFound/NoRecordFound'
+import { useNavigate } from 'react-router-dom'
 
 const ProviderList = () => {
     const heading = ["S.No", "name", "CNIC Number", "email", "status", "clients"]
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
-
+    const navigate = useNavigate()
     const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
         queryKey: ["providers"],
         queryFn: async () => {
@@ -58,16 +59,23 @@ const ProviderList = () => {
                                 <td className="px-2 py-2 lowercase">{data?.email}</td>
                                 <td className="px-2 py-2">{data?.user?.status}</td>
                                 <td className="px-2 py-2 w-[100px]">
-                                    {data?.clientList?.length === 0 || data?.clientList === undefined
-                                        ? <p>No Clients</p>
-                                        : data?.clientList.map((provider: ProviderType, index) => (
-                                            <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                {provider?.client?.user?.fullName}
+                                    {data?.clientList?.length === 0 || data?.clientList === undefined ? (
+                                        <p>No Clients</p>
+                                    ) : (
+                                        <>
+                                            {data?.clientList.slice(0, 2).map((provider: ProviderType, index) => (
+                                                <p className="flex items-center gap-x-1 capitalize" key={index}>
+                                                    {provider?.client?.user?.fullName}
+                                                </p>
+                                            ))}
 
-                                            </p>
-                                        ))
-                                    }
+                                            {data?.clientList.length > 5 && (
+                                                <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => navigate(`/providers/${data?.id}`)}>... View All</p>
+                                            )}
+                                        </>
+                                    )}
                                 </td>
+
 
 
                             </tr>

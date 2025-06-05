@@ -26,7 +26,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         recipientId: recipientId,
         senderId: senderId,
         clientEmail: clientEmail,
-        descriptoin: "Document has shared"
+        title: "Document has shared"
     }
     console.log("dataSendToBackend", dataSendToBackend);
     // console.log("clientId", clientId);

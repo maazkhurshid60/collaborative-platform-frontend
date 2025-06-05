@@ -58,7 +58,7 @@ const ProviderProfile = () => {
             <div className='relative'>
                 <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
 
-                    <BackIcon onClick={() => navigate("/providers")} />
+                    <BackIcon onClick={() => navigate(-1)} />
                 </div>
             </div>
             <div className='mt-6'>

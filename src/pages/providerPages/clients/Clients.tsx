@@ -127,18 +127,27 @@ const Clients = () => {
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">{data?.user?.status}</td>
                                     <td className="px-2 py-2 w-[100px]">
-                                        {data?.providerList?.length === 0 || data?.providerList === undefined
-                                            ? <p>No Providers Found</p>
-                                            : data?.providerList.map((providerList: Provider, index) => (
-                                                <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                    {providerList?.provider?.user?.fullName}
+                                        {
 
-                                                </p>
-                                            ))
+                                            data?.providerList?.length === 0 || data?.providerList === undefined
+                                                ? <p>No Providers Found</p>
+                                                :
+                                                <>
+                                                    {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
+                                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
+                                                            {providerList?.provider?.user?.fullName}
+
+                                                        </p>
+
+                                                    ))}
+
+                                                    {data?.providerList?.length > 2 && (
+                                                        <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }}>... View All</p>
+                                                    )}
+                                                </>
                                         }
 
                                     </td>
-
 
                                     <td className="py-2 h-full align-middle">
                                         <div className="flex items-center justify-center gap-x-2 h-full">
