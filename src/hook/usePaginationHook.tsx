@@ -9,7 +9,6 @@ const usePaginationHook = <T,>({ data, recordPerPage = 10 }: UsePaginationHookPr
     const [currentPage, setCurrentPage] = useState(1);
 
     const totalPages = Math.ceil(data?.length / recordPerPage);
-    console.log("datadociuemtn", data);
 
     const getCurrentRecords = () => {
         const start = (currentPage - 1) * recordPerPage;

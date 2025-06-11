@@ -10,7 +10,6 @@ interface GroupsProps {
     onClick: () => void;
 }
 const Groups: React.FC<GroupsProps> = ({ data, onClick }) => {
-    console.log("group data", data);
 
     return (
         <div className="">

@@ -5,7 +5,6 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Button from '../../../button/Button';
 import { MdOutlineFileDownload } from 'react-icons/md';
-import { localhostBaseUrl, staggingBaseUrl } from '../../../../apiServices/baseUrl/BaseUrl';
 
 interface Document {
     url: string;
@@ -32,14 +31,12 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         const loadDocx = async () => {
             if (!completedDoc?.url) return;
             try {
-                console.log("completedDoc.url", completedDoc.url);
 
-                const fileName = completedDoc.url.split('/').pop();
-                const dummyLinkkk =
-                    import.meta.env.VITE_ENV === 'LOCALHOST'
-                        ? `${localhostBaseUrl}${fileName}`
-                        : `${staggingBaseUrl}${fileName}`;
-                console.log("dummyLinkdummyLinkdummyLink", dummyLinkkk);
+                // const fileName = completedDoc.url.split('/').pop();
+                // const dummyLinkkk =
+                //     import.meta.env.VITE_ENV === 'LOCALHOST'
+                //         ? `${localhostBaseUrl}${fileName}`
+                //         : `${staggingBaseUrl}${fileName}`;
 
                 // const response = await fetch(`${dummyLink}`);
                 // const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
@@ -118,12 +115,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                 <div className="mt-4 ">
 
                     <div className="text-right flex items-center justify-end">
-                        {/* <button
-                            onClick={handleDownloadPDF}
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
-                        >
-                            Download PDF
-                        </button> */}
+
                         <div className='w-[120px]'
                         >
                             <Button text='Download'

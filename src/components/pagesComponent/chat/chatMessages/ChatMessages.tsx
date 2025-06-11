@@ -34,12 +34,11 @@ interface ChatMessagesProps {
     activeChatType?: 'individual' | 'group';
 }
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType }) => {
+
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    console.log("<<<<activeChatObjectr<<<<<", activeChatObject);
 
     // Load initial messages whenever `messageData` changes
     useEffect(() => {
@@ -66,10 +65,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 newMsg.chatChannelId === activeChatObject.id ||
                 newMsg.groupId === activeChatObject.id
             ) {
-                // setMessages(prev => {
-                //     if (prev.some(m => m.id === newMsg.id)) return prev;
-                //     return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
-                // });
+
                 setMessages(prev => {
                     // Check if temp message exists
                     const tempIndex = prev.findIndex(m => m.id.startsWith("temp") && m.message === newMsg.message && m.senderId === newMsg.senderId);
@@ -90,11 +86,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         socket.off('receive_group');
 
         if (activeChatType === 'individual') {
-            console.log("📩 Received individual message on client:");
 
             socket.on('receive_direct', handleIncoming);
         } else if (activeChatType === 'group') {
-            console.log("📩 Received group message on client:");
 
             socket.on('receive_group', handleIncoming);
         }
@@ -116,25 +110,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const sendMessage = async () => {
         if (!sendMessageText.trim() || !activeChatObject) return;
 
-        // let payload;
-        // if (activeChatType === "individual") {
-
-        //     payload = {
-        //         message: sendMessageText,
-        //         chatChannelId: activeChatObject.id,
-        //         mediaUrl: '',
-        //         type: 'text',
-        //         senderId: loginUserId,
-        //     };
-        // } else {
-        //     payload = {
-        //         message: sendMessageText,
-        //         groupId: activeChatObject.id,
-        //         mediaUrl: '',
-        //         type: 'text',
-        //         senderId: loginUserId,
-        //     };
-        // }
 
 
 
@@ -174,28 +149,27 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                         ? activeChatObject.providerB.id
                         : activeChatObject.providerA.id;
 
-                // const socket = getSocket();
-                // if (socket && socket.connected) {
-                //     socket.emit('send_direct', {
-                //         toProviderId: otherId,
-                //         content: saved.message,
-                //         chatChannelId: saved.chatChannelId,
-                //     })
-                // const res = await messageApiService.sendMessageToSingleConservation(singlePayload);
-                // const saved: Message = res.data.chatMessage;
+
 
                 setMessages(prev =>
                     prev.map(m => (m.id === tempId ? { ...saved, you: true } : m))
                 );
 
-                // ✅ Send full saved message to backend
+                // Send full saved message to backend
                 const socket = getSocket();
-                if (socket && socket.connected) {
-                    socket.emit('send_direct', {
-                        toProviderId: otherId,
-                        message: saved, // 👈 send full saved message
+                console.log("<<<<<<<<<<<<<<<socket", socket, socket?.connected);
+                console.log("<<<<<<<<<<<<<<<otherId, saved", otherId, saved);
+
+
+                if (!socket?.connected) {
+                    socket?.once('connect', () => {
+                        socket.emit("send_direct", { toProviderId: otherId, message: saved });
                     });
+                } else {
+                    socket.emit("send_direct", { toProviderId: otherId, message: saved });
                 }
+
+
 
             } else {
 
@@ -228,6 +202,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     };
 
 
+    useEffect(() => {
+        const socket = getSocket();
+        if (socket && activeChatObject?.id) {
+            socket.emit('join_channel', { chatChannelId: activeChatObject.id });
+            console.log("✅ Joined chat channel:", activeChatObject.id);
+        }
+    }, [activeChatObject?.id]);
 
 
     if (!activeChatObject) {
@@ -281,7 +262,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             ? activeChatObject?.providerB?.user?.fullName
             : activeChatObject?.providerA?.user?.fullName;
 
-    console.log("activeChatObject", activeChatObject);
 
 
     return (

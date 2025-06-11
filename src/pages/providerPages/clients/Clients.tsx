@@ -34,7 +34,6 @@ const Clients = () => {
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails)
     const isModalDelete = useSelector((state: RootState) => state?.modalSlice?.isModalDelete)
     const [selectedClientId, setSelectedClientId] = useState<selectedClientIdType>({ clientId: "", providerId: "" })
-    // const [matchedClient, setMatchedClient] = useState()
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
         queryFn: async () => {
@@ -54,14 +53,8 @@ const Clients = () => {
         }
 
     })
-    // console.log("<<<<<<<<<<<<<<<<", clientData && clientData[0]?.providerList?.some((provider) => provider?.user?.id === loginUserId));
 
-    // const matchedClient =
-    //     clientData?.filter(client =>
-    //         client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
-    //     );
 
-    console.log("Matched Client:", clientData);
 
     const deleteMutation = useMutation({
         mutationFn: async (id: selectedClientIdType) => {
@@ -106,7 +99,6 @@ const Clients = () => {
     if (isError) {
         return <p>somethingwent wrong</p>
     }
-    console.log("<<<<<<<<<<<<<<<", getCurrentRecords(), "loginuser", loginUserId);
 
     return (
         <OutletLayout heading='Client List' button={<Button text='Add New' onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}>

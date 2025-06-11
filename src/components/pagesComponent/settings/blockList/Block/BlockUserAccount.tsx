@@ -37,7 +37,6 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
             blockUserid,
             loginUserId: loginUserDetails.user.id
         }
-        console.log(dataSendToBackend);
 
         unblockUserMutation.mutate(dataSendToBackend);
     }
@@ -100,8 +99,6 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
 
                     </div>
                 </div>
-                {/* <p className={`text-center  border-solid border-[1px] rounded-full w-[70px] py-1 text-[12px]  font-semibold  cursor-pointer text-redColor border-redColor`}>Remove</p> */}
-
                 <p className={`text-center  border-solid border-[1px] rounded-full w-[70px] py-1 text-[12px]  font-semibold  cursor-pointer ${userStatus?.isBlocked ? "text-textGreyColor border-textGreyColor" : "text-redColor border-redColor"}`}
                     onClick={() =>
                         userStatus?.isBlocked

@@ -35,7 +35,6 @@ class NotificationServiceApi {
     }
 
     async deleteNotification(data: deleteNotification) {
-        console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", data);
 
 
         try {

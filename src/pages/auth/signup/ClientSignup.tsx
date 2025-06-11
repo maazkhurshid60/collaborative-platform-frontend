@@ -40,7 +40,6 @@ const ClientSignup = () => {
     //FUNCTIONS
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
-        console.log("dataSendToBackend dataSendToBackend dataSendToBackend", cnicData);
 
         if (cnicData.isClientExist) {
             const dataSendToBackend = {
@@ -57,7 +56,6 @@ const ClientSignup = () => {
                 status: cnicData.status ?? undefined,
                 clientId: cnicData.clientId
             };
-            console.log("dataSendToBackend dataSendToBackend dataSendToBackend", dataSendToBackend);
             try {
                 const response = await clientApiService.updateExistingClientApi(dataSendToBackend);
                 toast.success(response?.message);
@@ -75,7 +73,6 @@ const ClientSignup = () => {
             setIsLoading(true)
 
             const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, cnic: data?.cnic, role: "client", isAccountCreatedByOwnClient: true };
-            console.log(data);
             try {
                 const response = await authService.signup(dataSendToBackend);
                 toast.success(response?.message);

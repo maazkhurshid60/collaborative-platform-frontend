@@ -9,8 +9,6 @@ import { RootState } from '../../redux/store'
 
 const DashboardLayout = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
-    const searchByCNIC = useSelector((state: RootState) => state.LoginUserDetail.searchByCNIC)
-    console.log("searchByCNICsearchByCNICsearchByCNICsearchByCNICsearchByCNICsearchByCNIC", searchByCNIC);
 
     return (
         <div className=" h-[100vh] flex ">

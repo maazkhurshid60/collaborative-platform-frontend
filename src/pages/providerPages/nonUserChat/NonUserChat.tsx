@@ -41,7 +41,6 @@ const NonUserChat = () => {
                 return;
             }
             const dataSendToBack = { loginUserId, groupId: id };
-            console.log("dataSendToBack", dataSendToBack);
 
             try {
                 const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
@@ -55,8 +54,6 @@ const NonUserChat = () => {
     });
 
     const selectedMessages = type === 'group' ? allGroupMessage : allMessage;
-
-    console.log("all messages for non user", selectedMessages);
 
     return (<>
         <div className='p-4 flex items-center justify-between'>

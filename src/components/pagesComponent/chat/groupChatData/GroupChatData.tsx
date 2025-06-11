@@ -12,7 +12,6 @@ interface GroupChatDataType {
 }
 
 const GroupChatData: React.FC<GroupChatDataType> = ({ data, onClick, activeId }) => {
-    console.log("group data", data);
 
     return (
         <div className="">

@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
-// import { ProviderType } from "../../../../types/providerType/ProviderType";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
 
@@ -19,14 +18,12 @@ interface SingleChatDataType {
 const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId }) => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
 
-    console.log("data", data);
 
     const otherUser =
         data?.providerA?.id === loginUserId
             ? { fullName: data.providerB?.user?.fullName, profileImage: data.providerB?.user?.profileImage }
             : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
 
-    console.log("datadatadatadata", otherUser);
     const unreadCount = Number(data?.totalUnread ?? 0);
     // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
     const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;

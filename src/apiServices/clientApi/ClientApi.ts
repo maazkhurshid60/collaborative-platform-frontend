@@ -34,8 +34,6 @@ class ClientApiService {
             const response = await this.api.delete("/client/delete-client", { data: { clientId: data?.clientId, providerId: data?.providerId } })
             return response?.data
         } catch (error) {
-            console.log(error);
-
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
         }
@@ -50,9 +48,6 @@ class ClientApiService {
             });
             return response.data;
         } catch (error: unknown) {
-            console.log(error);
-
-
             throw error || "Update the client failed";
 
         }
@@ -67,8 +62,6 @@ class ClientApiService {
             });
             return response.data;
         } catch (error: unknown) {
-            console.log("errors", error);
-
             if (isAxiosError(error) && error.response?.data?.data?.error) {
                 toast.error(error.response.data.data.error);
             } else {
@@ -85,7 +78,6 @@ class ClientApiService {
             const response = await this.api.patch("/client/update-existing-client", data);
             return response.data;
         } catch (error: unknown) {
-            console.log(error);
             throw error || "Sign up failed";
 
         }

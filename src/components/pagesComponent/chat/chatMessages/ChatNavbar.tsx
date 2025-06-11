@@ -16,8 +16,7 @@ interface chatNavbarProps {
 const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
     const [isShowModal, setIsShowModal] = useState(false)
     const dispatch = useDispatch<AppDispatch>()
-    // console.log("groupmemebres image", `${localhostBaseUrl}uploads/eSignatures/${props.groupMembers[0]?.Provider?.user?.profileImage?.split('/').pop()}`);
-    console.log("groupmemebres image", props.groupMembers);
+    //  ("groupmemebres image", `${localhostBaseUrl}uploads/eSignatures/${props.groupMembers[0]?.Provider?.user?.profileImage?.split('/').pop()}`);
 
 
     return (
@@ -92,8 +91,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
 
                     <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
                         <Button text='share' icon={<FaRegShareFromSquare />} sm onclick={() => {
-                            console.log(true);
-                            ; dispatch(isModalShowReducser(true))
+                            dispatch(isModalShowReducser(true))
                         }} />
                     </div>
                 </div>

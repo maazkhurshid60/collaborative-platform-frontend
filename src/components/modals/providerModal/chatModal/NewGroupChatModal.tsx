@@ -41,23 +41,7 @@ const NewGroupChatModal = () => {
     })
 
 
-    // const newGorupChatFun = async (data: FormFields) => {
-    //     if (groupMembers?.length === 0)
-    //         return toast.warn("Select atleast one group member")
 
-    //     const dataSendToBack = { membersId: [...groupMembers, loginUserDetail?.id], groupName: data?.name }
-    //     console.log("dataSendToBack", dataSendToBack);
-    //     const response = await chatApiService.createGroupChatChannels(dataSendToBack)
-    //     console.log(response);
-    //     queryClient.setQueryData(['groupChatchannels'], (old = []) => {
-    //         if (old.some(group => group.id === newGroup.id)) return old;
-    //         return [newGroup, ...old];
-    //     });
-    //     await queryClient.invalidateQueries({ queryKey: ['groupChatchannels'] });
-
-
-    //     dispatch(isNewGroupChatModalShowReducser(false))
-    // }
 
 
     const { mutate: createGroupChat } = useMutation({

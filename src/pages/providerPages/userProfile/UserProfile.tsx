@@ -64,7 +64,6 @@ const UserProfile = () => {
         formData.append('loginUserId', loginUserDetail?.user?.id)
         formData.append('role', loginUserDetail?.user?.role)
         formData.append('contactNo', data?.contactNo)
-        // // toast.success("User has updated successfully")
         if (selectedFile !== null) {
             formData.append('profileImage', selectedFile)
         }
@@ -97,7 +96,6 @@ const UserProfile = () => {
             setValue("email", getMeData?.email ?? "")
             setValue("department", getMeData?.department ?? "")
             setValue("address", getMeData?.user?.address ?? "")
-            console.log("getMeData?.user?.profileImage", getMeData?.user?.profileImage);
 
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
                 // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
@@ -117,14 +115,10 @@ const UserProfile = () => {
         setShowUploader(false)
     }
 
-    console.log("previewUrlpreviewUrlpreviewUrlpreviewUrl", previewUrl);
-
     const updateMutation = useMutation({
 
         mutationFn: async (data: FormData) => {
             const response = await loginUserApiService.updateMeApi(data)
-            console.log("reponse", response);
-
             dispatch(saveLoginUserDetailsReducer(response?.data))
         },
 

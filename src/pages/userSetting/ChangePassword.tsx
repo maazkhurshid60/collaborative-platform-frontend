@@ -18,15 +18,12 @@ type FormFields = z.infer<typeof ChangePasswordSchema>;
 const ChangePassword = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const navigate = useNavigate()
-    console.log(loginUserDetail.user.role);
 
     const { handleSubmit, register, formState: { errors } } = useForm<FormFields>({ resolver: zodResolver(ChangePasswordSchema) })
 
     const changePasswordFunc = async (data: FormFields) => {
         try {
-            console.log(data);
             const dataSendToBackend = { ...data, role: loginUserDetail.user.role, loginUserId: loginUserDetail.id }
-            console.log(dataSendToBackend);
 
             const response = await loginUserApiService.changePasswordApi(dataSendToBackend)
             toast.success(response.message);
@@ -34,7 +31,6 @@ const ChangePassword = () => {
             navigate("/")
         } catch (error) {
             const err = error as AxiosError<AuthErrorResponse>;
-            console.log(err);
 
             toast.error(`${err}`);
         }

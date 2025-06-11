@@ -23,9 +23,7 @@ const Collaboration = () => {
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id);
 
-    // const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
     const [activeId, setActiveId] = useState<string>();
-    // const [activeChatType, setActiveChatType] = useState<'individual' | 'group' | undefined>(undefined);
 
     const queryClient = useQueryClient();
     const socket = getSocket();
@@ -82,7 +80,6 @@ const Collaboration = () => {
             return name.toLowerCase().includes(searchText.toLowerCase());
         })
         : unBlockProviders;
-    console.log(">>>>>>>>>>>>", filteredChats);
 
     const filteredGroups = searchText
         ? allGroups?.filter((group: GroupChat) =>
@@ -132,9 +129,7 @@ const Collaboration = () => {
                                         data={data}
                                         activeId={activeId}
                                         onClick={() => {
-                                            // setActiveChatObject(data);
                                             setActiveId(data?.id);
-                                            // setActiveChatType('individual');
                                             if (socket?.connected && data?.id) {
                                                 socket.emit('join_channel', { chatChannelId: data.id });
                                             }
@@ -166,9 +161,7 @@ const Collaboration = () => {
                                 data={data}
                                 activeId={activeId}
                                 onClick={() => {
-                                    // setActiveChatObject(data);
                                     setActiveId(data?.id);
-                                    // setActiveChatType('group');
                                     if (socket?.connected && data?.id) {
                                         socket.emit('join_channel', { chatChannelId: data.id });
                                     }

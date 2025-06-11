@@ -47,7 +47,6 @@ const ProviderSignup = () => {
         setIsLoading(true)
 
         const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, cnic: data?.cnic, department: data?.department, role: "provider" };
-        console.log(dataSendToBackend);
 
         try {
             const response = await authService.signup(dataSendToBackend);

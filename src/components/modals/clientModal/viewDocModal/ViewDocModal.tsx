@@ -25,7 +25,6 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
     const [signAdd, setSignAdd] = useState<string | null>(null);
     const [signatureFile, setSignatureFile] = useState<File | null>(null);
     const queryClient = useQueryClient();
-    console.log("clint share doc data recipientId", data);
     const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     // --- useMutation hook ---
@@ -60,7 +59,6 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
             toast.error("Please upload your signature.");
             return;
         }
-        console.log("signatureFile", signatureFile);
 
         const formData = new FormData();
         formData.append("isAgree", String(isAgree));
@@ -69,8 +67,6 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
         formData.append("sharedDocumentId", data?.documentId);
         formData.append("senderId", senderId);
         mutation.mutate(formData);
-
-        // dispatch(isModalShowReducser(false))
     };
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

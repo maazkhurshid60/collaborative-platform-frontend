@@ -35,7 +35,6 @@ class AuthService {
 
     async findCnic(data: CNICData) {
 
-        console.log(data);
 
         try {
             const response = await this.api.post("/cnic-found", data);
@@ -52,7 +51,6 @@ class AuthService {
             const response = await this.api.post("/signup", data);
             return response.data;
         } catch (error: unknown) {
-            console.log(error);
 
 
             throw error || "Sign up failed";

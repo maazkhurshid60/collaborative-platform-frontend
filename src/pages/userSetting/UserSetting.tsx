@@ -16,14 +16,11 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { NavLink } from 'react-router-dom';
-// const blockListData = [{ name: "Client1", isBlock: true }, { name: "Provider3", isBlock: false }, { name: "Client6", isBlock: false }, { name: "Provider12", isBlock: false }, { name: "Client2", isBlock: true }, { name: "Provider32", isBlock: true }]
 const UserSetting = () => {
     const isBlockListScreen = useSelector((state: RootState) => state.blockListUserSlice.isBlockScreenShow)
     const dispatch = useDispatch<AppDispatch>()
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
-    // const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
-    console.log("<>>>>>><><>><<<<<<<<><><>", loginUserDetail.email);
     const navigate = useNavigate()
     const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType[]>({
         queryKey: ["loginUser"],
@@ -42,9 +39,7 @@ const UserSetting = () => {
 
     })
 
-    console.log("allUsersData", allUsersData && allUsersData[0]);
     const filteredData = allUsersData && allUsersData?.filter(data => !data?.blockedMembers?.includes(loginUserDetail.user.id))
-    console.log("filteredData", filteredData);
 
     const deleteMe = () => {
         deleteMeMutation.mutate()
@@ -75,8 +70,6 @@ const UserSetting = () => {
     if (isError) {
         return <p>somethingwent wrong</p>
     }
-
-    console.log("isShowDeleteModal", isShowDeleteModal);
 
 
     return (

@@ -53,13 +53,12 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/sent-message", data)
-            console.log("<><><>><", response);
+
 
             return response?.data
 
 
         } catch (error) {
-            console.log(":error", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
@@ -71,13 +70,12 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/read-message", data)
-            console.log("<><><>><", response);
 
             return response?.data
 
 
         } catch (error) {
-            console.log(":error", error);
+
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);

@@ -36,7 +36,6 @@ class ChatApiService {
             const response = await this.api.post("/chat-channel/create-chat-channel", data)
             return response?.data
         } catch (error) {
-            console.log(error)
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
@@ -60,7 +59,6 @@ class ChatApiService {
 
             const response = await this.api.post("/chat-group/get-all-group",
                 { loginUserId })
-            // toast.success(response?.data?.message)
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";

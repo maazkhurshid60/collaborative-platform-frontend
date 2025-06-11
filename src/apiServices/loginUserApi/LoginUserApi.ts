@@ -24,7 +24,6 @@ class LoginUserApiService {
 
             return response.data
         } catch (error) {
-            console.log("errorerrorerrorerror", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -35,12 +34,10 @@ class LoginUserApiService {
 
         try {
             const response = await this.api.post("/auth/unblock-user", dataa)
-            console.log(response.data);
 
 
             return response.data
         } catch (error) {
-            console.log("errorerrorerrorerror", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -50,19 +47,16 @@ class LoginUserApiService {
 
         try {
             const response = await this.api.delete("/auth/delete-me-account", { data: { loginUserId: id } })
-            console.log(response.data);
 
 
             return response.data
         } catch (error) {
-            console.log("errorerrorerrorerror", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
         }
     }
     async updateMeApi(data: unknown) {
-        console.log("datatatatat", data);
 
         try {
             const response = await this.api.patch("/auth/update-me", data, {
@@ -70,12 +64,10 @@ class LoginUserApiService {
                     "Content-Type": "multipart/form-data"
                 }
             });
-            console.log(response.data);
 
 
             return response.data
         } catch (error) {
-            console.log("errorerrorerrorerror", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -87,12 +79,10 @@ class LoginUserApiService {
 
         try {
             const response = await this.api.post("/auth/get-me", data)
-            console.log(response.data);
 
 
             return response.data
         } catch (error) {
-            console.log("errorerrorerrorerror", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -109,30 +99,12 @@ class LoginUserApiService {
         }
     }
 
-    // async changePasswordApi(data: changePasswordApiType) {
-    //     console.log(data);
-
-    //     try {
-    //         const response = await this.api.patch("auth/change-password", data)
-    //         return response.data
-
-    //     } catch (error: unknown) {
-    //         console.log(error);
-
-    //         const errMsg = error instanceof Error ? error.response.data.message : "Failed to update the password."
-    //         throw new Error(errMsg)
-
-    //     }
-    // }
-
     async changePasswordApi(data: changePasswordApiType) {
-        console.log(data);
 
         try {
             const response = await this.api.patch("auth/change-password", data);
             return response.data;
         } catch (error: unknown) {
-            console.log(error);
 
             let errMsg = "Failed to update the password.";
 

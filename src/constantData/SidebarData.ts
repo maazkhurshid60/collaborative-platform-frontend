@@ -6,7 +6,6 @@ import { RiUserLine } from "react-icons/ri";
 import DocumentIcon from "../components/icons/dashboardIcons/clientsPortalIcons/document/Document";
 import SettingIcon from "../components/icons/dashboardIcons/clientsPortalIcons/setting/Setting";
 
-console.log("typeof MessageIcontypeof MessageIcontypeof MessageIcon", typeof MessageIcon);
 export const ProviderSidebarData = [
     {
         name: "Dashboard",

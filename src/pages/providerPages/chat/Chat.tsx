@@ -5,7 +5,7 @@ import { AppDispatch, RootState } from '../../../redux/store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import chatApiService from '../../../apiServices/chatApi/ChatApi';
 import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi';
-import { disconnectSocket, getSocket, initSocket } from '../../../socket/Socket'; // Correct import
+import { getSocket, initSocket } from '../../../socket/Socket'; // Correct import
 import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/ChatMessages';
 import ModalLayout from '../../../components/modals/modalLayout/ModalLayout';
 import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
@@ -142,19 +142,17 @@ const Chat = () => {
         };
     }, [activeChatObject?.id, activeChatType, queryClient]);
 
-    console.log("allGroupsallGroups", allGroups);
 
 
     useEffect(() => {
         if (!loginUserId || !allGroups.length) return;
 
-        disconnectSocket(); // Ensure no stale socket
+        // disconnectSocket(); // Ensure no stale socket
         const socket = initSocket(loginUserId);
 
         const joinAllGroupRooms = () => {
             allGroups.forEach((group: Group) => {
                 if (group.id) {
-                    // console.log(`📡 Joining group room from frontend: ${group.id}`);
                     socket.emit('join_channel', { chatChannelId: group.id });
                 }
             });
@@ -189,7 +187,6 @@ const Chat = () => {
         enabled: !!activeChatObject?.id && activeChatType === 'individual',
     });
 
-    console.log("allMessageallMessageallMessageallMessageallMessage", allMessage)
 
 
     // React Query to fetch messages for the active group chat
@@ -201,7 +198,6 @@ const Chat = () => {
                 return;
             }
             const dataSendToBack = { loginUserId, groupId: activeChatObject?.id };
-            // console.log("dataSendToBack", dataSendToBack);
 
             try {
                 const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
@@ -218,7 +214,7 @@ const Chat = () => {
 
     useEffect(() => {
         if (loginUserId) {
-            disconnectSocket(); // Always clear previous socket
+            // disconnectSocket(); // Always clear previous socket
             initSocket(loginUserId);
         }
     }, [loginUserId]);
@@ -248,14 +244,12 @@ const Chat = () => {
                 return bTime - aTime;
             });
     }, [allChannels, providerData]);
-    console.log("allGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroupsallGroups", isNewChatModal)
 
 
 
 
     return (
         <OutletLayout isWhiteColor={false}>
-            {/* {isModalShow && <ModalLayout heading="Share this chat by generating a link" modalBodyContent={ChatModalBodyContent(id={chatId})} />} */}
             {isModalShow && (
                 <ModalLayout
                     heading="Share this chat by generating a link"

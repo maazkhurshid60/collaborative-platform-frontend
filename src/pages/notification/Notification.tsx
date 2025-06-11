@@ -16,20 +16,12 @@ import { isModalDeleteReducer } from '../../redux/slices/ModalSlice';
 import Loader from '../../components/loader/Loader';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { getSocket } from '../../socket/Socket';
-import { localhostBaseUrl } from '../../apiServices/baseUrl/BaseUrl';
-
-
-
-
-
-
 
 
 const Notification = () => {
 
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
     const isModalDelete = useSelector((state: RootState) => state?.modalSlice.isModalDelete)
-    console.log("loginUserId", loginUserId);
     const [isLoader, setIsLoader] = useState(false)
     const dispatch = useDispatch<AppDispatch>()
     const queryClient = useQueryClient()
@@ -40,7 +32,6 @@ const Notification = () => {
         queryFn: async () => {
             try {
                 const response = await notificationApiService.getAllNotification(loginUserId);
-                console.log("response", response);
 
 
                 return response?.data?.notifications?.filter(
@@ -61,7 +52,6 @@ const Notification = () => {
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
             const dataSendToBackend = { notificationId: id, userId: loginUserId }
-            console.log("dataSendToBackend", dataSendToBackend);
 
             await notificationApiService.deleteNotification(dataSendToBackend)
         },
@@ -99,7 +89,6 @@ const Notification = () => {
         if (!socket) return;
 
         const handleNewNotification = (notification: NotificationType) => {
-            console.log("📥 Real-time notification received:", notification);
             toast.info(notification.title || "New Notification");
             queryClient.invalidateQueries({ queryKey: ["notifications"] }); // ✅ This is the fixed version
         };
@@ -114,7 +103,6 @@ const Notification = () => {
 
 
 
-    console.log(getCurrentRecords());
 
     return (
         <OutletLayout heading='Notifications'>
@@ -127,9 +115,13 @@ const Notification = () => {
                     {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
                         <div className='flex items-start gap-x-4'>
                             <img
-                                src={`${localhostBaseUrl}uploads/eSignatures/${data?.sender?.id !== loginUserId
-                                    ? data?.sender?.profileImage?.split('/')?.pop()
-                                    : data?.recipient?.profileImage?.split('/')?.pop()
+                                // src={`${localhostBaseUrl}uploads/eSignatures/${data?.sender?.id !== loginUserId
+                                //     ? data?.sender?.profileImage?.split('/')?.pop()
+                                //     : data?.recipient?.profileImage?.split('/')?.pop()
+                                //     }`}
+                                src={`${data?.sender?.id !== loginUserId
+                                    ? data?.sender?.profileImage
+                                    : data?.recipient?.profileImage
                                     }`}
                                 alt="User"
                                 className="w-12 h-12 rounded-full object-cover"

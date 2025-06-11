@@ -33,7 +33,6 @@ class DocumentApiService {
 
             if (axios.isAxiosError(error)) {
                 errMsg = error.response?.data?.error || "Failed to share document";
-                console.log(error.response?.data);
             }
 
             toast.error(errMsg);
@@ -53,7 +52,6 @@ class DocumentApiService {
 
             if (axios.isAxiosError(error)) {
                 errMsg = error.response?.data?.error || "Failed to share document";
-                console.log(error.response?.data);
             }
 
             toast.error(errMsg);

@@ -46,7 +46,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
             invitationEmail: data?.email, providerName: providerName
         }
         const response = await invitationEmailApiService.sendInvitationEmailApiService(dataSendToBack)
-        console.log("responseresponseresponseresponse", response);
+
         toast.success(`${response.data.message}`)
         setValue("email", "")
 

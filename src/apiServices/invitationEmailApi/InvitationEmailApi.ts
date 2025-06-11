@@ -15,8 +15,6 @@ class InvitationEmailApiService {
             const response = await this.api.post("/invite/invite-someone", data);
             return response.data;
         } catch (error: unknown) {
-            console.log("errors", error);
-
             if (isAxiosError(error) && error.response?.data?.data?.error) {
                 toast.error(error.response.data.data.error);
             } else {

@@ -30,7 +30,6 @@ const Navbar = () => {
     const queryClient = useQueryClient()
     const formData = new FormData();
 
-    console.log("previre navbar", filteredClients);
     const { data: clientData } = useQuery<ClientType[]>({
         queryKey: ["allclients"],
         queryFn: async () => {
@@ -65,7 +64,6 @@ const Navbar = () => {
         }
 
     }, [loginUserDetail])
-    // console.log("loginUserDetail>>>>>>>>>>>>>>>>>", loginUserDetail);
     const addClientFun = (data: ClientType) => {
         updateMutation.mutate(data)
     }

@@ -6,7 +6,6 @@ import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { SVGProps, useEffect, useState } from "react";
-// import { IconType } from "react-icons";
 import { disconnectSocket } from "../../socket/Socket";
 import ToolTip from "../toolTip/ToolTip";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
@@ -63,10 +62,7 @@ const Sidebar = () => {
                                 onClick={() => dispatch(isSideBarCloseReducser(false))}
                             >
                                 {({ isActive }) => {
-                                    const iconColor = isActive ? "text-white" : "text-textColor";
-                                    {
-                                        console.log("icon", iconColor);
-                                    }
+
                                     const Icon = data.icon;
                                     return (
                                         <>
@@ -88,7 +84,6 @@ const Sidebar = () => {
                     })}
                 </div>
                 <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
-                    {/* <TbLogout className="text-[24px] inline-block" onClick={logoutFunction} /> */}
 
                     <Logout onClick={logoutFunction} />
                     <ToolTip toolTipText="Logout" />

@@ -1,4 +1,3 @@
-;
 import { NavLink } from 'react-router-dom';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import UserIcon from '../../../icons/user/User';
@@ -14,17 +13,15 @@ interface ChatsProps {
     unreadMessagesCount?: string | number
 }
 
-const Chats: React.FC<ChatsProps> = ({ data, onClick, activeId }) => {
+const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
 
-    console.log("data", data);
 
     const otherUser =
         data?.providerA?.id === loginUserId
             ? { fullName: data.providerB?.user?.fullName, profileImage: data.providerB?.user?.profileImage }
             : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
 
-    console.log("datadatadatadata", activeId);
     const unreadCount = Number(data?.totalUnread ?? 0);
     // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
     // const imagePath = otherUser?.profileImage ? generateImgUrl(otherUser.profileImage) : null;

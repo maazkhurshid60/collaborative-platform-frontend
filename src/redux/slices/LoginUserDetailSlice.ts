@@ -53,7 +53,6 @@ const LoginUserDetail = createSlice({
     reducers: {
         saveLoginUserDetailsReducer: ((state, action) => {
             state.userDetails = action.payload
-            console.log(action.payload);
 
         }),
         updateBlockedMembers: (state, action) => {

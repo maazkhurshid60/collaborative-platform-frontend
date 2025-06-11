@@ -41,12 +41,10 @@ const CnicScreen = () => {
     const loginFunction = async (cnic: FormFields) => {
         setIsLoading(true)
 
-        console.log(cnic);
 
         try {
             const response = await authService.findCnic(cnic);
             toast.success(response?.message);
-            console.log("response.data.data", response.data.data);
             if (response.data.data !== null) {
                 const dataSendToRedux = {
                     email: response?.data?.data?.client?.email,
@@ -61,7 +59,6 @@ const CnicScreen = () => {
                     status: response?.data?.data?.status,
                 }
                 dispatch(saveCNICResult(dataSendToRedux))
-                console.log("response?.data?.dataresponse?.data?.data", response?.data?.data);
 
                 navigate("/client-signup")
             } else {
@@ -75,7 +72,6 @@ const CnicScreen = () => {
                 navigate("/client-signup")
             }
         } catch (error) {
-            console.log(error);
 
             const err = error as AxiosError<AuthErrorResponse>;
             toast.error(`${err?.response?.data?.data?.error}`);

@@ -29,22 +29,6 @@ const NewChatModal = () => {
     })
 
 
-    // const newChatFun = async (data: ProviderType) => {
-
-    //     const dataSendToBack = { providerId: loginUserDetail?.id, toProviderId: data?.id }
-    //     console.log("dataSendToBack", dataSendToBack);
-    //     const response = await chatApiService.createChatChannels(dataSendToBack)
-    //     console.log(response);
-    //     queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (old = []) => {
-    //         if (old.some(channel => channel.id === newChat.id)) return old; // avoid duplicate
-    //         return [newChat, ...old];
-    //     });
-    //     await queryClient.invalidateQueries({ queryKey: ['chatchannels'] });
-
-    //     dispatch(isNewChatModalShowReducser(false))
-
-    // }
-
     const { mutate: createNewChat } = useMutation({
         mutationFn: async (provider: ProviderType) => {
             const dataSendToBack = { providerId: loginUserDetail?.id, toProviderId: provider?.id };
@@ -52,7 +36,7 @@ const NewChatModal = () => {
             return response?.data?.newChatChannel;
         },
         onSuccess: (newChat) => {
-            // ✅ Push to cache or refetch
+            // Push to cache or refetch
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (old = []) => {
                 const exists = old?.find((item) => item?.id === newChat?.id);
                 return exists ? old : [newChat, ...old];

@@ -33,8 +33,6 @@ const Document = () => {
             try {
                 const response = await documentApiService.getAllSharedDocumentWithClientApi(clientId);
 
-                console.log("response?.data?.data", response);
-
                 return response?.data?.data; // Ensure it always returns an array
 
 
@@ -45,7 +43,6 @@ const Document = () => {
         }
 
     })
-    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<formatedate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", documentData);
     const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
         usePaginationHook({ data: Array.isArray(documentData) ? documentData : [], recordPerPage: 7 });
     // const { totalPages,
@@ -53,7 +50,6 @@ const Document = () => {
     //     handlePageChange, currentPage,
     // } = usePaginationHook({ data: documentData || [], recordPerPage: 7 })
 
-    console.log("documentData", documentData);
 
     const handleDownload = async (fileUrl: string, fileName: string) => {
 
@@ -80,7 +76,6 @@ const Document = () => {
         }
     };
 
-    console.log("getCurrentRecords(documents)", getCurrentRecords()[0]?.document?.url);
 
 
 

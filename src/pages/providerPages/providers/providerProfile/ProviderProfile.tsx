@@ -42,15 +42,12 @@ const ProviderProfile = () => {
 
     // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${selectedProviderData?.user?.profileImage?.split('/').pop()}`  
     // const imagePath = selectedProviderData?.user?.profileImage ? generateImgUrl(selectedProviderData?.user?.profileImage) : null;
-    console.log("selectedProviderData?.user?.profileImage", selectedProviderData?.user?.profileImage);
 
 
     if (isLoading) {
         return <Loader text='Loading...' />
     }
     if (isError) {
-        console.log(isError);
-
         return <p>somethingwent wrong</p>
     }
     return (

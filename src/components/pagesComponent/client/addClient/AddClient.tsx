@@ -43,19 +43,13 @@ const AddClient = () => {
         setWantToBeSeen((prev) => !prev);
     };
     const addFunction = (data: FormFields) => {
-        console.log(data);
 
         updateMutation.mutate(data)
     }
 
 
     const updateMutation = useMutation({
-        // mutationFn: async (data: FormFields) => {
-        //     const dataSendToBackend = { ...data, isAccountCreatedByOwnClient: false, age: data && parseInt(data?.user?.age ?? "18"), providerId, role: "client", profileImage: imagePreview }
-        //     console.log(dataSendToBackend);
 
-        //     // await clientApiService.addClientApi(dataSendToBackend);
-        // },
         mutationFn: async (data: FormFields) => {
             const formData = new FormData();
 

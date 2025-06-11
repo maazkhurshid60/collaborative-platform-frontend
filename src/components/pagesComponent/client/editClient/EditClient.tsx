@@ -44,7 +44,6 @@ const EditClient = () => {
             setSelectedClientData(selected);
         }
     }, [clientData, id])
-    console.log("recipientIdrecipientIdrecipientIdrecipientIdrecipientId", selectedClientData?.email);
 
     if (!id) {
         return <p>Invalid client ID</p>;

@@ -50,10 +50,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", clientData?.user?.age?.toString() ?? "")
             setValue("gender", clientData?.user?.gender ?? "")
-            console.log("Client profileimage", clientData?.user?.profileImage);
+
 
             if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
-                console.log("clientData?.user?.profileImage", clientData?.user?.profileImage);
                 // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${clientData?.user?.profileImage?.split('/').pop()}`
                 // setPreviewUrl(imagePath)
                 // const imagePath = clientData?.user?.profileImage ? generateImgUrl(clientData?.user?.profileImage) : null;
@@ -67,7 +66,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             }
         }
     }, [clientData, setValue])
-    // console.log("previewUrlpreviewUrlpreviewUrl", previewUrl);
 
 
     const handleFileSelect = (file: File) => {
@@ -91,7 +89,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('address', data.address)
         formData.append('contactNo', data.contactNo)
         if (selectedFile !== null) {
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<<");
 
             formData.append('profileImage', selectedFile)
         }
@@ -114,7 +111,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setIsLoader(false)
         }
     })
-    console.log("previewUrlpreviewUrlpreviewUrl", previewUrl);
 
     return (
         <div className='relative pl-2'>

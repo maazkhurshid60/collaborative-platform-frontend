@@ -46,7 +46,6 @@ const Providers = () => {
         getCurrentRecords,
         handlePageChange, currentPage,
     } = usePaginationHook({ data: providerData ?? [], recordPerPage: 6 })
-    console.log("providerData && providerData[0]?.clientList?.length", providerData && providerData[0]?.clientList?.length);
 
     const downloadXLS = (data: ProviderType[], fileName: string = "data.xls") => {
         const formattedData = data.map((provider) => ({

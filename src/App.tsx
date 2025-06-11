@@ -1,34 +1,31 @@
 import './App.css'
-import { toast, ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import { BrowserRouter } from 'react-router-dom'
 import Routing from './routing/Routing'
-import { Provider, useSelector } from 'react-redux'
-import store, { RootState } from './redux/store'
+import { Provider } from 'react-redux'
+import store from './redux/store'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useEffect } from 'react'
-import { disconnectSocket, initSocket } from './socket/Socket'
+
 
 
 function App() {
   const queryClient = new QueryClient();
-  const userId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.userId)
-  const role = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
-  console.log("userid", role?.user?.role);
+  // const userId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.userId)
 
-  useEffect(() => {
-    if (userId) {
-      const socket = initSocket(userId); // init once
+  // useEffect(() => {
+  //   if (userId) {
+  //     const socket = initSocket(userId); // init once
 
-      socket.on("new_notification", (data) => {
-        toast.info(`${data.title}: ${data.message}`);
-      });
+  //     socket.on("new_notification", (data) => {
+  //       toast.info(`${data.title}: ${data.message}`);
+  //     });
 
-      return () => {
-        socket.off("new_notification");
-        disconnectSocket();
-      };
-    }
-  }, [userId]);
+  //     return () => {
+  //       socket.off("new_notification");
+  //       disconnectSocket();
+  //     };
+  //   }
+  // }, [userId]);
 
   return (
     <QueryClientProvider client={queryClient}>

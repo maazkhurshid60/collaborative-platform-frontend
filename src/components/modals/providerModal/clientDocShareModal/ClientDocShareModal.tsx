@@ -28,13 +28,11 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         clientEmail: clientEmail,
         title: "Document has shared"
     }
-    console.log("dataSendToBackend", dataSendToBackend);
-    // console.log("clientId", clientId);
 
 
     const docShareFunction = async () => {
-        const response = await documentApiService.documentSharedWithClientApi(dataSendToBackend)
-        // ✅ Send notification to client
+        await documentApiService.documentSharedWithClientApi(dataSendToBackend)
+        // Send notification to client
         // const notificationSendToBackend = {
         //     recipientId: "f938f20a-a8fb-4b12-bc35-13b8f92ff88a", // userId of client
         //     title: "Document Shared",
@@ -42,7 +40,6 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         //     senderId: senderId
         // }
         // await notificationApiService.sendNotification(notificationSendToBackend);
-        console.log("response", response);
         dispatch(isModalShowReducser(false))
 
     }
@@ -60,7 +57,6 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
 
 const ClientDocShareModal: React.FC<ClientDocShareModalProps> = ({ sharedDocs, providerId, clientId, sharedDocsId, recipientId, clientEmail }) => {
     const dispatch = useDispatch<AppDispatch>()
-    console.log("recipientId", recipientId);
     const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
 

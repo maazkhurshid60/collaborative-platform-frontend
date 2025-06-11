@@ -9,16 +9,8 @@ export const initSocket = (providerId?: string, userId?: string): Socket => {
     }
 
 
-    // const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}` : `${staggingBaseUrl}`;
-    // socket = io(`${fileUrl}`, {
-    //     transports: ["websocket"],
-    //     // query: { providerId, userId },
-    //     query: {
-    //         ...(userId && { userId }),          // ✅ only added if exists
-    //         ...(providerId && { providerId }),  // ✅ only added if exists
-    //     },
-    // });
     socket = io(`https://collaborative-platform-backend.onrender.com/`, {
+
         transports: ["websocket"],
         reconnection: true,
         reconnectionAttempts: 5,       // Retry 5 times
