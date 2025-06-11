@@ -17,7 +17,7 @@ import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { Client } from '../../../types/providerType/ProviderType';
 import { useState } from 'react';
 import Loader from '../../../components/loader/Loader';
-import { initSocket } from '../../../socket/Socket';
+import { getSocket, initSocket } from '../../../socket/Socket';
 
 type FormFields = z.infer<typeof LoginSchema>;
 
@@ -66,6 +66,9 @@ const Login = () => {
 
             toast.success(response?.message);
             // disconnectSocket(); // Always clear previous socket
+            const socket = getSocket();
+            console.log("socket at login", socket);
+
             initSocket(response?.data?.user?.id);
             // Navigate based on role
             if (userData?.user?.role === "client") {

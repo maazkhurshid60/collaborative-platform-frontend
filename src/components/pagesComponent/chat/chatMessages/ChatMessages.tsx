@@ -39,7 +39,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
+    const socket = getSocket();
     // Load initial messages whenever `messageData` changes
     useEffect(() => {
         if (messageData) {
@@ -57,7 +57,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
-        const socket = getSocket();
+
         if (!socket || !activeChatObject) return;
 
         const handleIncoming = (newMsg: Message) => {
@@ -156,7 +156,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 );
 
                 // Send full saved message to backend
-                const socket = getSocket();
+                // const socket = getSocket();
                 console.log("<<<<<<<<<<<<<<<socket", socket, socket?.connected);
                 console.log("<<<<<<<<<<<<<<<otherId, saved", otherId, saved);
 
@@ -203,7 +203,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
-        const socket = getSocket();
+
         if (socket && activeChatObject?.id) {
             socket.emit('join_channel', { chatChannelId: activeChatObject.id });
             console.log("✅ Joined chat channel:", activeChatObject.id);
