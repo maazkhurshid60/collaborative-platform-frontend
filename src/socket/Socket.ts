@@ -4,8 +4,8 @@ let socket: Socket | undefined;
 
 export const initSocket = (providerId: string, userId?: string): Socket => {
     if (!socket || !socket.connected) {
-        // socket = io('https://collaborative-platform-backend.onrender.com', {
-        socket = io('http://localhost:8000', {
+        socket = io('https://collaborative-platform-backend.onrender.com', {
+            // socket = io('http://localhost:8000', {
             query: {
                 providerId,
                 userId,
