@@ -1,6 +1,7 @@
 export interface DocumentResponseType {
     completedDocuments: Document[];
     uncompletedDocuments: Document[];
+    sharedDocuments: Document[];
 };
 
 export interface DocumentType {

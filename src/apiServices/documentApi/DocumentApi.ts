@@ -30,6 +30,7 @@ class DocumentApiService {
             return response?.data;
         } catch (error: unknown) {
             let errMsg = "Something went wrong";
+            console.log(error);
 
             if (axios.isAxiosError(error)) {
                 errMsg = error.response?.data?.error || "Failed to share document";

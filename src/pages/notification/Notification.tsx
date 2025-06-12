@@ -111,45 +111,47 @@ const Notification = () => {
             />}
             {getCurrentRecords()?.length === 0 ? <NoRecordFound /> :
                 <>
+                    <div className='h-[65vh] overflow-y-auto '>
 
-                    {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
-                        <div className='flex items-start gap-x-4'>
-                            <img
-                                // src={`${localhostBaseUrl}uploads/eSignatures/${data?.sender?.id !== loginUserId
-                                //     ? data?.sender?.profileImage?.split('/')?.pop()
-                                //     : data?.recipient?.profileImage?.split('/')?.pop()
-                                //     }`}
-                                src={`${data?.sender?.id !== loginUserId
-                                    ? data?.sender?.profileImage
-                                    : data?.recipient?.profileImage
-                                    }`}
-                                alt="User"
-                                className="w-12 h-12 rounded-full object-cover"
-                            />
+                        {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
+                            <div className='flex items-start gap-x-4'>
+                                <img
+                                    // src={`${localhostBaseUrl}uploads/eSignatures/${data?.sender?.id !== loginUserId
+                                    //     ? data?.sender?.profileImage?.split('/')?.pop()
+                                    //     : data?.recipient?.profileImage?.split('/')?.pop()
+                                    //     }`}
+                                    src={`${data?.sender?.id !== loginUserId
+                                        ? data?.sender?.profileImage
+                                        : data?.recipient?.profileImage
+                                        }`}
+                                    alt="User"
+                                    className="w-12 h-12 rounded-full object-cover"
+                                />
 
-                            <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
-                                <div className='flex items-center justify-between gap-x-5'>
-                                    <div className='flex items-center gap-x-4'>
-                                        <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize'>
-                                            {data?.sender?.id === loginUserId
-                                                ? "you"
-                                                : data?.sender?.fullName}
-                                        </p>
-                                        <p className='font-semibold text-[18px]'>.</p>
-                                        <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
-                                        </p>
-                                        {/* <p className=' font-semibold text-[18px]'>.</p>
+                                <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
+                                    <div className='flex items-center justify-between gap-x-5'>
+                                        <div className='flex items-center gap-x-4'>
+                                            <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize'>
+                                                {data?.sender?.id === loginUserId
+                                                    ? "you"
+                                                    : data?.sender?.fullName}
+                                            </p>
+                                            <p className='font-semibold text-[18px]'>.</p>
+                                            <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
+                                            </p>
+                                            {/* <p className=' font-semibold text-[18px]'>.</p>
                                 <p className='font-light  text-[10px] lg:text-[12px] cursor-pointer'>Mark as Read</p> */}
 
+                                        </div>
+                                        <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")
+                                        } />
                                     </div>
-                                    <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")
-                                    } />
+                                    <p className=' text-[12px] lg:text-[14px] '>{data?.message}</p>
                                 </div>
-                                <p className=' text-[12px] lg:text-[14px] '>{data?.message}</p>
                             </div>
-                        </div>
-                        <AiOutlineDelete className='text-redColor cursor-pointer hidden sm:block sm:text-[26px] md:text-[30px] lg:text-[20px]' onClick={() => handleDeleteFun(data?.id)} />
-                    </div>)}
+                            <AiOutlineDelete className='text-redColor cursor-pointer hidden sm:block sm:text-[26px] md:text-[30px] lg:text-[20px]' onClick={() => handleDeleteFun(data?.id)} />
+                        </div>)}
+                    </div>
                     <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
                 </>
             }
