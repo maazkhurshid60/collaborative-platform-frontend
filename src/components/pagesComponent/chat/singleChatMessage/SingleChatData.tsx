@@ -37,12 +37,12 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
                 onClick={onClick}>
                 <div className='w-[100%] flex items-center justify-between'>
                     <div className="flex items-start gap-x-6">
-                        <div>
+                        <div className="w-10 h-10">
                             {
                                 imagePath ? <img
                                     src={imagePath}
                                     alt="Client"
-                                    className="w-10 h-10 rounded-full object-cover"
+                                    className="w-full h-full  rounded-full  object-fill"
                                 /> : <UserIcon />}
                         </div>
                         <div>

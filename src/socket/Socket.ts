@@ -5,6 +5,7 @@ let socket: Socket | undefined;
 export const initSocket = (providerId: string, userId?: string): Socket => {
     if (!socket || !socket.connected) {
         socket = io('https://collaborative-platform-backend.onrender.com', {
+
             query: {
                 providerId,
                 userId,
@@ -36,3 +37,19 @@ export const disconnectSocket = (): void => {
 
 
 
+
+//Remove comment code from following files
+// ViewDocModal
+// ChatModalBodyContent
+// ClientCompleteDocShareModal
+// ClientDocShareModal
+// Navbar
+// ChatMessages
+// ChatNavbar
+// GroupChatData
+// SingleChatData
+// EditClientDetail
+// Document
+// ProviderProfile
+// UserProfile
+// Notification

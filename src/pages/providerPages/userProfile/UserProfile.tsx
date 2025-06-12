@@ -165,7 +165,7 @@ const UserProfile = () => {
                                     <img
                                         src={previewUrl}
                                         alt="Client"
-                                        className="w-32 h-32 rounded-full object-cover"
+                                        className="w-32 h-32 rounded-full object-fill"
                                     />
                                 ) : (
 
@@ -267,7 +267,7 @@ const UserProfile = () => {
                                         <img
                                             src={previewUrl}
                                             alt="Client"
-                                            className="w-32 h-32 rounded-full object-cover"
+                                            className="w-32 h-32 rounded-full object-fill"
                                         />
                                     ) : (
 

@@ -64,7 +64,7 @@ const ProviderProfile = () => {
                     {(selectedProviderData?.user?.profileImage !== null && selectedProviderData?.user?.profileImage !== "null") ? <img
                         src={selectedProviderData?.user?.profileImage}
                         alt="Client"
-                        className="w-20 h-20 rounded-full object-cover"
+                        className="w-20 h-20 rounded-full object-fill"
                     /> : <UserIcon className='text-6xl mt-2' />}
 
                 </div>

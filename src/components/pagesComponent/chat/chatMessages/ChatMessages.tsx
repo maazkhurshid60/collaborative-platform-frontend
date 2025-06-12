@@ -295,12 +295,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     <>
                                         {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
                                             // <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
-                                            <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
+                                            <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
 
 
                                             : <UserIcon size={30} />}
 
-                                        {/*  */}
+
                                     </>}
 
                                 <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
@@ -330,7 +330,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 </div>
                                 {msg.you && <>  {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
                                     // <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
-                                    <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
+                                    <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
 
 
                                     : <UserIcon size={30} />}
