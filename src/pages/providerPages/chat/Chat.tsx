@@ -43,11 +43,23 @@ const Chat = () => {
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
 
+    // useEffect(() => {
+    //     if (loginUserId) {
+    //         initSocket(loginUserId);
+    //     }
+    // }, [loginUserId]);
     useEffect(() => {
         if (loginUserId) {
-            initSocket(loginUserId);
+            const socket = initSocket(loginUserId);
+
+            socket.on("connect", () => {
+                if (activeChatObject?.id) {
+                    socket.emit("join_channel", { chatChannelId: activeChatObject.id });
+                }
+            });
         }
-    }, [loginUserId]);
+    }, [loginUserId, activeChatObject?.id]);
+
 
 
     useEffect(() => {
