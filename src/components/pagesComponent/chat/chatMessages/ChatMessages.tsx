@@ -61,26 +61,25 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         if (!socket || !activeChatObject) return;
 
         const handleIncoming = (newMsg: Message) => {
-            if (
-                newMsg.chatChannelId === activeChatObject.id ||
-                newMsg.groupId === activeChatObject.id
-            ) {
+            setMessages(prev => {
+                // Step 1: If temp message exists, replace it
+                const tempIndex = prev.findIndex(
+                    m => m.id.startsWith("temp") && m.message === newMsg.message && m.senderId === newMsg.senderId
+                );
+                if (tempIndex !== -1) {
+                    const updated = [...prev];
+                    updated[tempIndex] = { ...newMsg, you: newMsg.senderId === loginUserId };
+                    return updated;
+                }
 
-                setMessages(prev => {
-                    // Check if temp message exists
-                    const tempIndex = prev.findIndex(m => m.id.startsWith("temp") && m.message === newMsg.message && m.senderId === newMsg.senderId);
-                    if (tempIndex !== -1) {
-                        const updated = [...prev];
-                        updated[tempIndex] = { ...newMsg, you: newMsg.senderId === loginUserId };
-                        return updated;
-                    }
+                // Step 2: If message already exists by ID, skip it
+                if (prev.some(m => m.id === newMsg.id)) return prev;
 
-                    // If it's a new one and not duplicate
-                    if (prev.some(m => m.id === newMsg.id)) return prev;
-                    return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
-                });
-            }
+                // Step 3: Add new message
+                return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
+            });
         };
+
 
         socket.off('receive_direct');
         socket.off('receive_group');
@@ -139,6 +138,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 };
                 const res = await messageApiService.sendMessageToSingleConservation(singlePayload);
                 const saved: Message = res.data.chatMessage;
+
                 // Replace temp with saved
                 setMessages(prev =>
                     prev.map(m => (m.id === tempId ? { ...saved, you: true } : m))
@@ -156,7 +156,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 );
 
                 // Send full saved message to backend
-                // const socket = getSocket();
+                const socket = getSocket();
                 console.log("<<<<<<<<<<<<<<<socket", socket, socket?.connected);
                 console.log("<<<<<<<<<<<<<<<otherId, saved", otherId, saved);
 
@@ -295,7 +295,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     <>
                                         {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
                                             // <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
-                                            <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
+                                            <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage} />
 
 
                                             : <UserIcon size={30} />}
@@ -330,7 +330,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 </div>
                                 {msg.you && <>  {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
                                     // <img className='w-10 h-10 rounded-full object-cover' src={`${localhostBaseUrl}uploads/eSignatures/${msg?.sender?.user?.profileImage?.split('/').pop()}`} />
-                                    <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage && msg?.sender?.user?.profileImage} />
+                                    <img className='w-10 h-10 rounded-full object-fill' src={msg?.sender?.user?.profileImage} />
 
 
                                     : <UserIcon size={30} />}

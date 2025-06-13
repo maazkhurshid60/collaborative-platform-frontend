@@ -43,22 +43,6 @@ const Chat = () => {
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
 
-    // useEffect(() => {
-    //     if (loginUserId) {
-    //         initSocket(loginUserId);
-    //     }
-    // }, [loginUserId]);
-    useEffect(() => {
-        if (loginUserId) {
-            const socket = initSocket(loginUserId);
-
-            socket.on("connect", () => {
-                if (activeChatObject?.id) {
-                    socket.emit("join_channel", { chatChannelId: activeChatObject.id });
-                }
-            });
-        }
-    }, [loginUserId, activeChatObject?.id]);
 
 
 
@@ -83,8 +67,9 @@ const Chat = () => {
                             : channel
                     );
 
-                    return updated.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+                    return [...updated].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
                 });
+
             }
 
 
@@ -310,12 +295,18 @@ const Chat = () => {
                                             // Update unread count in cache to 0
                                             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
                                                 if (!oldData) return oldData;
+
                                                 return oldData.map(channel =>
                                                     channel.id === data.id
-                                                        ? { ...channel, totalUnread: 0 }
+                                                        ? {
+                                                            ...channel,
+                                                            totalUnread: 0,
+                                                            updatedAt: new Date().toISOString() // <-- optional but safe
+                                                        }
                                                         : channel
                                                 );
                                             });
+
                                         }).catch((err) => {
                                             console.error('Failed to mark messages as read', err);
                                         });

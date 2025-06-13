@@ -1,15 +1,11 @@
-
 import { io, Socket } from "socket.io-client";
+
 let socket: Socket | undefined;
 
 export const initSocket = (providerId: string, userId?: string): Socket => {
-    if (!socket || !socket.connected) {
+    if (!socket) {
         socket = io('https://collaborative-platform-backend.onrender.com', {
-            // socket = io('http://localhost:8000', {
-            query: {
-                providerId,
-                userId,
-            },
+            query: { providerId, userId },
             transports: ['websocket'],
         });
 
@@ -20,6 +16,8 @@ export const initSocket = (providerId: string, userId?: string): Socket => {
         socket.on('connect_error', (err) => {
             console.error('❌ Socket connection failed:', err.message);
         });
+    } else if (!socket.connected) {
+        socket.connect(); // Ensure it reconnects if disconnected
     }
 
     return socket;
@@ -32,9 +30,9 @@ export const getSocket = (): Socket | undefined => {
 export const disconnectSocket = (): void => {
     if (socket) {
         socket.disconnect();
+        console.log('🛑 Socket disconnected');
     }
 };
-
 
 
 
