@@ -5,7 +5,7 @@ import UserIcon from '../../../icons/user/User';
 import { RootState } from '../../../../redux/store';
 import { useSelector } from 'react-redux';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
-import { getSocket } from '../../../../socket/Socket';  // Corrected import
+import { getSocket, initSocket } from '../../../../socket/Socket';  // Corrected import
 import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { toast } from 'react-toastify';
@@ -156,7 +156,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 );
 
                 // Send full saved message to backend
-                const socket = getSocket();
+                // const socket = getSocket();
                 console.log("<<<<<<<<<<<<<<<socket", socket, socket?.connected);
                 console.log("<<<<<<<<<<<<<<<otherId, saved", otherId, saved);
 
@@ -184,7 +184,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 const res = await messageApiService.sendMessagesOfGroupChatChannel(groupPayload);
                 const saved: Message = res.data.chatMessage;
 
-                const socket = getSocket();
+                // const socket = getSocket();
                 if (socket && socket.connected) {
                     socket.emit('send_group', {
                         message: saved, // ✅ send full saved message
@@ -203,12 +203,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
+        const soc = getSocket()
+        console.log(soc);
+
 
         if (socket && activeChatObject?.id) {
             socket.emit('join_channel', { chatChannelId: activeChatObject.id });
             console.log("✅ Joined chat channel:", activeChatObject.id);
         }
     }, [activeChatObject?.id]);
+    useEffect(() => {
+        if (!socket && loginUserId) {
+            initSocket(loginUserId);
+        }
+    }, [loginUserId]);
 
 
     if (!activeChatObject) {

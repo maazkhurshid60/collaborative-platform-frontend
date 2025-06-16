@@ -1,10 +1,13 @@
 import { io, Socket } from "socket.io-client";
 
-let socket: Socket | undefined;
+export let socket: Socket | undefined;
+const url = import.meta.env.VITE_ENV === "LOCALHOST" ? import.meta.env.VITE_LOCAL_BASE_URL.split("/api")[0] : import.meta.env.VITE_RENDER_BASE_URL.split("/api")[0]
 
 export const initSocket = (providerId: string, userId?: string): Socket => {
+    console.log("socket", socket);
+
     if (!socket) {
-        socket = io('https://collaborative-platform-backend.onrender.com', {
+        socket = io(url, {
             query: { providerId, userId },
             transports: ['websocket'],
         });
@@ -24,6 +27,7 @@ export const initSocket = (providerId: string, userId?: string): Socket => {
 };
 
 export const getSocket = (): Socket | undefined => {
+
     return socket;
 };
 
@@ -36,7 +40,7 @@ export const disconnectSocket = (): void => {
 
 
 
-//Remove comment code from following files
+//Remove comment code from following files  on 16june monday aftre 10pm
 // ViewDocModal
 // ChatModalBodyContent
 // ClientCompleteDocShareModal

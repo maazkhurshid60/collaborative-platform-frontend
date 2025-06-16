@@ -22,7 +22,7 @@ import { getSocket, initSocket } from '../../../socket/Socket';
 type FormFields = z.infer<typeof LoginSchema>;
 
 export interface ISigninData {
-    emailOrUsername: string;
+    email: string;
     password: string;
 }
 const Login = () => {

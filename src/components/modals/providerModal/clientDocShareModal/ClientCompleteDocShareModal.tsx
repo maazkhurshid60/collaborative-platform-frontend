@@ -18,11 +18,13 @@ interface Document {
 interface ClientCompleteDocShareModalProps {
     completedDoc?: Document | undefined;
     clientId?: string;
+    showDownloadButton?: boolean
 }
 
 const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = ({
     completedDoc,
     clientId,
+    showDownloadButton = false
 }) => {
     const [docContent, setDocContent] = useState<string>('');
     const contentRef = useRef<HTMLDivElement>(null);
@@ -31,17 +33,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         const loadDocx = async () => {
             if (!completedDoc?.url) return;
             try {
-
-                // const fileName = completedDoc.url.split('/').pop();
-                // const dummyLinkkk =
-                //     import.meta.env.VITE_ENV === 'LOCALHOST'
-                //         ? `${localhostBaseUrl}${fileName}`
-                //         : `${staggingBaseUrl}${fileName}`;
-
-                // const response = await fetch(`${dummyLink}`);
-                // const response = await fetch(`http://localhost:8000/uploads/docs/${fileName}`);
                 const response = await fetch(completedDoc.url);
-                // const response = await fetch(`https://collaborative-platform-backend.onrender.com/uploads/docs/${fileName}`);
                 if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
 
                 const arrayBuffer = await response.arrayBuffer();
@@ -113,16 +105,17 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
             heading="Share the documents with clients"
             modalBodyContent={
                 <div className="mt-4 ">
+                    {showDownloadButton &&
+                        <div className="text-right flex items-center justify-end">
 
-                    <div className="text-right flex items-center justify-end">
-
-                        <div className='w-[120px]'
-                        >
-                            <Button text='Download'
-                                sm onclick={handleDownloadPDF}
-                                icon={<MdOutlineFileDownload />} />
+                            <div className='w-[120px]'
+                            >
+                                <Button text='Download'
+                                    sm onclick={handleDownloadPDF}
+                                    icon={<MdOutlineFileDownload />} />
+                            </div>
                         </div>
-                    </div>
+                    }
 
                     {/* Scrollable content in modal */}
                     <div

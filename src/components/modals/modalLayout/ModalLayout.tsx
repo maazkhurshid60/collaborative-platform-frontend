@@ -2,7 +2,7 @@
 import { RxCross2 } from "react-icons/rx";
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
-import { isClientCompleteDocModalReducer, isModalDeleteReducer, isModalShowReducser, isNewChatModalShowReducser, isNewGroupChatModalShowReducser } from '../../../redux/slices/ModalSlice';
+import { isClientCompleteDocModalReducer, isClientShareDocModalReducer, isModalDeleteReducer, isModalShowReducser, isNewChatModalShowReducser, isNewGroupChatModalShowReducser } from '../../../redux/slices/ModalSlice';
 import ToolTip from "../../toolTip/ToolTip";
 interface ModalLayout {
     modalBodyContent: React.ReactNode
@@ -10,6 +10,15 @@ interface ModalLayout {
 }
 const ModalLayout: React.FC<ModalLayout> = (props) => {
     const dispatch = useDispatch<AppDispatch>()
+
+    const closeModalFun = () => {
+        dispatch(isModalShowReducser(false));
+        dispatch(isModalDeleteReducer(false));
+        dispatch(isNewChatModalShowReducser(false));
+        dispatch(isNewGroupChatModalShowReducser(false));
+        dispatch(isClientCompleteDocModalReducer(false));
+        dispatch(isClientShareDocModalReducer(false))
+    }
     return (
         <div className='absolute left-0 top-0 bg-[#171717]/70 w-[100vw] h-[100vh] z-50 flex items-center justify-center'>
             <div className='w-[90%] md:w-[40%]'>
@@ -24,7 +33,7 @@ const ModalLayout: React.FC<ModalLayout> = (props) => {
                         </div>
                         <div className="relative group">
 
-                            <RxCross2 size={24} className='cursor-pointer' onClick={() => { dispatch(isModalShowReducser(false)); dispatch(isModalDeleteReducer(false)); dispatch(isNewChatModalShowReducser(false)); dispatch(isNewGroupChatModalShowReducser(false)); dispatch(isClientCompleteDocModalReducer(false)) }} />
+                            <RxCross2 size={24} className='cursor-pointer' onClick={closeModalFun} />
                             <ToolTip toolTipText="Close" />
                         </div>
                     </div>
