@@ -20,7 +20,7 @@ const ModalLayout: React.FC<ModalLayout> = (props) => {
         dispatch(isClientShareDocModalReducer(false))
     }
     return (
-        <div className='absolute left-0 top-0 bg-[#171717]/70 w-[100vw] h-[100vh] z-50 flex items-center justify-center'>
+        <div className='fixed left-0 top-0 bg-[#171717]/70 w-[100vw] h-[100vh] z-50 flex items-center justify-center'>
             <div className='w-[90%] md:w-[40%]'>
 
                 <div className='bg-white w-[100%] p-5 pb-10  rounded-[20px]'>

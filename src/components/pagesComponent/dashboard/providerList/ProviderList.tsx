@@ -12,7 +12,7 @@ import NoRecordFound from '../../../noRecordFound/NoRecordFound'
 import { useNavigate } from 'react-router-dom'
 
 const ProviderList = () => {
-    const heading = ["S.No", "name", "CNIC Number", "email", "status", "clients"]
+    const heading = ["S.No", "name", "license Number", "email", "status", "clients"]
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     const navigate = useNavigate()
@@ -55,7 +55,7 @@ const ProviderList = () => {
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
                                 <td className="px-2 py-2">{id + 1}</td>
                                 <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                <td className="px-2 py-2">{data?.user?.licenseNo}</td>
                                 <td className="px-2 py-2 lowercase">{data?.email}</td>
                                 <td className="px-2 py-2">{data?.user?.status}</td>
                                 <td className="px-2 py-2 w-[100px]">

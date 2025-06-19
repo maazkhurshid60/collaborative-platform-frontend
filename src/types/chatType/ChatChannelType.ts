@@ -14,6 +14,7 @@ export interface ChatChannelType {
 
 export interface LastMessage {
     message?: string
+    createdAt: string
 }
 
 export interface Member {
@@ -42,7 +43,7 @@ export interface ProviderUser {
     age: number | null;
     address: string | null;
     contactNo: string | null;
-    cnic: string;
+    licenseNo: string;
     profileImage: string | null;
     role: string;
     status: string;

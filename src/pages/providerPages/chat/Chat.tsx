@@ -39,12 +39,11 @@ const Chat = () => {
     const [activeId, setActiveId] = useState<string>()
     const [activeChatType, setActiveChatType] = useState<'individual' | 'group' | undefined>(undefined);
 
+
+
     const queryClient = useQueryClient();
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
-
-
-
 
     useEffect(() => {
         const handler = (newMessage: NewMessage) => {
@@ -52,26 +51,25 @@ const Chat = () => {
                 queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
                     if (!oldData) return oldData;
 
-                    const updated = oldData.map(channel =>
-                        channel.id === newMessage.chatChannelId
-                            ? {
-                                ...channel,
-                                totalUnread: (Number(channel.totalUnread) || 0) + 1,
-                                updatedAt: new Date().toISOString(),
+                    return oldData.map(channel => {
+                        if (channel.id === newMessage.chatChannelId) {
+                            return {
+                                ...channel, // clone current channel
                                 lastMessage: {
                                     id: newMessage.id!,
                                     message: newMessage?.message || 'New message',
-                                    createdAt: new Date().toISOString()
-                                }
-                            }
-                            : channel
-                    );
-
-                    return [...updated].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+                                    createdAt: newMessage?.createdAt || new Date().toISOString()
+                                },
+                                totalUnread: (Number(channel.totalUnread) || 0) + 1,
+                                updatedAt: new Date().toISOString()
+                            };
+                        }
+                        return { ...channel }; // 👈 force every object to be new
+                    });
                 });
 
-            }
 
+            }
 
             queryClient.setQueryData<{ messages: NewMessage[] }>(
                 ['messages', activeChatObject?.id],
@@ -81,6 +79,7 @@ const Chat = () => {
                     return { messages: [...old.messages, newMessage] };
                 }
             );
+
 
         };
 
@@ -95,13 +94,19 @@ const Chat = () => {
         };
     }, [activeChatObject?.id]);
 
-
     // GET ALL CHANNELS
     const { data: allChannels = [] } = useQuery({
         queryKey: ['chatchannels'],
         queryFn: async () => {
             const res = await chatApiService.getAllChatChannels(loginUserId);
-            return res.data.findAllChatChannel;
+            const channels = res.data.findAllChatChannel || [];
+
+            // 🔥 Sort by latest lastMessage or updatedAt
+            return channels.sort((a: GroupChat, b: GroupChat) => {
+                const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
+                const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+                return bTime - aTime; // latest first
+            });
         },
     });
 
@@ -110,9 +115,17 @@ const Chat = () => {
         queryKey: ['groupChatchannels'],
         queryFn: async () => {
             const res = await chatApiService.getGroupChatChannels(loginUserId);
-            return res?.data?.allgroups;
+            const groups = res?.data?.allgroups || [];
+            console.log(groups);
+            // 🔥 Sort karo lastMessage ke time ya updatedAt ke basis pe
+            return groups.sort((a: GroupChat, b: GroupChat) => {
+                const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
+                const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+                return bTime - aTime; // latest group sabse upar
+            });
         },
     });
+
 
     useEffect(() => {
         const handler = (newMessage: NewMessage) => {
@@ -231,17 +244,23 @@ const Chat = () => {
 
     })
     const unBlockProviders = useMemo(() => {
-        return allChannels
-            ?.filter((channel: ChatChannelType) =>
+        const currentChannels = queryClient.getQueryData<ChatChannelType[]>(['chatchannels']) || [];
+
+        return currentChannels
+            .filter((channel: ChatChannelType) =>
                 providerData?.some(provider => channel?.providerBId === provider?.id)
             )
-            ?.sort((a: ChatChannelType, b: ChatChannelType) => {
+            .sort((a: ChatChannelType, b: ChatChannelType) => {
                 const aTime = new Date(a?.updatedAt)?.getTime();
                 const bTime = new Date(b?.updatedAt)?.getTime();
                 return bTime - aTime;
             });
-    }, [allChannels, providerData]);
+    }, [providerData]);
 
+    console.log("unBlockProviders", unBlockProviders);
+    console.log("allChannels", allChannels);
+    console.log("ChatMessages", ChatMessages);
+    console.log("allMessage", allMessage);
 
 
 
@@ -276,6 +295,7 @@ const Chat = () => {
                         {unBlockProviders?.map((data: ChatChannelType) => (
                             <div className="gap-y-3" key={data?.id}>
                                 <SingleChatData
+                                    key={`${data.id}-${data.updatedAt}`}
                                     data={data}
                                     activeId={activeId}
                                     onClick={() => {
@@ -344,6 +364,29 @@ const Chat = () => {
                                         if (socket?.connected && data?.id) {
                                             socket.emit('join_channel', { chatChannelId: data.id }); // already used in individual — now works for group too
                                         }
+                                        messageApiService.readMessageGroupConservation({
+                                            loginUserId,
+                                            groupId: data.id,
+                                        }).then(() => {
+                                            // Update unread count in cache to 0
+                                            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
+                                                if (!oldData) return oldData;
+
+                                                return oldData.map(group =>
+                                                    group.id === data.id
+                                                        ? {
+                                                            ...group,
+                                                            unreadCount: 0,
+                                                            updatedAt: new Date().toISOString()
+                                                        }
+                                                        : group
+                                                );
+                                            });
+
+
+                                        }).catch((err) => {
+                                            console.error('Failed to mark messages as read', err);
+                                        });
                                     }}
                                 />
 

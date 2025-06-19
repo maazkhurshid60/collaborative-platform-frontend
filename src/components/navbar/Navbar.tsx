@@ -24,7 +24,7 @@ const Navbar = () => {
     const dropdownRef = useRef<HTMLDivElement>(null)
     const navigate = useNavigate()
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    const [searchByCNIC, setSearchByCNIC] = useState('')
+    const [searchByLicenseNo, setSearchByLicenseNo] = useState('')
     const [filteredClients, setFilteredClients] = useState<ClientType[]>()
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
@@ -44,20 +44,18 @@ const Navbar = () => {
 
     })
     useEffect(() => {
-        if (searchByCNIC !== '') {
+        if (searchByLicenseNo !== '') {
             const filteredClients = clientData?.filter((client) =>
-                client.user?.cnic?.toLowerCase()?.includes(searchByCNIC?.toLowerCase())
+                client.user?.licenseNo?.toLowerCase()?.includes(searchByLicenseNo?.toLowerCase())
             );
             setFilteredClients(filteredClients)
         } else {
             setFilteredClients([])
         }
-    }, [searchByCNIC])
+    }, [searchByLicenseNo])
 
     useEffect(() => {
         if (loginUserDetail?.user?.profileImage !== "null") {
-            // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${loginUserDetail?.user?.profileImage?.split('/').pop()}`
-            // const url = generateImgUrl(loginUserDetail?.user?.profileImage);
             setPreviewUrl(loginUserDetail?.user?.profileImage)
         } else {
             setPreviewUrl(null)
@@ -76,7 +74,7 @@ const Navbar = () => {
 
 
             formData.append("fullName", data?.user?.fullName ?? "");
-            formData.append("cnic", data?.user?.cnic ?? "");
+            formData.append("licenseNo", data?.user?.licenseNo ?? "");
             formData.append("age", data?.user?.age ?? "18");
             formData.append("email", data?.email ?? "");
             formData.append("contactNo", data?.user?.contactNo ?? "00000000000000");
@@ -97,7 +95,7 @@ const Navbar = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
             toast.success("New Client has added successfully")
-            setSearchByCNIC("")
+            setSearchByLicenseNo("")
             setIsLoader(false)
         },
         onError: () => {
@@ -127,7 +125,7 @@ const Navbar = () => {
                 </div>
                 <div className='hidden md:block lg:w-[500px] xl:w-[507px] md:relative'>
 
-                    <SearchBar placeholder='Search by CNIC...' onChange={(e) => setSearchByCNIC(e.target.value)} value={searchByCNIC} />
+                    <SearchBar placeholder='Search by License No...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
                     {filteredClients && filteredClients?.length > 0 &&
                         < div className='w-[100%] rounded-lg bg-white   borderClass max-h-[500px]  overflow-y-auto absolute top-12 left-0 z-50' >
                             {filteredClients?.map(data =>
@@ -168,7 +166,7 @@ const Navbar = () => {
                             <img
                                 src={previewUrl}
                                 alt="Client"
-                                className=" w-12 h-12 rounded-full object-fill"
+                                className=" w-12 h-12 rounded-full object-cover"
                             />
                         ) : (
 

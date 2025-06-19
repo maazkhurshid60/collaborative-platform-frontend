@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-    searchByCNIC: "",
+    searchByLicenseNo: "",
     userDetails: {
         createAt: "",
         eSignature: null,
@@ -20,7 +20,7 @@ const initialState = {
             address: null,
             age: null,
             blockedMembers: [] as string[],
-            cnic: "",
+            licenseNo: "",
             contactNo: null,
             createdAt: "",
             fullName: "",
@@ -32,9 +32,9 @@ const initialState = {
             updatedAt: ""
         }
     },
-    cnicResult: {
+    licenseNoResult: {
         email: "",
-        cnic: "",
+        licenseNo: "",
         fullName: "",
         clientId: "",
         gender: null,
@@ -58,16 +58,16 @@ const LoginUserDetail = createSlice({
         updateBlockedMembers: (state, action) => {
             state.userDetails.user.blockedMembers = action.payload;
         },
-        saveCNICResult: (state, action) => {
-            state.cnicResult = action.payload;
+        saveLicenseNoResult: (state, action) => {
+            state.licenseNoResult = action.payload;
         },
-        searchByCNICReducer: (state, action) => {
-            state.searchByCNIC = action.payload
+        searchByLicenseNoReducer: (state, action) => {
+            state.searchByLicenseNo = action.payload
         },
         emptyResult: (state) => {
-            state.cnicResult = {
+            state.licenseNoResult = {
                 email: "",
-                cnic: "",
+                licenseNo: "",
                 fullName: "",
                 clientId: "",
                 gender: null,
@@ -93,7 +93,7 @@ const LoginUserDetail = createSlice({
                     address: null,
                     age: null,
                     blockedMembers: [] as string[],
-                    cnic: "",
+                    licenseNo: "",
                     contactNo: null,
                     createdAt: "",
                     fullName: "",
@@ -110,5 +110,5 @@ const LoginUserDetail = createSlice({
 
 
 })
-export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveCNICResult, emptyResult, searchByCNICReducer } = LoginUserDetail.actions
+export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveLicenseNoResult, emptyResult, searchByLicenseNoReducer } = LoginUserDetail.actions
 export default LoginUserDetail.reducer

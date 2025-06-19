@@ -27,7 +27,7 @@ export interface selectedClientIdType {
 
 const Clients = () => {
     const navigate = useNavigate()
-    const heading = ["S.No", "name", "CNIC", "gender", "email", "status", "providers", "action"]
+    const heading = ["S.No", "name", "License Number", "gender", "email", "status", "providers", "action"]
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
@@ -114,7 +114,7 @@ const Clients = () => {
                                 <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
                                     <td className="px-2 py-2">{id + 1}</td>
                                     <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                    <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                    <td className="px-2 py-2">{data?.user?.licenseNo}</td>
                                     <td className="px-2 py-2">{data?.user?.gender}</td>
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">{data?.user?.status}</td>

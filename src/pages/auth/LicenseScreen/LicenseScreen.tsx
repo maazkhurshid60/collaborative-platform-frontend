@@ -3,7 +3,7 @@ import InputField from '../../../components/inputField/InputField'
 import AuthLayout from '../../../layouts/authLayout/AuthLayout'
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CnicSchema } from '../../../schema/authSchema/AuthSchema';
+import { LicenseNoSchema } from '../../../schema/authSchema/AuthSchema';
 import Button from '../../../components/button/Button';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../../apiServices/authApi/AuthApi';
@@ -12,18 +12,18 @@ import { AxiosError } from 'axios';
 import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
-import { saveCNICResult } from '../../../redux/slices/LoginUserDetailSlice';
+import { saveLicenseNoResult } from '../../../redux/slices/LoginUserDetailSlice';
 import { useState } from 'react';
 import Loader from '../../../components/loader/Loader';
 
 
-type FormFields = z.infer<typeof CnicSchema>;
+type FormFields = z.infer<typeof LicenseNoSchema>;
 
 export interface ISigninData {
     emailOrUsername: string;
     password: string;
 }
-const CnicScreen = () => {
+const LicenseNo = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     const {
@@ -31,24 +31,24 @@ const CnicScreen = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<FormFields>({
-        resolver: zodResolver(CnicSchema),
+        resolver: zodResolver(LicenseNoSchema),
     });
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
 
 
     //FUNCTIONS
-    const loginFunction = async (cnic: FormFields) => {
+    const loginFunction = async (licenseNo: FormFields) => {
         setIsLoading(true)
 
 
         try {
-            const response = await authService.findCnic(cnic);
+            const response = await authService.findLicenseNo(licenseNo);
             toast.success(response?.message);
             if (response.data.data !== null) {
                 const dataSendToRedux = {
                     email: response?.data?.data?.client?.email,
-                    cnic: response?.data?.data?.cnic,
+                    licenseNo: response?.data?.data?.licenseNo,
                     fullName: response?.data?.data?.fullName,
                     clientId: response?.data?.data?.client?.id,
                     isClientExist: true,
@@ -58,17 +58,17 @@ const CnicScreen = () => {
                     address: response?.data?.data?.address,
                     status: response?.data?.data?.status,
                 }
-                dispatch(saveCNICResult(dataSendToRedux))
+                dispatch(saveLicenseNoResult(dataSendToRedux))
 
                 navigate("/client-signup")
             } else {
                 const dataSendToRedux = {
                     email: "",
-                    cnic: "",
+                    licenseNo: "",
                     fullName: "",
                     isClientExist: false
                 }
-                dispatch(saveCNICResult(dataSendToRedux))
+                dispatch(saveLicenseNoResult(dataSendToRedux))
                 navigate("/client-signup")
             }
         } catch (error) {
@@ -86,14 +86,14 @@ const CnicScreen = () => {
 
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
-                    <InputField required label='CNIC' register={register("cnic")} name='cnic' placeHolder='Enter CNIC.' error={errors.cnic?.message} />
+                    <InputField required label='License Number' register={register("licenseNo")} name='licenseNo' placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
                 </div>
                 <div className='mt-10'>
 
                     <Button text='sign up' />
                 </div>
 
-                <p className='font-normal labelNormal  text-center mt-14'> Already an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
+                <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
             </form>
 
         </AuthLayout>
@@ -101,4 +101,4 @@ const CnicScreen = () => {
     )
 }
 
-export default CnicScreen
+export default LicenseNo

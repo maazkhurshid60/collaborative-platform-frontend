@@ -6,7 +6,7 @@ export interface blockListDataType {
     address?: string
     age?: string | number
     blockedMembers?: string[]
-    cnic?: string
+    licenseNo?: string
     contactNo?: string | null
     createdAt?: string
     gender?: string

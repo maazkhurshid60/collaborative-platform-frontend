@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../redux/store';
 import { isBlockScreenShowReducer } from '../../../../redux/slices/BlockListUserSlice';
 import { blockListDataType } from '../../../../types/usersType/UsersType';
-import BackIcon from '../../../icons/back/Back';
 
 interface BlockListProps {
     blockListData?: blockListDataType[]
@@ -32,22 +31,17 @@ const BlockList: React.FC<BlockListProps> = (props) => {
                 className={` bg-white  p-4 relative  transform transition-transform duration-700 ease-in-out ${showSidebar ? 'translate-x-0' : 'translate-x-full hidden'}`}
             >
 
-                {/* <IoIosArrowBack size={24} className='mb-4 absolute cursor-pointer left-0 top-2 text-textGreyColor'
-                 onClick={() => { dispatch(isBlockScreenShowReducer(false)) }} /> */}
 
-                <div className='absolute top-0 left-0'>
 
-                    <BackIcon onClick={() => { dispatch(isBlockScreenShowReducer(false)) }} />
-                </div>
+
                 <div className='mt-4'>
                     <SearchBar sm value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
                 </div>
                 <div className='h-[89vh] overflow-auto'>
                     {filteredBlockList && filteredBlockList?.length > 0 ? (
                         filteredBlockList.map((data, id: number) => (
-                            // <BlockUserAccount name={data?.name} image={data?.image} isBlock={data?.isBlock} />
 
-                            <BlockUserAccount fullName={data?.fullName} id={data?.id} key={id} />
+                            <BlockUserAccount fullName={data?.fullName} id={data?.id} key={id} profileImage={data?.profileImage ?? null} />
                         ))
                     ) : (
                         <div className='text-center text-sm text-textGreyColor mt-10'>

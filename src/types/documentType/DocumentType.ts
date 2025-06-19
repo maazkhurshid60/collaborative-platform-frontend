@@ -40,7 +40,7 @@ export interface Provider {
 export interface User {
     id: string;
     fullName: string;
-    cnic: string;
+    licenseNo: string;
     age: number;
     gender: string;
     contactNo: string;

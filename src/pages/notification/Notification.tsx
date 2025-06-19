@@ -90,7 +90,8 @@ const Notification = () => {
 
         const handleNewNotification = (notification: NotificationType) => {
             toast.info(notification.title || "New Notification");
-            queryClient.invalidateQueries({ queryKey: ["notifications"] }); // ✅ This is the fixed version
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+
         };
 
         socket.on("new_notification", handleNewNotification);
@@ -116,10 +117,6 @@ const Notification = () => {
                         {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
                             <div className='flex items-start gap-x-4'>
                                 <img
-                                    // src={`${localhostBaseUrl}uploads/eSignatures/${data?.sender?.id !== loginUserId
-                                    //     ? data?.sender?.profileImage?.split('/')?.pop()
-                                    //     : data?.recipient?.profileImage?.split('/')?.pop()
-                                    //     }`}
                                     src={`${data?.sender?.id !== loginUserId
                                         ? data?.sender?.profileImage
                                         : data?.recipient?.profileImage
@@ -139,8 +136,6 @@ const Notification = () => {
                                             <p className='font-semibold text-[18px]'>.</p>
                                             <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
                                             </p>
-                                            {/* <p className=' font-semibold text-[18px]'>.</p>
-                                <p className='font-light  text-[10px] lg:text-[12px] cursor-pointer'>Mark as Read</p> */}
 
                                         </div>
                                         <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")

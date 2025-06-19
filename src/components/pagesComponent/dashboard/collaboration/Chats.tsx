@@ -10,7 +10,6 @@ interface ChatsProps {
     data: ChatChannelType;
     activeId?: string | undefined
     onClick?: () => void;
-    unreadMessagesCount?: string | number
 }
 
 const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
@@ -23,16 +22,19 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
             : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
 
     const unreadCount = Number(data?.totalUnread ?? 0);
-    // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
-    // const imagePath = otherUser?.profileImage ? generateImgUrl(otherUser.profileImage) : null;
+
     const imagePath = otherUser?.profileImage ? otherUser.profileImage : null;
+
+
+
+
 
     return (
         <div className="">
             <NavLink to="/chat" className='mb-4 pb-2 pt-2 pl-2 flex items-center gap-x-2 
              border-b-[1px] border-b-solid border-b-textGreyColor/30  hover:border-b-primaryColorLight 
               hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md  bg-inputBgColor'>
-                <div className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  transition-all duration-300 cursor-pointer 
+                <div className={`pb-2 pt-2 pl-2 flex items-center  w-full gap-x-2  transition-all duration-300 cursor-pointer 
             `}
 
                     onClick={onClick}>
@@ -63,9 +65,9 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
 
                     </div>
                     {unreadCount > 0 && (
-                        <span className="bg-primaryColorDark text-white text-xs px-2 py-1 rounded-full">
+                        <p className="bg-primaryColorDark text-white text-xs px-2 py-1 rounded-full">
                             {data.totalUnread}
-                        </span>
+                        </p>
                     )}
 
 

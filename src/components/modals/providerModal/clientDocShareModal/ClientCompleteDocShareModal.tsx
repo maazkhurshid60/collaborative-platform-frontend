@@ -140,10 +140,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                         record.eSignature ? (
                                             <img
                                                 key={record.id}
-
-                                                // src={import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}/uploads/esignatures/${record.eSignature}` : `${staggingBaseUrl}/uploads/esignatures/${record.eSignature}`}
                                                 src={record.eSignature}
-                                                // src={`https://collaborative-platform-backend.onrender.com/uploads/esignatures/${record.eSignature}`}
                                                 alt="eSignature"
                                                 crossOrigin="anonymous"
                                                 className="w-[400px] h-[200px] border rounded shadow mt-4"

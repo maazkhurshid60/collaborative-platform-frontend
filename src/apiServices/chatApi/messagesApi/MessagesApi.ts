@@ -5,19 +5,12 @@ interface getAllMessagesOfSingleChatChannelType {
     groupId?: string
     loginUserId?: string
 }
-interface sendMessageToSingleConservation {
-    chatChannelId: string
-    senderId: string
-    message?: string
-    mediaUrl?: string
-    type?: string
 
-
-}
 
 export interface ReadMessageSingleConservationPayload {
     loginUserId: string;
-    chatChannelId: string;
+    chatChannelId?: string;
+    groupId?: string
 }
 
 class MessageApiService {
@@ -49,7 +42,7 @@ class MessageApiService {
         }
     }
 
-    async sendMessageToSingleConservation(data: sendMessageToSingleConservation) {
+    async sendMessageToSingleConservation(data: FormData) {
         try {
 
             const response = await this.api.post("/chat/single-chat/sent-message", data)
@@ -59,6 +52,7 @@ class MessageApiService {
 
 
         } catch (error) {
+            console.log("aaaaaaaaaaa", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
@@ -96,7 +90,7 @@ class MessageApiService {
             toast.error(errMsg);
         }
     }
-    async sendMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChatChannelType) {
+    async sendMessagesOfGroupChatChannel(data: FormData) {
         try {
 
             const response = await this.api.post("/chat-group/send-message-to-group", data)
@@ -109,6 +103,23 @@ class MessageApiService {
         }
     }
 
+
+
+    async readMessageGroupConservation(data: ReadMessageSingleConservationPayload) {
+        try {
+
+            const response = await this.api.post("/chat-group/read-message", data)
+
+            return response?.data
+
+
+        } catch (error) {
+
+
+            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
 }
 
 const messageApiService = new MessageApiService()

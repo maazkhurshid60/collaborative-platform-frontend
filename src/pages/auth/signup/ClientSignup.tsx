@@ -25,7 +25,7 @@ export interface ISigninData {
 }
 
 const ClientSignup = () => {
-    const cnicData = useSelector((state: RootState) => state.LoginUserDetail.cnicResult)
+    const licenseNoData = useSelector((state: RootState) => state.LoginUserDetail.licenseNoResult)
     const [isLoading, setIsLoading] = useState(false)
 
     const {
@@ -41,20 +41,20 @@ const ClientSignup = () => {
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
 
-        if (cnicData.isClientExist) {
+        if (licenseNoData.isClientExist) {
             const dataSendToBackend = {
                 email: data?.email,
                 password: data?.password,
                 fullName: data?.fullName,
-                cnic: data?.cnic,
+                licenseNo: data?.licenseNo,
                 role: "client",
                 isAccountCreatedByOwnClient: true,
-                age: cnicData.age ?? undefined,
-                contactNo: cnicData.contactNo ?? undefined,
-                address: cnicData.address ?? undefined,
-                gender: cnicData.gender ?? undefined,
-                status: cnicData.status ?? undefined,
-                clientId: cnicData.clientId
+                age: licenseNoData.age ?? undefined,
+                contactNo: licenseNoData.contactNo ?? undefined,
+                address: licenseNoData.address ?? undefined,
+                gender: licenseNoData.gender ?? undefined,
+                status: licenseNoData.status ?? undefined,
+                clientId: licenseNoData.clientId
             };
             try {
                 const response = await clientApiService.updateExistingClientApi(dataSendToBackend);
@@ -72,7 +72,7 @@ const ClientSignup = () => {
         else {
             setIsLoading(true)
 
-            const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, cnic: data?.cnic, role: "client", isAccountCreatedByOwnClient: true };
+            const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, role: "client", isAccountCreatedByOwnClient: true };
             try {
                 const response = await authService.signup(dataSendToBackend);
                 toast.success(response?.message);
@@ -88,12 +88,12 @@ const ClientSignup = () => {
     }
 
     useEffect(() => {
-        setValue("fullName", cnicData?.fullName)
-        setValue("cnic", cnicData?.cnic)
-        setValue("email", cnicData?.email)
+        setValue("fullName", licenseNoData?.fullName)
+        setValue("licenseNo", licenseNoData?.licenseNo)
+        setValue("email", licenseNoData?.email)
 
 
-    }, [cnicData])
+    }, [licenseNoData])
     return (
         <>
             {isLoading && <Loader />}
@@ -117,10 +117,10 @@ const ClientSignup = () => {
                     </div>
                     <div className='mb-3.5'>
                         <InputField required
-                            label='CNIC No'
-                            register={register("cnic")}
-                            name='cnic' placeHolder='Enter CNIC.'
-                            error={errors?.cnic?.message} />
+                            label='license Number'
+                            register={register("licenseNo")}
+                            name='licenseNo' placeHolder='Enter license number.'
+                            error={errors?.licenseNo?.message} />
                     </div>
                     <div className='mb-3.5'>
                         <InputField required
@@ -149,7 +149,7 @@ const ClientSignup = () => {
                         Don’t have an account? <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/"); dispatch(emptyResult()) }}>
                             Sign in
                         </span>
-                        or <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-cnic"); dispatch(emptyResult()) }}> Enter CNIC Number</span>
+                        or <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-license"); dispatch(emptyResult()) }}> Enter license number</span>
                     </p>
                 </form>
 

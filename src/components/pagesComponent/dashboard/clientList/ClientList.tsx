@@ -20,7 +20,7 @@ import NoRecordFound from '../../../noRecordFound/NoRecordFound';
 import { selectedClientIdType } from '../../../../pages/providerPages/clients/Clients';
 
 const ClientList = () => {
-    const heading = ["name", "CNIC Number", "gender", "email", "status", "providers", "action"]
+    const heading = ["name", "license Number", "gender", "email", "status", "providers", "action"]
 
 
     const [isLoader, setIsLoader] = useState(false)
@@ -104,7 +104,7 @@ const ClientList = () => {
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
                                 <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                <td className="px-2 py-2">{data?.user?.cnic}</td>
+                                <td className="px-2 py-2">{data?.user?.licenseNo}</td>
                                 <td className="px-2 py-2">{data?.user?.gender}</td>
                                 <td className="px-2 py-2 lowercase">{data?.email}</td>
                                 <td className="px-2 py-2">{data?.user?.status}</td>

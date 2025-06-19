@@ -6,8 +6,8 @@ interface LoginData {
     password: string;
 }
 
-interface CNICData {
-    cnic?: string;
+interface LicenseNoData {
+    licenseNo?: string;
 }
 
 class AuthService {
@@ -33,11 +33,11 @@ class AuthService {
 
 
 
-    async findCnic(data: CNICData) {
+    async findLicenseNo(data: LicenseNoData) {
 
 
         try {
-            const response = await this.api.post("/cnic-found", data);
+            const response = await this.api.post("/license-found", data);
             return response.data;
         } catch (error: unknown) {
             throw error || "Sign up failed";

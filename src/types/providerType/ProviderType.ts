@@ -29,7 +29,7 @@ export interface User {
     contactNo?: string | null
     address?: string | null
     status?: string | null
-    cnic?: string
+    licenseNo?: string
     role?: string
     blockedMembers?: string
     createdAt?: string

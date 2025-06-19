@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
+import { useEffect } from "react";
 
 
 
@@ -9,7 +10,6 @@ interface SingleChatDataType {
     data: ChatChannelType;
     activeId?: string | undefined
     onClick?: () => void;
-    unreadMessagesCount?: string | number
 
 }
 
@@ -25,8 +25,11 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
             : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
 
     const unreadCount = Number(data?.totalUnread ?? 0);
-    // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${otherUser?.profileImage?.split('/').pop()}`
     const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;
+    useEffect(() => {
+        console.log("🔁 Re-render:", data.id, data.lastMessage?.message);
+    }, [data]);
+
     return (
         <div className="">
 
@@ -59,7 +62,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
 
                 </div>
                 {unreadCount > 0 && (
-                    <span className="bg-primaryColorDark text-white text-xs px-2 py-1  mr-4 rounded-full">
+                    <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
                         {data.totalUnread}
                     </span>
                 )}

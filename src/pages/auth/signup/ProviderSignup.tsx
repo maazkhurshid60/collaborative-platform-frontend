@@ -46,7 +46,7 @@ const ProviderSignup = () => {
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
 
-        const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, cnic: data?.cnic, department: data?.department, role: "provider" };
+        const dataSendToBackend = { email: data?.email, password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, department: data?.department, role: "provider" };
 
         try {
             const response = await authService.signup(dataSendToBackend);
@@ -79,10 +79,10 @@ const ProviderSignup = () => {
 
                     <div className='mb-1.5'>
                         <InputField required
-                            label='CNIC No'
-                            register={register("cnic")}
-                            name='cnic' placeHolder='Enter CNIC.'
-                            error={errors.cnic?.message} />
+                            label='License Number'
+                            register={register("licenseNo")}
+                            name='licenseNo' placeHolder='Enter license number.'
+                            error={errors.licenseNo?.message} />
                     </div>
                     <div className='mb-1.5'>
                         <Dropdown<FormFields>

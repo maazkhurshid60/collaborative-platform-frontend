@@ -37,7 +37,7 @@ export interface User {
     contactNo?: string | null
     address?: string | null
     status?: string | null
-    cnic?: string
+    licenseNo?: string
     role?: string
     blockedMembers?: string
     createdAt?: string
@@ -61,7 +61,7 @@ export interface GetMeType {
         address: string;
         age: number;
         blockedMembers: string[]; // or a specific type if you know the structure
-        cnic: string;
+        licenseNo: string;
         contactNo: string;
         createdAt: string;
         fullName: string;

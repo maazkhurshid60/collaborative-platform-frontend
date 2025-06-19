@@ -100,7 +100,7 @@ const Settings = () => {
         }
         const formData = new FormData();
         formData.append("fullName", data.fullName);
-        formData.append("cnic", data.cnic);
+        formData.append("licenseNo", data.licenseNo);
         formData.append("email", data.email);
         if (data.password) {
             formData.append("password", data.password);
@@ -138,13 +138,11 @@ const Settings = () => {
         if (getMeData) {
             setGetMeDetail(getMeData);
             setValue("fullName", getMeData?.user?.fullName ?? "");
-            setValue("cnic", getMeData?.user?.cnic ?? "");
+            setValue("licenseNo", getMeData?.user?.licenseNo ?? "");
             setValue("email", getMeData?.email ?? "");
 
             if (getMeData?.eSignature) {
-                // const cleanedPath = getMeData.eSignature.replace(/\\/g, '/'); // Convert Windows slashes
-                // const updatedPath = cleanedPath.replace('/uploads/', '/uploads/eSignatures/');
-                // setSignAdd(`http://localhost:8000${updatedPath}`);
+
                 setSignAdd(getMeData.eSignature);
 
                 setIsUploadedSignature(false);
@@ -218,7 +216,7 @@ const Settings = () => {
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
                         <InputField required label="Full Name" register={register("fullName")} name="fullName" placeHolder="Enter Full Name." error={errors.fullName?.message} />
-                        <InputField required label="CNIC Number" register={register("cnic")} name="cnic" placeHolder="Enter CNIC." error={errors.cnic?.message} />
+                        <InputField required label="License Number" register={register("licenseNo")} name="licenseNo" placeHolder="Enter license number." error={errors.licenseNo?.message} />
                         <InputField required label="Email ID" register={register("email")} name="email" placeHolder="Enter Email." error={errors.email?.message} />
                         <InputField label="Password" register={register("password")} name="password" placeHolder="Enter Password." error={errors.password?.message} />
                     </div>
@@ -256,7 +254,7 @@ const Settings = () => {
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
                         <LabelData label="Full Name" data={getMeData?.user?.fullName} />
-                        <LabelData label="CNIC Number" data={getMeData?.user?.cnic} />
+                        <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
                         <LabelData label="Email ID" data={getMeData?.email} />
                     </div>
 

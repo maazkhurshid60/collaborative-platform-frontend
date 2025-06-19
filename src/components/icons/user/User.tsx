@@ -1,5 +1,5 @@
 
-import { FaRegUserCircle } from "react-icons/fa";
+import { HiMiniUserCircle } from "react-icons/hi2";
 
 interface UserIconProps {
     onClick?: () => void
@@ -9,7 +9,7 @@ interface UserIconProps {
 const UserIcon: React.FC<UserIconProps> = ({
     onClick, className = "text-[32px] md:text-[40px] lg:text-[40px] " }) => {
     return (
-        <FaRegUserCircle className={` ${className ? className : 'cursor-pointer  text-textGreyColor'}`} onClick={onClick} />
+        <HiMiniUserCircle className={` ${className ? className : 'cursor-pointer  text-textGreyColor'}`} onClick={onClick} />
     )
 }
 

@@ -7,10 +7,11 @@ import loginUserApiService from '../../../../../apiServices/loginUserApi/LoginUs
 import { toast } from 'react-toastify'
 import { updateBlockedMembers } from '../../../../../redux/slices/LoginUserDetailSlice'
 interface BlockUserAccountProps {
-    image?: string
+    profileImage?: string | null
     fullName?: string
     isBlocked?: boolean
     id: string
+
 }
 const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
     const loginUserDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails)
@@ -89,7 +90,12 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
 
             <div className='flex items-center justify-between mt-6 border-b-[1px] border-b-lightGreyColor/30 border-b-solid pb-4'>
                 <div className='flex items-center bg-white relative gap-x-2 '>
-                    <UserIcon className="text-[22px] md:text-[30px] lg:text-[30px]" />
+                    {/* <UserIcon className="text-[22px] md:text-[30px] lg:text-[30px]" /> */}
+
+                    {(props.profileImage !== null && props.profileImage !== "null") ?
+                        <img className='w-10 h-10 rounded-full object-fill' src={props.profileImage} />
+                        : <UserIcon size={30} />
+                    }
 
                     <div className='flex items-center gap-x-10'>
                         <div className='font-[Poppins]'>

@@ -7,7 +7,7 @@ import DownloadIcon from "../../../components/icons/download/Download"
 import UserIcon from "../../../components/icons/user/User"
 import { GoDotFill } from "react-icons/go";
 import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "../../../redux/store"
 import { isModalShowReducser } from "../../../redux/slices/ModalSlice"
@@ -45,18 +45,14 @@ const Document = () => {
     })
     const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
         usePaginationHook({ data: Array.isArray(documentData) ? documentData : [], recordPerPage: 7 });
-    // const { totalPages,
-    //     getCurrentRecords,
-    //     handlePageChange, currentPage,
-    // } = usePaginationHook({ data: documentData || [], recordPerPage: 7 })
+
 
 
     const handleDownload = async (fileUrl: string, fileName: string) => {
 
 
         try {
-            // const fullUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${fileUrl.replace("/uploads", "")}`;
-            // const fullUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${fileUrl.replace("/uploads", "")}`;
+
 
             const response = await fetch(fileUrl);
             if (!response.ok) throw new Error("File not found");
@@ -81,6 +77,24 @@ const Document = () => {
 
     const [selectedDoc, setSelectedDoc] = useState("")
     const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({ clientId: "", providerId: "", documentId: "", sharedDocumentId: "", eSignature: "", isAgree: false, recipientId: "" })
+
+    useEffect(() => {
+        if (!showModal) {
+            setSelectedDoc("");
+            setDataSendToViewDocModal({
+                clientId: "",
+                providerId: "",
+                documentId: "",
+                sharedDocumentId: "",
+                eSignature: "",
+                isAgree: false,
+                recipientId: "",
+            });
+        }
+    }, [showModal]);
+
+
+
     return (
         <OutletLayout heading="Documents">
             {showModal && (
@@ -134,11 +148,7 @@ const Document = () => {
                                                         return;
                                                     }
                                                     try {
-                                                        // const fileUrl = import.meta.env.VITE_ENV === "LOCALHOST" ? `${localhostBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}` : `${staggingBaseUrl}uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
                                                         const fileUrl = data?.document?.url && data?.document?.url.startsWith("http") && data?.document?.url;
-
-                                                        // const fileUrl = `http://localhost:8000/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
-                                                        // const fileUrl = `https://collaborative-platform-backend.onrender.com/uploads/docs${data?.document?.url?.replace("/uploads", "")}`;
 
                                                         if (fileUrl) {
                                                             const response = await fetch(fileUrl);

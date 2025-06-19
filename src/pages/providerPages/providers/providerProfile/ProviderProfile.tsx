@@ -40,10 +40,6 @@ const ProviderProfile = () => {
 
     }, [])
 
-    // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${selectedProviderData?.user?.profileImage?.split('/').pop()}`  
-    // const imagePath = selectedProviderData?.user?.profileImage ? generateImgUrl(selectedProviderData?.user?.profileImage) : null;
-
-
     if (isLoading) {
         return <Loader text='Loading...' />
     }
@@ -64,18 +60,17 @@ const ProviderProfile = () => {
                     {(selectedProviderData?.user?.profileImage !== null && selectedProviderData?.user?.profileImage !== "null") ? <img
                         src={selectedProviderData?.user?.profileImage}
                         alt="Client"
-                        className="w-20 h-20 rounded-full object-fill"
+                        className="w-20 h-20 rounded-lg object-cover"
                     /> : <UserIcon className='text-6xl mt-2' />}
 
                 </div>
 
-                {/* <div className='flex items-center justify-between flex-wrap gap-y-10 mt-10'> */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
                     <div className=''>
                         <LabelData label='Full Name' data={selectedProviderData?.user?.fullName} />
                     </div>
                     <div className=''>
-                        <LabelData label='CNIC Number' data={selectedProviderData?.user?.cnic} />
+                        <LabelData label='License Number' data={selectedProviderData?.user?.licenseNo} />
                     </div>
                     <div className=''>
                         <LabelData label='Age' data={selectedProviderData?.user?.age ?? ""} />
@@ -84,7 +79,7 @@ const ProviderProfile = () => {
                         <LabelData label='Email' data={selectedProviderData?.email ?? ""} />
                     </div>
                     <div className=''>
-                        <LabelData label='Contact No' data={selectedProviderData?.user?.contactNo ?? ""} />
+                        <LabelData label='Contact Number' data={selectedProviderData?.user?.contactNo ?? ""} />
                     </div>
                     <div className=''>
                         <LabelData label='Address' data={selectedProviderData?.user?.address ?? ""} />

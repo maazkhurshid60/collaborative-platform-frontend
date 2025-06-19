@@ -41,17 +41,5 @@ export const disconnectSocket = (): void => {
 
 
 //Remove comment code from following files  on 16june monday aftre 10pm
-// ViewDocModal
-// ChatModalBodyContent
-// ClientCompleteDocShareModal
 // ClientDocShareModal
-// Navbar
-// ChatMessages
-// ChatNavbar
 // GroupChatData
-// SingleChatData
-// EditClientDetail
-// Document
-// ProviderProfile
-// UserProfile
-// Notification

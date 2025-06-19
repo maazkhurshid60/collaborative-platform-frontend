@@ -30,7 +30,7 @@ const ModalBodyContent: React.FC<{ docs: string, data: documentSignByClientType 
     // --- useMutation hook ---
     const mutation = useMutation({
         mutationFn: async (formData: FormData) => {
-            documentApiService.documentSignByClientApi(formData);
+            return documentApiService.documentSignByClientApi(formData);
             // const notificationSendToBackend = {
             //     recipientId: data?.recipientId,
             //     title: "Document Shared",

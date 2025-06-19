@@ -14,6 +14,7 @@ import { RootState } from '../../../../redux/store';
 import { GroupChat } from '../../../../types/chatType/GroupType';
 import chatApiService from '../../../../apiServices/chatApi/ChatApi';
 import NoRecordFound from '../../../noRecordFound/NoRecordFound';
+import { Message } from '../../../../types/chatType/ChatType';
 
 const Collaboration = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -67,11 +68,12 @@ const Collaboration = () => {
                 providerData?.some(provider => channel?.providerBId === provider?.id)
             )
             ?.sort((a: ChatChannelType, b: ChatChannelType) => {
-                const aTime = new Date(a?.updatedAt)?.getTime();
-                const bTime = new Date(b?.updatedAt)?.getTime();
+                const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
+                const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
                 return bTime - aTime;
             });
     }, [allChannels, providerData]);
+
 
     const filteredChats = searchText
         ? unBlockProviders?.filter((channel: ChatChannelType) => {
@@ -81,11 +83,63 @@ const Collaboration = () => {
         })
         : unBlockProviders;
 
-    const filteredGroups = searchText
-        ? allGroups?.filter((group: GroupChat) =>
-            (group?.name || '').toLowerCase().includes(searchText.toLowerCase())
-        )
-        : allGroups;
+    const filteredGroups = useMemo(() => {
+        const groups = searchText
+            ? allGroups?.filter((group: GroupChat) =>
+                (group?.name || '').toLowerCase().includes(searchText.toLowerCase())
+            )
+            : allGroups;
+
+        return groups?.sort((a: GroupChat, b: GroupChat) => {
+            const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
+            const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+            return bTime - aTime;
+        }) || [];
+    }, [allGroups, searchText]);
+
+
+
+    useEffect(() => {
+        if (!socket || !loginUserId) return;
+
+        const handleNewMessage = (newMessage: Message) => {
+            // Increment totalUnread for the chat channel
+            queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
+                if (!oldData) return [];
+                return oldData.map(channel => {
+                    if (channel.id === newMessage.chatChannelId) {
+                        return {
+                            ...channel,
+                            totalUnread: (Number(channel.totalUnread) || 0) + 1,
+                            lastMessage: newMessage, // Optionally update last message
+                        };
+                    }
+                    return channel;
+                });
+            });
+        };
+
+        socket.on('new_message', handleNewMessage);
+
+        return () => {
+            socket.off('new_message', handleNewMessage);
+        };
+    }, [socket, loginUserId]);
+
+    useEffect(() => {
+        const socket = getSocket();
+
+        const handleRefreshUnread = () => {
+            queryClient.invalidateQueries({ queryKey: ['chatchannels'] });
+        };
+
+        socket?.on('refresh_unread', handleRefreshUnread);
+
+        return () => {
+            socket?.off('refresh_unread', handleRefreshUnread);
+        };
+    }, []);
+
 
     return (
         <div>
@@ -95,6 +149,7 @@ const Collaboration = () => {
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     placeholder={'Search here...'}
+                    bgColor={"bg-inputBgColor"}
                 />
             </div>
 

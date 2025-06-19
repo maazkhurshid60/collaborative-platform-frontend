@@ -54,7 +54,7 @@ const AddClient = () => {
             const formData = new FormData();
 
             formData.append("fullName", data?.fullName);
-            formData.append("cnic", data?.cnic);
+            formData.append("licenseNo", data?.licenseNo);
             formData.append("age", data?.age?.toString());
             formData.append("email", data?.email);
             formData.append("contactNo", data?.contactNo);
@@ -120,10 +120,10 @@ const AddClient = () => {
                     </div>
                     <div className=''>
                         <InputField required
-                            label='CNIC Number'
-                            register={register("cnic")}
-                            name='cnic' placeHolder='Enter CNIC.'
-                            error={errors.cnic?.message} />
+                            label='license Number'
+                            register={register("licenseNo")}
+                            name='licenseNo' placeHolder='Enter licenseNo.'
+                            error={errors.licenseNo?.message} />
                     </div>
                     <div className=''>
                         <InputField required label='Age' register={register("age")} name='age' placeHolder='Enter Age.' error={errors.age?.message} />
@@ -133,7 +133,7 @@ const AddClient = () => {
                     </div>
 
                     <div className=''>
-                        <InputField required label='Contact No' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <InputField required label='Contact Number' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
                     </div>
 
                     <div className=''>

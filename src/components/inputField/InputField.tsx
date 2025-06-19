@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UseFormRegisterReturn } from "react-hook-form";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { HiOutlineEyeOff, HiOutlineEye } from "react-icons/hi";
+
 
 interface InputFieldProps {
     name?: string;
@@ -36,7 +37,7 @@ const InputField: React.FC<InputFieldProps> = ({ name,
                     name={name}
                     value={value}
                     onChange={onChange}
-                    className="bg-inputBgColor w-[100%] p-2 outline-0 rounded-md"
+                    className="bg-inputBgColor w-[100%] p-2 outline-0 rounded-md placeholder:text-[12px]"
                     type={
                         type === "password"
                             ? isHidden
@@ -48,8 +49,8 @@ const InputField: React.FC<InputFieldProps> = ({ name,
                     readOnly={readOnly}
                 />
                 {type === "password" && (
-                    isHidden ? <FaRegEyeSlash className=" absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
-                        onClick={() => setIsHidden(false)} /> : <FaRegEye onClick={() => setIsHidden(true)}
+                    isHidden ? <HiOutlineEyeOff className=" absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
+                        onClick={() => setIsHidden(false)} /> : <HiOutlineEye onClick={() => setIsHidden(true)}
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer" />
                 )}
             </div>

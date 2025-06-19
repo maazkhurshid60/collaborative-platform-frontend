@@ -58,7 +58,7 @@ const UserProfile = () => {
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
         formData.append('email', data?.email)
-        formData.append('cnic', data?.cnic)
+        formData.append('licenseNo', data?.licenseNo)
         formData.append('age', data?.age?.toString())
         formData.append('department', data?.department)
         formData.append('loginUserId', loginUserDetail?.user?.id)
@@ -90,7 +90,7 @@ const UserProfile = () => {
             setGetMeDetail(getMeData);
 
             setValue("fullName", getMeData?.user?.fullName ?? "")
-            setValue("cnic", getMeData?.user?.cnic ?? "")
+            setValue("licenseNo", getMeData?.user?.licenseNo ?? "")
             setValue("age", getMeData?.user?.age?.toString() ?? "")
             setValue("contactNo", getMeData?.user?.contactNo ?? "")
             setValue("email", getMeData?.email ?? "")
@@ -98,9 +98,6 @@ const UserProfile = () => {
             setValue("address", getMeData?.user?.address ?? "")
 
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
-                // const imagePath = `${localhostBaseUrl}uploads/eSignatures/${getMeData.user.profileImage?.split('/').pop()}`
-                // setPreviewUrl(imagePath)
-                // const url = generateImgUrl(getMeData.user.profileImage);
                 setPreviewUrl(getMeData?.user?.profileImage)
                 setSelectedFile(null)
             } else {
@@ -165,7 +162,7 @@ const UserProfile = () => {
                                     <img
                                         src={previewUrl}
                                         alt="Client"
-                                        className="w-32 h-32 rounded-full object-fill"
+                                        className="w-32 h-32 rounded-md object-cover "
                                     />
                                 ) : (
 
@@ -192,10 +189,10 @@ const UserProfile = () => {
                         </div>
                         <div className=''>
                             <InputField required
-                                label='CNIC No'
-                                register={register("cnic")}
-                                name='cnic' placeHolder='Enter CNIC.'
-                                error={errors.cnic?.message} />
+                                label='License Number'
+                                register={register("licenseNo")}
+                                name='licenseNo' placeHolder='Enter license number.'
+                                error={errors.licenseNo?.message} />
                         </div>
                         <div className=''>
                             <InputField required label='Age' register={register("age")} name='age' placeHolder='Enter Age.' error={errors.age?.message} />
@@ -215,7 +212,7 @@ const UserProfile = () => {
                         </div>
 
                         <div className=''>
-                            <InputField required label='Contact No' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                            <InputField required label='Contact Number' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         </div>
 
 
@@ -267,7 +264,7 @@ const UserProfile = () => {
                                         <img
                                             src={previewUrl}
                                             alt="Client"
-                                            className="w-32 h-32 rounded-full object-fill"
+                                            className="w-32 h-32 rounded-lg object-cover"
                                         />
                                     ) : (
 
@@ -284,7 +281,7 @@ const UserProfile = () => {
                                 <LabelData label='Full Name' data={getMeData?.user?.fullName} />
                             </div>
                             <div className=''>
-                                <LabelData label='CNIC Number' data={getMeData?.user?.cnic} />
+                                <LabelData label='License Number' data={getMeData?.user?.licenseNo} />
                             </div>
                             <div className=''>
                                 <LabelData label='Age' data={getMeData?.user?.age ?? ""} />
@@ -296,7 +293,7 @@ const UserProfile = () => {
                                 <LabelData label='Email' data={getMeData?.email} />
                             </div>
                             <div className=''>
-                                <LabelData label='Contact No' data={getMeData?.user?.contactNo ?? ""} />
+                                <LabelData label='Contact Number' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
 
 

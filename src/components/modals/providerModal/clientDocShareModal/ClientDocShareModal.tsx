@@ -41,7 +41,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
             await documentApiService.documentSharedWithClientApi(dataSendToBackend)
             // Send notification to client
             // const notificationSendToBackend = {
-            //     recipientId: "f938f20a-a8fb-4b12-bc35-13b8f92ff88a", // userId of client
+            //     recipientId: recipientId, // userId of client
             //     title: "Document Shared",
             //     type: "DOCUMENT_SHARED",
             //     senderId: senderId

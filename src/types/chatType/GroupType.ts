@@ -1,3 +1,5 @@
+import { LastMessage } from "./ChatChannelType";
+
 // The user profile nested under a Provider
 export interface UserProfile {
     id: string;
@@ -5,7 +7,7 @@ export interface UserProfile {
     address: string;
     age: number;
     gender: string;
-    cnic: string;
+    licenseNo: string;
     contactNo: string;
     profileImage: string | null;
     role: string;
@@ -45,5 +47,8 @@ export interface GroupChat {
     providerBId: string;
     providerA: Provider;
     providerB: Provider;
+    lastMessage?: LastMessage
+    unreadCount?: number
+    updatedAt?: string
 
 }

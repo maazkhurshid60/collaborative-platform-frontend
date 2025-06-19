@@ -8,7 +8,18 @@ export interface NewMessage {
     chatChannelId?: string
     id?: string
     message?: string
+    createdAt?: string
+    updatedAt?: string
 }
+
+export interface LastMessage {
+    createdAt: string
+    updatedAt?: string
+    id: string
+    message: string
+    senderId: string
+}
+
 export interface Message {
     id: string;
     message: string;
@@ -35,7 +46,7 @@ export interface Message {
             fullName: string;
             age: number;
             gender: string;
-            cnic: string;
+            licenseNo: string;
             contactNo: string;
             address: string;
             role: string;
