@@ -1,9 +1,29 @@
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+// import tailwindcss from '@tailwindcss/vite'
+// import svgr from 'vite-plugin-svgr'
+
+// export default defineConfig({
+//   plugins: [
+//     react(),
+//     tailwindcss(),
+//     svgr({
+//       svgrOptions: {
+//         icon: true,
+//       },
+
+//     }),
+//   ],
+// })
+
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr'
 
 export default defineConfig({
+  base: '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -11,7 +31,6 @@ export default defineConfig({
       svgrOptions: {
         icon: true,
       },
-
     }),
   ],
 })
