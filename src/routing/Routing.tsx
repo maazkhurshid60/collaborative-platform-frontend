@@ -1,28 +1,33 @@
 
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/auth/login/Login";
-import ProviderSignup from "../pages/auth/signup/ProviderSignup";
-import ClientSignup from "../pages/auth/signup/ClientSignup";
-import Dashboard from "../pages/providerPages/dashboard/Dashboard";
-import Clients from "../pages/providerPages/clients/Clients";
-import Chat from "../pages/providerPages/chat/Chat";
-import UserProfile from "../pages/providerPages/userProfile/UserProfile";
-import Providers from "../pages/providerPages/providers/Providers";
-import ProtectedRoute from "./ProtectedRoute";
-import DashboardLayout from "../layouts/dashboardLayout/DashboardLayout";
-import Notification from "../pages/notification/Notification";
-import UserSetting from "../pages/userSetting/UserSetting";
-import HelpAndSupport from "../pages/providerPages/helpAndSupport/HelpAndSupport";
-import NonUserChat from "../pages/providerPages/nonUserChat/NonUserChat";
-import ProviderProfile from "../pages/providerPages/providers/providerProfile/ProviderProfile";
-import AddClient from "../components/pagesComponent/client/addClient/AddClient";
-import EditClient from "../components/pagesComponent/client/editClient/EditClient";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import Document from "../pages/clientPages/documents/Document";
-import Settings from "../pages/clientPages/settings/Settings";
-import ChangePassword from "../pages/userSetting/ChangePassword";
-import LicenseNo from "../pages/auth/LicenseScreen/LicenseScreen";
+import { lazy, Suspense } from "react";
+import Loader from "../components/loader/Loader";
+
+const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
+const Dashboard = lazy(() => import("../pages/providerPages/dashboard/Dashboard"));
+const Clients = lazy(() => import("../pages/providerPages/clients/Clients"));
+const Chat = lazy(() => import("../pages/providerPages/chat/Chat"));
+const UserProfile = lazy(() => import("../pages/providerPages/userProfile/UserProfile"));
+const Providers = lazy(() => import("../pages/providerPages/providers/Providers"));
+const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
+const DashboardLayout = lazy(() => import("../layouts/dashboardLayout/DashboardLayout"));
+const Notification = lazy(() => import("../pages/notification/Notification"));
+const UserSetting = lazy(() => import("../pages/userSetting/UserSetting"));
+const HelpAndSupport = lazy(() => import("../pages/providerPages/helpAndSupport/HelpAndSupport"));
+const NonUserChat = lazy(() => import("../pages/providerPages/nonUserChat/NonUserChat"));
+const ProviderProfile = lazy(() => import("../pages/providerPages/providers/providerProfile/ProviderProfile"));
+const AddClient = lazy(() => import("../components/pagesComponent/client/addClient/AddClient"));
+const EditClient = lazy(() => import("../components/pagesComponent/client/editClient/EditClient"));
+const Login = lazy(() => import("../pages/auth/login/Login"))
+const ProviderSignup = lazy(() => import("../pages/auth/signup/ProviderSignup"))
+const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
+const ChangePassword = lazy(() => import("../pages/userSetting/ChangePassword"))
+const Settings = lazy(() => import("../pages/clientPages/settings/Settings"));
+const Document = lazy(() => import("../pages/clientPages/documents/Document"));
+
+
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -30,11 +35,11 @@ const Routing = () => {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Login />} />
-            <Route path="/provider-signup" element={<ProviderSignup />} />
-            <Route path="/client-signup" element={<ClientSignup />} />
-            <Route path="/invite-chat/:type/:id" element={<NonUserChat />} />
-            <Route path="/signup-with-license" element={<LicenseNo />} />
+            <Route path="/" element={<Suspense fallback={<Loader text="Loading..." />}><Login /></Suspense>} />
+            < Route path="/provider-signup" element={<Suspense fallback={<Loader text="Loading..." />}><ProviderSignup /></Suspense>} />
+            < Route path="/client-signup" element={<Suspense fallback={<Loader text="Loading..." />}><ClientSignup /></Suspense>} />
+            < Route path="/invite-chat/:type/:id" element={<Suspense fallback={<Loader text="Loading..." />}><NonUserChat /></Suspense>} />
+            < Route path="/signup-with-license" element={<Suspense fallback={<Loader text="Loading..." />}><LicenseNo /></Suspense>} />
 
             {/* Protected Routes */}
             <Route
@@ -44,21 +49,21 @@ const Routing = () => {
                     </ProtectedRoute>
                 }
             >
-                <Route path={`${loginUserRole === "client" ? "/documents" : "/dashboard"}`} element={loginUserRole === "client" ? <Document /> : <Dashboard />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/notification" element={<Notification />} />
+                <Route path={`${loginUserRole === "client" ? "/documents" : "/dashboard"}`} element={loginUserRole === "client" ? <Suspense fallback={<Loader text="Loading..." />}><Document /></Suspense> : <Suspense fallback={<Loader text="Loading..." />}><Dashboard /></Suspense>} />
+                <Route path="/settings" element={<Suspense fallback={<Loader text="Loading..." />}><Settings /></Suspense>} />
+                <Route path="/notification" element={<Suspense fallback={<Loader text="Loading..." />}><Notification /></Suspense>} />
                 <Route path="/setting" element={<UserSetting />} />
-                <Route path="/setting/change-password" element={<ChangePassword />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/clients" element={<Clients />} />
-                <Route path="/clients/add-client" element={<AddClient />} />
-                <Route path="/clients/edit-client/:id" element={<EditClient />} />
-                <Route path="/user-profile" element={<UserProfile />} />
-                <Route path="/providers" element={<Providers />} />
-                <Route path="/providers/:id" element={<ProviderProfile />} />
-                <Route path="/help-and-support" element={<HelpAndSupport />} />
+                <Route path="/setting/change-password" element={<Suspense fallback={<Loader text="Loading..." />}><ChangePassword /></Suspense>} />
+                <Route path="/chat" element={<Suspense fallback={<Loader text="Loading..." />}><Chat /></Suspense>} />
+                <Route path="/clients" element={<Suspense fallback={<Loader text="Loading..." />}><Clients /></Suspense>} />
+                <Route path="/clients/add-client" element={<Suspense fallback={<Loader text="Loading..." />}><AddClient /></Suspense>} />
+                <Route path="/clients/edit-client/:id" element={<Suspense fallback={<Loader text="Loading..." />}><EditClient /></Suspense>} />
+                <Route path="/user-profile" element={<Suspense fallback={<Loader text="Loading..." />}><UserProfile /></Suspense>} />
+                <Route path="/providers" element={<Suspense fallback={<Loader text="Loading..." />}><Providers /></Suspense>} />
+                <Route path="/providers/:id" element={<Suspense fallback={<Loader text="Loading..." />}><ProviderProfile /></Suspense>} />
+                <Route path="/help-and-support" element={<Suspense fallback={<Loader text="Loading..." />}><HelpAndSupport /></Suspense>} />
             </Route>
-        </Routes>
+        </Routes >
     );
 };
 

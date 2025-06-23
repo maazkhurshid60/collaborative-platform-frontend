@@ -116,11 +116,18 @@ const Document = () => {
                                     <td className="px-2 py-2 font-semibold">{data?.document?.name}</td>
                                     <td className="px-2 py-2">{data?.document?.type ? data?.document?.type : "Questionaire"}</td>
                                     <td className="px-2 py-2 ">
-                                        <p className={`p-1.5 w-auto  rounded-md text-sm 
-                                    ${data.isAgree ? "bg-primaryColorDark/20" : "bg-inputBgColor"}  flex items-center gap-x-3`}>
-                                            <span><GoDotFill className={`${data.isAgree ? "text-primaryColorDark" : "text-textColor"}`} /></span>
+                                        <p
+                                            className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm 
+    ${data.isAgree ? "bg-primaryColorDark/20" : "bg-inputBgColor"}`}
+                                        >
+                                            <span>
+                                                <GoDotFill
+                                                    className={`text-base ${data.isAgree ? "text-primaryColorDark" : "text-textColor"}`}
+                                                />
+                                            </span>
                                             {data.isAgree ? "Completed" : "Pending"}
                                         </p>
+
                                     </td>
                                     <td className="px-2 py-2">{data.createdAt.split("T")[0]}</td>
                                     <td className="px-2 py-2 m-auto">

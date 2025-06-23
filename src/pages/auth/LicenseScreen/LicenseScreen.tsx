@@ -86,7 +86,7 @@ const LicenseNo = () => {
 
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
-                    <InputField required label='License Number' register={register("licenseNo")} name='licenseNo' placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                    <InputField required label='License Number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
                 </div>
                 <div className='mt-10'>
 

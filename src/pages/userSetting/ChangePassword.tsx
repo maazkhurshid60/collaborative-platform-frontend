@@ -46,9 +46,9 @@ const ChangePassword = () => {
             >
                 <div className='grid grid-cols-3 gap-x-4'>
 
-                    <InputField label='Old Password' required type='password' register={register('oldPassword')} name='oldPassword' error={errors?.oldPassword?.message} placeHolder='Enter old password' />
-                    <InputField label='New Password' required type='password' register={register('newPassword')} name='newPassword' error={errors?.newPassword?.message} placeHolder='Enter new password' />
-                    <InputField label='Confirm Password' required type='password' register={register('confirmPassword')} name='confirmPassword' error={errors.confirmPassword?.message} placeHolder='Enter confirm password' />
+                    <InputField label='Old Password' required type='password' register={register('oldPassword')} error={errors?.oldPassword?.message} placeHolder='Enter old password' />
+                    <InputField label='New Password' required type='password' register={register('newPassword')} error={errors?.newPassword?.message} placeHolder='Enter new password' />
+                    <InputField label='Confirm Password' required type='password' register={register('confirmPassword')} error={errors.confirmPassword?.message} placeHolder=' Enter confirm password' />
                 </div>
 
                 <div className='flex justify-end  w-[100%] mt-6'>

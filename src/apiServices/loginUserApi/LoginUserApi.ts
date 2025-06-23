@@ -51,6 +51,7 @@ class LoginUserApiService {
 
             return response.data
         } catch (error) {
+            console.log("<<<<<<<<<delete me", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -64,8 +65,6 @@ class LoginUserApiService {
                     "Content-Type": "multipart/form-data"
                 }
             });
-
-
             return response.data
         } catch (error) {
 

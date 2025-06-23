@@ -215,10 +215,10 @@ const Settings = () => {
             {isEdit ? (
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
-                        <InputField required label="Full Name" register={register("fullName")} name="fullName" placeHolder="Enter Full Name." error={errors.fullName?.message} />
-                        <InputField required label="License Number" register={register("licenseNo")} name="licenseNo" placeHolder="Enter license number." error={errors.licenseNo?.message} />
-                        <InputField required label="Email ID" register={register("email")} name="email" placeHolder="Enter Email." error={errors.email?.message} />
-                        <InputField label="Password" register={register("password")} name="password" placeHolder="Enter Password." error={errors.password?.message} />
+                        <InputField required label="Full Name" register={register("fullName")} placeHolder="Enter Full Name." error={errors.fullName?.message} />
+                        <InputField required label="License Number" register={register("licenseNo")} placeHolder="Enter license number." error={errors.licenseNo?.message} />
+                        <InputField required label="Email ID" register={register("email")} placeHolder="Enter Email." error={errors.email?.message} />
+                        <InputField label="Password" register={register("password")} placeHolder="Enter Password." error={errors.password?.message} />
                     </div>
 
                     <hr className="w-full h-[1px] text-greyColor mt-10" />

@@ -103,7 +103,7 @@ const ClientSignup = () => {
                         <InputField required
                             label='Full Name'
                             register={register("fullName")}
-                            name='fullName'
+
                             placeHolder='Enter Full Name.'
                             error={errors?.fullName?.message} />
                     </div>
@@ -111,7 +111,7 @@ const ClientSignup = () => {
                         <InputField required
                             label='Email ID'
                             register={register("email")}
-                            name='email'
+
                             placeHolder='Enter Email.'
                             error={errors?.email?.message} />
                     </div>
@@ -119,7 +119,7 @@ const ClientSignup = () => {
                         <InputField required
                             label='license Number'
                             register={register("licenseNo")}
-                            name='licenseNo' placeHolder='Enter license number.'
+                            placeHolder='Enter license number.'
                             error={errors?.licenseNo?.message} />
                     </div>
                     <div className='mb-3.5'>
@@ -127,7 +127,7 @@ const ClientSignup = () => {
                             label='Password'
                             type='password'
                             register={register("password")}
-                            name='password'
+
                             placeHolder='Enter Password.'
                             error={errors?.password?.message} />
                     </div>
@@ -136,7 +136,7 @@ const ClientSignup = () => {
                             label='Confirm Password'
                             type='password'
                             register={register("confirmPassword")}
-                            name='confirmPassword'
+
                             placeHolder='Enter Confirm Password.'
                             error={errors?.confirmPassword?.message} />
                     </div>

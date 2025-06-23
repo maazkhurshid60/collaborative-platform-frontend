@@ -148,12 +148,12 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
-                    <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                    <InputField required label='license Number' register={register("licenseNo")} name='licenseNo' placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
-                    <InputField required label='Age' register={register("age")} name='age' placeHolder='Enter Age.' error={errors.age?.message} />
-                    <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
-                    <InputField required label='Contact Number' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                    <InputField required label='Address' register={register("address")} name='address' placeHolder='Enter Address.' error={errors.address?.message} />
+                    <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                    <InputField required label='license Number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                    <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                    <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                    <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                    <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
                     <Dropdown<FormFields>
                         name="gender"

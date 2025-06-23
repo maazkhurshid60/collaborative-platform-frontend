@@ -88,7 +88,7 @@ const NewGroupChatModal = () => {
         >
             <div className='mt-4'>
 
-                <InputField required label='Group Name' register={register("name")} name='name' placeHolder='Enter Full Name.' error={errors.name?.message} />
+                <InputField required label='Group Name' register={register("name")} placeHolder='Enter Full Name.' error={errors.name?.message} />
             </div>
             <div className='mt-4'>
 

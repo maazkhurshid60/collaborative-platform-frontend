@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 
 export let socket: Socket | undefined;
 const url = import.meta.env.VITE_ENV === "LOCALHOST" ? import.meta.env.VITE_LOCAL_BASE_URL.split("/api")[0] : import.meta.env.VITE_RENDER_BASE_URL.split("/api")[0]
+console.log("url", url);
 
 export const initSocket = (providerId: string, userId?: string): Socket => {
     console.log("socket", socket);

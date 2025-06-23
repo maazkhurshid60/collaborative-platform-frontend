@@ -92,10 +92,10 @@ const Login = () => {
 
                 <form onSubmit={handleSubmit(loginFunction)}>
                     <div className='mb-4'>
-                        <InputField label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                        <InputField label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                     </div>
                     <div className='mb-4'>
-                        <InputField label='Password' type='password' register={register("password")} name='password' placeHolder='Enter Password.' error={errors.password?.message} />
+                        <InputField label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
                     </div>
                     <div className='mt-10'>
 

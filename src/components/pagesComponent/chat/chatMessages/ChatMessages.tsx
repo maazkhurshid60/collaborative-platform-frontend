@@ -46,9 +46,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const socket = getSocket();
     // Load initial messages whenever `messageData` changes
     useEffect(() => {
-        if (messageData) {
+        if (Array.isArray(messageData)) {
             setMessages(
-                messageData?.map(msg => ({
+                messageData.map(msg => ({
                     ...msg,
                     you: msg?.senderId === loginUserId,
                 }))
@@ -57,6 +57,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             setMessages([]);
         }
     }, [messageData, loginUserId]);
+
 
 
 
@@ -77,10 +78,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 }
 
                 // Step 2: If message already exists by ID, skip it
-                if (prev.some(m => m.id === newMsg.id)) return prev;
+                if (prev?.some?.(m => m.id === newMsg.id)) return prev;
 
                 // Step 3: Add new message
-                return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
+                return [...prev, { ...newMsg, you: newMsg?.senderId === loginUserId }];
             });
         };
 

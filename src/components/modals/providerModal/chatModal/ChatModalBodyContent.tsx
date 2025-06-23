@@ -13,6 +13,7 @@ import { RootState } from '../../../../redux/store';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import InputFieldOnlyRead from '../../../inputField/InputFieldOnlyRead';
 
 
 export const ProviderSignupSchema = z.object({
@@ -86,7 +87,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
         <p>Your Details and any messages you add after sharing stay private. You will need to update the link after adding more message to this chat.</p>
         <div className='flex items-center gap-x-6 mt-6'>
             <div className='w-[100%]    '>
-                <InputField placeHolder='Create Link' value={generatedLink} readOnly />
+                <InputFieldOnlyRead value={generatedLink} placeHolder='Create Link' />
             </div>
             <div className='w-[100px]'>
 
@@ -133,7 +134,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
         <form className='flex items-end gap-x-6 mt-6' onSubmit={handleSubmit(sendInvitationFun)}>
             <div className='w-[100%]    '>
                 <p className="text-textColor text-[16px] font-[Poppins] font-semibold mb-1">Invite People </p>
-                <InputField placeHolder='user@gmail.com' register={register("email")} name='email' error={errors.email?.message} />
+                <InputField placeHolder='user@gmail.com' register={register("email")} error={errors.email?.message} />
             </div>
             <div className='w-[100px]'>
 

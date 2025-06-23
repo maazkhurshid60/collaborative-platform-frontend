@@ -71,17 +71,17 @@ const ProviderSignup = () => {
             <AuthLayout heading="Sign up">
                 <form onSubmit={handleSubmit(signupFunction)}>
                     <div className='mb-1.5'>
-                        <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                        <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                     </div>
                     <div className='mb-1.5'>
-                        <InputField required label='Email ID' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
+                        <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                     </div>
 
                     <div className='mb-1.5'>
                         <InputField required
                             label='License Number'
                             register={register("licenseNo")}
-                            name='licenseNo' placeHolder='Enter license number.'
+                            placeHolder='Enter license number.'
                             error={errors.licenseNo?.message} />
                     </div>
                     <div className='mb-1.5'>
@@ -92,13 +92,14 @@ const ProviderSignup = () => {
                             options={departmentOptions}
                             placeholder="Choose an option"
                             error={errors.department?.message}
-                        />                </div>
+                        />
+                    </div>
                     <div className='mb-1.5'>
-                        <InputField required label='Password' type='password' register={register("password")} name='password' placeHolder='Enter Password.' error={errors.password?.message} />
+                        <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
                     </div>
 
                     <div className='mb-1.5'>
-                        <InputField required label='Confirm Password' type='password' register={register("confirmPassword")} name='confirmPassword' placeHolder='Enter Confirm Password.' error={errors.confirmPassword?.message} />
+                        <InputField required label='Confirm Password' type='password' register={register("confirmPassword")} placeHolder='Enter Confirm Password.' error={errors.confirmPassword?.message} />
                     </div>
                     <div className='mt-10'>
 

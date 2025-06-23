@@ -116,28 +116,28 @@ const AddClient = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                     <div className=''>
-                        <InputField required label='Full Name' register={register("fullName")} name='fullName' placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                        <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                     </div>
                     <div className=''>
                         <InputField required
                             label='license Number'
                             register={register("licenseNo")}
-                            name='licenseNo' placeHolder='Enter licenseNo.'
+                            placeHolder='Enter licenseNo.'
                             error={errors.licenseNo?.message} />
                     </div>
                     <div className=''>
-                        <InputField required label='Age' register={register("age")} name='age' placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                     </div>
                     <div className=''>
-                        <InputField required label='Email' register={register("email")} name='email' placeHolder='Enter Email.' error={errors.email?.message} />
-                    </div>
-
-                    <div className=''>
-                        <InputField required label='Contact Number' register={register("contactNo")} name='contactNo' placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                     </div>
 
                     <div className=''>
-                        <InputField required label='Address' register={register("address")} name='address' placeHolder='Enter Address.' error={errors.address?.message} />
+                        <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                    </div>
+
+                    <div className=''>
+                        <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                     </div>
                     <div className=''>
                         <Dropdown<FormFields>
