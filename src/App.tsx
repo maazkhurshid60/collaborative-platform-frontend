@@ -36,7 +36,6 @@ function App() {
       <Provider store={store}>
         <BrowserRouter>
           <Routing />
-
           <ToastContainer
             position="top-right"
             autoClose={5000}

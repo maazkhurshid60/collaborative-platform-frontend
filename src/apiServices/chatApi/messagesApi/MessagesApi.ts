@@ -5,6 +5,12 @@ interface getAllMessagesOfSingleChatChannelType {
     groupId?: string
     loginUserId?: string
 }
+interface getAllMessagesOfSingleChat {
+    chatChannelId: string
+    page: number | string
+    limit: number | string
+    loginUserId?: string
+}
 
 
 export interface ReadMessageSingleConservationPayload {
@@ -12,6 +18,8 @@ export interface ReadMessageSingleConservationPayload {
     chatChannelId?: string;
     groupId?: string
 }
+
+
 
 class MessageApiService {
     private api = axiosInstance
@@ -29,10 +37,11 @@ class MessageApiService {
             toast.error(errMsg);
         }
     }
-    async getAllMessagesOfSingleChat(loginUserId: string) {
+    async getAllMessagesOfSingleChat(data: getAllMessagesOfSingleChat) {
         try {
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>", data);
 
-            const response = await this.api.post("/chat/single-chat/get-all-message", loginUserId)
+            const response = await this.api.post("/chat/single-chat/get-all-message", data)
             return response?.data
 
 

@@ -4,13 +4,21 @@ export let socket: Socket | undefined;
 const url = import.meta.env.VITE_ENV === "LOCALHOST" ? import.meta.env.VITE_LOCAL_BASE_URL.split("/api")[0] : import.meta.env.VITE_RENDER_BASE_URL.split("/api")[0]
 console.log("url", url);
 
-export const initSocket = (providerId: string, userId?: string): Socket => {
+export const initSocket = (providerId: string): Socket => {
     console.log("socket", socket);
 
     if (!socket) {
         socket = io(url, {
-            query: { providerId, userId },
+            query: { providerId },
             transports: ['websocket'],
+
+            // transports: ['polling'],
+            // secure: true,
+            // // withCredentials: true,
+            // reconnection: true,
+            // reconnectionAttempts: 2,
+            // reconnectionDelay: 2000,
+            // timeout: 10000
         });
 
         socket.on('connect', () => {
@@ -19,6 +27,7 @@ export const initSocket = (providerId: string, userId?: string): Socket => {
 
         socket.on('connect_error', (err) => {
             console.error('❌ Socket connection failed:', err.message);
+            console.error('❌ Socket connection failed:front end');
         });
     } else if (!socket.connected) {
         socket.connect(); // Ensure it reconnects if disconnected
