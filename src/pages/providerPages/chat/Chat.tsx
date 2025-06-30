@@ -45,54 +45,53 @@ const Chat = () => {
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
 
-    useEffect(() => {
-        const handler = (newMessage: NewMessage) => {
-            if (newMessage.chatChannelId) {
-                queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
-                    if (!oldData) return oldData;
+    // useEffect(() => {
+    //     const handler = (newMessage: NewMessage) => {
+    //         // ✅ 1. Update sidebar chat list real-time
+    //         if (newMessage.chatChannelId) {
+    //             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
+    //                 if (!oldData) return oldData;
 
-                    return oldData.map(channel => {
-                        if (channel.id === newMessage.chatChannelId) {
-                            return {
-                                ...channel, // clone current channel
-                                lastMessage: {
-                                    id: newMessage.id!,
-                                    message: newMessage?.message || 'New message',
-                                    createdAt: newMessage?.createdAt || new Date().toISOString()
-                                },
-                                totalUnread: (Number(channel.totalUnread) || 0) + 1,
-                                updatedAt: new Date().toISOString()
-                            };
-                        }
-                        return { ...channel }; // 👈 force every object to be new
-                    });
-                });
+    //                 return oldData.map(channel => {
+    //                     if (channel.id === newMessage.chatChannelId) {
+    //                         return {
+    //                             ...channel,
+    //                             lastMessage: {
+    //                                 id: newMessage.id!,
+    //                                 message: newMessage?.message || 'New message',
+    //                                 createdAt: newMessage?.createdAt || new Date().toISOString()
+    //                             },
+    //                             totalUnread: (Number(channel.totalUnread) || 0) + 1,
+    //                             updatedAt: new Date().toISOString()
+    //                         };
+    //                     }
+    //                     return { ...channel };
+    //                 });
+    //             });
+    //         }
 
+    //         // ✅ 2. Update messages list if user is in that chat
+    //         queryClient.setQueryData<{ messages: NewMessage[] }>(
+    //             ['messages', activeChatObject?.id],
+    //             old => {
+    //                 if (!old) return { messages: [newMessage] };
+    //                 if (old.messages.some(m => m.id === newMessage.id)) return old;
+    //                 return { messages: [...old.messages, newMessage] };
+    //             }
+    //         );
+    //     };
 
-            }
+    //     const socket = getSocket();
+    //     if (activeChatObject?.id && socket) {
+    //         socket.off('receive_direct', handler); // Clear old listeners
+    //         socket.on('receive_direct', handler);
+    //     }
 
-            queryClient.setQueryData<{ messages: NewMessage[] }>(
-                ['messages', activeChatObject?.id],
-                old => {
-                    if (!old) return { messages: [newMessage] };
-                    if (old.messages.some(m => m.id === newMessage.id)) return old;
-                    return { messages: [...old.messages, newMessage] };
-                }
-            );
+    //     return () => {
+    //         if (socket) socket.off('receive_direct', handler);
+    //     };
+    // }, [activeChatObject?.id]);
 
-
-        };
-
-        const socket = getSocket();
-        if (activeChatObject?.id && socket) {
-            socket.off('receive_direct', handler); // <=== this prevents multiple bindings
-            socket.on('receive_direct', handler);
-        }
-
-        return () => {
-            if (socket) socket.off('receive_direct', handler);
-        };
-    }, [activeChatObject?.id]);
 
     // GET ALL CHANNELS
     const { data: allChannels = [] } = useQuery({
@@ -188,6 +187,8 @@ const Chat = () => {
             const dataSendToBack = { loginUserId, chatChannelId: activeChatObject?.id };
             try {
                 const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
+                console.log(">>>>>>>>>>>>>>>>>>", response?.data);
+
                 return response?.data?.messages;
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -257,6 +258,100 @@ const Chat = () => {
             });
     }, [providerData]);
 
+
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        const handleNewMessage = (newMessage: Message) => {
+            console.log("📨 NEW MESSAGE RECEIVED ON SOCKET:267", newMessage);
+
+            const isSameChatOpen =
+                (activeChatType === 'individual' && newMessage.chatChannelId === activeChatObject?.id) ||
+                (activeChatType === 'group' && newMessage.groupId === activeChatObject?.id);
+
+            const isFromSelf = newMessage.senderId === loginUserId;
+
+            // ✅ Always update single chat sidebar
+            queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
+                if (!oldData) return oldData;
+
+                const updatedChannels = oldData.map((channel) => {
+                    if (channel.id === newMessage.chatChannelId) {
+                        return {
+                            ...channel,
+                            lastMessage: {
+                                id: newMessage.id!,
+                                message: newMessage.message || newMessage.mediaUrl || '📎 File',
+                                createdAt: newMessage.createdAt || new Date().toISOString(),
+                            },
+                            totalUnread:
+                                isFromSelf || isSameChatOpen
+                                    ? channel.totalUnread
+                                    : (Number(channel.totalUnread) || 0) + 1,
+                            updatedAt: new Date().toISOString(),
+                        };
+                    }
+                    return channel;
+                });
+
+                return updatedChannels;
+            });
+
+            // ✅ Update group chat sidebar
+            if (newMessage?.groupId) {
+                queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups) => {
+                    if (!oldGroups) return oldGroups;
+
+                    return oldGroups.map((group) => {
+                        if (group.id === newMessage.groupId) {
+                            return {
+                                ...group,
+                                lastMessage: {
+                                    id: newMessage.id!,
+                                    message: newMessage.message || newMessage.mediaUrl || '📎 File',
+                                    createdAt: newMessage.createdAt || new Date().toISOString(),
+                                },
+                                unreadCount:
+                                    isFromSelf || isSameChatOpen
+                                        ? group.unreadCount
+                                        : (Number(group.unreadCount) || 0) + 1,
+                                updatedAt: new Date().toISOString(),
+                            };
+                        }
+                        return group;
+                    });
+                });
+            }
+
+            // ✅ Update message list if same chat is open
+            if (isSameChatOpen) {
+                const messageKey =
+                    activeChatType === 'individual'
+                        ? ['messages', newMessage.chatChannelId]
+                        : ['groupmessages', newMessage.groupId];
+
+                queryClient.setQueryData<{ messages: NewMessage[] }>(messageKey, (old) => {
+                    if (!old) return { messages: [newMessage] };
+                    if (old.messages.some((m) => m.id === newMessage.id)) return old;
+                    return { messages: [...old.messages, newMessage] };
+                });
+            }
+        };
+
+        socket.off('receive_direct', handleNewMessage);
+        socket.off('receive_group', handleNewMessage);
+        socket.on('receive_group', handleNewMessage);
+        socket.on('receive_direct', handleNewMessage);
+
+        return () => {
+            socket.off('receive_group', handleNewMessage);
+            socket.off('receive_direct', handleNewMessage);
+        };
+    }, [loginUserId, activeChatObject?.id, activeChatType, queryClient]);
+
+
+
     console.log("unBlockProviders", unBlockProviders);
     console.log("allChannels", allChannels);
     console.log("ChatMessages", ChatMessages);
@@ -292,8 +387,16 @@ const Chat = () => {
                         </div>
                     </div>
                     <div className="min-h-[31vh] max-h-[31vh] bg- p-2 lg:p-0 overflow-auto mt-4">
-                        {unBlockProviders?.map((data: ChatChannelType) => (
-                            <div className="gap-y-3" key={data?.id}>
+                        {allChannels
+                            ?.filter((channel: ChatChannelType) =>
+                                providerData?.some((provider) => channel?.providerBId === provider?.id)
+                            )
+                            ?.sort((a: ChatChannelType, b: ChatChannelType) => {
+                                const aTime = new Date(a?.updatedAt)?.getTime();
+                                const bTime = new Date(b?.updatedAt)?.getTime();
+                                return bTime - aTime;
+                            })
+                            ?.map((data: ChatChannelType) => (
                                 <SingleChatData
                                     key={`${data.id}-${data.updatedAt}`}
                                     data={data}
@@ -334,8 +437,7 @@ const Chat = () => {
 
                                 />
 
-                            </div>
-                        ))}
+                            ))}
                     </div>
                     <hr className="w-[100%] h-[1px] text-inputBgColor" />
                     <div className='flex items-center justify-between mt-4'>
@@ -353,6 +455,8 @@ const Chat = () => {
                         {allGroups?.map((data: GroupChat) => (
                             <div className="gap-y-3" key={data?.id}>
                                 <GroupChatData
+                                    key={`${data.id}-${data.updatedAt}`}
+
                                     data={data}
                                     activeId={activeId}
                                     onClick={() => {
@@ -420,7 +524,7 @@ const Chat = () => {
 
                 </div>
             </div>
-        </OutletLayout>
+        </OutletLayout >
     );
 };
 

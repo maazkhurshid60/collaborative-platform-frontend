@@ -21,14 +21,15 @@ const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId 
 
     const otherUser =
         data?.providerA?.id === loginUserId
-            ? { fullName: data.providerB?.user?.fullName, profileImage: data.providerB?.user?.profileImage }
-            : { fullName: data.providerA?.user?.fullName, profileImage: data.providerA?.user?.profileImage };
+            ? { fullName: data?.providerB?.user?.fullName, profileImage: data?.providerB?.user?.profileImage }
+            : { fullName: data?.providerA?.user?.fullName, profileImage: data?.providerA?.user?.profileImage };
 
     const unreadCount = Number(data?.totalUnread ?? 0);
     const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;
     useEffect(() => {
-        console.log("🔁 Re-render:", data.id, data.lastMessage?.message);
-    }, [data]);
+        console.log("🔁 Re-render Sidebar Item:", data.id, data.lastMessage?.message, data.updatedAt);
+    }, [data.lastMessage?.message, data.updatedAt]);
+
 
     return (
         <div className="">

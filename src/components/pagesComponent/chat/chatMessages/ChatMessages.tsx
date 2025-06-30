@@ -11,6 +11,8 @@ import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { GroupChat, GroupMember } from '../../../../types/chatType/GroupType';
 import "./chat.css"
 import CrossIcon from '../../../icons/cross/Cross';
+import { useQueryClient } from '@tanstack/react-query';
+import { NewMessage } from '../../../../types/chatType/ChatType';
 
 
 
@@ -38,11 +40,18 @@ interface ChatMessagesProps {
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType }) => {
 
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserProfileImage = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user.profileImage);
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
+
     const socket = getSocket();
     // Load initial messages whenever `messageData` changes
     useEffect(() => {
@@ -171,6 +180,25 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             }
 
             setMessages(prev => prev.map(m => m.id === tempId ? { ...saved, you: true } : m));
+            // Update lastMessage + unread count in chatChannels cache
+            queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
+                if (!oldData) return oldData;
+                return oldData.map(channel =>
+                    channel.id === activeChatObject.id
+                        ? {
+                            ...channel,
+                            lastMessage: {
+                                id: saved.id,
+                                message: saved.message || 'New message',
+                                createdAt: saved.createdAt,
+                            },
+                            totalUnread: 0, // you sent it, so no unread
+                            updatedAt: new Date().toISOString(),
+                        }
+                        : channel
+                );
+            });
+
         } catch (error) {
             console.error("❌ Error sending message:", error);
             setMessages(prev => prev.filter(m => m.id !== tempId));
@@ -186,11 +214,113 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             console.log("✅ Joined chat channel:", activeChatObject.id);
         }
     }, [activeChatObject?.id]);
+
+
     useEffect(() => {
         if (!socket && loginUserId) {
             initSocket(loginUserId);
         }
     }, [loginUserId]);
+
+
+    const messageContainerRef = useRef<HTMLDivElement>(null);
+
+
+    const fetchMessages = async (currentPage = 1) => {
+        if (!activeChatObject) return;
+
+        const container = messageContainerRef.current;
+        const oldScrollHeight = container?.scrollHeight || 0;
+
+        setLoading(true);
+
+        const payload = {
+            loginUserId,
+            chatChannelId: activeChatObject.id,
+            page: currentPage,
+            limit: 10,
+        };
+
+        try {
+            const res = await messageApiService.getAllMessagesOfSingleChatChannel(payload);
+            const newMessages = res?.data?.messages || [];
+
+            setMessages(prev => [...newMessages.map((m: Message) => ({ ...m, you: m.senderId === loginUserId })), ...prev]);
+            setHasMore(res?.data?.hasMore);
+            setPage(currentPage);
+
+            // ⏳ Wait for DOM to update
+            setTimeout(() => {
+                const newScrollHeight = container?.scrollHeight || 0;
+                if (container) {
+                    container.scrollTop = newScrollHeight - oldScrollHeight;
+                }
+            }, 100); // Small delay to allow DOM update
+        } catch (err) {
+            console.error('❌ Error fetching messages:', err);
+        }
+
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        if (!socket || !loginUserId) return;
+
+        const handleNewMessage = (newMessage: NewMessage) => {
+            const isGroup = newMessage?.isGroupMessage;
+            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>", newMessage);
+
+            const queryKey = isGroup ? ['groupChatchannels'] : ['chatchannels'];
+
+            // Update sidebar chat list for both individual and group chats
+            queryClient.setQueryData(queryKey, (oldData: ChatChannelType[] = []) =>
+                oldData.map(channel =>
+                    channel.id === newMessage.chatChannelId
+                        ? {
+                            ...channel,
+                            lastMessage: {
+                                id: newMessage.id!,
+                                message: newMessage.message || 'New Message',
+                                createdAt: newMessage.createdAt || new Date().toISOString(),
+                            },
+                            ...(isGroup
+                                ? {
+                                    unreadCount: newMessage.senderId === loginUserId ? channel.unreadCount : Number(channel.unreadCount || 0) + 1
+                                }
+                                : {
+                                    totalUnread: newMessage.senderId === loginUserId ? channel.totalUnread : Number(channel.totalUnread || 0) + 1
+                                }
+                            ),
+                            updatedAt: new Date().toISOString(),
+                        }
+                        : channel
+                )
+            );
+        };
+
+        socket.on('receive_direct', handleNewMessage);
+        socket.on('receive_group', handleNewMessage);
+
+        return () => {
+            socket.off('receive_direct', handleNewMessage);
+            socket.off('receive_group', handleNewMessage);
+        };
+    }, [socket, loginUserId, queryClient]);
+
+
+    useEffect(() => {
+        const container = messageContainerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            if (container.scrollTop === 0 && hasMore && !loading) {
+                fetchMessages(page + 1);
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [page, hasMore, loading]);
 
 
     if (!activeChatObject) {
@@ -239,13 +369,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     };
 
 
-
     const otherName = activeChatObject?.name ? activeChatObject?.name :
         activeChatObject?.providerA?.id === loginUserId
             ? activeChatObject?.providerB?.user?.fullName
             : activeChatObject?.providerA?.user?.fullName;
 
 
+    console.log("groupMessagesByDate", groupMessagesByDate);
 
     return (
 
@@ -257,10 +387,35 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                     groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
                 />            <hr className="my-4 border-inputBgColor" />
 
-                <div className="flex-1 overflow-y-auto mb-4">
+                <div className="flex-1 overflow-y-auto mb-4" ref={messageContainerRef} >
                     {messages.length === 0 && (
                         <div className="text-center text-gray-500 mt-10">No messages yet</div>
                     )}
+                    {loading && (
+                        <div className="flex items-center justify-center py-3 text-gray-500 text-sm gap-2">
+                            <svg
+                                className="w-4 h-4 animate-spin text-primaryColorDark"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                ></circle>
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                                ></path>
+                            </svg>
+                            <span>Loading messages...</span>
+                        </div>
+                    )}
+
                     {Object.entries(groupMessagesByDate(messages)).map(([dateGroup, groupMsgs]) => (
                         <div key={dateGroup}>
                             <div className="sticky top-0 z-10 bg-white py-2 font-[Poppins] text-lg text-gray-500">
@@ -372,8 +527,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                                         {msg.you && (
                                             <>
-                                                {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
-                                                    <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage} />
+                                                {(loginUserProfileImage !== null && loginUserProfileImage !== "null") ?
+                                                    <img className='w-10 h-10 rounded-full object-cover' src={loginUserProfileImage} />
                                                     : <UserIcon size={30} />}
                                             </>
                                         )}

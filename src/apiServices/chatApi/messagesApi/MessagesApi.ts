@@ -4,6 +4,7 @@ interface getAllMessagesOfSingleChatChannelType {
     chatChannelId?: string
     groupId?: string
     loginUserId?: string
+
 }
 interface getAllMessagesOfSingleChat {
     chatChannelId: string
@@ -39,9 +40,9 @@ class MessageApiService {
     }
     async getAllMessagesOfSingleChat(data: getAllMessagesOfSingleChat) {
         try {
-            console.log(">>>>>>>>>>>>>>>>>>>>>>>>", data);
 
             const response = await this.api.post("/chat/single-chat/get-all-message", data)
+            console.log("<<<<<<response<<<<<<", response);
             return response?.data
 
 

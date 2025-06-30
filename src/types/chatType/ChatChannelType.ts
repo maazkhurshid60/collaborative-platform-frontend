@@ -10,6 +10,7 @@ export interface ChatChannelType {
     name?: string
     members?: Member[]
     lastMessage?: LastMessage
+    unreadCount?: number | string
 }
 
 export interface LastMessage {

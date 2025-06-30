@@ -10,6 +10,8 @@ export interface NewMessage {
     message?: string
     createdAt?: string
     updatedAt?: string
+    senderId?: string
+    isGroupMessage?: boolean | undefined
 }
 
 export interface LastMessage {
