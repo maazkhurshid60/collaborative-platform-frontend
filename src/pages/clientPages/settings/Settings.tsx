@@ -2,7 +2,7 @@ import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
 import LabelData from '../../../components/labelText/LabelData';
 import Button from '../../../components/button/Button';
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "../../../components/inputField/InputField";
@@ -22,6 +22,8 @@ import { GetMeType } from '../../../types/clientType/ClientType';
 import DeleteClientModal from '../../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { useNavigate } from 'react-router-dom';
 import CrossIcon from '../../../components/icons/cross/Cross';
+import { getCountryNameFromCode } from '../../../utils/GetCountryName';
+import CountryStateSelect from '../../../components/dropdown/CountryStateSelect';
 
 type FormFields = z.infer<typeof accountSchema>;
 
@@ -47,14 +49,25 @@ const Settings = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    // const {
+    //     register,
+    //     handleSubmit,
+    //     formState: { errors },
+    //     setValue
+    // } = useForm<FormFields>({
+    //     resolver: zodResolver(accountSchema),
+    // });
+
+    const methods = useForm<FormFields>({
+        resolver: zodResolver(accountSchema),
+    });
+
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue
-    } = useForm<FormFields>({
-        resolver: zodResolver(accountSchema),
-    });
+    } = methods;
 
     // const baseUrl =
     //     import.meta.env.VITE_ENV === "LOCALHOST"
@@ -67,18 +80,29 @@ const Settings = () => {
         return new File([blob], filename, { type: blob.type });
     };
 
+    // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const file = e.target.files?.[0];
+    //     if (file) {
+    //         const imageUrl = URL.createObjectURL(file);
+    //         setSignAdd(imageUrl);
+    //         setIsUploadedSignature(true);
+    //     }
+    // };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const imageUrl = URL.createObjectURL(file);
             setSignAdd(imageUrl);
-            setIsUploadedSignature(true);
+            setIsUploadedSignature(true); // This marks it as a new upload
         }
     };
 
     const updateMutation = useMutation({
         mutationFn: async (formData: FormData) => {
             const response = await loginUserApiService.updateMeApi(formData);
+            console.log("RESPONSE", response);
+
             dispatch(saveLoginUserDetailsReducer(response?.data));
         },
         onMutate: () => setIsLoader(true),
@@ -95,33 +119,41 @@ const Settings = () => {
     });
 
     const updateFunction = async (data: FormFields) => {
-        if (signAdd === null) {
-            return toast.error("E-Signature is required")
-        }
         const formData = new FormData();
         formData.append("fullName", data.fullName);
         formData.append("licenseNo", data.licenseNo);
         formData.append("email", data.email);
+        formData.append("address", data.address);
+        formData.append("country", data.country);
+        formData.append("state", data.state);
+
         if (data.password) {
             formData.append("password", data.password);
         }
 
+        // Handle e-signature - this is the key fix
         if (signAdd && isUploadedSignature) {
-
             // User uploaded a new image
             const file = await blobUrlToFile(signAdd);
             formData.append("eSignature", file);
-        } else if (!signAdd && !isUploadedSignature) {
-            // User removed the image — send an empty string or a special flag
+        } else if (signAdd === null) {
+            // User removed the image
             formData.append("eSignature", "");
+        } else {
+            // Keep the existing signature - send the URL as is
+            // This is what you were missing
+            formData.append("eSignature", signAdd);
         }
 
         formData.append("loginUserId", loginUserId?.user?.id);
+
         if (getMeDetail?.user?.role) {
             formData.append("role", getMeDetail?.user?.role);
         }
         updateMutation.mutate(formData);
     };
+
+
 
     const { data: getMeData, isLoading, isError } = useQuery<GetMeType>({
         queryKey: ["loginUser"],
@@ -135,12 +167,16 @@ const Settings = () => {
     });
 
     useEffect(() => {
+        console.log("GET ME DATA", getMeData);
+
         if (getMeData) {
             setGetMeDetail(getMeData);
             setValue("fullName", getMeData?.user?.fullName ?? "");
             setValue("licenseNo", getMeData?.user?.licenseNo ?? "");
             setValue("email", getMeData?.email ?? "");
-
+            setValue("country", getMeData?.user?.country ?? "");
+            setValue("state", getMeData?.user?.state ?? "");
+            setValue("address", getMeData?.user?.address ?? "");
             if (getMeData?.eSignature) {
 
                 setSignAdd(getMeData.eSignature);
@@ -152,7 +188,6 @@ const Settings = () => {
             }
         }
     }, [getMeData]);
-
 
     const deleteMe = () => deleteMeMutation.mutate();
 
@@ -213,49 +248,69 @@ const Settings = () => {
             <p className="font-bold mt-6">General Settings</p>
 
             {isEdit ? (
-                <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
-                        <InputField required label="Full Name" register={register("fullName")} placeHolder="Enter Full Name." error={errors.fullName?.message} />
-                        <InputField required label="License Number" register={register("licenseNo")} placeHolder="Enter license number." error={errors.licenseNo?.message} />
-                        <InputField required label="Email ID" register={register("email")} placeHolder="Enter Email." error={errors.email?.message} />
-                        <InputField label="Password" register={register("password")} placeHolder="Enter Password." error={errors.password?.message} />
-                    </div>
+                <FormProvider {...methods}>
+                    <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+                            <InputField required label="Full Name" register={register("fullName")} placeHolder="Enter Full Name." error={errors.fullName?.message} />
+                            <InputField required label="License Number" register={register("licenseNo")} placeHolder="Enter license number." error={errors.licenseNo?.message} />
+                            <InputField required label="Email ID" register={register("email")} placeHolder="Enter Email." error={errors.email?.message} />
 
-                    <hr className="w-full h-[1px] text-greyColor mt-10" />
+                            <CountryStateSelect
+                                isCountryView={true}
+                                isStateView={false}
+                                defaultCountry={getMeData?.user?.country}
+                            />
+                            <CountryStateSelect
+                                isCountryView={false}
+                                isStateView={true}
+                                defaultState={getMeData?.user?.state}
+                            />
+                            <InputField label="Address" register={register("address")} placeHolder="Enter Address." error={errors.address?.message} />
 
-                    <div className="w-[300px] mt-10">
-                        <div className='flex items-start gap-x-2.5'>
-
-                            <p className="font-semibold mb-2">E-Signature</p>
-                            <p className='text-redColor'>*</p>
+                            {/* <InputField label="Password" register={register("password")} placeHolder="Enter Password." error={errors.password?.message} /> */}
                         </div>
-                        {signAdd ? (
-                            <div className="relative">
-                                <img
-                                    src={signAdd}
-                                    alt="Uploaded Signature"
-                                    style={{ maxHeight: "120px", objectFit: "contain" }}
-                                />
 
-                                <CrossIcon onClick={() => setSignAdd(null)} />
+                        <hr className="w-full h-[1px] text-greyColor mt-10" />
+
+                        <div className="w-[300px] mt-10">
+                            <div className='flex items-start gap-x-2.5'>
+
+                                <p className="font-semibold mb-2">E-Signature</p>
+                                <p className='text-redColor'>*</p>
                             </div>
-                        ) : (
-                            <UploadFile onChange={handleFileChange} text="Add your signature here" heading="Sign here" />
-                        )}
-                    </div>
+                            {signAdd ? (
+                                <div className="relative">
+                                    <img
+                                        src={signAdd}
+                                        alt="Uploaded Signature"
+                                        style={{ maxHeight: "120px", objectFit: "contain" }}
+                                    />
 
-                    <div className="flex items-center justify-end">
-                        <div className="mt-10 w-[100px]">
-                            <Button text="Update" />
+                                    <CrossIcon onClick={() => {
+                                        setSignAdd(null);
+                                        setIsUploadedSignature(true); // This marks it as changed
+                                    }} />                                </div>
+                            ) : (
+                                <UploadFile onChange={handleFileChange} text="Add your signature here" heading="Sign here" />
+                            )}
                         </div>
-                    </div>
-                </form>
+
+                        <div className="flex items-center justify-end">
+                            <div className="mt-10 w-[100px]">
+                                <Button text="Update" />
+                            </div>
+                        </div>
+                    </form>
+                </FormProvider>
             ) : (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
                         <LabelData label="Full Name" data={getMeData?.user?.fullName} />
                         <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
                         <LabelData label="Email ID" data={getMeData?.email} />
+                        <LabelData label="Country" data={getCountryNameFromCode(getMeData?.user?.country ?? "")} />
+                        <LabelData label="State" data={getMeData?.user?.state} />
+                        <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
                     </div>
 
                     <hr className="w-full h-[1px] text-greyColor mt-10" />
@@ -269,7 +324,7 @@ const Settings = () => {
                                 style={{ maxHeight: "120px", objectFit: "contain", marginTop: "20px" }}
                             />
                         ) : (
-                            <p>No image selected</p>
+                            <p>Upload Your E-Signature</p>
                         )}
                     </div>
 

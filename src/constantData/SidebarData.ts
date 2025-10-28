@@ -47,3 +47,25 @@ export const ClientSidebarData = [
         icon: SettingIcon
     }
 ]
+export const SuperAdminSidebarData = [
+    {
+        name: "Pending Users",
+        url: "/pending-users",
+        icon: ClientsIcon
+    },
+    {
+        name: "Verified Users",
+        url: "/verified-users",
+        icon: ClientsIcon
+    },
+    {
+        name: "Rejected Users",
+        url: "/rejected-users",
+        icon: ClientsIcon
+    }
+    , {
+        name: "Documents",
+        url: "/all-documents",
+        icon: DocumentIcon
+    },
+]

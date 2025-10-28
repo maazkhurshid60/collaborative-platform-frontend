@@ -1,3 +1,5 @@
+import { ClientType } from "../clientType/ClientType"
+
 export interface blockListDataType {
     fullName?: string
     isBlock?: boolean | string
@@ -14,6 +16,7 @@ export interface blockListDataType {
     role?: string | null
     status?: string | null
     updatedAt?: string | null
+    client?: ClientType | null
 }
 
 

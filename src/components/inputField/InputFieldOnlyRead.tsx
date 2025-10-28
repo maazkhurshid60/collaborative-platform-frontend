@@ -4,7 +4,7 @@ interface InputFieldProps {
     placeHolder?: string;
     label?: string;
 
-    value: string
+    value: string | undefined
     required?: boolean;
 }
 

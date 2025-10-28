@@ -26,11 +26,37 @@ class AuthService {
             const response = await this.api.post("/login", data);
             return response.data;
         } catch (error: unknown) {
+            console.error("error", error);
+
             throw error || "Sign up failed";
 
         }
     }
+    async forgotPassword(email: string) {
 
+
+
+        try {
+            const response = await this.api.post("/forgot-password", { email });
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error", error);
+
+            throw error || "Sending Email Failed failed";
+
+        }
+    }
+
+
+    async resetPassword(token: string, password: string) {
+        try {
+            const response = await this.api.patch(`/reset-password/${token}`, { newPassword: password });
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error", error);
+            throw error || "Reset password failed";
+        }
+    }
 
 
     async findLicenseNo(data: LicenseNoData) {
@@ -51,6 +77,7 @@ class AuthService {
             const response = await this.api.post("/signup", data);
             return response.data;
         } catch (error: unknown) {
+            console.error("error singup", error);
 
 
             throw error || "Sign up failed";

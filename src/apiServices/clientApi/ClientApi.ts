@@ -48,12 +48,15 @@ class ClientApiService {
             });
             return response.data;
         } catch (error: unknown) {
+
+
             throw error || "Update the client failed";
 
         }
     }
 
     async addClientApi(data: FormData) {
+
         try {
             const response = await this.api.post("/client/add-client", data, {
                 headers: {
@@ -62,6 +65,27 @@ class ClientApiService {
             });
             return response.data;
         } catch (error: unknown) {
+
+            if (isAxiosError(error) && error.response?.data?.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error("An unexpected error occurred");
+            }
+
+            throw error || "Adding client has failed";
+        }
+    }
+    async addExistingClientToProvider(data: FormData) {
+
+        try {
+            const response = await this.api.post("/client/add-existing-client-to-provider", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            return response.data;
+        } catch (error: unknown) {
+
             if (isAxiosError(error) && error.response?.data?.data?.error) {
                 toast.error(error.response.data.data.error);
             } else {
@@ -78,6 +102,7 @@ class ClientApiService {
             const response = await this.api.patch("/client/update-existing-client", data);
             return response.data;
         } catch (error: unknown) {
+
             throw error || "Sign up failed";
 
         }

@@ -16,6 +16,7 @@ import { isModalDeleteReducer } from '../../redux/slices/ModalSlice';
 import Loader from '../../components/loader/Loader';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { getSocket } from '../../socket/Socket';
+import UserIcon from '../../components/icons/user/User';
 
 
 const Notification = () => {
@@ -27,7 +28,7 @@ const Notification = () => {
     const queryClient = useQueryClient()
     const [selectedNotificationId, setSelectedNotificationId] = useState<string>("")
 
-    const { data: notificationData } = useQuery<NotificationType[]>({
+    const { data: notificationData, isLoading } = useQuery<NotificationType[]>({
         queryKey: ["notifications"],
         queryFn: async () => {
             try {
@@ -110,45 +111,63 @@ const Notification = () => {
             {isLoader && <Loader text='Deleting...' />}
             {isModalDelete && selectedNotificationId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this notification you won’t be able to track record of your Notification. Are you sure that you want to <span className='font-semibold'>Delete this notification</span>?</div>}
             />}
-            {getCurrentRecords()?.length === 0 ? <NoRecordFound /> :
-                <>
-                    <div className='h-[65vh] overflow-y-auto '>
+            {
+                isLoading ? (
+                    <Loader text="Loading Notifications..." />
+                ) :
 
-                        {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
-                            <div className='flex items-start gap-x-4'>
-                                <img
-                                    src={`${data?.sender?.id !== loginUserId
-                                        ? data?.sender?.profileImage
-                                        : data?.recipient?.profileImage
-                                        }`}
-                                    alt="User"
-                                    className="w-12 h-12 rounded-full object-cover"
-                                />
+                    getCurrentRecords()?.length === 0 ? <NoRecordFound /> :
+                        <>
+                            <div className='h-[65vh] overflow-y-auto '>
 
-                                <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
-                                    <div className='flex items-center justify-between gap-x-5'>
-                                        <div className='flex items-center gap-x-4'>
-                                            <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize'>
-                                                {data?.sender?.id === loginUserId
-                                                    ? "you"
-                                                    : data?.sender?.fullName}
-                                            </p>
-                                            <p className='font-semibold text-[18px]'>.</p>
-                                            <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
-                                            </p>
+                                {getCurrentRecords()?.map(data => <div className='flex items-center justify-between font-[Poppins] mb-4 mt-4 text-textGreyColor border-b-[1px] border-b-solid border-b-textGreyColor pb-4'>
+                                    <div className='flex items-start gap-x-4'>
 
+                                        {
+                                            (data?.sender?.profileImage !== null && data?.sender?.profileImage !== "null" || data?.recipient?.profileImage !== null && data?.recipient?.profileImage !== "null") ? (
+                                                <img
+                                                    src={`${data?.sender?.id !== loginUserId
+                                                        ? data?.sender?.profileImage
+                                                        : data?.recipient?.profileImage
+                                                        }`}
+                                                    alt="User"
+                                                    className="w-12 h-12 rounded-full object-cover"
+                                                />
+                                            ) : (<>
+
+                                                <UserIcon className="text-[32px] md:text-[40px] lg:text-[30px]" />
+
+
+                                            </>
+                                            )
+                                        }
+
+
+
+                                        <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
+                                            <div className='flex items-center justify-between gap-x-5'>
+                                                <div className='flex items-center gap-x-4'>
+                                                    <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize'>
+                                                        {data?.sender?.id === loginUserId
+                                                            ? "you"
+                                                            : data?.sender?.fullName}
+                                                    </p>
+                                                    <p className='font-semibold text-[18px]'>.</p>
+                                                    <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
+                                                    </p>
+
+                                                </div>
+                                                <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")
+                                                } />
+                                            </div>
+                                            <p className=' text-[12px] lg:text-[14px] '>{data?.message}</p>
                                         </div>
-                                        <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")
-                                        } />
                                     </div>
-                                    <p className=' text-[12px] lg:text-[14px] '>{data?.message}</p>
-                                </div>
+                                    <AiOutlineDelete className='text-redColor cursor-pointer hidden sm:block sm:text-[26px] md:text-[30px] lg:text-[20px]' onClick={() => handleDeleteFun(data?.id)} />
+                                </div>)}
                             </div>
-                            <AiOutlineDelete className='text-redColor cursor-pointer hidden sm:block sm:text-[26px] md:text-[30px] lg:text-[20px]' onClick={() => handleDeleteFun(data?.id)} />
-                        </div>)}
-                    </div>
-                    <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
-                </>
+                            <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
+                        </>
             }
 
         </OutletLayout>)

@@ -10,6 +10,7 @@ interface InputFieldProps {
     register?: UseFormRegisterReturn;
     error?: string;
     required?: boolean;
+    variant?: "default" | "signup"
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -20,6 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({
     register,
     error,
     required = false,
+    variant = "default",
 }) => {
     const [isHidden, setIsHidden] = useState(true);
 
@@ -28,7 +30,7 @@ const InputField: React.FC<InputFieldProps> = ({
             {label && (
                 <div className="flex items-center gap-x-1">
                     <p className="labelMedium mb-1">{label}</p>
-                    {required && <p className="text-redColor">*</p>}
+                    {required && variant !== "signup" && <p className="text-redColor">*</p>}
                 </div>
             )}
             <div className="relative">

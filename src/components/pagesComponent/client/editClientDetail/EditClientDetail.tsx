@@ -2,7 +2,7 @@ import Button from '../../../button/Button'
 import InputField from '../../../inputField/InputField'
 import Dropdown from '../../../dropdown/Dropdown'
 import LabelData from '../../../labelText/LabelData'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { clientSchema } from '../../../../schema/clientSchema/ClientSchema'
@@ -20,6 +20,8 @@ import Loader from '../../../loader/Loader'
 import { GoDotFill } from 'react-icons/go'
 import FileUploader from '../../../uploader/fileUploader/FileUploader'
 import CrossIcon from '../../../icons/cross/Cross'
+import Checkbox from '../../../checkbox/Checkbox'
+import CountryStateSelect from '../../../dropdown/CountryStateSelect'
 
 // Adjust the import path if needed
 
@@ -31,16 +33,28 @@ interface EditClientDetailProps {
 
 const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
-    const { register, control, formState: { errors }, handleSubmit, setValue } = useForm<FormFields>({
-        resolver: zodResolver(clientSchema)
-    })
+
+    const methods = useForm<FormFields>({
+        resolver: zodResolver(clientSchema),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }, control,
+        setValue
+    } = methods;
     const queryClient = useQueryClient()
     const [isLoader, setIsLoader] = useState(false)
     const [showUploader, setShowUploader] = useState(false)
-    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-
+    const [wantToBeSeen, setWantToBeSeen] = useState(true);
+    const handleCheckboxChange = () => {
+        setWantToBeSeen((prev) => !prev);
+    };
     useEffect(() => {
+
         if (clientData) {
             setValue("licenseNo", clientData?.user?.licenseNo ?? "")
             setValue("email", clientData?.email ?? "")
@@ -50,13 +64,15 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", clientData?.user?.age?.toString() ?? "")
             setValue("gender", clientData?.user?.gender ?? "")
-
+            setValue("country", clientData?.user?.country ?? "")
+            setValue("state", clientData?.user?.state ?? "")
+            setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 
             if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
 
                 const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
                 setPreviewUrl(imagePath)
-                setSelectedFile(null)
+                setSelectedFile(imagePath)
             } else {
 
                 setPreviewUrl(null)
@@ -86,6 +102,10 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('status', data.status)
         formData.append('address', data.address)
         formData.append('contactNo', data.contactNo)
+        formData.append('state', data.state)
+        formData.append('country', data.country)
+        formData.append("clientShowToOthers", wantToBeSeen.toString());
+
         if (selectedFile !== null) {
 
             formData.append('profileImage', selectedFile)
@@ -114,87 +134,114 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         <div className='relative pl-2'>
             {isLoader && <Loader text='Updating...' />}
             {isShowDeleteModal && <DeleteClientModal />}
+            <FormProvider {...methods}>
 
-            <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
-                <div className='mb-5'>
-                    <LabelData label='Client Image' />
-                    <div className="relative w-32 h-32">
-                        {!showUploader ? (
-                            previewUrl ? (
-                                <img
-                                    src={previewUrl}
-                                    alt="Client"
-                                    className="w-32 h-32 rounded-full object-cover"
-                                />
+                <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
+                    <div className='mb-5'>
+                        <LabelData label='Client Image' />
+                        <div className="relative w-32 h-32">
+                            {!showUploader ? (
+                                previewUrl ? (
+                                    <img
+                                        src={previewUrl}
+                                        alt="Client"
+                                        className="w-32 h-32 rounded-md object-cover " />
+                                ) : (
+
+                                    <UserIcon className="text-8xl text-textColor" />
+                                )
                             ) : (
+                                <FileUploader onFileSelect={handleFileSelect} />
+                            )}
 
-                                <UserIcon className="text-8xl text-textColor" />
-                            )
-                        ) : (
-                            <FileUploader onFileSelect={handleFileSelect} />
-                        )}
+                            {/* Show cross icon even if there's no image */}
+                            {!showUploader && (
 
-                        {/* Show cross icon even if there's no image */}
-                        {!showUploader && (
+                                <CrossIcon onClick={() => {
+                                    setShowUploader(true);
+                                    setSelectedFile(null);
+                                    setPreviewUrl(null);
+                                }} />
+                            )}
+                        </div>
 
-                            <CrossIcon onClick={() => {
-                                setShowUploader(true);
-                                setSelectedFile(null);
-                                setPreviewUrl(null);
-                            }} />
-                        )}
                     </div>
 
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+                        <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                        <InputField required label='license Number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
-                    <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                    <InputField required label='license Number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
-                    <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
-                    <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
-                    <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                    <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                        <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                        <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <Dropdown<FormFields>
+                            name="gender"
+                            label="Gender"
+                            control={control}
+                            options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
+                            placeholder="Choose an option"
+                            error={errors.gender?.message}
+                            required
+                        />
+                        {/* 
+                        <CountryStateSelect isFlex
+                            defaultCountry={clientData?.user?.country}
+                            defaultState={clientData?.user?.state}
+                        /> */}
 
-                    <Dropdown<FormFields>
-                        name="gender"
-                        label="Gender"
-                        control={control}
-                        options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
-                        placeholder="Choose an option"
-                        error={errors.gender?.message}
-                        required
-                    />
+                        <CountryStateSelect
+                            isCountryView={true}
+                            isStateView={false}
+                            defaultCountry={clientData?.user?.country}
+                        // defaultState={getMeData?.user?.state}
+                        />
+                        <CountryStateSelect
+                            isCountryView={false}
+                            isStateView={true}
+                            // defaultCountry={getMeData?.user?.country}
+                            defaultState={clientData?.user?.state}
+                        />
+                        <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
-                    <Dropdown<FormFields>
-                        name="status"
-                        label="Status"
-                        control={control}
-                        options={statusOption}
-                        placeholder="Choose an option"
-                        error={errors.status?.message}
-                        required
-                    />
+                        <Dropdown<FormFields>
+                            name="status"
+                            label="Status"
+                            control={control}
+                            options={statusOption}
+                            placeholder="Choose an option"
+                            error={errors.status?.message}
+                            required
+                        />
 
-                    <div className=' '>
-                        <LabelData label='List of Providers' />
-                        <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
-                            {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
-                                ? <p>No Providers Found</p>
-                                : clientData?.providerList.map((provider: Provider, index) => (
-                                    <li className='flex items-center gap-x-1 capitalize' key={index}>
-                                        <GoDotFill size={10} /> {provider?.provider?.user?.fullName}
-                                    </li>
-                                ))}
-                        </ul>
+                        <div className=' '>
+                            <LabelData label='List of Providers' />
+                            <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
+                                {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
+                                    ? <p>No Providers Found</p>
+                                    : clientData?.providerList.map((provider: Provider, index) => (
+                                        <li className='flex items-center gap-x-1 capitalize' key={index}>
+                                            <GoDotFill size={10} /> {provider?.provider?.user?.fullName}
+                                        </li>
+                                    ))}
+                            </ul>
+                        </div>
+                        <div className='mt-8'
+                        >
+                            <Checkbox
+                                text="Want to be seen by different providers for this client"
+                                checked={wantToBeSeen}
+                                onChange={handleCheckboxChange}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex items-center justify-end">
-                    <div className='mt-10 w-[100px]'>
-                        <Button text='Update' />
+                    <div className="flex items-center justify-end">
+                        <div className='mt-10 w-[100px]'>
+                            <Button text='Update' />
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </FormProvider>
         </div>
     )
 }

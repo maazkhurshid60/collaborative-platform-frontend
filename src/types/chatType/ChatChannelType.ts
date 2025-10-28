@@ -35,6 +35,7 @@ export interface Provider {
     updatedAt: string;
     userId: string;
     user: ProviderUser;
+
 }
 
 export interface ProviderUser {
@@ -46,6 +47,7 @@ export interface ProviderUser {
     contactNo: string | null;
     licenseNo: string;
     profileImage: string | null;
+    email?: string
     role: string;
     status: string;
     createdAt: string;

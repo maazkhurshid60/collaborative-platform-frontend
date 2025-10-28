@@ -80,8 +80,8 @@ const Dropdown = <T extends FieldValues>({
     }, [])
 
     return (
-        <div className="relative ">
-            <div className="flex mb-1">
+        <div className="relative w-full ">
+            <div className="flex ">
                 <p className="labelMedium">{label}</p>
                 {required && <p className="text-redColor ml-1">*</p>}
             </div>

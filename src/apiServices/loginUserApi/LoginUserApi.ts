@@ -14,6 +14,12 @@ interface changePasswordApiType {
     oldPassword: string
     confirmPassword: string
 }
+
+interface approveUserData {
+    id: string | undefined,
+    email: string | undefined,
+    name: string | undefined
+}
 class LoginUserApiService {
     private api = axiosInstance;
     async blockUserApi(dataa: blockUserApiType) {
@@ -51,7 +57,7 @@ class LoginUserApiService {
 
             return response.data
         } catch (error) {
-            console.log("<<<<<<<<<delete me", error);
+            console.error("error", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
             toast.error(errMsg)
@@ -67,8 +73,9 @@ class LoginUserApiService {
             });
             return response.data
         } catch (error) {
+            console.error("ERROR UPDATE ME", error);
 
-            const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
+            const errMsg = error instanceof Error ? error.message : "Failed to update this user.";
             toast.error(errMsg)
         }
     }
@@ -88,12 +95,59 @@ class LoginUserApiService {
         }
     }
 
-    async getAllUsersApi() {
+    async getAllValidUsersApi() {
         try {
-            const response = await this.api.get("/auth/get-all-users")
+            const response = await this.api.get("/auth/get-all-valid-users")
             return response.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
+            toast.error(errMsg)
+        }
+    }
+    async getAllUsersApi() {
+        try {
+            const response = await this.api.get("/auth/get-all-users")
+
+            return response.data.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
+            toast.error(errMsg)
+        }
+    }
+    async approveUsersApi(data: approveUserData) {
+        try {
+            const response = await this.api.patch("/auth/approve-user", data)
+
+            return response.data
+        } catch (error) {
+            console.error("error", error);
+
+            const errMsg = error instanceof Error ? error.message : "Failed to approve this user.";
+            toast.error(errMsg)
+        }
+    }
+    async rejectUsersApi(data: approveUserData) {
+        try {
+            const response = await this.api.patch("/auth/reject-user", data)
+
+            return response.data
+        } catch (error) {
+            console.error("error", error);
+
+            const errMsg = error instanceof Error ? error.message : "Failed to approve this user.";
+            toast.error(errMsg)
+        }
+    }
+
+    async restoreUsersApi(data: approveUserData) {
+        try {
+            const response = await this.api.patch("/auth/restore-user", data)
+
+            return response.data
+        } catch (error) {
+            console.error("error", error);
+
+            const errMsg = error instanceof Error ? error.message : "Failed to restore this user.";
             toast.error(errMsg)
         }
     }

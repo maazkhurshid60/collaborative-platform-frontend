@@ -2,7 +2,7 @@
 import { RxCross2 } from "react-icons/rx";
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
-import { isClientCompleteDocModalReducer, isClientShareDocModalReducer, isModalDeleteReducer, isModalShowReducser, isNewChatModalShowReducser, isNewGroupChatModalShowReducser } from '../../../redux/slices/ModalSlice';
+import { isAddDocumentModalReducer, isClientCompleteDocModalReducer, isClientShareDocModalReducer, isDeleteChannelModalShowReducer, isModalDeleteReducer, isModalShowReducser, isModalShowRejectReducer, isNewChatModalShowReducser, isNewGroupChatModalShowReducser, isshowSignedDocumentModalClientPortalReducer } from '../../../redux/slices/ModalSlice';
 import ToolTip from "../../toolTip/ToolTip";
 interface ModalLayout {
     modalBodyContent: React.ReactNode
@@ -18,6 +18,13 @@ const ModalLayout: React.FC<ModalLayout> = (props) => {
         dispatch(isNewGroupChatModalShowReducser(false));
         dispatch(isClientCompleteDocModalReducer(false));
         dispatch(isClientShareDocModalReducer(false))
+        dispatch(isDeleteChannelModalShowReducer(false))
+        dispatch(isAddDocumentModalReducer(false))
+        dispatch(isModalShowRejectReducer(false))
+        dispatch(isshowSignedDocumentModalClientPortalReducer(false));
+
+
+
     }
     return (
         <div className='fixed left-0 top-0 bg-[#171717]/70 w-[100vw] h-[100vh] z-50 flex items-center justify-center'>

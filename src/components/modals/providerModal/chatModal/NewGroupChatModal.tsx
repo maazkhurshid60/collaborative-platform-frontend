@@ -20,10 +20,12 @@ import { FiMinusCircle } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { GroupChat } from '../../../../types/chatType/GroupType'
 import ToolTip from '../../../toolTip/ToolTip'
+import axios from 'axios'
 type FormFields = z.infer<typeof groupSchema>
 const NewGroupChatModal = () => {
     const { register, formState: { errors }, handleSubmit } = useForm<FormFields>({ resolver: zodResolver(groupSchema) })
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
+    const [isCreating, setIsCreating] = useState(false);
     const [groupMembers, setGroupMembers] = useState<string[]>([])
     const dispatch = useDispatch<AppDispatch>()
     const queryClient = useQueryClient()
@@ -46,9 +48,11 @@ const NewGroupChatModal = () => {
 
     const { mutate: createGroupChat } = useMutation({
         mutationFn: async (payload: FormFields) => {
+            setIsCreating(true);
             const dataSendToBack = {
                 membersId: [...groupMembers, loginUserDetail?.id],
                 groupName: payload.name,
+                createdBy: loginUserDetail?.id
             };
             const response = await chatApiService.createGroupChatChannels(dataSendToBack);
             return response?.data?.group;
@@ -63,6 +67,23 @@ const NewGroupChatModal = () => {
             dispatch(isModalShowReducser(false));
             dispatch(isNewGroupChatModalShowReducser(false))
         },
+
+
+        onError: (error: unknown) => {
+            let errorMessage = "Failed to create group. Please try again.";
+
+            if (axios.isAxiosError(error)) {
+                errorMessage = error.response?.data?.message || errorMessage;
+            }
+
+            toast.error(errorMessage);
+            console.error("Group creation error:", error);
+        },
+
+        onSettled: () => {
+            setIsCreating(false); // Always stop loading on both success or error
+        },
+
     });
 
 
@@ -76,7 +97,11 @@ const NewGroupChatModal = () => {
     if (isError) {
         return <p>something went wrong</p>
     }
+    if (isCreating) {
+        return <Loader text="Creating Group..." />
+    }
     return (<>
+
         <form
             onSubmit={handleSubmit((data) => {
                 if (groupMembers.length === 0) {

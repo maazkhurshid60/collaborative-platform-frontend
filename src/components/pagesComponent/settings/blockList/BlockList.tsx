@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import SearchBar from '../../../searchBar/SearchBar'
 import BlockUserAccount from './Block/BlockUserAccount';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../redux/store';
 import { isBlockScreenShowReducer } from '../../../../redux/slices/BlockListUserSlice';
 import { blockListDataType } from '../../../../types/usersType/UsersType';
 
@@ -11,6 +11,7 @@ interface BlockListProps {
 }
 
 const BlockList: React.FC<BlockListProps> = (props) => {
+    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.userId)
     const [showSidebar, setShowSidebar] = useState(false);
     const [searchValue, setSearchValue] = useState("");
     const dispatch = useDispatch<AppDispatch>()
@@ -20,8 +21,10 @@ const BlockList: React.FC<BlockListProps> = (props) => {
     }, []);
 
     const filteredBlockList = props.blockListData?.filter((data) =>
+        data.id !== loginUserId &&
         data?.fullName?.toLowerCase().includes(searchValue.toLowerCase())
     );
+
     return (
         <div className='absolute top-0 z-50 left-0 w-full h-[100vh] bg-textColor/70 flex items-center justify-end'
             onClick={() => dispatch(isBlockScreenShowReducer(false))}

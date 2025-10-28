@@ -30,7 +30,7 @@ const Collaboration = () => {
     const socket = getSocket();
 
     useEffect(() => {
-        if (loginUserId) initSocket(loginUserId);
+        if (loginUserId) initSocket(loginUserId, "");
     }, [loginUserId]);
 
     const { data: allChannels = [] } = useQuery({
@@ -41,11 +41,23 @@ const Collaboration = () => {
         },
     });
 
+    // const { data: allGroups = [] } = useQuery({
+    //     queryKey: ['groupChatchannels'],
+    //     queryFn: async () => {
+    //         const res = await chatApiService.getGroupChatChannels(loginUserId);
+    //         return res?.data?.allgroups;
+    //     },
+    // });
     const { data: allGroups = [] } = useQuery({
         queryKey: ['groupChatchannels'],
         queryFn: async () => {
-            const res = await chatApiService.getGroupChatChannels(loginUserId);
-            return res?.data?.allgroups;
+            try {
+                const res = await chatApiService.getGroupChatChannels(loginUserId);
+                return res?.data?.allgroups || []; // <-- ensure it never returns undefined
+            } catch (error) {
+                console.error("Error fetching group chat channels:", error);
+                return []; // <-- fallback on error
+            }
         },
     });
 

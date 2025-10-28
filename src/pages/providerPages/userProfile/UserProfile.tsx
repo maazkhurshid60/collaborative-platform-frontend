@@ -2,7 +2,7 @@ import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
 import LabelData from '../../../components/labelText/LabelData';
 import Button from '../../../components/button/Button';
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "../../../components/inputField/InputField";
@@ -22,6 +22,8 @@ import { saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDeta
 import { GoDotFill } from 'react-icons/go';
 import FileUploader from '../../../components/uploader/fileUploader/FileUploader';
 import CrossIcon from '../../../components/icons/cross/Cross';
+import { getCountryNameFromCode } from '../../../utils/GetCountryName';
+import CountryStateSelect from '../../../components/dropdown/CountryStateSelect';
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -42,13 +44,16 @@ const UserProfile = () => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
+    const methods = useForm<FormFields>({
+        resolver: zodResolver(providerSchema),
+    });
+
     const {
         register,
         handleSubmit,
-        formState: { errors }, control, setValue
-    } = useForm<FormFields>({
-        resolver: zodResolver(providerSchema),
-    });
+        formState: { errors }, control,
+        setValue
+    } = methods;
 
     const updateFunction = (data: FormFields) => {
         if (selectedFile === null) {
@@ -63,6 +68,8 @@ const UserProfile = () => {
         formData.append('department', data?.department)
         formData.append('loginUserId', loginUserDetail?.user?.id)
         formData.append('role', loginUserDetail?.user?.role)
+        formData.append('state', data?.state)
+        formData.append('country', data?.country)
         formData.append('contactNo', data?.contactNo)
         if (selectedFile !== null) {
             formData.append('profileImage', selectedFile)
@@ -86,6 +93,7 @@ const UserProfile = () => {
 
 
     useEffect(() => {
+
         if (getMeData) {
             setGetMeDetail(getMeData);
 
@@ -96,10 +104,12 @@ const UserProfile = () => {
             setValue("email", getMeData?.email ?? "")
             setValue("department", getMeData?.department ?? "")
             setValue("address", getMeData?.user?.address ?? "")
+            setValue("state", getMeData?.user?.state ?? "")
+            setValue("country", getMeData?.user?.country ?? "")
 
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
                 setPreviewUrl(getMeData?.user?.profileImage)
-                setSelectedFile(null)
+                // setSelectedFile(null)
             } else {
                 setPreviewUrl(null)
             }
@@ -153,104 +163,116 @@ const UserProfile = () => {
             {isShowDeleteModal && <DeleteClientModal />}
 
             {isEdit ?
-                <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
-                    <div>
-                        <LabelData label='User Image' />
-                        <div className="relative w-32 h-32">
-                            {!showUploader ? (
-                                previewUrl ? (
-                                    <img
-                                        src={previewUrl}
-                                        alt="Client"
-                                        className="w-32 h-32 rounded-md object-cover "
-                                    />
+                <FormProvider {...methods}>
+                    <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
+                        <div>
+                            <LabelData label='User Image' />
+                            <div className="relative w-32 h-32">
+                                {!showUploader ? (
+                                    previewUrl ? (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Client"
+                                            className="w-32 h-32 rounded-md object-cover "
+                                        />
+                                    ) : (
+
+                                        <UserIcon className="text-8xl text-textColor" />
+                                    )
                                 ) : (
+                                    <FileUploader onFileSelect={handleFileSelect} />
+                                )}
 
-                                    <UserIcon className="text-8xl text-textColor" />
-                                )
-                            ) : (
-                                <FileUploader onFileSelect={handleFileSelect} />
-                            )}
+                                {/* Show cross icon even if there's no image */}
+                                {!showUploader && (
 
-                            {/* Show cross icon even if there's no image */}
-                            {!showUploader && (
-
-                                <CrossIcon onClick={() => {
-                                    setShowUploader(true);
-                                    setSelectedFile(null);
-                                    setPreviewUrl(null);
-                                }} />
-                            )}
+                                    <CrossIcon onClick={() => {
+                                        setShowUploader(true);
+                                        setSelectedFile(null);
+                                        setPreviewUrl(null);
+                                    }} />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
-                        <div className=''>
-                            <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                        </div>
-                        <div className=''>
-                            <InputField required
-                                label='License Number'
-                                register={register("licenseNo")}
-                                placeHolder='Enter license number.'
-                                error={errors.licenseNo?.message} />
-                        </div>
-                        <div className=''>
-                            <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
-                        </div>
-                        <div className=''>
-                            <Dropdown<FormFields>
-                                name="department"
-                                label="Profession"
-                                control={control}
-                                options={departmentOptions}
-                                placeholder="Choose an option"
-                                error={errors.department?.message}
-                                required
-                            />                </div>
-                        <div className=''>
-                            <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
-                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 md:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
+                            <div className=''>
+                                <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                            </div>
+                            <div className=''>
+                                <InputField required
+                                    label='License Number'
+                                    register={register("licenseNo")}
+                                    placeHolder='Enter license number.'
+                                    error={errors.licenseNo?.message} />
+                            </div>
+                            <div className=''>
+                                <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                            </div>
+                            <div className=''>
+                                <Dropdown<FormFields>
+                                    name="department"
+                                    label="Profession"
+                                    control={control}
+                                    options={departmentOptions}
+                                    placeholder="Choose an option"
+                                    error={errors.department?.message}
+                                    required
+                                />                </div>
+                            <div className=''>
+                                <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                            </div>
 
-                        <div className=''>
-                            <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                        </div>
-
+                            <div className=''>
+                                <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                            </div>
 
 
+                            <CountryStateSelect
+                                isCountryView={true}
+                                isStateView={false}
+                                defaultCountry={getMeData?.user?.country}
+                            />
+                            <CountryStateSelect
+                                isCountryView={false}
+                                isStateView={true}
+                                defaultState={getMeData?.user?.state}
+                            />
 
-                        <div className=' '>
-                            <LabelData label='List of Active Clients' />
-
-                            <ul className="text-[14px] font-medium text-textGreyColor">
-                                {getMeDetail?.clientList?.map((data, index) => (
-                                    <li key={index}>
-                                        <div className="flex items-center gap-x-3">
-                                            <div className="flex items-center gap-x-2 w-[150px]">
-
-                                                <GoDotFill className='text-[6px]' />
-                                                {data?.client?.user?.fullName}
-                                            </div>
-
-
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-
-
-                        </div>
-                        <div className=''>
                             <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-end">
 
-                        <div className='mt-10  w-[100px]'>
+                            <div className=' '>
+                                <LabelData label='List of Active Clients' />
 
-                            <Button text='Update' sm />
+                                <ul className="text-[14px] font-medium text-textGreyColor">
+                                    {getMeDetail?.clientList?.map((data, index) => (
+                                        <li key={index}>
+                                            <div className="flex items-center gap-x-3">
+                                                <div className="flex items-center gap-x-2 w-[150px]">
+
+                                                    <GoDotFill className='text-[6px]' />
+                                                    {data?.client?.user?.fullName}
+                                                </div>
+
+
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+
+
+                            </div>
+
                         </div>
-                    </div>
-                </form>
+                        <div className="flex items-center justify-end">
+
+                            <div className='mt-10  w-[100px]'>
+
+                                <Button text='Update' sm />
+                            </div>
+                        </div>
+                    </form>
+                </FormProvider>
+
                 :
                 <>
                     <div className='mt-6'>
@@ -296,6 +318,16 @@ const UserProfile = () => {
                                 <LabelData label='Contact Number' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
 
+                            <div className=''>
+                                <LabelData label='Country' data={getCountryNameFromCode(getMeData?.user?.country ?? "")} />
+                            </div>
+
+                            <div className=''>
+                                <LabelData label='State' data={getMeData?.user?.state} />
+                            </div>
+                            <div className=''>
+                                <LabelData label='Address' data={getMeData?.user?.address ?? "-"} />
+                            </div>
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />
@@ -316,9 +348,7 @@ const UserProfile = () => {
                                         <p>No Clients Found</p>}
                                 </ul>
                             </div>
-                            <div className=''>
-                                <LabelData label='Address' data={getMeData?.user?.address ?? ""} />
-                            </div>
+
                         </div>
 
                     </div>

@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import chatApiService from '../../../apiServices/chatApi/ChatApi';
-import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi';
+import messageApiService, { getAllMessagesOfSingleChat } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { getSocket, initSocket } from '../../../socket/Socket'; // Correct import
 import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/ChatMessages';
 import ModalLayout from '../../../components/modals/modalLayout/ModalLayout';
@@ -20,9 +20,10 @@ import GroupChatData from '../../../components/pagesComponent/chat/groupChatData
 import { HiOutlineUserAdd } from "react-icons/hi";
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
 import { ProviderType } from '../../../types/providerType/ProviderType';
-import { GroupChat } from '../../../types/chatType/GroupType';
+import { GroupChat, GroupCreatedBy } from '../../../types/chatType/GroupType';
 import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
 import ToolTip from '../../../components/toolTip/ToolTip';
+import SpinnerLoader from '../../../components/loader/SpinnerLoader';
 
 
 
@@ -37,64 +38,24 @@ const Chat = () => {
     const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
     const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
     const [activeId, setActiveId] = useState<string>()
+    const [groupCreatedBy, setGroupCreatedBy] = useState<GroupCreatedBy>({ name: "", id: "" })
     const [activeChatType, setActiveChatType] = useState<'individual' | 'group' | undefined>(undefined);
 
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
 
 
     const queryClient = useQueryClient();
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
 
-    // useEffect(() => {
-    //     const handler = (newMessage: NewMessage) => {
-    //         // ✅ 1. Update sidebar chat list real-time
-    //         if (newMessage.chatChannelId) {
-    //             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
-    //                 if (!oldData) return oldData;
 
-    //                 return oldData.map(channel => {
-    //                     if (channel.id === newMessage.chatChannelId) {
-    //                         return {
-    //                             ...channel,
-    //                             lastMessage: {
-    //                                 id: newMessage.id!,
-    //                                 message: newMessage?.message || 'New message',
-    //                                 createdAt: newMessage?.createdAt || new Date().toISOString()
-    //                             },
-    //                             totalUnread: (Number(channel.totalUnread) || 0) + 1,
-    //                             updatedAt: new Date().toISOString()
-    //                         };
-    //                     }
-    //                     return { ...channel };
-    //                 });
-    //             });
-    //         }
-
-    //         // ✅ 2. Update messages list if user is in that chat
-    //         queryClient.setQueryData<{ messages: NewMessage[] }>(
-    //             ['messages', activeChatObject?.id],
-    //             old => {
-    //                 if (!old) return { messages: [newMessage] };
-    //                 if (old.messages.some(m => m.id === newMessage.id)) return old;
-    //                 return { messages: [...old.messages, newMessage] };
-    //             }
-    //         );
-    //     };
-
-    //     const socket = getSocket();
-    //     if (activeChatObject?.id && socket) {
-    //         socket.off('receive_direct', handler); // Clear old listeners
-    //         socket.on('receive_direct', handler);
-    //     }
-
-    //     return () => {
-    //         if (socket) socket.off('receive_direct', handler);
-    //     };
-    // }, [activeChatObject?.id]);
 
 
     // GET ALL CHANNELS
-    const { data: allChannels = [] } = useQuery({
+    const { data: allChannels = [],
+
+        isLoading: isChannelsLoading,
+    } = useQuery({
         queryKey: ['chatchannels'],
         queryFn: async () => {
             const res = await chatApiService.getAllChatChannels(loginUserId);
@@ -110,12 +71,15 @@ const Chat = () => {
     });
 
     // GET ALL GROUPS
-    const { data: allGroups = [] } = useQuery({
+    const { data: allGroups = [],
+        isLoading: isGroupsLoading,
+
+
+    } = useQuery({
         queryKey: ['groupChatchannels'],
         queryFn: async () => {
             const res = await chatApiService.getGroupChatChannels(loginUserId);
             const groups = res?.data?.allgroups || [];
-            console.log(groups);
             // 🔥 Sort karo lastMessage ke time ya updatedAt ke basis pe
             return groups.sort((a: GroupChat, b: GroupChat) => {
                 const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
@@ -126,55 +90,64 @@ const Chat = () => {
     });
 
 
+
+
+
+
+    // useEffect(() => {
+    //     if (!loginUserId || !allGroups?.length) return;
+
+    //     // disconnectSocket(); // Ensure no stale socket
+    //     const socket = initSocket(loginUserId);
+
+    //     const joinAllGroupRooms = () => {
+    //         allGroups?.forEach((group: Group) => {
+    //             if (group?.id) {
+    //                 socket.emit('join_channel', { chatChannelId: group?.id });
+    //             }
+    //         });
+    //     };
+
+    //     if (socket.connected) {
+    //         joinAllGroupRooms();
+    //     } else {
+    //         socket.on('connect', () => {
+    //             joinAllGroupRooms();
+    //         });
+    //     }
+    // }, [loginUserId, allGroups]);
+
+
     useEffect(() => {
-        const handler = (newMessage: NewMessage) => {
-            if (newMessage.chatChannelId !== activeChatObject?.id) return;
+        if (!loginUserId || (!allChannels?.length && !allGroups?.length)) return;
 
-            queryClient.setQueryData<{ messages: NewMessage[] }>(
-                ['groupmessages', activeChatObject?.id],
-                old => {
-                    if (!old) return { messages: [newMessage] };
-                    if (old.messages.some(m => m.id === newMessage.id)) return old;
-                    return { messages: [...old.messages, newMessage] };
-                }
-            );
-        };
+        const socket = initSocket(loginUserId, "");
 
-        const socket = getSocket();
-        if (activeChatType === 'group' && activeChatObject?.id && socket) {
-            socket.off('receive_group', handler); // Ensure no duplicate
-            socket.on('receive_group', handler);
-        }
+        const joinAllRooms = () => {
+            // Join individual 1-on-1 chats
+            allChannels?.forEach((channel: ChatChannelType) => {
+                socket.emit("join_channel", { chatChannelId: channel?.id });
+                console.log("📥 Joined 1-on-1 chat room");
+            });
 
-        return () => {
-            if (socket) socket.off('receive_group', handler);
-        };
-    }, [activeChatObject?.id, activeChatType, queryClient]);
-
-
-
-    useEffect(() => {
-        if (!loginUserId || !allGroups.length) return;
-
-        // disconnectSocket(); // Ensure no stale socket
-        const socket = initSocket(loginUserId);
-
-        const joinAllGroupRooms = () => {
-            allGroups.forEach((group: Group) => {
-                if (group.id) {
-                    socket.emit('join_channel', { chatChannelId: group.id });
-                }
+            // Join group chats
+            allGroups?.forEach((group: Group) => {
+                socket.emit("join_channel", { chatChannelId: group?.id });
+                console.log("📥 Joined group room");
             });
         };
 
         if (socket.connected) {
-            joinAllGroupRooms();
+            joinAllRooms();
         } else {
-            socket.on('connect', () => {
-                joinAllGroupRooms();
-            });
+            socket.on('connect', joinAllRooms);
         }
-    }, [loginUserId, allGroups]);
+
+        return () => {
+            socket.off('connect', joinAllRooms);
+        };
+    }, [loginUserId, allChannels, allGroups]);
+
 
 
     const { data: allMessage = [] } = useQuery<Message[]>({
@@ -187,8 +160,6 @@ const Chat = () => {
             const dataSendToBack = { loginUserId, chatChannelId: activeChatObject?.id };
             try {
                 const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
-                console.log(">>>>>>>>>>>>>>>>>>", response?.data);
-
                 return response?.data?.messages;
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -208,7 +179,13 @@ const Chat = () => {
                 toast.error("Group channel ID is missing.");
                 return;
             }
-            const dataSendToBack = { loginUserId, groupId: activeChatObject?.id };
+            // const dataSendToBack = { loginUserId, groupId: activeChatObject?.id };
+            const dataSendToBack: getAllMessagesOfSingleChat = {
+                loginUserId,
+                page: 1,
+                limit: 10,
+                groupId: activeChatObject?.id
+            };
 
             try {
                 const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
@@ -226,7 +203,7 @@ const Chat = () => {
     useEffect(() => {
         if (loginUserId) {
             // disconnectSocket(); // Always clear previous socket
-            initSocket(loginUserId);
+            initSocket(loginUserId, "");
         }
     }, [loginUserId]);
 
@@ -244,19 +221,7 @@ const Chat = () => {
         }
 
     })
-    const unBlockProviders = useMemo(() => {
-        const currentChannels = queryClient.getQueryData<ChatChannelType[]>(['chatchannels']) || [];
 
-        return currentChannels
-            .filter((channel: ChatChannelType) =>
-                providerData?.some(provider => channel?.providerBId === provider?.id)
-            )
-            .sort((a: ChatChannelType, b: ChatChannelType) => {
-                const aTime = new Date(a?.updatedAt)?.getTime();
-                const bTime = new Date(b?.updatedAt)?.getTime();
-                return bTime - aTime;
-            });
-    }, [providerData]);
 
 
     useEffect(() => {
@@ -264,12 +229,10 @@ const Chat = () => {
         if (!socket) return;
 
         const handleNewMessage = (newMessage: Message) => {
-            console.log("📨 NEW MESSAGE RECEIVED ON SOCKET:267", newMessage);
 
             const isSameChatOpen =
                 (activeChatType === 'individual' && newMessage.chatChannelId === activeChatObject?.id) ||
                 (activeChatType === 'group' && newMessage.groupId === activeChatObject?.id);
-
             const isFromSelf = newMessage.senderId === loginUserId;
 
             // ✅ Always update single chat sidebar
@@ -299,45 +262,52 @@ const Chat = () => {
             });
 
             // ✅ Update group chat sidebar
-            if (newMessage?.groupId) {
-                queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups) => {
-                    if (!oldGroups) return oldGroups;
+            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups = []) => {
+                return oldGroups.map(group => {
+                    if (group?.id === newMessage.groupId) {
+                        return {
+                            ...group,
+                            lastMessage: {
+                                id: newMessage.id,
+                                message: newMessage.message || newMessage.mediaUrl || "📎 File",
+                                createdAt: newMessage.createdAt || new Date().toISOString(),
+                            },
+                            unreadCount:
+                                newMessage.senderId === loginUserId
+                                    ? group.unreadCount
+                                    : (Number(group.unreadCount) || 0) + 1,
+                            // Force timestamp change
+                            updatedAt: `${new Date().toISOString()}_${Math.random()}`,
+                        };
+                    }
 
-                    return oldGroups.map((group) => {
-                        if (group.id === newMessage.groupId) {
-                            return {
-                                ...group,
-                                lastMessage: {
-                                    id: newMessage.id!,
-                                    message: newMessage.message || newMessage.mediaUrl || '📎 File',
-                                    createdAt: newMessage.createdAt || new Date().toISOString(),
-                                },
-                                unreadCount:
-                                    isFromSelf || isSameChatOpen
-                                        ? group.unreadCount
-                                        : (Number(group.unreadCount) || 0) + 1,
-                                updatedAt: new Date().toISOString(),
-                            };
-                        }
-                        return group;
-                    });
+                    // Force rerender by creating new object
+                    return {
+                        ...group,
+                        updatedAt: `${group.updatedAt}_${Math.random()}`
+                    };
                 });
-            }
-
-            // ✅ Update message list if same chat is open
+            });
             if (isSameChatOpen) {
                 const messageKey =
                     activeChatType === 'individual'
                         ? ['messages', newMessage.chatChannelId]
                         : ['groupmessages', newMessage.groupId];
 
-                queryClient.setQueryData<{ messages: NewMessage[] }>(messageKey, (old) => {
-                    if (!old) return { messages: [newMessage] };
-                    if (old.messages.some((m) => m.id === newMessage.id)) return old;
-                    return { messages: [...old.messages, newMessage] };
+                // queryClient.setQueryData<{ messages: NewMessage[] }>(messageKey, (old) => {
+                //     if (!old) return { messages: [newMessage as NewMessage] };
+                //     if (old.messages.some((m) => m.id === newMessage.id)) return old;
+                //     return { messages: [...old.messages, newMessage as NewMessage] };
+                // });
+
+                queryClient.setQueryData<NewMessage[]>(messageKey, (old = []) => {
+                    if (old.some((m) => m.id === newMessage.id)) return old;
+                    return [...old, newMessage as NewMessage];
                 });
+
             }
         };
+
 
         socket.off('receive_direct', handleNewMessage);
         socket.off('receive_group', handleNewMessage);
@@ -352,10 +322,6 @@ const Chat = () => {
 
 
 
-    console.log("unBlockProviders", unBlockProviders);
-    console.log("allChannels", allChannels);
-    console.log("ChatMessages", ChatMessages);
-    console.log("allMessage", allMessage);
 
 
 
@@ -387,57 +353,64 @@ const Chat = () => {
                         </div>
                     </div>
                     <div className="min-h-[31vh] max-h-[31vh] bg- p-2 lg:p-0 overflow-auto mt-4">
-                        {allChannels
-                            ?.filter((channel: ChatChannelType) =>
-                                providerData?.some((provider) => channel?.providerBId === provider?.id)
-                            )
-                            ?.sort((a: ChatChannelType, b: ChatChannelType) => {
-                                const aTime = new Date(a?.updatedAt)?.getTime();
-                                const bTime = new Date(b?.updatedAt)?.getTime();
-                                return bTime - aTime;
-                            })
-                            ?.map((data: ChatChannelType) => (
-                                <SingleChatData
-                                    key={`${data.id}-${data.updatedAt}`}
-                                    data={data}
-                                    activeId={activeId}
-                                    onClick={() => {
-                                        setActiveChatObject(data);
-                                        setIsChatSideBarClose(false);
-                                        setActiveId(data?.id);
-                                        setActiveChatType('individual');
+                        {isChannelsLoading ? <SpinnerLoader text="Chats are Loading" /> :
 
-                                        const socket = getSocket();
-                                        if (socket?.connected && data?.id) {
-                                            socket.emit('join_channel', { chatChannelId: data.id });
-                                        }
-                                        messageApiService.readMessageSingleConservation({
-                                            loginUserId,
-                                            chatChannelId: data.id,
-                                        }).then(() => {
-                                            // Update unread count in cache to 0
-                                            queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
-                                                if (!oldData) return oldData;
+                            allChannels
+                                ?.filter((channel: ChatChannelType) =>
+                                    providerData?.some((provider) => channel?.providerBId === provider?.id)
+                                )
+                                ?.sort((a: ChatChannelType, b: ChatChannelType) => {
+                                    const aTime = new Date(a?.updatedAt)?.getTime();
+                                    const bTime = new Date(b?.updatedAt)?.getTime();
+                                    return bTime - aTime;
+                                })
+                                ?.map((data: ChatChannelType) => (
+                                    <SingleChatData
+                                        key={`${data.id}-${data.updatedAt}`}
+                                        data={data}
+                                        activeId={activeId}
+                                        onClick={() => {
+                                            setIsMessagesLoading(true);
+                                            setActiveChatObject(data);
+                                            setIsChatSideBarClose(false);
+                                            setActiveId(data?.id);
+                                            setActiveChatType('individual');
 
-                                                return oldData.map(channel =>
-                                                    channel.id === data.id
-                                                        ? {
-                                                            ...channel,
-                                                            totalUnread: 0,
-                                                            updatedAt: new Date().toISOString() // <-- optional but safe
-                                                        }
-                                                        : channel
-                                                );
+                                            // const socket = getSocket();
+                                            // if (socket?.connected && data?.id) {
+                                            //     socket.emit('join_channel', { chatChannelId: data.id });
+                                            // }
+                                            messageApiService.readMessageSingleConservation({
+                                                loginUserId,
+                                                chatChannelId: data.id,
+                                            }).then(() => {
+                                                // Update unread count in cache to 0
+                                                queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
+                                                    if (!oldData) return oldData;
+
+                                                    return oldData.map(channel =>
+                                                        channel.id === data.id
+                                                            ? {
+                                                                ...channel,
+                                                                totalUnread: 0,
+                                                                updatedAt: new Date().toISOString() // <-- optional but safe
+                                                            }
+                                                            : channel
+                                                    );
+                                                });
+
+                                            }).catch((err) => {
+                                                console.error('Failed to mark messages as read', err);
+                                            }).finally(() => {
+                                                setIsMessagesLoading(false);
                                             });
+                                        }}
 
-                                        }).catch((err) => {
-                                            console.error('Failed to mark messages as read', err);
-                                        });
-                                    }}
+                                    />
 
-                                />
+                                ))
+                        }
 
-                            ))}
                     </div>
                     <hr className="w-[100%] h-[1px] text-inputBgColor" />
                     <div className='flex items-center justify-between mt-4'>
@@ -452,51 +425,64 @@ const Chat = () => {
                     </div>
 
                     <div className="min-h-[32vh] max-h-[32vh] bg- p-2 lg:p-0 overflow-auto mt-4">
-                        {allGroups?.map((data: GroupChat) => (
-                            <div className="gap-y-3" key={data?.id}>
-                                <GroupChatData
-                                    key={`${data.id}-${data.updatedAt}`}
+                        {isGroupsLoading ?
+                            <SpinnerLoader text="Group Chat are Loading" /> : allGroups
+                                ?.sort((a: GroupChat, b: GroupChat) => {
+                                    const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
+                                    const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+                                    return bTime - aTime; // Latest messages first
+                                })
+                                ?.map((data: GroupChat) => {
+                                    // toast.warn(`Rendering group: || 'Unnamed Group'}`); // Will run for each group render
 
-                                    data={data}
-                                    activeId={activeId}
-                                    onClick={() => {
-                                        setActiveChatObject(data);
-                                        setIsChatSideBarClose(false);
-                                        setActiveId(data?.id);
-                                        setActiveChatType('group');
+                                    return (
+                                        <div className="gap-y-3" key={data?.id}>
+                                            <GroupChatData
+                                                key={`${data?.id}-${data?.updatedAt}`}
+                                                data={data}
+                                                activeId={activeId}
+                                                onClick={() => {
+                                                    setGroupCreatedBy({ id: data?.provider?.id, name: data?.provider?.user?.fullName })
+                                                    setIsMessagesLoading(true);
+                                                    setActiveChatObject(data);
+                                                    setIsChatSideBarClose(false);
+                                                    setActiveId(data?.id);
+                                                    setActiveChatType('group');
 
-                                        if (socket?.connected && data?.id) {
-                                            socket.emit('join_channel', { chatChannelId: data.id }); // already used in individual — now works for group too
-                                        }
-                                        messageApiService.readMessageGroupConservation({
-                                            loginUserId,
-                                            groupId: data.id,
-                                        }).then(() => {
-                                            // Update unread count in cache to 0
-                                            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
-                                                if (!oldData) return oldData;
+                                                    if (socket?.connected && data?.id) {
+                                                        socket.emit('join_channel', { chatChannelId: data.id });
+                                                    }
 
-                                                return oldData.map(group =>
-                                                    group.id === data.id
-                                                        ? {
-                                                            ...group,
-                                                            unreadCount: 0,
-                                                            updatedAt: new Date().toISOString()
-                                                        }
-                                                        : group
-                                                );
-                                            });
+                                                    messageApiService.readMessageGroupConservation({
+                                                        loginUserId,
+                                                        groupId: data?.id,
+                                                    }).then(() => {
+                                                        queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
+                                                            if (!oldData) return oldData;
+                                                            return oldData?.map(group =>
+                                                                group?.id === data?.id
+                                                                    ? {
+                                                                        ...group,
+                                                                        unreadCount: 0,
+                                                                        updatedAt: new Date().toISOString(),
+                                                                    }
+                                                                    : group
+                                                            );
+                                                        });
+                                                    }).catch((err) => {
+                                                        console.error('Failed to mark messages as read', err);
+                                                        toast.error('Failed to update read status');
+                                                    }).finally(() => {
+                                                        setIsMessagesLoading(false);
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    );
+                                })}
 
-
-                                        }).catch((err) => {
-                                            console.error('Failed to mark messages as read', err);
-                                        });
-                                    }}
-                                />
-
-                            </div>
-                        ))}
                     </div>
+
                 </div>
 
                 <div className="w-[100%] lg:w-[65%] xl:w-[74.5%] bg-white h-[80vh] rounded-[10px]">
@@ -505,11 +491,37 @@ const Chat = () => {
                         className="mb-2 text-textGreyColor lg:hidden"
                         onClick={() => setIsChatSideBarClose(true)}
                     />
-                    {(activeChatType === 'individual' && allMessage) ? (
-                        <ChatMessages messageData={allMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} />
-                    )
-                        : (activeChatType === 'group' && allGroupMessage) ? (
-                            <ChatMessages messageData={allGroupMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} />
+
+                    {isMessagesLoading ? (
+                        <div className="h-full flex items-center justify-center">
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <svg
+                                    className="w-5 h-5 animate-spin text-primaryColorDark"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                                    ></path>
+                                </svg>
+                                <span>Loading messages...</span>
+                            </div>
+                        </div>
+                    ) : (
+                        activeChatType === 'individual' && allMessage ? (
+                            <ChatMessages messageData={allMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} />
+                        ) : activeChatType === 'group' && allGroupMessage ? (
+                            <ChatMessages messageData={allGroupMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} groupCreatedBy={groupCreatedBy} />
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center px-4">
                                 <img
@@ -520,9 +532,10 @@ const Chat = () => {
                                 <h2 className="text-xl font-semibold text-gray-600">No Chat Selected</h2>
                                 <p className="text-gray-400 mt-2 text-sm">Please choose a conversation to start messaging.</p>
                             </div>
-                        )}
-
+                        )
+                    )}
                 </div>
+
             </div>
         </OutletLayout >
     );

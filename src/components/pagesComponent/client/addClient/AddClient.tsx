@@ -6,7 +6,7 @@ import Button from '../../../button/Button'
 import InputField from '../../../inputField/InputField'
 import Dropdown from '../../../dropdown/Dropdown'
 import LabelData from '../../../labelText/LabelData'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { clientSchema } from '../../../../schema/clientSchema/ClientSchema'
@@ -21,15 +21,19 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import Checkbox from '../../../checkbox/Checkbox'
 import FileUploader from '../../../uploader/fileUploader/FileUploader'
+import CountryStateSelect from '../../../dropdown/CountryStateSelect'
 type FormFields = z.infer<typeof clientSchema>
 
 const AddClient = () => {
-    const { register, control, formState: { errors }, handleSubmit } = useForm<FormFields>({ resolver: zodResolver(clientSchema) })
-    const navigate = useNavigate()
+    const methods = useForm<FormFields>({
+        resolver: zodResolver(clientSchema),
+    });
+
+    const { register, handleSubmit, formState: { errors }, control } = methods; const navigate = useNavigate()
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
     const providerId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id)
-    const [wantToBeSeen, setWantToBeSeen] = useState(false);
+    const [wantToBeSeen, setWantToBeSeen] = useState(true);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -43,7 +47,10 @@ const AddClient = () => {
         setWantToBeSeen((prev) => !prev);
     };
     const addFunction = (data: FormFields) => {
+        if (selectedFile === null) {
+            return toast.error("Profile Image is required");
 
+        }
         updateMutation.mutate(data)
     }
 
@@ -63,7 +70,11 @@ const AddClient = () => {
             formData.append("status", data?.status);
             formData.append("isAccountCreatedByOwnClient", "false");
             formData.append("role", "client");
+            formData.append("isApprove", "pending");
+            formData.append("country", data?.country);
+            formData.append("state", data?.state);
             formData.append("providerId", providerId);
+            formData.append("clientShowToOthers", wantToBeSeen.toString());
 
             if (selectedFile) {
                 formData.append("profileImage", selectedFile);
@@ -96,91 +107,100 @@ const AddClient = () => {
                     <BackIcon onClick={() => navigate(-1)} />
                 </div>
             </div>
-            <form onSubmit={handleSubmit(addFunction)} className="mt-6">
-                <div>
-                    <LabelData label='Upload Image' />
-                    {/* <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} /> */}
-                    {imagePreview ? (
+            <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(addFunction)} className="mt-6">
+                    <div>
+                        <LabelData label='Upload Image' required />
+                        {/* <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} /> */}
+                        {imagePreview ? (
 
-                        <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="mt-4 w-24 h-24 object-cover rounded-lg"
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                className="mt-4 w-24 h-24 object-cover rounded-lg"
 
+                            />
+                        ) :
+
+                            <FileUploader onFileSelect={handleFileSelect} />
+
+                        }
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+                        <div className=''>
+                            <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                        </div>
+                        <div className=''>
+                            <Dropdown<FormFields>
+                                name="gender"
+                                label="Gender"
+                                control={control}
+                                options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
+                                placeholder="Choose an option"
+                                error={errors.gender?.message}
+                                required
+                            />
+                        </div>
+
+                        <div className=''>
+                            <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        </div>
+                        <div className=''>
+                            <InputField required
+                                label='license Number'
+                                register={register("licenseNo")}
+                                placeHolder='Enter licenseNo.'
+                                error={errors.licenseNo?.message} />
+                        </div>
+                        <div className=''>
+                            <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                        </div>
+
+                        <div className=''>
+                            <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        </div>
+
+
+
+                        <div className=''>
+                            <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                        </div>
+                        <CountryStateSelect isCountryView={true} isStateView={false} />
+                        <CountryStateSelect isCountryView={false} isStateView={true} />
+                        <div className=''>
+                            <Dropdown<FormFields>
+                                name="status"
+                                label="Status"
+                                control={control}
+                                options={statusOption}
+                                placeholder="Choose an option"
+                                required
+                                error={errors.status?.message}
+                            />                </div>
+
+
+                    </div>
+                    <div className='mt-8'
+                    >
+                        <Checkbox
+                            text="Want to be seen by different providers for this client"
+                            checked={wantToBeSeen}
+                            onChange={handleCheckboxChange}
                         />
-                    ) :
-
-                        <FileUploader onFileSelect={handleFileSelect} />
-
-                    }
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
-                    <div className=''>
-                        <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                     </div>
-                    <div className=''>
-                        <InputField required
-                            label='license Number'
-                            register={register("licenseNo")}
-                            placeHolder='Enter licenseNo.'
-                            error={errors.licenseNo?.message} />
-                    </div>
-                    <div className=''>
-                        <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
-                    </div>
-                    <div className=''>
-                        <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
-                    </div>
+                    <div className="flex items-center justify-end">
 
-                    <div className=''>
-                        <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <div className='mt-10  w-[100px]'>
+
+                            <Button text='Save' />
+                        </div>
                     </div>
-
-                    <div className=''>
-                        <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
-                    </div>
-                    <div className=''>
-                        <Dropdown<FormFields>
-                            name="gender"
-                            label="Gender"
-                            control={control}
-                            options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
-                            placeholder="Choose an option"
-                            error={errors.gender?.message}
-                            required
-                        />
-                    </div>
-                    <div className=''>
-                        <Dropdown<FormFields>
-                            name="status"
-                            label="Status"
-                            control={control}
-                            options={statusOption}
-                            placeholder="Choose an option"
-                            required
-                            error={errors.status?.message}
-                        />                </div>
-
-
-                </div>
-                <div className='mt-8'
-                >
-                    <Checkbox
-                        text="Want to be seen by different providers for this client"
-                        checked={wantToBeSeen}
-                        onChange={handleCheckboxChange}
-                    />
-                </div>
-                <div className="flex items-center justify-end">
-
-                    <div className='mt-10  w-[100px]'>
-
-                        <Button text='Save' />
-                    </div>
-                </div>
-            </form>
+                </form>
+            </FormProvider>
         </OutletLayout>
     )
 }
 
 export default AddClient
+
+

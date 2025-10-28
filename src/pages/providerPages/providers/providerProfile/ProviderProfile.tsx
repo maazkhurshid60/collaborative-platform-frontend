@@ -6,12 +6,13 @@ import LabelData from '../../../../components/labelText/LabelData'
 import UserIcon from '../../../../components/icons/user/User'
 import Loader from '../../../../components/loader/Loader'
 import { useQuery } from '@tanstack/react-query'
-import { ProviderType } from '../../../../types/providerType/ProviderType'
+import { Client, ProviderType } from '../../../../types/providerType/ProviderType'
 import providerApiService from '../../../../apiServices/providerApi/ProviderApi'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import { GoDotFill } from 'react-icons/go'
+import { getCountryNameFromCode } from '../../../../utils/GetCountryName'
 
 const ProviderProfile = () => {
     const navigate = useNavigate()
@@ -73,31 +74,51 @@ const ProviderProfile = () => {
                         <LabelData label='License Number' data={selectedProviderData?.user?.licenseNo} />
                     </div>
                     <div className=''>
-                        <LabelData label='Age' data={selectedProviderData?.user?.age ?? ""} />
+                        <LabelData label='Age' data={selectedProviderData?.user?.age ?? "-"} />
                     </div>
                     <div className=''>
-                        <LabelData label='Email' data={selectedProviderData?.email ?? ""} />
+                        <LabelData label='Email' data={selectedProviderData?.email ?? "-"} />
                     </div>
                     <div className=''>
-                        <LabelData label='Contact Number' data={selectedProviderData?.user?.contactNo ?? ""} />
+                        <LabelData label='Contact Number' data={selectedProviderData?.user?.contactNo ?? "-"} />
+                    </div>
+
+                    <div className=''>
+                        <LabelData label='Department' data={selectedProviderData?.department ?? "-"} />
+                    </div>
+
+                    <div className=''>
+                        <LabelData label='Country' data={getCountryNameFromCode(selectedProviderData?.user?.country ?? "") ?? "-"} />
+                    </div>
+
+                    <div className=''>
+                        <LabelData label='State' data={selectedProviderData?.user?.state ?? "-"} />
                     </div>
                     <div className=''>
-                        <LabelData label='Address' data={selectedProviderData?.user?.address ?? ""} />
+                        <LabelData label='Address' data={selectedProviderData?.user?.address ?? "-"} />
                     </div>
+
                     <div className=' '>
                         <LabelData label='List of Active Clients' />
 
 
+                        {selectedProviderData?.clientList === undefined ||
+                            selectedProviderData?.clientList?.filter(data => data.client?.clientShowToOthers === true).length === 0 ? (
+                            <p className='text-[14px] py-0.5 font-medium text-textGreyColor'>No Clients</p>
+                        ) : (
+                            selectedProviderData?.clientList
+                                ?.filter((client: Client) => client?.client?.clientShowToOthers === true)
+                                .map((client: Client, index) => (
+                                    <p
+                                        className='flex items-center gap-x-1 capitalize text-[14px] py-0.5 font-medium text-textGreyColor'
+                                        key={index}
+                                    >
+                                        <GoDotFill className='text-[6px]' />
+                                        {client?.client?.user?.fullName}
+                                    </p>
+                                ))
+                        )}
 
-                        {selectedProviderData?.clientList?.length === 0 || selectedProviderData?.clientList === undefined
-                            ? <p className='text-[14px]  py-0.5  font-medium text-textGreyColor'>No Clients</p>
-                            : selectedProviderData?.clientList.map((provider: ProviderType, index) => (
-                                <p className='flex items-center gap-x-1  capitalize text-[14px]  py-0.5  font-medium text-textGreyColor' key={index}>
-                                    <GoDotFill className='text-[6px]' />     {provider?.client?.user?.fullName}
-
-                                </p>
-                            ))
-                        }
 
                     </div>
                 </div>

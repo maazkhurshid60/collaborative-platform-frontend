@@ -5,6 +5,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     searchByLicenseNo: "",
+    decryptedPrivateKey: null as Uint8Array | null,
     userDetails: {
         createAt: "",
         eSignature: null,
@@ -29,7 +30,8 @@ const initialState = {
             profileImage: "",
             role: "",
             status: null,
-            updatedAt: ""
+            updatedAt: "",
+            isApprove: false
         }
     },
     licenseNoResult: {
@@ -43,7 +45,10 @@ const initialState = {
         address: null,
         status: null,
         isClientExist: false,
-        isAccountCreatedByOwnClient: true
+        isAccountCreatedByOwnClient: true,
+        isApprove: false,
+        state: "",
+        country: ""
     }
 }
 
@@ -76,7 +81,10 @@ const LoginUserDetail = createSlice({
                 address: null,
                 status: null,
                 isClientExist: false,
-                isAccountCreatedByOwnClient: true
+                isAccountCreatedByOwnClient: true,
+                isApprove: false,
+                state: "",
+                country: ""
             }
             state.userDetails = {
                 createAt: "",
@@ -102,13 +110,20 @@ const LoginUserDetail = createSlice({
                     profileImage: "",
                     role: "",
                     status: null,
-                    updatedAt: ""
+                    updatedAt: "",
+                    isApprove: false
                 }
             }
+            state.decryptedPrivateKey = null;
+        },
+        saveDecryptedPrivateKey: (state, action) => {
+            state.decryptedPrivateKey = action.payload;
         }
     }
 
 
 })
-export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveLicenseNoResult, emptyResult, searchByLicenseNoReducer } = LoginUserDetail.actions
+export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveLicenseNoResult, emptyResult, searchByLicenseNoReducer
+    , saveDecryptedPrivateKey
+} = LoginUserDetail.actions
 export default LoginUserDetail.reducer

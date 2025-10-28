@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
-import { ClientSidebarData, ProviderSidebarData } from "../../constantData/SidebarData";
+import logo from "../../../public/assets/logo.png";
+import { ClientSidebarData, ProviderSidebarData, SuperAdminSidebarData } from "../../constantData/SidebarData";
 import { RxCross2 } from "react-icons/rx";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,24 +22,47 @@ const Sidebar = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
     const [sideBarData, setSideBarData] = useState<sideBarDataType[]>()
+    // const logoutFunction = () => {
+    //     disconnectSocket();
+    //     localStorage.removeItem("token")
+    //     dispatch(emptyResult())
+
+    //     navigate("/")
+    // }
+
     const logoutFunction = () => {
         disconnectSocket();
-        localStorage.removeItem("token")
-        dispatch(emptyResult())
+        localStorage.removeItem("token");
 
-        navigate("/")
-    }
+        const clearCaches = 'caches' in window
+            ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
+            : Promise.resolve();
+
+        const unregisterServiceWorkers = 'serviceWorker' in navigator
+            ? navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister())))
+            : Promise.resolve();
+
+        Promise.all([clearCaches, unregisterServiceWorkers]).then(() => {
+            dispatch(emptyResult());
+            navigate("/");
+            window.location.reload();
+        });
+    };
+
     useEffect(() => {
         if (loginUserRole === "client") {
             setSideBarData(ClientSidebarData)
-        } else {
+        } else if (loginUserRole === "provider") {
             setSideBarData(ProviderSidebarData)
+        } else if (loginUserRole === "superadmin") {
+
+            setSideBarData(SuperAdminSidebarData)
         }
     }, [loginUserRole])
     return (
         <div className="p-6 border-r border-[#D9D9D9] w-[100vw] md:w-[260px] h-[100vh]">
-            <div className="flex items-center justify-between">
-                <img src={logo} alt="logo" className="w-[50px] md:w-[70px] lg:w-auto" />
+            <div className="flex items-center justify-center">
+                <img src={logo} alt="logo" className="w-[50px] md:w-[120px] " />
                 <div className="md:hidden">
                     {isSideBarClose === true && <RxCross2 size={24} onClick={() => dispatch(isSideBarCloseReducser(false))} />}
                 </div>
@@ -69,7 +92,6 @@ const Sidebar = () => {
                                             {Icon && (
                                                 <Icon
                                                     className="w-6 h-6"
-                                                    // fill={isActive ? "white" : "#2C2C2C"}
                                                     stroke={isActive ? "#fff" : "#2C2C2C"}
                                                 />
                                             )}

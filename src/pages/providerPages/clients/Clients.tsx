@@ -21,19 +21,24 @@ import { ClientType, Provider } from '../../../types/clientType/ClientType';
 import { ProviderType } from '../../../types/providerType/ProviderType';
 import { IoMdAdd } from "react-icons/io";
 import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
+import { getCountryNameFromCode } from '../../../utils/GetCountryName';
+import SearchBar from '../../../components/searchBar/SearchBar';
+import { filterClients } from '../../../utils/FilteredUsers';
 export interface selectedClientIdType {
     clientId: string, providerId: string
 }
 
 const Clients = () => {
     const navigate = useNavigate()
-    const heading = ["S.No", "name", "License Number", "gender", "email", "status", "providers", "action"]
+    const heading = ["S.No", "name", "License Number", "gender", "email", "status", "country", "state", "is verified", "providers", "action"]
     const [isLoader, setIsLoader] = useState(false)
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails)
     const isModalDelete = useSelector((state: RootState) => state?.modalSlice?.isModalDelete)
     const [selectedClientId, setSelectedClientId] = useState<selectedClientIdType>({ clientId: "", providerId: "" })
+    const [searchTerm, setSearchTerm] = useState("");
+
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
         queryFn: async () => {
@@ -77,11 +82,12 @@ const Clients = () => {
 
     });
 
+    const filteredSearchProviders = filterClients(clientData || [], searchTerm);
 
     const { totalPages,
         getCurrentRecords,
         handlePageChange, currentPage,
-    } = usePaginationHook({ data: clientData ?? [], recordPerPage: 6 })
+    } = usePaginationHook({ data: filteredSearchProviders ?? [], recordPerPage: 6 })
 
     const handleDeleteFun = (id: string, loginUserId: string) => {
         dispatch(isModalDeleteReducer(true))
@@ -105,6 +111,17 @@ const Clients = () => {
             {isLoader && <Loader text='Deleting...' />}
             {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}
+
+            <div className="flex items-center justify-end mt-6">
+
+                <div className="w-[40%] ">
+
+                    <SearchBar
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search by name, email, state, role, etc..."
+                    />                </div>
+            </div>
             <div className='mt-10 w-[100%]'>
                 {getCurrentRecords()?.length === 0 ? <NoRecordFound /> : <>
                     <Table heading={heading} >
@@ -117,7 +134,24 @@ const Clients = () => {
                                     <td className="px-2 py-2">{data?.user?.licenseNo}</td>
                                     <td className="px-2 py-2">{data?.user?.gender}</td>
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
-                                    <td className="px-2 py-2">{data?.user?.status}</td>
+                                    <td className="px-2 py-2">
+                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
+
+                                            {data?.user?.status}
+
+
+                                        </p>
+                                    </td>
+                                    <td className="px-2 py-2 capitaize">{getCountryNameFromCode(data?.user?.country ?? "")}</td>
+                                    <td className="px-2 py-2 capitaize">{data?.user?.state}</td>
+
+                                    <td className={`px-2 py-2`}>
+                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.isApprove === "approve" ? "text-primaryColorDark" : " text-redColor "}`}>
+                                            {data?.user?.isApprove === "approve" ? "Verified" : "Pending"}
+
+
+                                        </p>
+                                    </td>
                                     <td className="px-2 py-2 w-[100px]">
                                         {
 

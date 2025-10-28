@@ -10,7 +10,6 @@ interface GroupsProps {
     onClick: () => void;
 }
 const Groups: React.FC<GroupsProps> = ({ data, onClick }) => {
-    console.log("data", data);
     const unreadCount = Number(data?.unreadCount ?? 0);
 
     return (

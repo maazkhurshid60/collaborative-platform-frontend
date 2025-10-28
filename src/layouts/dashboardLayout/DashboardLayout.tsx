@@ -3,12 +3,25 @@ import Navbar from '../../components/navbar/Navbar'
 import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
+import { useEffect } from 'react'
+import { getSocket, initSocket } from '../../socket/Socket'
 
 
 
 
 const DashboardLayout = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail?.userDetails)
+    useEffect(() => {
+        if (!loginUserDetail?.user?.id) return;
+
+        const socket = getSocket();
+        initSocket(loginUserDetail.user.id, "");
+
+        return () => {
+            socket?.disconnect(); // optional: cleanup if needed on unmount or user switch
+        };
+    }, [loginUserDetail?.user?.id]);
 
     return (
         <div className=" h-[100vh] flex ">

@@ -30,7 +30,7 @@ const GroupChatData: React.FC<GroupChatDataType> = ({ data, onClick, activeId })
                             </p>
                             {data?.lastMessage?.message && (
                                 <p className="text-xs text-gray-500 truncate max-w-[90%]">
-                                    {data.lastMessage.message}
+                                    {data.lastMessage.message.slice(0, 15) + "..."}
                                 </p>
                             )}
                         </div>

@@ -57,6 +57,9 @@ const LicenseNo = () => {
                     contactNo: response?.data?.data?.contactNo,
                     address: response?.data?.data?.address,
                     status: response?.data?.data?.status,
+                    state: response?.data?.data?.state,
+                    country: response?.data?.data?.country,
+                    isApprove: response?.data?.data?.isApprove,
                 }
                 dispatch(saveLicenseNoResult(dataSendToRedux))
 

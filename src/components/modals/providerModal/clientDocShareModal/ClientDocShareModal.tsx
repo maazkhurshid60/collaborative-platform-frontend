@@ -1,6 +1,5 @@
 
 import ModalLayout from '../../modalLayout/ModalLayout'
-import InputField from '../../../inputField/InputField'
 import Button from '../../../button/Button'
 import { IoDocumentTextOutline } from 'react-icons/io5'
 import documentApiService from '../../../../apiServices/documentApi/DocumentApi'
@@ -9,6 +8,7 @@ import { AppDispatch, RootState } from '../../../../redux/store'
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
 import { useState } from 'react'
 import Loader from '../../../loader/Loader'
+import InputFieldOnlyRead from '../../../inputField/InputFieldOnlyRead'
 
 
 interface ClientDocShareModalProps {
@@ -50,7 +50,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
             dispatch(isModalShowReducser(false))
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
         finally {
             setIsLoading(false)
@@ -61,7 +61,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
 
     return <div className='mt-4'>
         <p className='text-[14px] text-textGreyColor  mb-4'>Share the documents with client to get their consent by sending them the following documents via email.</p>
-        <InputField placeHolder='user@gmail.com' readOnly />
+        <InputFieldOnlyRead placeHolder='user@gmail.com' value={clientEmail} />
         <p className='font-semibold text-[14px] mt-4 mb-4'>Selected Documents</p>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3 mb-4'>
             {docs?.map(data => <div className=' flex items-center gap-x-3 font-medium text-[14px] '> <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data}</div>)}

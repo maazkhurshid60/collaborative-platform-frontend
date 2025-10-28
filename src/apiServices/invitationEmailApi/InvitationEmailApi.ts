@@ -2,7 +2,9 @@ import { toast } from "react-toastify";
 import axiosInstance from "../axiosInstance/AxiosInstance";
 import { isAxiosError } from "axios";
 interface InvitationEmailApiServiceType {
-    invitationEmail: string, providerName: string
+    invitationEmail: string,
+    providerName: string,
+    invitationChatLink: string
 }
 
 class InvitationEmailApiService {

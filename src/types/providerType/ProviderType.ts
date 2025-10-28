@@ -1,3 +1,4 @@
+import { ProviderUser } from "../chatType/ChatChannelType"
 import { ClientType } from "../clientType/ClientType"
 
 export interface ProviderType {
@@ -17,11 +18,13 @@ export interface ProviderType {
 }
 export interface Client {
     id?: string
-    client?: { user?: { fullName?: string } }
+    client?: { clientShowToOthers: boolean, user?: { fullName?: string } }
+    email?: string
 }
 
 export interface User {
     id?: string
+    isApprove?: string
     fullName?: string
     profileImage?: string | null
     gender?: string | null
@@ -31,7 +34,11 @@ export interface User {
     status?: string | null
     licenseNo?: string
     role?: string
+    country: string
+    state: string
     blockedMembers?: string
     createdAt?: string
     updatedAt?: string
+    client?: Client
+    provider?: ProviderUser
 }

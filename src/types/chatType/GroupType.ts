@@ -50,5 +50,17 @@ export interface GroupChat {
     lastMessage?: LastMessage
     unreadCount?: number
     updatedAt?: string
+    provider?: Provider
 
+}
+
+export interface GroupCreatedBy {
+    name: string | undefined,
+    id: string | undefined
+}
+
+
+export interface GroupDelete {
+    createdBy: string | undefined,
+    id: string | undefined
 }

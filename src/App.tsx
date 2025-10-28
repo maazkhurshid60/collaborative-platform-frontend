@@ -1,5 +1,5 @@
 import './App.css'
-import { toast, ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import { BrowserRouter } from 'react-router-dom'
 import Routing from './routing/Routing'
 import { Provider, useSelector } from 'react-redux'
@@ -8,19 +8,32 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { initSocket } from './socket/Socket'
 
-
+import notification from "../src/assets/audio/notification.wav"
 function App() {
   const queryClient = new QueryClient();
-  const userId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.userId)
+  const userId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId)
 
   useEffect(() => {
     if (userId) {
-      const socket = initSocket(userId); // init once
+      const socket = initSocket("", userId); // init once
+      console.log("19 app.tsx");
 
       socket.on("new_notification", (data) => {
-        console.log("data", data);
+        console.log("22 app.tsx");
 
-        toast.info(`${data.title}: ${data.message}`);
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(data.title, {
+            body: data.message,
+            icon: '/logo192.png', // ✅ optional icon in public folder
+            tag: `notif-${Date.now()}`
+          });
+
+          // ✅ Optional: play notification sound
+          const audio = new Audio(notification); // Place in /public folder
+          audio.play();
+        } else {
+          console.log("🔕 Notification blocked or unsupported");
+        }
       });
 
       return () => {
@@ -29,6 +42,16 @@ function App() {
       };
     }
   }, [userId]);
+  useEffect(() => {
+    console.log("46 app.tsx");
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        console.log("Notification permission:", permission);
+      });
+    }
+  }, []);
+
 
   return (
     <QueryClientProvider client={queryClient}>

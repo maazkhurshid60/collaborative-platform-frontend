@@ -5,7 +5,12 @@ const initialState = {
     isNewChatModal: false,
     isNewGroupChatModal: false,
     isClientCompleteDocModal: false,
-    isClientShareDocModal: false
+    isClientShareDocModal: false,
+    isDeleteChannelModalShow: false,
+    isAddDocumentModalShow: false,
+    isShowRejectModal: false,
+    isShowRestoreModal: false,
+    isshowSignedDocumentModal: false
 
 }
 const modalSlice = createSlice({
@@ -14,6 +19,9 @@ const modalSlice = createSlice({
     reducers: {
         isModalShowReducser: ((state, action) => {
             state.isModalShow = action.payload
+        }),
+        isDeleteChannelModalShowReducer: ((state, action) => {
+            state.isDeleteChannelModalShow = action.payload
         }),
         isNewChatModalShowReducser: ((state, action) => {
             state.isNewChatModal = action.payload
@@ -24,14 +32,28 @@ const modalSlice = createSlice({
         isModalDeleteReducer: ((state, action) => {
             state.isModalDelete = action.payload
         }),
+        isshowSignedDocumentModalClientPortalReducer: ((state, action) => {
+            state.isshowSignedDocumentModal = action.payload
+        }),
         isClientCompleteDocModalReducer: ((state, action) => {
             state.isClientCompleteDocModal = action.payload
         }),
         isClientShareDocModalReducer: ((state, action) => {
             state.isClientShareDocModal = action.payload
         }),
+        isAddDocumentModalReducer: ((state, action) => {
+            state.isAddDocumentModalShow = action.payload
+        }),
+        isModalShowRejectReducer: ((state, action) => {
+            state.isShowRejectModal = action.payload
+        }),
+        isModalShowRestoreReducer: ((state, action) => {
+            state.isShowRestoreModal = action.payload
+        }),
 
     }
 })
-export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser, isNewGroupChatModalShowReducser, isClientCompleteDocModalReducer, isClientShareDocModalReducer } = modalSlice.actions
+export const { isModalShowReducser, isModalDeleteReducer, isNewChatModalShowReducser, isModalShowRejectReducer,
+    isModalShowRestoreReducer, isNewGroupChatModalShowReducser, isClientCompleteDocModalReducer,
+    isAddDocumentModalReducer, isClientShareDocModalReducer, isDeleteChannelModalShowReducer, isshowSignedDocumentModalClientPortalReducer } = modalSlice.actions
 export default modalSlice.reducer

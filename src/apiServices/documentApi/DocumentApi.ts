@@ -7,7 +7,7 @@ class DocumentApiService {
     private api = axiosInstance
     async getAllDocuments(clientId: string) {
         try {
-            const response = await this.api.post("/document/get-all-document", { clientId }); // prepend /provider here
+            const response = await this.api.post("/document/get-all-document", { clientId });
             return response?.data;
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total provider";
@@ -30,7 +30,6 @@ class DocumentApiService {
             return response?.data;
         } catch (error: unknown) {
             let errMsg = "Something went wrong";
-            console.log(error);
 
             if (axios.isAxiosError(error)) {
                 errMsg = error.response?.data?.error || "Failed to share document";
@@ -39,20 +38,71 @@ class DocumentApiService {
             toast.error(errMsg);
         }
     }
-    async documentSignByClientApi(formData: FormData) {
+    async documentSignByClientApi(formData: {
+        isAgree: boolean;
+        eSignature: string;
+        clientId?: string;
+        sharedDocumentId?: string;
+        senderId?: string;
+    }) {
         try {
-            const response = await this.api.patch("/document/document-sign-by-client", formData, {
+            const response = await this.api.patch("/document/document-sign-by-client", formData);
+
+            return response?.data;
+        } catch (error: unknown) {
+            console.log("ERROR", error);
+
+            let errMsg = "Something went wrong";
+
+            if (axios.isAxiosError(error)) {
+                errMsg = error.response?.data?.error || "Failed to share document";
+            }
+
+            toast.error(errMsg);
+        }
+    }
+    async addDocumentApi(formData: FormData) {
+        try {
+            const response = await this.api.post("/document/create-document", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
+                validateStatus: () => true // prevent axios from throwing automatically
             });
+
+            // If not 201, treat it as an error
+            if (response.status !== 201) {
+                throw new Error(response?.data?.error || "Failed to add document");
+            }
 
             return response?.data;
         } catch (error: unknown) {
             let errMsg = "Something went wrong";
 
             if (axios.isAxiosError(error)) {
-                errMsg = error.response?.data?.error || "Failed to share document";
+                errMsg = error.response?.data?.error || "Failed to add document";
+            } else if (error instanceof Error) {
+                errMsg = error.message;
+            }
+
+            toast.error(errMsg);
+            throw new Error(errMsg); // 💥 force trigger onError in useMutation
+        }
+    }
+
+    async deleteDocumentApi(id: string) {
+        try {
+            const response = await this.api.delete(
+                "/document/delete-document",
+                { data: { id } }
+            );
+
+            return response?.data;
+        } catch (error: unknown) {
+            let errMsg = "Something went wrong";
+
+            if (axios.isAxiosError(error)) {
+                errMsg = error.response?.data?.error || "Failed to add document";
             }
 
             toast.error(errMsg);

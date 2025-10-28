@@ -26,7 +26,7 @@ const BackIcon = (props: React.SVGProps<SVGSVGElement>) => (
             </defs>
         </svg>
 
-        <ToolTip toolTipText="View" />
+        <ToolTip toolTipText="Back" />
 
     </div>
 

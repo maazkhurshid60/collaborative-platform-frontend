@@ -2,27 +2,17 @@ import { io, Socket } from "socket.io-client";
 
 export let socket: Socket | undefined;
 const url = import.meta.env.VITE_ENV === "LOCALHOST" ? import.meta.env.VITE_LOCAL_BASE_URL.split("/api")[0] : import.meta.env.VITE_RENDER_BASE_URL.split("/api")[0]
-console.log("url", url);
-
-export const initSocket = (providerId: string): Socket => {
-    console.log("socket", socket);
+export const initSocket = (providerId: string, userId: string): Socket => {
 
     if (!socket) {
         socket = io(url, {
-            query: { providerId },
+            query: { providerId, userId: userId },
             transports: ['websocket'],
 
-            // transports: ['polling'],
-            // secure: true,
-            // // withCredentials: true,
-            // reconnection: true,
-            // reconnectionAttempts: 2,
-            // reconnectionDelay: 2000,
-            // timeout: 10000
         });
 
         socket.on('connect', () => {
-            console.log('✅ Socket connected:', socket?.id);
+            console.log('✅ Socket connected:');
         });
 
         socket.on('connect_error', (err) => {
@@ -44,12 +34,8 @@ export const getSocket = (): Socket | undefined => {
 export const disconnectSocket = (): void => {
     if (socket) {
         socket.disconnect();
-        console.log('🛑 Socket disconnected');
+        console.error('🛑 Socket disconnected');
     }
 };
 
 
-
-//Remove comment code from following files  on 16june monday aftre 10pm
-// ClientDocShareModal
-// GroupChatData

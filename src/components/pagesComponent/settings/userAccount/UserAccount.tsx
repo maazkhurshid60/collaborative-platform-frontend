@@ -12,7 +12,7 @@ const UserAccount: React.FC<UserAccountProps> = (props) => {
 
             <div className='flex items-center gap-x-10'>
                 <div className='font-[Poppins]'>
-                    <p className=' text-textColor font-semibold text-[14px] md:text-[16px] lg:text-[18px]'>{props.name}</p>
+                    <p className=' text-textColor font-semibold text-[14px] md:text-[16px] lg:text-[18px] capitalize'>{props.name}</p>
                     <p className='text-lightGreyColor font-medium text-[12px] lg:text-[14px]'>{props.email}</p>
                 </div>
 

@@ -8,11 +8,15 @@ import messageApiService from '../../../../apiServices/chatApi/messagesApi/Messa
 import { getSocket, initSocket } from '../../../../socket/Socket';  // Corrected import
 import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
-import { GroupChat, GroupMember } from '../../../../types/chatType/GroupType';
+import { GroupChat, GroupCreatedBy, GroupMember } from '../../../../types/chatType/GroupType';
 import "./chat.css"
 import CrossIcon from '../../../icons/cross/Cross';
 import { useQueryClient } from '@tanstack/react-query';
 import { NewMessage } from '../../../../types/chatType/ChatType';
+import SpinnerLoader from '../../../loader/SpinnerLoader';
+
+import { FaRegCircle } from "react-icons/fa";
+import { FaCircleCheck } from "react-icons/fa6";
 
 
 
@@ -29,6 +33,7 @@ interface Message {
         user: { fullName: string, profileImage?: string | null };
     };
     you?: boolean;
+    status?: string
 }
 
 
@@ -36,10 +41,19 @@ interface ChatMessagesProps {
     messageData: Message[];
     activeChatObject: ChatChannelType | GroupChat;
     activeChatType?: 'individual' | 'group';
+    groupCreatedBy?: GroupCreatedBy
+
 }
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType, groupCreatedBy }) => {
+
+
 
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+
+
+
+
+
     const loginUserProfileImage = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user.profileImage);
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -73,26 +87,25 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     useEffect(() => {
 
         if (!socket || !activeChatObject) return;
-
         const handleIncoming = (newMsg: Message) => {
+            const isSameGroup =
+                activeChatType === 'group' && newMsg.groupId === activeChatObject?.id;
+
+            const isSameIndividual =
+                activeChatType === 'individual' && newMsg.chatChannelId === activeChatObject?.id;
+
+            const isSameChat = isSameGroup || isSameIndividual;
+
+            if (!isSameChat) return; // 🛑 Ignore message not related to open chat
+
             setMessages(prev => {
-                // Step 1: If temp message exists, replace it
-                const tempIndex = prev.findIndex(
-                    m => m.id.startsWith("temp") && m.message === newMsg.message && m.senderId === newMsg.senderId
-                );
-                if (tempIndex !== -1) {
-                    const updated = [...prev];
-                    updated[tempIndex] = { ...newMsg, you: newMsg.senderId === loginUserId };
-                    return updated;
-                }
+                const alreadyExists = prev.some(m => m.id === newMsg.id);
+                if (alreadyExists) return prev;
 
-                // Step 2: If message already exists by ID, skip it
-                if (prev?.some?.(m => m.id === newMsg.id)) return prev;
-
-                // Step 3: Add new message
-                return [...prev, { ...newMsg, you: newMsg?.senderId === loginUserId }];
+                return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
             });
         };
+
 
 
         socket.off('receive_direct');
@@ -132,6 +145,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             createdAt: new Date().toISOString(),
             sender: { user: { fullName: 'You' } },
             you: true,
+            status: 'sending'
         };
 
         setMessages(prev => [...prev, tempMsg]);
@@ -150,6 +164,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             }
 
             if (sendMessageText.trim()) {
+
                 formData.append("message", sendMessageText);
             }
 
@@ -167,6 +182,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                 saved = res?.data?.chatMessage;
 
+
                 const otherId = activeChatObject.providerA.id === loginUserId
                     ? activeChatObject.providerB.id
                     : activeChatObject.providerA.id;
@@ -179,7 +195,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 socket?.emit("send_group", { message: saved });
             }
 
-            setMessages(prev => prev.map(m => m.id === tempId ? { ...saved, you: true } : m));
+            setMessages(prev => prev.map(m => m.id === tempId ? { ...saved, you: true, status: 'sent' } : m));
             // Update lastMessage + unread count in chatChannels cache
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
                 if (!oldData) return oldData;
@@ -198,6 +214,27 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                         : channel
                 );
             });
+            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups = []) =>
+                oldGroups.map((group) => {
+                    if (group.id === saved.groupId) {
+                        return {
+                            ...group,
+                            lastMessage: {
+                                id: saved.id,
+                                message: saved.message || saved.mediaUrl || '📎 File',
+                                createdAt: saved.createdAt || new Date().toISOString(),
+                            },
+                            unreadCount:
+                                saved.senderId === loginUserId
+                                    ? group.unreadCount
+                                    : (Number(group.unreadCount) || 0) + 1,
+                            updatedAt: new Date().toISOString(),
+                        };
+                    }
+                    return { ...group }; // ✅ force clone every object
+                })
+            );
+
 
         } catch (error) {
             console.error("❌ Error sending message:", error);
@@ -211,14 +248,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
         if (socket && activeChatObject?.id) {
             socket.emit('join_channel', { chatChannelId: activeChatObject.id });
-            console.log("✅ Joined chat channel:", activeChatObject.id);
+            console.log("✅ Joined chat channel:");
         }
     }, [activeChatObject?.id]);
 
 
     useEffect(() => {
         if (!socket && loginUserId) {
-            initSocket(loginUserId);
+            initSocket(loginUserId, "");
         }
     }, [loginUserId]);
 
@@ -234,42 +271,55 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
         setLoading(true);
 
-        const payload = {
-            loginUserId,
-            chatChannelId: activeChatObject.id,
-            page: currentPage,
-            limit: 10,
-        };
-
         try {
-            const res = await messageApiService.getAllMessagesOfSingleChatChannel(payload);
-            const newMessages = res?.data?.messages || [];
+            const payload = {
+                loginUserId,
+                page: currentPage,
+                limit: 10,
+                ...(activeChatType === 'individual'
+                    ? { chatChannelId: activeChatObject.id }
+                    : { groupId: activeChatObject.id })
+            };
 
-            setMessages(prev => [...newMessages.map((m: Message) => ({ ...m, you: m.senderId === loginUserId })), ...prev]);
+            let res;
+            let newMessages: Message[] = [];
+
+            if (activeChatType === 'individual') {
+                res = await messageApiService.getAllMessagesOfSingleChatChannel(payload);
+                newMessages = res?.data?.messages || [];
+            } else {
+                res = await messageApiService.getAllMessagesOfGroupChatChannel(payload);
+                newMessages = res?.data?.groupMessages || [];
+            }
+
+            setMessages(prev => [
+                ...newMessages.map(m => ({ ...m, you: m.senderId === loginUserId })),
+                ...prev,
+            ]);
+
             setHasMore(res?.data?.hasMore);
             setPage(currentPage);
 
-            // ⏳ Wait for DOM to update
+            // Maintain scroll position
             setTimeout(() => {
                 const newScrollHeight = container?.scrollHeight || 0;
                 if (container) {
                     container.scrollTop = newScrollHeight - oldScrollHeight;
                 }
-            }, 100); // Small delay to allow DOM update
-        } catch (err) {
-            console.error('❌ Error fetching messages:', err);
+            }, 100);
+        } catch (error) {
+            console.error("❌ Failed to fetch messages:", error);
         }
 
         setLoading(false);
     };
+
 
     useEffect(() => {
         if (!socket || !loginUserId) return;
 
         const handleNewMessage = (newMessage: NewMessage) => {
             const isGroup = newMessage?.isGroupMessage;
-            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>", newMessage);
-
             const queryKey = isGroup ? ['groupChatchannels'] : ['chatchannels'];
 
             // Update sidebar chat list for both individual and group chats
@@ -375,7 +425,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             : activeChatObject?.providerA?.user?.fullName;
 
 
-    console.log("groupMessagesByDate", groupMessagesByDate);
 
     return (
 
@@ -384,7 +433,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             <div className="bg-white p-3 rounded-lg h-full flex flex-col">
                 <ChatNavbar
                     name={otherName}
+                    id={activeChatObject.id}
                     groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
+                    groupCreatedBy={groupCreatedBy}
                 />            <hr className="my-4 border-inputBgColor" />
 
                 <div className="flex-1 overflow-y-auto mb-4" ref={messageContainerRef} >
@@ -392,28 +443,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                         <div className="text-center text-gray-500 mt-10">No messages yet</div>
                     )}
                     {loading && (
-                        <div className="flex items-center justify-center py-3 text-gray-500 text-sm gap-2">
-                            <svg
-                                className="w-4 h-4 animate-spin text-primaryColorDark"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                ></circle>
-                                <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                                ></path>
-                            </svg>
-                            <span>Loading messages...</span>
-                        </div>
+                        <SpinnerLoader text="Messages are Loading" />
                     )}
 
                     {Object.entries(groupMessagesByDate(messages)).map(([dateGroup, groupMsgs]) => (
@@ -424,11 +454,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                             {groupMsgs.map((msg) => {
                                 const mediaFiles = msg.mediaUrl ? msg.mediaUrl.split(',') : [];
 
+
+
+                                // Render the message
                                 return (
-                                    <div
-                                        key={msg.id}
-                                        className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}
-                                    >
+                                    <div key={msg.id} className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}>
+                                        {/* If it's not your message, show the sender's profile */}
                                         {!msg.you && (
                                             <>
                                                 {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
@@ -438,6 +469,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                             </>
                                         )}
 
+                                        {/* Message content */}
                                         <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
                                             <p className="font-semibold mb-2 capitalize">
                                                 {msg?.you ? 'You' : msg?.sender?.user?.fullName}
@@ -446,17 +478,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                             <div className="flex items-center gap-x-4 text-[14px]">
                                                 {msg?.you && (
                                                     <div className='flex items-center gap-x-2'>
-
-
                                                         <p className="text-textGreyColor text-[12px]">
                                                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
-
                                                         </p>
-
                                                     </div>
                                                 )}
 
-                                                <div className="flex flex-col gap-2">
+                                                <div className="flex flex-col gap-2 relative">
                                                     {/* Media Files */}
                                                     <div className="flex flex-col gap-2 mt-1">
                                                         {mediaFiles.map((url, index) => {
@@ -466,16 +494,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                                             const isDoc = ['doc', 'docx'].includes(extension || '');
 
                                                             return (
-                                                                <div
-                                                                    key={index}
-                                                                    className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
-                                                                >
+                                                                <div key={index} className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
                                                                     {isImage ? (
-                                                                        <img
-                                                                            src={url}
-                                                                            alt="media"
-                                                                            className="w-32 h-auto rounded-md object-cover border border-gray-300"
-                                                                        />
+                                                                        <img src={url} alt="media" className="w-32 h-auto rounded-md object-cover border border-gray-300" />
                                                                     ) : (
                                                                         <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-full text-xl">
                                                                             {isPdf ? '📄' : isDoc ? '📝' : '📎'}
@@ -483,19 +504,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                                                     )}
 
                                                                     <div className="flex flex-col justify-center">
-                                                                        <a
-                                                                            href={url}
-                                                                            target="_blank"
-                                                                            rel="noopener noreferrer"
-                                                                            className="text-blue-600 font-medium hover:underline text-sm"
-                                                                        >
-                                                                            {isImage
-                                                                                ? 'View Image'
-                                                                                : isPdf
-                                                                                    ? 'View PDF'
-                                                                                    : isDoc
-                                                                                        ? 'Open Document'
-                                                                                        : 'Download File'}
+                                                                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline text-sm">
+                                                                            {isImage ? 'View Image' : isPdf ? 'View PDF' : isDoc ? 'Open Document' : 'Download File'}
                                                                         </a>
                                                                         <p className="text-xs text-gray-400 mt-1">.{extension?.toUpperCase()}</p>
                                                                     </div>
@@ -504,17 +514,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                                         })}
                                                     </div>
 
-                                                    {/* Text Message */}
+                                                    {/* Decrypted Text Message */}
                                                     {msg.message && (
-                                                        <p className={`relative p-4 rounded-lg max-w-xs 
-                                ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
+                                                        <p className={`relative p-4 rounded-lg max-w-xs ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
                                                             {msg.message}
-
-
                                                         </p>
                                                     )}
-
-
+                                                    <div className='absolute bottom-0.5 right-0.5'>
+                                                        {msg.you && msg.status === 'sent' && <FaCircleCheck className='text-white' size={12} />}
+                                                        {msg.you && msg.status === 'sending' && <FaRegCircle className='text-white' size={12} />}
+                                                    </div>
                                                 </div>
 
                                                 {!msg?.you && (
@@ -529,12 +538,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                             <>
                                                 {(loginUserProfileImage !== null && loginUserProfileImage !== "null") ?
                                                     <img className='w-10 h-10 rounded-full object-cover' src={loginUserProfileImage} />
-                                                    : <UserIcon size={30} />}
+                                                    : <UserIcon size={30} />
+                                                }
                                             </>
                                         )}
                                     </div>
                                 );
                             })}
+
 
                         </div>
                     ))}

@@ -15,6 +15,9 @@ export interface DocumentType {
     updatedAt: string;
     document?: DocumentFile;
     provider: Provider;
+    type?: string,
+    name?: string,
+    url?: string
 }
 
 export interface DocumentFile {

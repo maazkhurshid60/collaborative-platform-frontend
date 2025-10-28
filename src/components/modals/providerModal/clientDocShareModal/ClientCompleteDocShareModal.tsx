@@ -98,7 +98,6 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         document.body.removeChild(clone);
     };
 
-    console.log("filteredRecords", filteredRecords)
 
     return (
         <ModalLayout

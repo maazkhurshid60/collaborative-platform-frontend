@@ -5,13 +5,15 @@ import sideBarSlice from "./slices/SideBarSlice";
 import blockListUserSlice from "./slices/BlockListUserSlice";
 import modalSlice from "./slices/ModalSlice";
 import LoginUserDetail from "./slices/LoginUserDetailSlice";
+import joinUserSlice from "./slices/JoinNowUserSlice";
 
 // COMBINING ALL SLICES
 const rootReducer = combineReducers({
     sideBarSlice,
     blockListUserSlice,
     modalSlice,
-    LoginUserDetail
+    LoginUserDetail,
+    joinUserSlice,
 
 })
 
@@ -22,7 +24,7 @@ export type AppDispatch = typeof store.dispatch
 const persistConfig = {
     key: "root",
     storage,
-    whitelist: ["sideBarSlice", "blockListUserSlice", "modalSlice", "LoginUserDetail"]
+    whitelist: ["sideBarSlice", "blockListUserSlice", "modalSlice", "LoginUserDetail", "joinUserSlice"]
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

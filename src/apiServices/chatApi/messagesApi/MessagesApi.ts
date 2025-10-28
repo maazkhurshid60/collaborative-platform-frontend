@@ -1,13 +1,20 @@
 import { toast } from "react-toastify";
 import axiosInstance from "../../axiosInstance/AxiosInstance"
+import { AxiosError } from "axios";
 interface getAllMessagesOfSingleChatChannelType {
     chatChannelId?: string
     groupId?: string
     loginUserId?: string
-
 }
-interface getAllMessagesOfSingleChat {
-    chatChannelId: string
+
+export interface updateGroupApiType {
+    groupId?: string
+    memberEmail?: string
+}
+
+export interface getAllMessagesOfSingleChat {
+    chatChannelId?: string
+    groupId?: string
     page: number | string
     limit: number | string
     loginUserId?: string
@@ -34,6 +41,7 @@ class MessageApiService {
 
 
         } catch (error) {
+
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
         }
@@ -42,7 +50,6 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/get-all-message", data)
-            console.log("<<<<<<response<<<<<<", response);
             return response?.data
 
 
@@ -62,7 +69,7 @@ class MessageApiService {
 
 
         } catch (error) {
-            console.log("aaaaaaaaaaa", error);
+            console.log("eeor", error);
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
@@ -88,7 +95,22 @@ class MessageApiService {
 
     //GROUP APIS
 
-    async getAllMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChatChannelType) {
+    async updateGroupApi(data: updateGroupApiType) {
+        try {
+
+            const response = await this.api.patch("/chat-group/update-group", data)
+            return response?.data
+
+
+        } catch (error: unknown) {
+            const err = error as AxiosError<{ data: { message: string } }>;
+
+            console.log("ERROR", err?.response?.data?.data?.message);
+
+            throw err?.response?.data?.data?.message || "Failed to join chat";
+        }
+    }
+    async getAllMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChat) {
         try {
 
             const response = await this.api.post("/chat-group/get-group-messages", data)
