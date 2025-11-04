@@ -158,7 +158,7 @@ const Navbar = () => {
                     {loginUserDetail?.user?.role === "provider" &&
                         <div className='relative '>
                             {screenWidth < 768 && <LuSearch className='text-lightGreyColor absolute top-2 z-30 left-2 ' size={20} onClick={() => setIsSearchbarClose(!isSearchbarClose)} />}
-                            <SearchBar placeholder='Search here...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
+                            <SearchBar placeholder='Search Client by Name,Email or License No...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
                             {filteredClients && filteredClients.length > 0 &&
                                 < div className='w-[100%] rounded-lg bg-white    borderClass max-h-[500px]   absolute top-10 left-0 z-[999999]' >
                                     {filteredClients?.map(data => {
@@ -241,10 +241,10 @@ const Navbar = () => {
                                     <p className=' text-textColor font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName}</p>
                                     <p className='text-lightGreyColor font-medium text-[12px] md:text-[14px] lg:text-[16px] capitalize'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>
                                 </div>
-                                {loginUserDetail?.user?.role !== "superadmin" &&
+                                {loginUserDetail?.user?.role === "provider" && (
                                     <div className=''>
                                         <IoIosArrowDown className={`text-textColor transition-all duration-700 ease-in-out  ${isDropDownOpen ? 'rotate-180' : 'rotate-0'} cursor-pointer`} size={22} onClick={() => setIsDropDownOpen(!isDropDownOpen)} />
-                                    </div>}
+                                    </div>)}
                             </div>
                             {/* OPTIONS */}
                             <ul

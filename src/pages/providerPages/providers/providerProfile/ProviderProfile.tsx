@@ -87,6 +87,10 @@ const ProviderProfile = () => {
                         <LabelData label='Department' data={selectedProviderData?.department ?? "-"} />
                     </div>
 
+                     <div className=''>
+                        <LabelData label='Address' data={selectedProviderData?.user?.address ?? "-"} />
+                    </div>
+
                     <div className=''>
                         <LabelData label='Country' data={getCountryNameFromCode(selectedProviderData?.user?.country ?? "") ?? "-"} />
                     </div>
@@ -94,9 +98,7 @@ const ProviderProfile = () => {
                     <div className=''>
                         <LabelData label='State' data={selectedProviderData?.user?.state ?? "-"} />
                     </div>
-                    <div className=''>
-                        <LabelData label='Address' data={selectedProviderData?.user?.address ?? "-"} />
-                    </div>
+                   
 
                     <div className=' '>
                         <LabelData label='List of Active Clients' />

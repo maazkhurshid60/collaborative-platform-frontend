@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../../../public/assets/logo.png";
+import logo from "../../../public/assets/kolabme-logo.svg";
 import { ClientSidebarData, ProviderSidebarData, SuperAdminSidebarData } from "../../constantData/SidebarData";
 import { RxCross2 } from "react-icons/rx";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
@@ -60,7 +60,7 @@ const Sidebar = () => {
         }
     }, [loginUserRole])
     return (
-        <div className="p-6 border-r border-[#D9D9D9] w-[100vw] md:w-[260px] h-[100vh]">
+        <div className="p-6 border-r flex justify-between flex-col border-[#D9D9D9] w-[100vw] md:w-[260px] h-[100vh] overflow-y-hidden">
             <div className="flex items-center justify-center">
                 <img src={logo} alt="logo" className="w-[50px] md:w-[120px] " />
                 <div className="md:hidden">
@@ -105,13 +105,14 @@ const Sidebar = () => {
                         );
                     })}
                 </div>
-                <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
+              
+
+            </div>
+              <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
 
                     <Logout onClick={logoutFunction} />
                     <ToolTip toolTipText="Logout" />
                 </span>
-
-            </div>
         </div>
     );
 };

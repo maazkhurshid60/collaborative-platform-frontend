@@ -6,7 +6,7 @@ import BlockList from '../../components/pagesComponent/settings/blockList/BlockL
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
 import { isBlockScreenShowReducer } from '../../redux/slices/BlockListUserSlice';
-// import CheckBox from '../../components/toggle/Toggle';
+import CheckBox from '../../components/toggle/Toggle';
 import Loader from '../../components/loader/Loader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { blockListDataType } from '../../types/usersType/UsersType';
@@ -100,7 +100,7 @@ const UserSetting = () => {
 
 
 
-            {/* <div>
+            <div>
                 <div className='flex items-center justify-between mt-6 w-full '>
                     <div>
                         <p className='text-[16px] font-medium'>Notification</p>
@@ -108,7 +108,7 @@ const UserSetting = () => {
                     </div>
                     <CheckBox />
                 </div>
-            </div> */}
+            </div>
             <LabelText label='Block' text='If you find offensive messages you can block the person' onClick={() => { dispatch(isBlockScreenShowReducer(true)) }} />
             <div className='flex items-center justify-between mt-6'>
                 <div>

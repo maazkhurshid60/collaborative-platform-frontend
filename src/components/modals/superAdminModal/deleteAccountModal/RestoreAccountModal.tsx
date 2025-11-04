@@ -39,7 +39,14 @@ const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({ onConfirm, on
         </div>
     )
 
-    return <ModalLayout heading='Restore Account' modalBodyContent={modalBody} />
+    return  <ModalLayout
+            heading='Restore Account'
+            modalBodyContent={modalBody}
+            onClose={() => {
+                dispatch(isModalShowRejectReducer(false))
+                onCancel() 
+            }}
+        />
 }
 
 export default RestoreAccountModal
