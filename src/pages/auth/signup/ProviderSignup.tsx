@@ -165,10 +165,12 @@ const ProviderSignup = () => {
 
                         <div className='mb-1.5'>
                             <InputField required
+                                type='number'
                                 label='License Number'
                                 register={register("licenseNo")}
                                 placeHolder='Enter license number.'
                                 error={errors.licenseNo?.message} />
+                                
                         </div>
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>

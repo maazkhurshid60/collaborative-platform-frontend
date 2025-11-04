@@ -201,6 +201,7 @@ const UserProfile = () => {
                             <div className=''>
                                 <InputField required
                                     label='License Number'
+                                    type='number'
                                     register={register("licenseNo")}
                                     placeHolder='Enter license number.'
                                     error={errors.licenseNo?.message} />
@@ -211,7 +212,7 @@ const UserProfile = () => {
                             <div className=''>
                                 <Dropdown<FormFields>
                                     name="department"
-                                    label="Profession"
+                                    label="Department"
                                     control={control}
                                     options={departmentOptions}
                                     placeholder="Choose an option"
@@ -226,6 +227,8 @@ const UserProfile = () => {
                                 <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
+                              <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+
 
                             <CountryStateSelect
                                 isCountryView={true}
@@ -238,7 +241,7 @@ const UserProfile = () => {
                                 defaultState={getMeData?.user?.state}
                             />
 
-                            <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                          
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />
@@ -309,13 +312,17 @@ const UserProfile = () => {
                                 <LabelData label='Age' data={getMeData?.user?.age ?? ""} />
                             </div>
                             <div className=''>
-                                <LabelData label='Profession' data={getMeData?.department} />
+                                <LabelData label='Department' data={getMeData?.department} />
                             </div>
                             <div className=''>
                                 <LabelData label='Email' data={getMeData?.email} />
                             </div>
                             <div className=''>
                                 <LabelData label='Contact Number' data={getMeData?.user?.contactNo ?? ""} />
+                            </div>
+
+                             <div className=''>
+                                <LabelData label='Address' data={getMeData?.user?.address ?? "-"} />
                             </div>
 
                             <div className=''>
@@ -325,9 +332,7 @@ const UserProfile = () => {
                             <div className=''>
                                 <LabelData label='State' data={getMeData?.user?.state} />
                             </div>
-                            <div className=''>
-                                <LabelData label='Address' data={getMeData?.user?.address ?? "-"} />
-                            </div>
+                           
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />

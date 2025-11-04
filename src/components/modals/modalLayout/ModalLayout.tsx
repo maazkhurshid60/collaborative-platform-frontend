@@ -7,6 +7,7 @@ import ToolTip from "../../toolTip/ToolTip";
 interface ModalLayout {
     modalBodyContent: React.ReactNode
     heading: string
+    onClose?: () => void;
 }
 const ModalLayout: React.FC<ModalLayout> = (props) => {
     const dispatch = useDispatch<AppDispatch>()
@@ -40,7 +41,14 @@ const ModalLayout: React.FC<ModalLayout> = (props) => {
                         </div>
                         <div className="relative group">
 
-                            <RxCross2 size={24} className='cursor-pointer' onClick={closeModalFun} />
+                             <RxCross2
+                                size={24}
+                                className='cursor-pointer'
+                                onClick={() => {
+                                    closeModalFun();
+                                    props.onClose?.(); 
+                                }}
+                            />
                             <ToolTip toolTipText="Close" />
                         </div>
                     </div>

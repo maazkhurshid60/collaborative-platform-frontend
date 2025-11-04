@@ -20,7 +20,7 @@ import NoRecordFound from '../../../noRecordFound/NoRecordFound';
 import { selectedClientIdType } from '../../../../pages/providerPages/clients/Clients';
 
 const ClientList = () => {
-    const heading = ["name", "license Number", "gender", "email", "status", "providers", "action"]
+    const heading = ["name", "license No", "gender", "email", "status", "providers", "action"]
 
 
     const [isLoader, setIsLoader] = useState(false)

@@ -12,7 +12,7 @@ import NoRecordFound from '../../../noRecordFound/NoRecordFound'
 import { useNavigate } from 'react-router-dom'
 
 const ProviderList = () => {
-    const heading = ["S.No", "name", "license Number", "email", "status", "clients"]
+    const heading = ["S.No", "name", "license No", "email", "status", "clients"]
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     const navigate = useNavigate()

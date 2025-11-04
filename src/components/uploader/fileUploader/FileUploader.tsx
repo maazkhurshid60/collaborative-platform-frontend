@@ -27,6 +27,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect }) => {
             <input
                 ref={fileInputRef}
                 type="file"
+                accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
             />

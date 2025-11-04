@@ -135,7 +135,7 @@ const Clients = () => {
                                     <td className="px-2 py-2">{data?.user?.gender}</td>
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">
-                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
+                                        <p className={`ps-1 pe-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
 
                                             {data?.user?.status}
 
