@@ -8,7 +8,7 @@ import { Message } from '../../../types/chatType/ChatType';
 import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
 import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
-import logo from "../../../assets/images/logo.png";
+import logo from "../../../../public/assets/kolabme-logo.svg";
 import Loader from '../../../components/loader/Loader';
 
 const NonUserChat = () => {

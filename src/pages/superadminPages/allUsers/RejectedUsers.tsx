@@ -130,7 +130,7 @@ const RejectedUsers = () => {
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
                                                 <p>{data?.fullName}</p>
-                                                <p>{data?.client?.email || data?.provider?.email}</p>
+                                                <p>{(data?.client?.email || data?.provider?.email)?.toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </td>

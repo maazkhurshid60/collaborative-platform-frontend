@@ -145,7 +145,7 @@ const PendingUsers = () => {
                                                 {data?.profileImage && data.profileImage !== "null" ? (
                                                     <img className="w-10 h-10 rounded-full object-cover" src={data.profileImage} />
                                                 ) : <UserIcon size={30} />}
-                                                <div className="text-left">
+                                                <div className="text-left=">
                                                     <p>{data.fullName}</p>
                                                     <p>{data?.client?.email || data?.provider?.email}</p>
                                                 </div>
