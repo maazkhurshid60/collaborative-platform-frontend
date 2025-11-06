@@ -109,9 +109,9 @@ const AddClient = () => {
             </div>
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(addFunction)} className="mt-6">
-                    <div>
+                    {/* <div>
                         <LabelData label='Upload Image' required />
-                        {/* <UserIcon className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} /> */}
+                        <UserIcon this is comment className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} />
                         {imagePreview ? (
 
                             <img
@@ -125,7 +125,7 @@ const AddClient = () => {
                             <FileUploader onFileSelect={handleFileSelect} />
 
                         }
-                    </div>
+                    </div> */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <div className=''>
                             <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
@@ -138,12 +138,11 @@ const AddClient = () => {
                                 options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
                                 placeholder="Choose an option"
                                 error={errors.gender?.message}
-                                required
                             />
                         </div>
 
                         <div className=''>
-                            <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         </div>
                         <div className=''>
                             <InputField required
@@ -164,9 +163,9 @@ const AddClient = () => {
 
 
                         <div className=''>
-                            <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                            <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         </div>
-                        <CountryStateSelect isCountryView={true} isStateView={false} />
+                        <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
                         <CountryStateSelect isCountryView={false} isStateView={true} />
                         <div className=''>
                             <Dropdown<FormFields>
@@ -175,7 +174,6 @@ const AddClient = () => {
                                 control={control}
                                 options={statusOption}
                                 placeholder="Choose an option"
-                                required
                                 error={errors.status?.message}
                             />                </div>
 

@@ -56,9 +56,9 @@ const UserProfile = () => {
     } = methods;
 
     const updateFunction = (data: FormFields) => {
-        if (selectedFile === null) {
-            return toast.error("Profile Image is require.")
-        }
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is require.")
+        // }
         const formData = new FormData()
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
@@ -207,7 +207,7 @@ const UserProfile = () => {
                                     error={errors.licenseNo?.message} />
                             </div>
                             <div className=''>
-                                <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                                <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                             </div>
                             <div className=''>
                                 <Dropdown<FormFields>
@@ -217,8 +217,8 @@ const UserProfile = () => {
                                     options={departmentOptions}
                                     placeholder="Choose an option"
                                     error={errors.department?.message}
-                                    required
-                                />                </div>
+                                />                
+                                </div>
                             <div className=''>
                                 <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                             </div>
@@ -227,18 +227,20 @@ const UserProfile = () => {
                                 <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
-                              <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                              <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
 
                             <CountryStateSelect
                                 isCountryView={true}
                                 isStateView={false}
                                 defaultCountry={getMeData?.user?.country}
+                                 required={false}
                             />
                             <CountryStateSelect
                                 isCountryView={false}
                                 isStateView={true}
                                 defaultState={getMeData?.user?.state}
+                                 required={false}
                             />
 
                           
