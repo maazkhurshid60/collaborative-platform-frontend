@@ -89,9 +89,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     }
 
     const updateFunction = (data: FormFields) => {
-        if (selectedFile === null) {
-            return toast.error("Profile Image is require.")
-        }
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is require.")
+        // }
         const formData = new FormData()
         formData.append('clientId', clientData?.id || '')
         formData.append('fullName', data.fullName)
@@ -106,10 +106,10 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('country', data.country)
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
-        if (selectedFile !== null) {
+        // if (selectedFile !== null) {
 
-            formData.append('profileImage', selectedFile)
-        }
+        //     formData.append('profileImage', selectedFile)
+        // }
 
         updateMutation.mutate(formData)
     }
@@ -137,7 +137,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             <FormProvider {...methods}>
 
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
-                    <div className='mb-5'>
+                    {/* <div className='mb-5'>
                         <LabelData label='Client Image' />
                         <div className="relative w-32 h-32">
                             {!showUploader ? (
@@ -154,7 +154,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                                 <FileUploader onFileSelect={handleFileSelect} />
                             )}
 
-                            {/* Show cross icon even if there's no image */}
+                           
                             {!showUploader && (
 
                                 <CrossIcon onClick={() => {
@@ -165,13 +165,13 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             )}
                         </div>
 
-                    </div>
+                    </div> */}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         <InputField required label='license Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
-                        <InputField required label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                         <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         <Dropdown<FormFields>
@@ -181,7 +181,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
                             placeholder="Choose an option"
                             error={errors.gender?.message}
-                            required
                         />
                         {/* 
                         <CountryStateSelect isFlex
@@ -193,6 +192,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isCountryView={true}
                             isStateView={false}
                             defaultCountry={clientData?.user?.country}
+                             required={false}
                         // defaultState={getMeData?.user?.state}
                         />
                         <CountryStateSelect
@@ -200,8 +200,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isStateView={true}
                             // defaultCountry={getMeData?.user?.country}
                             defaultState={clientData?.user?.state}
+                             required={false}
                         />
-                        <InputField required label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                        <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
                         <Dropdown<FormFields>
                             name="status"
@@ -210,12 +211,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             options={statusOption}
                             placeholder="Choose an option"
                             error={errors.status?.message}
-                            required
                         />
 
                         <div className=' '>
                             <LabelData label='List of Providers' />
-                            <ul className='text-[14px] font-medium text-textGreyColor list-disc ml-6'>
+                            <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
                                 {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
                                     ? <p>No Providers Found</p>
                                     : clientData?.providerList.map((provider: Provider, index) => (

@@ -75,17 +75,17 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
     };
 
 
-    const handleShareWhatsApp = () => {
-        if (!generatedLink) return toast.error("Generate the link first.");
-        const url = `https://wa.me/?text=${encodeURIComponent(generatedLink)}`;
-        window.open(url, "_blank");
-    };
+    // const handleShareWhatsApp = () => {
+    //     if (!generatedLink) return toast.error("Generate the link first.");
+    //     const url = `https://wa.me/?text=${encodeURIComponent(generatedLink)}`;
+    //     window.open(url, "_blank");
+    // };
 
-    const handleShareFacebook = () => {
-        if (!generatedLink) return toast.error("Generate the link first.");
-        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(generatedLink)}`;
-        window.open(url, "_blank");
-    };
+    // const handleShareFacebook = () => {
+    //     if (!generatedLink) return toast.error("Generate the link first.");
+    //     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(generatedLink)}`;
+    //     window.open(url, "_blank");
+    // };
 
     const handleShareGmail = () => {
         if (!generatedLink) return toast.error("Generate the link first.");
@@ -93,9 +93,9 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
         window.open(url, "_blank");
     };
 
-    const handleShareInstagram = () => {
-        toast.info("Instagram does not support direct link sharing.");
-    };
+    // const handleShareInstagram = () => {
+    //     toast.info("Instagram does not support direct link sharing.");
+    // };
 
 
 
@@ -129,7 +129,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                     </div>
                     <p>Gmail</p>
                 </div>
-                <div className='flex flex-col items-center justify-center  cursor-pointer'>
+                {/* <div className='flex flex-col items-center justify-center  cursor-pointer'>
                     <div className='w-14 h-14 mb-2 shadow-[0_0_14px_0_rgba(0,0,0,0.1)] rounded-full flex items-center justify-center bg-[#25D366] text-white'>
                         <FaWhatsapp className='text-4xl' onClick={handleShareWhatsApp} />
                     </div>
@@ -146,7 +146,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                         <FaFacebookF className="text-white text-4xl" onClick={handleShareFacebook} />
                     </div>
                     <p>Facebook</p>
-                </div>
+                </div> */}
             </div>
             {chatType !== "individual" &&
                 <>

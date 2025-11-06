@@ -22,10 +22,11 @@ interface CountryStateSelectProps {
     isFlex?: boolean
     isCountryView: boolean
     isStateView: boolean
+     required?: boolean;
 
 }
 
-const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isStateView }: CountryStateSelectProps) => {
+const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isStateView,  required = true, }: CountryStateSelectProps) => {
     const { control, watch, setValue, formState: { errors } } = useFormContext();
 
     const [countryOptions, setCountryOptions] = useState<OptionType[]>([]);
@@ -76,7 +77,7 @@ const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isSta
                         options={countryOptions}
                         placeholder="Select a country"
                         error={errors?.country as FieldError}
-                        required
+                        required={required}
                         onChange={(selected) => setValue("country", selected.value)}
                     />
                 </div>
@@ -92,7 +93,7 @@ const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isSta
                         options={stateOptions}
                         placeholder={selectedCountry ? "Select a state" : "Select country first"}
                         error={errors?.state as FieldError}
-                        required
+                        required={required}
                         disable={!selectedCountry}
                         onChange={(selected) => setValue("state", selected.value)}
                     />

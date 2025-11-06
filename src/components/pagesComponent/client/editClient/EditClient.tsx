@@ -65,11 +65,11 @@ const EditClient = () => {
                     </div>
                 </div>
             </div>
-            <div className='flex items-center mt-4 w-[15%]'>
+            <div className='flex items-center mt-4 w-[30%] mb-3'>
                 {tabData.map((tab, id) => (
                     <p
                         key={id}
-                        className={`w-1/2  cursor-pointer text-center transition-colors duration-300 ${activeTab === id ? 'text-textColor font-medium' : 'font-normal'
+                        className={`w-1/2  cursor-pointer text-center transition-colors duration-300 ${activeTab === id ? 'bg-primaryColorDark text-white rounded-md px-6 py-2 font-medium' : 'font-normal'
                             }`}
                         onClick={() => setActiveTab(id)}
                     >
@@ -78,14 +78,14 @@ const EditClient = () => {
                 ))}
             </div>
             <div className='relative'>
-                <div className='relative w-[15%] '>
+                {/* <div className='relative w-[15%] '>
                     <hr className='text-textGreyColor/20 h-[2px] w-[100%] mt-2' />
                     <hr
                         className={`text-primaryColorDark h-[2px] w-1/2 mt-2 absolute -top-2 
                         transition-all duration-300 ease-in-out 
                         ${activeTab === 0 ? 'left-0' : 'left-1/2'}`}
                     />
-                </div>
+                </div> */}
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
