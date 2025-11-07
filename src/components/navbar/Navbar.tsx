@@ -158,7 +158,7 @@ const Navbar = () => {
                     {loginUserDetail?.user?.role === "provider" &&
                         <div className='relative '>
                             {screenWidth < 768 && <LuSearch className='text-lightGreyColor absolute top-2 z-30 left-2 ' size={20} onClick={() => setIsSearchbarClose(!isSearchbarClose)} />}
-                            <SearchBar placeholder='Search Client by Name,Email or License No...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
+                            <SearchBar placeholder='Search by Name,Email or License No...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
                             {filteredClients && filteredClients.length > 0 &&
                                 < div className='w-[100%] rounded-lg bg-white    borderClass max-h-[500px]   absolute top-10 left-0 z-[999999]' >
                                     {filteredClients?.map(data => {
