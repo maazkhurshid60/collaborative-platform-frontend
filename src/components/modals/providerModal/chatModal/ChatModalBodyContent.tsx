@@ -1,10 +1,7 @@
 import InputField from '../../../inputField/InputField'
 import Button from '../../../button/Button'
 import { PiWarningCircle } from 'react-icons/pi'
-import { FaWhatsapp } from "react-icons/fa6";
 import { IoIosLink } from "react-icons/io";
-import { FaInstagram } from 'react-icons/fa'
-import { FaFacebookF } from "react-icons/fa";
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import invitationEmailApiService from '../../../../apiServices/invitationEmailApi/InvitationEmailApi';
