@@ -38,7 +38,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
     const handleGenerateLink = () => {
 
         // const dummyLink = `http://localhost:5173/invite-chat/${chatType}/${id}`;
-        const dummyLink = `https://www.collaborateme.com/invite-chat/${chatType}/${id}`;
+        const dummyLink = `${import.meta.env.VITE_AWS_FRONT_BASE_URL}/invite-chat/${chatType}/${id}`;
         setGeneratedLink(dummyLink);
     };
 
