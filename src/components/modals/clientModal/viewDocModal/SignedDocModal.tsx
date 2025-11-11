@@ -147,7 +147,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                         {/* eSignatures */}
 
                         <div>
-                            <p className="font-semibold text-[14px] mb-2">eSignatures:</p>
+                            <p className="font-semibold text-[14px] mb-2">Esignatures:</p>
                             <div className="flex flex-wrap gap-4">
                                 <img
                                     key={completedDoc?.eSignature}

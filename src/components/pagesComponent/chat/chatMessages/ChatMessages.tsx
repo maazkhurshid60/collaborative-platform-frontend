@@ -448,7 +448,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                     {Object.entries(groupMessagesByDate(messages)).map(([dateGroup, groupMsgs]) => (
                         <div key={dateGroup}>
-                            <div className="sticky top-0 z-10 bg-white py-2 font-[Poppins] text-lg text-gray-500">
+                            <div className="sticky top-0 z-10 bg-white py-2 font-[Poppins] text-[16px] text-gray-500">
                                 {dateGroup}
                             </div>
                             {groupMsgs.map((msg) => {

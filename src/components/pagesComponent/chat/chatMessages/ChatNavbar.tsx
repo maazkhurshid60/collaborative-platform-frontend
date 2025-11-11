@@ -130,7 +130,8 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
 
                                     {isShowModal && (
                                         <div
-                                            className="absolute  p-4 rounded-2xl top-full right-[-100px] mt-2 w-[220px] max-h-[300px] min-h[200px] bg-white border-1 border-gray-300  z-30 gap-y-4 flex flex-col"
+                                            className="absolute top-full right-[-100px] mt-2 p-4 min-w-[250px] max-w-[400px] w-full max-h-[300px] min-h-[200px]
+               bg-white border border-gray-300 rounded-2xl z-30 flex flex-col gap-y-4 overflow-y-auto shadow-md"
 
                                         >
                                             <p className='text-sm font-semibold'>Other Group Members:</p>
@@ -142,7 +143,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                                         src={data?.Provider?.user?.profileImage} />
 
                                                     : <UserIcon className="text-[20px] md:text-[24px] lg:text-[28px]" />}
-                                                <div className='text-xs'>
+                                                <div className='text-xs '>
                                                     <p className='font-semibold capitalize'>{data?.Provider?.user?.fullName}</p>
                                                     <p>{data?.Provider?.email}</p>
                                                 </div>
