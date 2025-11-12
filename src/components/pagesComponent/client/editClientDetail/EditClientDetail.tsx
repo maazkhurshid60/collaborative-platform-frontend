@@ -11,15 +11,12 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import DeleteClientModal from '../../../modals/providerModal/deleteClientModal/DeleteClientModal'
-import UserIcon from '../../../icons/user/User'
 import { ClientType, Provider } from '../../../../types/clientType/ClientType'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import clientApiService from '../../../../apiServices/clientApi/ClientApi'
 import { toast } from 'react-toastify'
 import Loader from '../../../loader/Loader'
 import { GoDotFill } from 'react-icons/go'
-import FileUploader from '../../../uploader/fileUploader/FileUploader'
-import CrossIcon from '../../../icons/cross/Cross'
 import Checkbox from '../../../checkbox/Checkbox'
 import CountryStateSelect from '../../../dropdown/CountryStateSelect'
 
@@ -46,9 +43,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     } = methods;
     const queryClient = useQueryClient()
     const [isLoader, setIsLoader] = useState(false)
-    const [showUploader, setShowUploader] = useState(false)
-    const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    // const [showUploader, setShowUploader] = useState(false)
+    // const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
+    // const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [wantToBeSeen, setWantToBeSeen] = useState(true);
     const handleCheckboxChange = () => {
         setWantToBeSeen((prev) => !prev);
@@ -68,25 +65,25 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 
-            if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
+            // if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
 
-                const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
-                setPreviewUrl(imagePath)
-                setSelectedFile(imagePath)
-            } else {
+            //     const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
+            //     setPreviewUrl(imagePath)
+            //     setSelectedFile(imagePath)
+            // } else {
 
-                setPreviewUrl(null)
+            //     setPreviewUrl(null)
 
-            }
+            // }
         }
     }, [clientData, setValue])
 
 
-    const handleFileSelect = (file: File) => {
-        setSelectedFile(file)
-        setPreviewUrl(URL.createObjectURL(file))
-        setShowUploader(false)
-    }
+    // const handleFileSelect = (file: File) => {
+    //     setSelectedFile(file)
+    //     setPreviewUrl(URL.createObjectURL(file))
+    //     setShowUploader(false)
+    // }
 
     const updateFunction = (data: FormFields) => {
         // if (selectedFile === null) {
@@ -97,13 +94,13 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('fullName', data.fullName)
         formData.append('email', data.email)
         formData.append('licenseNo', data.licenseNo)
-        formData.append('age', data.age.toString())
-        formData.append('gender', data.gender)
-        formData.append('status', data.status)
-        formData.append('address', data.address)
+        formData.append('age', data?.age?.toString() ?? '')
+        formData.append('gender', data.gender ?? 'Male')
+        formData.append('status', data.status ?? 'active')
+        formData.append('address', data.address ?? '')
         formData.append('contactNo', data.contactNo)
         formData.append('state', data.state)
-        formData.append('country', data.country)
+        formData.append('country', data.country ?? '')
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
         // if (selectedFile !== null) {

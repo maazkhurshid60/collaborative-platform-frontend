@@ -1,10 +1,7 @@
 import InputField from '../../../inputField/InputField'
 import Button from '../../../button/Button'
 import { PiWarningCircle } from 'react-icons/pi'
-import { FaWhatsapp } from "react-icons/fa6";
 import { IoIosLink } from "react-icons/io";
-import { FaInstagram } from 'react-icons/fa'
-import { FaFacebookF } from "react-icons/fa";
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import invitationEmailApiService from '../../../../apiServices/invitationEmailApi/InvitationEmailApi';
@@ -38,7 +35,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
     const handleGenerateLink = () => {
 
         // const dummyLink = `http://localhost:5173/invite-chat/${chatType}/${id}`;
-        const dummyLink = `https://www.collaborateme.com/invite-chat/${chatType}/${id}`;
+        const dummyLink = `${import.meta.env.VITE_AWS_FRONT_BASE_URL}/invite-chat/${chatType}/${id}`;
         setGeneratedLink(dummyLink);
     };
 

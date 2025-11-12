@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import OutletLayout from '../../../../layouts/outletLayout/OutletLayout'
 import BackIcon from '../../../icons/back/Back'
@@ -5,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../../../button/Button'
 import InputField from '../../../inputField/InputField'
 import Dropdown from '../../../dropdown/Dropdown'
-import LabelData from '../../../labelText/LabelData'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,7 +20,6 @@ import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import Checkbox from '../../../checkbox/Checkbox'
-import FileUploader from '../../../uploader/fileUploader/FileUploader'
 import CountryStateSelect from '../../../dropdown/CountryStateSelect'
 type FormFields = z.infer<typeof clientSchema>
 
@@ -34,15 +33,15 @@ const AddClient = () => {
     const queryClient = useQueryClient()
     const providerId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id)
     const [wantToBeSeen, setWantToBeSeen] = useState(true);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    // const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Callback for when file is selected
-    const handleFileSelect = (file: File) => {
-        setSelectedFile(file);
-        const previewURL = URL.createObjectURL(file);
-        setImagePreview(previewURL);
-    };
+    // const handleFileSelect = (file: File) => {
+    //     setSelectedFile(file);
+    //     const previewURL = URL.createObjectURL(file);
+    //     setImagePreview(previewURL);
+    // };
     const handleCheckboxChange = () => {
         setWantToBeSeen((prev) => !prev);
     };
@@ -62,23 +61,23 @@ const AddClient = () => {
 
             formData.append("fullName", data?.fullName);
             formData.append("licenseNo", data?.licenseNo);
-            formData.append("age", data?.age?.toString());
+            formData.append("age", data?.age?.toString() ?? '');
             formData.append("email", data?.email);
             formData.append("contactNo", data?.contactNo);
-            formData.append("address", data?.address);
-            formData.append("gender", data?.gender);
-            formData.append("status", data?.status);
+            formData.append("address", data?.address ?? '');
+            formData.append("gender", data?.gender ?? 'Male');
+            formData.append("status", data?.status ?? 'active');
             formData.append("isAccountCreatedByOwnClient", "false");
             formData.append("role", "client");
             formData.append("isApprove", "pending");
-            formData.append("country", data?.country);
+            formData.append("country", data?.country ?? '');
             formData.append("state", data?.state);
             formData.append("providerId", providerId);
             formData.append("clientShowToOthers", wantToBeSeen.toString());
 
-            if (selectedFile) {
-                formData.append("profileImage", selectedFile);
-            }
+            // if (selectedFile) {
+            //     formData.append("profileImage", selectedFile);
+            // }
             await clientApiService.addClientApi(formData);
         },
         onMutate: () => {
