@@ -17,6 +17,7 @@ export interface blockListDataType {
     status?: string | null
     updatedAt?: string | null
     client?: ClientType | null
+    user?:any;
 }
 
 

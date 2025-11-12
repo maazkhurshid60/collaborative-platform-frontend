@@ -137,12 +137,12 @@ const Dashboard = () => {
 
                 <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-between flex-wrap'>
                     <div className=' flex flex-col gap-3 flex-wrap w-[100%] lg:w-[68%] '>
-                        <div className='h-[390px] w-[100%] lg:w-[100%] overflow-auto'>
+                        <div className=' w-[100%] lg:w-[100%] overflow-x-auto'>
                             <CardDashboardLayout heading='Clients List'>
                                 <ClientList />
                             </CardDashboardLayout>
                         </div>
-                        <div className='h-[390px] w-[100%] lg:w-[100%] overflow-auto'>
+                        <div className='w-[100%] lg:w-[100%] overflow-x-auto'>
                             <CardDashboardLayout heading='Providers List'>
                                 <ProviderList />
 

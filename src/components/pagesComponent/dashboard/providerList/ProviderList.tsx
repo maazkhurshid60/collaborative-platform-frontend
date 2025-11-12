@@ -53,12 +53,12 @@ const ProviderList = () => {
                         .map((data: ProviderType, id: number) => (
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                <td className="px-2 py-2">{id + 1}</td>
-                                <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                <td className="px-2 py-2">{data?.user?.licenseNo}</td>
-                                <td className="px-2 py-2 lowercase">{data?.email}</td>
-                                <td className="px-2 py-2">{data?.department}</td>
-                                <td className="px-2 py-2 w-[100px]">
+                                <td className="px-2 py-4">{id + 1}</td>
+                                <td className="px-2 py-4">{data?.user?.fullName}</td>
+                                <td className="px-2 py-4">{data?.user?.licenseNo}</td>
+                                <td className="px-2 py-4 lowercase">{data?.email}</td>
+                                <td className="px-2 py-4 capitalize">{data?.department}</td>
+                                <td className="px-2 py-4 w-[100px]">
                                     {data?.clientList === undefined ||
                                         data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true).length === 0 ? (
                                         <p>No Clients</p>

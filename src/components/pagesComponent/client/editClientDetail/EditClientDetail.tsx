@@ -171,9 +171,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         <InputField required label='license Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
-                        <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
-                        <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         <Dropdown<FormFields>
                             name="gender"
                             label="Gender"

@@ -1,11 +1,4 @@
-
-
-
-
-
-
-// components/dropdowns/CountryStateSelect.tsx
-
+// components/dropdowns/CountryStateSelect.ts
 import { useEffect, useState } from 'react';
 import { Country, State } from 'country-state-city';
 import { FieldError, useFormContext } from 'react-hook-form';
@@ -33,7 +26,7 @@ const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isSta
     const [stateOptions, setStateOptions] = useState<OptionType[]>([]);
 
     const selectedCountry = watch("country");
-
+    console.log(errors, 'errors');
     // Populate country list
     useEffect(() => {
         const allCountries = Country.getAllCountries().map(c => ({
@@ -76,7 +69,7 @@ const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isSta
                         control={control}
                         options={countryOptions}
                         placeholder="Select a country"
-                        error={errors?.country as FieldError}
+                        error={errors?.country?.message as FieldError}
                         required={required}
                         onChange={(selected) => setValue("country", selected.value)}
                     />
@@ -92,7 +85,7 @@ const CountryStateSelect = ({ defaultCountry, defaultState, isCountryView, isSta
                         control={control}
                         options={stateOptions}
                         placeholder={selectedCountry ? "Select a state" : "Select country first"}
-                        error={errors?.state as FieldError}
+                        error={errors?.state?.message as FieldError}
                         required={required}
                         disable={!selectedCountry}
                         onChange={(selected) => setValue("state", selected.value)}

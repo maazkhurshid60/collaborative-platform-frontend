@@ -17,13 +17,13 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
     return (
 
 
-        <div className={`${isWhiteColor ? "bg-white" : "bg-transparent"}  w-full p-2  pt-10 lg:p-5 md:pt-15 rounded-lg min-h-[86.5vh]  
+        <div className={`${isWhiteColor ? "bg-white" : "bg-transparent"}  w-full p-3  pt-5 lg:p-5 md:pt-15 rounded-lg min-h-[86.5vh]  
         font-[Poppins] text-textColor
-          h-[100vh] sm:h-auto 
+          h-auto sm:h-auto 
         `}>
             <div className='flex items-center justify-between w-full'>
 
-                <p className='headingMedium w-[150px] sm:w-[400px]  '>{heading}</p>
+                <p className='headingMedium w-[150px] sm:w-[400px] mb-3'>{heading}</p>
                 <div className='w-[170px]'>
 
                     {button}

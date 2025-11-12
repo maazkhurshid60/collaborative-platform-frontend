@@ -152,7 +152,7 @@ const ProviderSignup = () => {
     return (
         <>
             {isLoading && <Loader />}
-            <AuthLayout heading="Sign up">
+            <AuthLayout heading="Sign up" >
                 <FormProvider {...methods}>
 
                     <form onSubmit={handleSubmit(signupFunction)}>
@@ -196,7 +196,7 @@ const ProviderSignup = () => {
                             <Button text='sign up' />
                         </div>
 
-                        <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }} >Sign in</span></p>
+                        <p className='font-normal labelNormal  text-center mt-8'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }} >Sign in</span></p>
                     </form>
                 </FormProvider>
 

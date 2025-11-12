@@ -137,9 +137,17 @@ const NonUserChat = () => {
                 <img src={logo} alt="logo" className="w-[50px] md:w-[70px] lg:w-auto" />
 
                 {type === "group" ?
-                    <p onClick={joinChatFun} className='w-[80px] sm:w-[100px]'>
-                        <Button text='Join Now' />
-                    </p>
+                    // <p onClick={joinChatFun} className='w-[80px] sm:w-[100px]'>
+                    //     <Button text='Join Now' />
+                    // </p>
+                     <div className='w-[160px] sm:w-[210px] flex items-center gap-x-3'>
+                            <NavLink to="/" className='w-[80px] sm:w-[100px]'>
+                                <Button text='Login' borderButton />
+                            </NavLink>
+                            <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
+                                <Button text='Signup' />
+                            </NavLink>
+                        </div>
                     : <>
                         <div className='w-[160px] sm:w-[210px] flex items-center gap-x-3'>
                             <NavLink to="/" className='w-[80px] sm:w-[100px]'>

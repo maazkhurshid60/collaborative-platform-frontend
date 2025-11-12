@@ -189,7 +189,7 @@ const ViewUser = () => {
 
                     <div className=''>
                         <LabelData
-                            label='Email'
+                            label='Email' 
                             data={
                                 selectedUserData?.client?.email ? selectedUserData.client.email : selectedUserData?.provider?.email ?? "-"
                             }

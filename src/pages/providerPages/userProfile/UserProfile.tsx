@@ -224,7 +224,7 @@ const UserProfile = () => {
                             </div>
 
                             <div className=''>
-                                <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                                <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
                               <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
@@ -252,7 +252,7 @@ const UserProfile = () => {
                                     {getMeDetail?.clientList?.map((data, index) => (
                                         <li key={index}>
                                             <div className="flex items-center gap-x-3">
-                                                <div className="flex items-center gap-x-2 w-[150px]">
+                                                <div className="flex items-center gap-x-2 whitespace-nowrap">
 
                                                     <GoDotFill className='text-[6px]' />
                                                     {data?.client?.user?.fullName}
@@ -343,7 +343,7 @@ const UserProfile = () => {
                                         getMeDetail?.clientList?.map((data, index) => (
                                             <li key={index}>
                                                 <div className="flex items-center gap-x-3">
-                                                    <div className="flex items-center gap-x-2 w-[150px]">
+                                                    <div className="flex items-center gap-x-2 whitespace-nowrap">
 
                                                         <GoDotFill className='text-[6px]' />
                                                         {data?.client?.user?.fullName}

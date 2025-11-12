@@ -47,10 +47,10 @@ const AddClient = () => {
         setWantToBeSeen((prev) => !prev);
     };
     const addFunction = (data: FormFields) => {
-        if (selectedFile === null) {
-            return toast.error("Profile Image is required");
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is required");
 
-        }
+        // }
         updateMutation.mutate(data)
     }
 
@@ -157,7 +157,7 @@ const AddClient = () => {
                         </div>
 
                         <div className=''>
-                            <InputField required label='Contact Number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                            <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         </div>
 
 

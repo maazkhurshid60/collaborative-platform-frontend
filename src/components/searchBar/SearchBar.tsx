@@ -14,7 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ sm = false, value, onChange, bgCo
 
     return (
         <div className={` m-auto ${borderRounded} ${isBorder && "borderClass"} flex items-center gap-x-2 ${sm ? "px-2 py-0.5 lg:py-1" : "px-3 py-1 lg:py-2"} ${bgColor}`}>
-            <LuSearch className={`text-lightGreyColor opacity-0 md:opacity-100 `} size={sm ? 18 : 18} />
+            <LuSearch className={`text-lightGreyColor opacity-100 `} size={sm ? 18 : 18} />
             <input
                 className={`outline-none w-full placeholder:text-[10px] md:placeholder:text-[12px] lg:placeholder:text-[14px] `}
                 placeholder={placeholder}
