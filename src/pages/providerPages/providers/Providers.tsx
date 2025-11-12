@@ -128,7 +128,7 @@ const Providers = () => {
                                                     .filter((client: Client) => client?.client?.clientShowToOthers === true)
                                                     .slice(0, 2)
                                                     .map((client: Client, index) => (
-                                                        <p className="flex items-center gap-x-1 capitalize" key={index}>
+                                                        <p className="flex items-center gap-x-1 capitalize whitespace-nowrap" key={index}>
                                                             {client?.client?.user?.fullName}
                                                         </p>
                                                     ))}
