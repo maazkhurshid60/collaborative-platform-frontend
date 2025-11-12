@@ -10,7 +10,7 @@ const AuthLayout: React.FC<authProps> = (props) => {
     return (
         <div className='flex min-h-screen items-stretch'>
             {/* Left Side - Form Section */}
-            <div className='w-full md:w-1/2 flex items-center justify-center'>
+            <div className='w-full md:w-1/2 flex items-center justify-center md:py-8 lg:py-[60px]'>
                 <div className='w-full md:w-[70%] rounded-[20px] bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
                     <p className='heading text-center mb-4 capitalize'>{props.heading}</p>
                     {props.children}

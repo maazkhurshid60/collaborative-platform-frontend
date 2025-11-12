@@ -126,9 +126,9 @@ const AllDocuments = () => {
                         <Table heading={heading}>
                             {getCurrentRecords()?.map((data, id) => (
                                 <tr key={id} className="border-b border-b-solid border-b-lightGreyColor pb-4">
-                                    <td className="px-2 py-2 font-semibold">{data?.name}</td>
-                                    <td className="px-2 py-2">{data?.type || "Questionaire"}</td>
-                                    <td className="px-2 py-2">{data?.createdAt?.split("T")[0]}</td>
+                                    <td className="px-2 py-4 font-semibold">{data?.name}</td>
+                                    <td className="px-2 py-4">{data?.type || "Questionaire"}</td>
+                                    <td className="px-2 py-4">{data?.createdAt?.split("T")[0]}</td>
 
                                     <td className="py-2 align-middle">
                                         <div className="flex items-center gap-x-2">

@@ -27,7 +27,7 @@ const Table: React.FC<TableProps> = ({
                 ))}
               </tr>
             </thead>
-            <tbody className='text-textColor  text-[14px]  font-[400] text-left'>
+            <tbody className='text-textColor  text-[14px]  font-[400] text-left h-[270px] w-[100%] lg:w-[100%] overflow-auto'>
               {children}
             </tbody>
           </table>

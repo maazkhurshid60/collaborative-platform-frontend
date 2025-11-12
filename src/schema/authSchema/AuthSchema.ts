@@ -29,7 +29,7 @@ export const ResetPasswordSchema = z.object({
 
 
 export const LicenseNoSchema = z.object({
-    licenseNo: z.string().min(1, "License number is required."),
+    licenseNo: z.number().min(1, "License number is required."),
 })
 
 
@@ -39,7 +39,7 @@ export const LicenseNoSchema = z.object({
 export const ClientSignupSchema = z.object({
     email: z.string().email(),
     fullName: z.string().min(1, "Full Name is required"),
-    licenseNo: z.string().min(1, "License number is required"),
+    licenseNo: z.number().min(1, "License number is required"),
     country: z.string().nonempty("Country is required"),
     state: z.string().nonempty("State is required"),
     password: strongPassword,
@@ -59,7 +59,7 @@ export const ProviderSignupSchema = z.object({
     department: z.string().min(1, "Department is required"),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
-    licenseNo: z.string().min(1, "License number is required."),
+    licenseNo: z.number().min(1, "License number is required."),
 
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",

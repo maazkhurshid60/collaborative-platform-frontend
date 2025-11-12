@@ -107,7 +107,7 @@ const ClientSignup = () => {
                             <Button text='Sign up' />
                         </div>
 
-                        <p className='font-normal labelNormal text-center mt-14'>
+                        <p className='font-normal labelNormal text-center mt-8'>
                             Already have an account?
                             <span className='capitalize ml-1 text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/"); dispatch(emptyResult()) }}>
                                 Sign in

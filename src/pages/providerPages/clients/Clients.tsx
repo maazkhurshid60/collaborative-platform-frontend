@@ -112,9 +112,9 @@ const Clients = () => {
             {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}
 
-            <div className="flex items-center justify-end mt-6">
+            <div className="flex items-center md:justify-end mt-6">
 
-                <div className="w-[40%] ">
+                <div className="w-[100%] md:w-[40%] ">
 
                     <SearchBar
                         value={searchTerm}
@@ -132,10 +132,10 @@ const Clients = () => {
                                     <td className="px-2 py-2">{id + 1}</td>
                                     <td className="px-2 py-2">{data?.user?.fullName}</td>
                                     <td className="px-2 py-2">{data?.user?.licenseNo}</td>
-                                    <td className="px-2 py-2">{data?.user?.gender}</td>
+                                    <td className="px-2 py-2 capitalize">{data?.user?.gender}</td>
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">
-                                        <p className={`ps-1 pe-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
+                                        <p className={`ps-1 pe-4 py-1 rounded-md inline-block capitalize  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
 
                                             {data?.user?.status}
 

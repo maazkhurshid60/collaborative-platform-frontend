@@ -35,12 +35,21 @@ const UserSetting = () => {
             }
         }
     })
+    // console.log(allUsersData.blockedMembers, 'alluserddata');
 
+let filteredData ;
 
-    const filteredData = (allUsersData || []).filter(
-        (user) =>
-            !user.blockedMembers?.includes(loginUserDetail?.user?.id)
+if (Array.isArray(allUsersData)) {
+    // If it's an array, filter normally
+    filteredData = allUsersData.filter(
+        (user) => !user.blockedMembers?.includes(loginUserDetail?.user?.id)
     );
+} else if (allUsersData && typeof allUsersData === 'object') {
+    // If it's a single object, check blockedMembers and include if allowed
+    if (!allUsersData.blockedMembers?.includes(loginUserDetail?.user?.id)) {
+        filteredData = [allUsersData]; // wrap single object in array
+    }
+}
 
     const deleteMe = () => {
         deleteMeMutation.mutate()

@@ -94,9 +94,9 @@ const Providers = () => {
 
     return (
         <OutletLayout heading='Providers List' button={<Button text='Download xls' onclick={() => downloadXLS(getCurrentRecords())} />}>
-            <div className="flex items-center justify-end mt-6">
+            <div className="flex items-center md:justify-end mt-6">
 
-                <div className="w-[40%] ">
+                <div className="w-[100%] md:w-[40%] ">
 
                     <SearchBar
                         value={searchTerm}
@@ -111,14 +111,14 @@ const Providers = () => {
                             .map((data: ProviderType, id: number) => (
 
                                 <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                    <td className="px-2 py-9">{data?.user?.fullName}</td>
-                                    <td className="px-2 py-9">{data?.user?.licenseNo}</td>
-                                    <td className="px-2 py-9">{data?.user?.gender}</td>
-                                    <td className="px-2 py-9 lowercase">{data?.email}</td>
-                                    <td className="px-2 py-9">{data?.user?.status}</td>
+                                    <td className="px-2 py-4">{data?.user?.fullName}</td>
+                                    <td className="px-2 py-4">{data?.user?.licenseNo}</td>
+                                    <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
+                                    <td className="px-2 py-4 lowercase">{data?.email}</td>
+                                    <td className="px-2 py-4 capitalize">{data?.user?.status}</td>
                                     {/* <td className="px-2 py-2">{getCountryNameFromCode(data?.user?.country ?? "")}</td> */}
                                     {/* <td className="px-2 py-2">{data?.user?.state}</td> */}
-                                    <td className="px-2 py-9 w-[100px]">
+                                    <td className="px-2 py-4 w-[100px]">
                                         {data?.clientList === undefined ||
                                             data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true).length === 0 ? (
                                             <p>No Clients</p>

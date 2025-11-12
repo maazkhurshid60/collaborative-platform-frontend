@@ -103,12 +103,12 @@ const ClientList = () => {
                         ?.map((data: ClientType, id: number) => (
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                <td className="px-2 py-2">{data?.user?.licenseNo}</td>
-                                <td className="px-2 py-2">{data?.user?.gender}</td>
-                                <td className="px-2 py-2 lowercase">{data?.email}</td>
-                                <td className="px-2 py-2">{data?.user?.status}</td>
-                                <td className="px-2 py-2 w-[100px]">
+                                <td className="px-2 py-4">{data?.user?.fullName}</td>
+                                <td className="px-2 py-4">{data?.user?.licenseNo}</td>
+                                <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
+                                <td className="px-2 py-4 lowercase">{data?.email}</td>
+                                <td className="px-2 py-4 capitalize">{data?.user?.status}</td>
+                                <td className="px-2 py-4 w-[100px]">
                                     {
 
                                         data?.providerList?.length === 0 || data?.providerList === undefined
@@ -131,7 +131,7 @@ const ClientList = () => {
 
                                 </td>
 
-                                <td className="py-2 h-full align-middle">
+                                <td className="py-4 h-full align-middle">
                                     <div className="flex items-center justify-center gap-x-2 h-full">
                                         {data?.providerList?.length !== 0 || data?.providerList !== undefined
                                             && data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (

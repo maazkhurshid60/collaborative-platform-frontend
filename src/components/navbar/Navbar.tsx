@@ -236,7 +236,7 @@ const Navbar = () => {
                                 )
                             }
 
-                            <div className='flex items-center gap-x-10 bg-white z-20'>
+                            <div className='flex items-center gap-x-3 lg:gap-x-10 bg-white z-20'>
                                 <div className='font-[Montserrat]'>
                                     <p className=' text-textColor font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName}</p>
                                     <p className='text-lightGreyColor font-medium text-[12px] md:text-[14px] lg:text-[16px] capitalize'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>

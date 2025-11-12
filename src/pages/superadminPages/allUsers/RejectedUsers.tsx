@@ -129,7 +129,7 @@ const RejectedUsers = () => {
                                                 <img className='w-10 h-10 rounded-full object-cover' src={data?.profileImage ? data?.profileImage : undefined} />
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
-                                                <p>{data?.fullName}</p>
+                                                <p className="capitalize">{data?.fullName}</p>
                                                 <p>{(data?.client?.email || data?.provider?.email)?.toLowerCase()}</p>
                                             </div>
                                         </div>

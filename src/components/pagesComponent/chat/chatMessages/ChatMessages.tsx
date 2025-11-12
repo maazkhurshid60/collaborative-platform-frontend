@@ -516,7 +516,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                                                     {/* Decrypted Text Message */}
                                                     {msg.message && (
-                                                        <p className={`relative p-4 rounded-lg max-w-xs ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
+                                                        <p className={`relative p-4 rounded-lg max-w-xs break-all ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
                                                             {msg.message}
                                                         </p>
                                                     )}
