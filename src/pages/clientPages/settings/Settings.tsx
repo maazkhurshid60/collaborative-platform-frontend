@@ -249,7 +249,7 @@ const Settings = () => {
     >
       {!isEdit && (
         <div className="relative">
-          <div className="absolute -top-8 left-[230px] text-primaryColorDark">
+          <div className="absolute hidden md:block -top-[6px] md:-top-10 md:left-[230px] text-primaryColorDark">
             <EditIcon />
           </div>
         </div>
@@ -281,7 +281,7 @@ const Settings = () => {
       {isEdit ? (
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(updateFunction)} className="mt-2 ">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
               <InputField
                 required
                 label="Full Name"
@@ -370,7 +370,7 @@ const Settings = () => {
         </FormProvider>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
             <LabelData label="Full Name" data={getMeData?.user?.fullName} />
             <LabelData
               label="License Number"

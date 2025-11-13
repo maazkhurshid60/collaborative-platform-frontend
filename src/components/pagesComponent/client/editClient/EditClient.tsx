@@ -65,7 +65,7 @@ const EditClient = () => {
                     </div>
                 </div>
             </div>
-            <div className='flex items-center mt-4 w-[30%] mb-3'>
+            <div className='flex items-center mt-4 md:w-[60%] lg:w-[50%] xl:w-[30%] mb-3'>
                 {tabData.map((tab, id) => (
                     <p
                         key={id}
