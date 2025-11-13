@@ -141,7 +141,7 @@ const Navbar = () => {
     return (
         <div className='bg-white'>
             {isLoader && <Loader text='Adding...' />}
-            <div className='flex  items-center justify-between md:justify-end md:gap-x-40 bg-white px-3 py-3'>
+            <div className='flex w-full items-center justify-between xl:justify-end xl:gap-x-40 bg-white px-3 py-3'>
 
                 <div className="block md:hidden">
                     {isSideBarClose === false && <IoMdMenu size={24} onClick={() => dispatch(isSideBarCloseReducser(true))} />}
@@ -152,7 +152,7 @@ const Navbar = () => {
                         ? isSearchbarClose
                             ? 'w-[250px]'
                             : 'w-[35px]'
-                        : 'w-full md:w-[400px] lg:w-[500px] xl:w-[507px]'
+                        : ' md:w-full md:max-w-[250px] lg:max-w-[500px] xl:max-w-[507px]'
                         }`}
                 >
                     {loginUserDetail?.user?.role === "provider" &&

@@ -393,7 +393,7 @@ const Chat = () => {
                                                             ? {
                                                                 ...channel,
                                                                 totalUnread: 0,
-                                                                updatedAt: new Date().toISOString() // <-- optional but safe
+                                                                updatedAt: new Date().toISOString() 
                                                             }
                                                             : channel
                                                     );
