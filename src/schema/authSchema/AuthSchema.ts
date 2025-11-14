@@ -29,7 +29,7 @@ export const ResetPasswordSchema = z.object({
 
 
 export const LicenseNoSchema = z.object({
-    licenseNo: z.number().min(1, "License number is required."),
+    licenseNo: z.string().min(1, "License number is required."),
 })
 
 
