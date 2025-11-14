@@ -145,7 +145,7 @@ const AddClient = () => {
                         </div>
                         <div className=''>
                             <InputField required
-                                type='number'
+                                type='text'
                                 label='license Number'
                                 register={register("licenseNo")}
                                 placeHolder='Enter licenseNo.'

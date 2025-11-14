@@ -89,7 +89,7 @@ const LicenseNo = () => {
 
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
-                    <InputField required label='License Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                    <InputField required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
                 </div>
                 <div className='mt-10'>
 

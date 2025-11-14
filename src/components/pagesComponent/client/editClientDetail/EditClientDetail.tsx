@@ -166,7 +166,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                        <InputField required label='license Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                        <InputField required label='license Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
                         <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />

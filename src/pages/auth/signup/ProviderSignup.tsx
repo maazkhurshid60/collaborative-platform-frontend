@@ -165,7 +165,7 @@ const ProviderSignup = () => {
 
                         <div className='mb-1.5'>
                             <InputField required
-                                type='number'
+                                type='text'
                                 label='License Number'
                                 register={register("licenseNo")}
                                 placeHolder='Enter license number.'

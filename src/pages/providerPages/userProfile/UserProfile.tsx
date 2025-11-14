@@ -201,7 +201,7 @@ const UserProfile = () => {
                             <div className=''>
                                 <InputField required
                                     label='License Number'
-                                    type='number'
+                                    type='text'
                                     register={register("licenseNo")}
                                     placeHolder='Enter license number.'
                                     error={errors.licenseNo?.message} />
