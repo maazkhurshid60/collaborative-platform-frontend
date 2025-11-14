@@ -46,9 +46,7 @@ if (Array.isArray(allUsersData)) {
     );
 } else if (allUsersData && typeof allUsersData === 'object') {
     // If it's a single object, check blockedMembers and include if allowed
-    if (!allUsersData.blockedMembers?.includes(loginUserDetail?.user?.id)) {
-        filteredData = [allUsersData]; // wrap single object in array
-    }
+    console.log('n');
 }
 
     const deleteMe = () => {

@@ -9,7 +9,7 @@ export interface ProviderType {
     department?: string
     createdAt?: string
     updatedAt?: string
-    user?: User
+    user?: any
     sharedDocument?: []
     clientList?: Client[]
     // provider?:

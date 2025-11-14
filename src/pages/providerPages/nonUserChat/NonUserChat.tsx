@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { NavLink, useParams } from 'react-router-dom';
+import {  useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { RootState } from '../../../redux/store';
 import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { Message } from '../../../types/chatType/ChatType';
 import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
-import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
+// import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import logo from "../../../../public/assets/kolabme-logo.svg";
 import Loader from '../../../components/loader/Loader';
 
 const NonUserChat = () => {
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
-    const { id, type, email } = useParams();
-    const [isLoading, setIsLoading] = useState(false);
+    const { id, type } = useParams();
+    const isLoading = false;
 
     const messageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -22,8 +22,8 @@ const NonUserChat = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch()
-    const naviagte = useNavigate()
+    // const dispatch = useDispatch()
+    // const naviagte = useNavigate()
     const fetchMessages = async (currentPage = 1) => {
         if (!id || !loginUserId) return;
 
@@ -70,44 +70,44 @@ const NonUserChat = () => {
         setLoading(false);
     };
 
-    const joinChatFun = async () => {
-        setIsLoading(true)
-        const dataSendToBack = {
-            groupId: id, memberEmail: email
-        }
-        console.log("data send to joint chat", dataSendToBack);
-        try {
-            const response = await messageApiService.updateGroupApi(dataSendToBack)
+    // const joinChatFun = async () => {
+    //     setIsLoading(true)
+    //     const dataSendToBack = {
+    //         groupId: id, memberEmail: email
+    //     }
+    //     console.log("data send to joint chat", dataSendToBack);
+    //     try {
+    //         const response = await messageApiService.updateGroupApi(dataSendToBack)
 
-            console.log(response);
-            toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
-            naviagte("/")
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            console.error('❌:', err);
-            const errorMessage = typeof err === "string"
-                ? err
-                : err?.message || 'Error loading messages.';
+    //         console.log(response);
+    //         toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
+    //         naviagte("/")
+    //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     } catch (err: any) {
+    //         console.error('❌:', err);
+    //         const errorMessage = typeof err === "string"
+    //             ? err
+    //             : err?.message || 'Error loading messages.';
 
-            toast.error(errorMessage);
-            // If error contains a specific message, show it in the toast
+    //         toast.error(errorMessage);
+    //         // If error contains a specific message, show it in the toast
 
-            if (errorMessage === "Member is already part of this group.") {
-                naviagte("/");
-            } else {
+    //         if (errorMessage === "Member is already part of this group.") {
+    //             naviagte("/");
+    //         } else {
 
-                const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
+    //             const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
 
-                dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
-                naviagte("/provider-signup")
-            }
+    //             dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
+    //             naviagte("/provider-signup")
+    //         }
 
-        }
+    //     }
 
 
-        setLoading(false);
+    //     setLoading(false);
 
-    }
+    // }
 
     useEffect(() => {
         setMessages([]); // reset when chat changes
