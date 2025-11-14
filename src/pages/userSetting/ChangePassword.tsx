@@ -57,7 +57,7 @@ const ChangePassword = () => {
                         onSubmit={handleSubmit(changePasswordFunc)}
                         className='mt-6'
                     >
-                        <div className='grid lg:grid-cols-3 gap-x-4'>
+                        <div className='grid lg:grid-cols-3 gap-y-3 gap-x-4'>
 
                             <InputField label='Old Password' required type='password' register={register('oldPassword')} error={errors?.oldPassword?.message} placeHolder='Enter old password' />
                             <InputField label='New Password' required type='password' register={register('newPassword')} error={errors?.newPassword?.message} placeHolder='Enter new password' />
