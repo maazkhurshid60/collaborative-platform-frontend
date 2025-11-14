@@ -63,7 +63,7 @@ const AddClient = () => {
             formData.append("licenseNo", data?.licenseNo);
             formData.append("age", data?.age?.toString() ?? '');
             formData.append("email", data?.email);
-            formData.append("contactNo", data?.contactNo);
+            formData.append("contactNo", data?.contactNo.toString());
             formData.append("address", data?.address ?? '');
             formData.append("gender", data?.gender ?? 'Male');
             formData.append("status", data?.status ?? 'active');
