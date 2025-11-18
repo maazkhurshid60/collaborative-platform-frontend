@@ -184,7 +184,7 @@ const Collaboration = () => {
                 />
             </div>
 
-            <div className='mt-4 h-[600px] overflow-auto'>
+            <div className='mt-4'>
                 {activeTab === 0 ? (
                     <div className="min-h-[100vh] max-h-[100vh] p-2 lg:p-0 overflow-auto mt-4">
                         {filteredChats?.length === 0 ? (
