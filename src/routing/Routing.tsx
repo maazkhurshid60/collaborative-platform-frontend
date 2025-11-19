@@ -26,7 +26,6 @@ const AddClient = lazy(() => import("../components/pagesComponent/client/addClie
 const EditClient = lazy(() => import("../components/pagesComponent/client/editClient/EditClient"));
 const Login = lazy(() => import("../pages/auth/login/Login"))
 const ProviderSignup = lazy(() => import("../pages/auth/signup/ProviderSignup"))
-const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ChangePassword = lazy(() => import("../pages/userSetting/ChangePassword"))
 const Settings = lazy(() => import("../pages/clientPages/settings/Settings"));
 const Document = lazy(() => import("../pages/clientPages/documents/Document"));
