@@ -5,6 +5,7 @@ import { RootState } from "../redux/store";
 import { lazy } from "react";
 import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
+const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
 const ForgotPassword = lazy(() => import("../pages/auth/forgotPassword/ForgotPassword"));
@@ -25,7 +26,6 @@ const AddClient = lazy(() => import("../components/pagesComponent/client/addClie
 const EditClient = lazy(() => import("../components/pagesComponent/client/editClient/EditClient"));
 const Login = lazy(() => import("../pages/auth/login/Login"))
 const ProviderSignup = lazy(() => import("../pages/auth/signup/ProviderSignup"))
-const LicenseNo = lazy(() => import("../pages/auth/licenseScreen/LicenseScreen"))
 const ChangePassword = lazy(() => import("../pages/userSetting/ChangePassword"))
 const Settings = lazy(() => import("../pages/clientPages/settings/Settings"));
 const Document = lazy(() => import("../pages/clientPages/documents/Document"));
