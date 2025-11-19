@@ -153,7 +153,7 @@ const NonUserChat = () => {
                             <NavLink to="/" className='w-[80px] sm:w-[100px]'>
                                 <Button text='Login' borderButton />
                             </NavLink>
-                            <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
+                            <NavLink to="/provider-signup" className='w-[80px] sm:w-[100px]'>
                                 <Button text='Signup' />
                             </NavLink>
                         </div>

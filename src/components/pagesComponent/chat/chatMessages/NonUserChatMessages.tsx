@@ -94,7 +94,7 @@ const NonUserChatMessages: React.FC<NonUserChatMessagesProps> = ({ messageData }
                                     </p>
                                     <div className="flex items-center gap-x-4 text-[14px]">
                                         <p
-                                            className={`p-4 rounded-lg ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}
+                                            className={`p-4 break-all rounded-lg ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}
                                         >
                                             {msg?.message}
                                         </p>
