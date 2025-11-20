@@ -141,8 +141,9 @@ const AddClient = () => {
                         </div>
 
                         <div className=''>
-                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                            <InputField label='Age' type="number" register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         </div>
+                        
                         <div className=''>
                             <InputField required
                                 type='text'
