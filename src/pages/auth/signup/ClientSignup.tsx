@@ -75,6 +75,7 @@ const ClientSignup = () => {
         setValue("fullName", licenseNoData?.fullName);
         setValue("licenseNo", licenseNoData?.licenseNo);
         setValue("email", licenseNoData?.email);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseNoData]);
 
     return (
@@ -90,7 +91,7 @@ const ClientSignup = () => {
                             <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
                         </div>
                         <div className='mb-3.5'>
-                            <InputField required label='License Number' type='number' register={register("licenseNo")} placeHolder='Enter License Number' error={errors?.licenseNo?.message} />
+                            <InputField required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter License Number' error={errors?.licenseNo?.message} />
                         </div>
                         <CountryStateSelect isCountryView={true} isStateView={false} defaultCountry={licenseNoData?.country} />
                         <CountryStateSelect isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />

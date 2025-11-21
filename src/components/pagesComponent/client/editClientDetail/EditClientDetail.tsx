@@ -46,6 +46,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     // const [showUploader, setShowUploader] = useState(false)
     // const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
     // const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    // const [showUploader, setShowUploader] = useState(false)
+    // const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
+    // const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [wantToBeSeen, setWantToBeSeen] = useState(true);
     const handleCheckboxChange = () => {
         setWantToBeSeen((prev) => !prev);
@@ -60,20 +63,28 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("address", clientData?.user?.address ?? "")
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", parseInt(clientData?.user?.age ?? ""))
+            setValue("age", parseInt(clientData?.user?.age ?? ""))
             setValue("gender", clientData?.user?.gender ?? "")
             setValue("country", clientData?.user?.country ?? "")
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 
             // if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
+            // if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
 
+            //     const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
+            //     setPreviewUrl(imagePath)
+            //     setSelectedFile(imagePath)
+            // } else {
             //     const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
             //     setPreviewUrl(imagePath)
             //     setSelectedFile(imagePath)
             // } else {
 
             //     setPreviewUrl(null)
+            //     setPreviewUrl(null)
 
+            // }
             // }
         }
     }, [clientData, setValue])
@@ -84,8 +95,16 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     //     setPreviewUrl(URL.createObjectURL(file))
     //     setShowUploader(false)
     // }
+    // const handleFileSelect = (file: File) => {
+    //     setSelectedFile(file)
+    //     setPreviewUrl(URL.createObjectURL(file))
+    //     setShowUploader(false)
+    // }
 
     const updateFunction = (data: FormFields) => {
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is require.")
+        // }
         // if (selectedFile === null) {
         //     return toast.error("Profile Image is require.")
         // }
@@ -98,13 +117,21 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('gender', data.gender ?? 'Male')
         formData.append('status', data.status ?? 'active')
         formData.append('address', data.address ?? '')
+        formData.append('age', data?.age?.toString() ?? '')
+        formData.append('gender', data.gender ?? 'Male')
+        formData.append('status', data.status ?? 'active')
+        formData.append('address', data.address ?? '')
         formData.append('contactNo', data.contactNo)
         formData.append('state', data.state)
+        formData.append('country', data.country ?? '')
         formData.append('country', data.country ?? '')
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
         // if (selectedFile !== null) {
+        // if (selectedFile !== null) {
 
+        //     formData.append('profileImage', selectedFile)
+        // }
         //     formData.append('profileImage', selectedFile)
         // }
 
@@ -135,6 +162,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
                     {/* <div className='mb-5'>
+                    {/* <div className='mb-5'>
                         <LabelData label='Client Image' />
                         <div className="relative w-32 h-32">
                             {!showUploader ? (
@@ -152,6 +180,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             )}
 
                            
+                           
                             {!showUploader && (
 
                                 <CrossIcon onClick={() => {
@@ -163,13 +192,16 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         </div>
 
                     </div> */}
+                    </div> */}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         <InputField required label='license Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
                         <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                        <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         <Dropdown<FormFields>
                             name="gender"
@@ -190,6 +222,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isStateView={false}
                             defaultCountry={clientData?.user?.country}
                              required={false}
+                             required={false}
                         // defaultState={getMeData?.user?.state}
                         />
                         <CountryStateSelect
@@ -198,7 +231,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             // defaultCountry={getMeData?.user?.country}
                             defaultState={clientData?.user?.state}
                              required={false}
+                             required={false}
                         />
+                        <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
                         <Dropdown<FormFields>
@@ -212,6 +247,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                         <div className=' '>
                             <LabelData label='List of Providers' />
+                            <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
                             <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
                                 {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
                                     ? <p>No Providers Found</p>

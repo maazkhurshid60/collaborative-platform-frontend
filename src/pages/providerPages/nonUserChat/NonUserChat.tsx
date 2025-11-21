@@ -7,6 +7,8 @@ import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
 // import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import logo from "../../../../public/assets/kolabme-logo.svg";
+// import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
+import logo from "../../../../public/assets/kolabme-logo.svg";
 import Loader from '../../../components/loader/Loader';
 const NonUserChat = () => {
     const { id, type, } = useParams();
@@ -18,6 +20,8 @@ const NonUserChat = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
+    // const dispatch = useDispatch()
+    // const naviagte = useNavigate()
     // const dispatch = useDispatch()
     // const naviagte = useNavigate()
     const fetchMessages = async (currentPage = 1) => {
@@ -74,7 +78,24 @@ const NonUserChat = () => {
     //     console.log("data send to joint chat", dataSendToBack);
     //     try {
     //         const response = await messageApiService.updateGroupApi(dataSendToBack)
+    // const joinChatFun = async () => {
+    //     setIsLoading(true)
+    //     const dataSendToBack = {
+    //         groupId: id, memberEmail: email
+    //     }
+    //     console.log("data send to joint chat", dataSendToBack);
+    //     try {
+    //         const response = await messageApiService.updateGroupApi(dataSendToBack)
 
+    //         console.log(response);
+    //         toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
+    //         naviagte("/")
+    //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     } catch (err: any) {
+    //         console.error('❌:', err);
+    //         const errorMessage = typeof err === "string"
+    //             ? err
+    //             : err?.message || 'Error loading messages.';
     //         console.log(response);
     //         toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
     //         naviagte("/")
@@ -87,22 +108,34 @@ const NonUserChat = () => {
 
     //         toast.error(errorMessage);
     //         // If error contains a specific message, show it in the toast
+    //         toast.error(errorMessage);
+    //         // If error contains a specific message, show it in the toast
 
+    //         if (errorMessage === "Member is already part of this group.") {
+    //             naviagte("/");
+    //         } else {
     //         if (errorMessage === "Member is already part of this group.") {
     //             naviagte("/");
     //         } else {
 
     //             const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
+    //             const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
 
+    //             dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
+    //             naviagte("/provider-signup")
+    //         }
     //             dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
     //             naviagte("/provider-signup")
     //         }
 
     //     }
+    //     }
 
 
     //     setLoading(false);
+    //     setLoading(false);
 
+    // }
     // }
 
     useEffect(() => {

@@ -109,7 +109,7 @@ const RejectedUsers = () => {
                     <SearchBar
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by name, email, state, role, etc..."
+                        placeholder="Search by Name, Email, State, Role, etc..."
                     />                </div>
             </div>
             {/* } */}
@@ -153,7 +153,7 @@ const RejectedUsers = () => {
                                         </p>
 
                                     </td>
-                                    <td className="px-2 py-2">{data?.role}</td>
+                                    <td className="px-2 py-2 capitalize">{data?.role}</td>
 
                                     <td className="px-2 py-2">{data?.createdAt?.split("T")[0]}</td>
 

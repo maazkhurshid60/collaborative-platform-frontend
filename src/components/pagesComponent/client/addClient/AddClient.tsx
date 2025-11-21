@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import OutletLayout from '../../../../layouts/outletLayout/OutletLayout'
 import BackIcon from '../../../icons/back/Back'
@@ -35,8 +36,15 @@ const AddClient = () => {
     const [wantToBeSeen, setWantToBeSeen] = useState(true);
     // const [selectedFile, setSelectedFile] = useState<File | null>(null);
     // const [imagePreview, setImagePreview] = useState<string | null>(null);
+    // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    // const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Callback for when file is selected
+    // const handleFileSelect = (file: File) => {
+    //     setSelectedFile(file);
+    //     const previewURL = URL.createObjectURL(file);
+    //     setImagePreview(previewURL);
+    // };
     // const handleFileSelect = (file: File) => {
     //     setSelectedFile(file);
     //     const previewURL = URL.createObjectURL(file);
@@ -48,7 +56,10 @@ const AddClient = () => {
     const addFunction = (data: FormFields) => {
         // if (selectedFile === null) {
         //     return toast.error("Profile Image is required");
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is required");
 
+        // }
         // }
         updateMutation.mutate(data)
     }
@@ -62,7 +73,12 @@ const AddClient = () => {
             formData.append("fullName", data?.fullName);
             formData.append("licenseNo", data?.licenseNo);
             formData.append("age", data?.age?.toString() ?? '');
+            formData.append("age", data?.age?.toString() ?? '');
             formData.append("email", data?.email);
+            formData.append("contactNo", data?.contactNo.toString());
+            formData.append("address", data?.address ?? '');
+            formData.append("gender", data?.gender ?? 'Male');
+            formData.append("status", data?.status ?? 'active');
             formData.append("contactNo", data?.contactNo.toString());
             formData.append("address", data?.address ?? '');
             formData.append("gender", data?.gender ?? 'Male');
@@ -71,10 +87,14 @@ const AddClient = () => {
             formData.append("role", "client");
             formData.append("isApprove", "pending");
             formData.append("country", data?.country ?? '');
+            formData.append("country", data?.country ?? '');
             formData.append("state", data?.state);
             formData.append("providerId", providerId);
             formData.append("clientShowToOthers", wantToBeSeen.toString());
 
+            // if (selectedFile) {
+            //     formData.append("profileImage", selectedFile);
+            // }
             // if (selectedFile) {
             //     formData.append("profileImage", selectedFile);
             // }
@@ -109,7 +129,9 @@ const AddClient = () => {
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(addFunction)} className="mt-6">
                     {/* <div>
+                    {/* <div>
                         <LabelData label='Upload Image' required />
+                        <UserIcon this is comment className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} />
                         <UserIcon this is comment className='text-6xl mt-2' onClick={() => toast.success("This feature is comming soon.")} />
                         {imagePreview ? (
 
@@ -124,6 +146,8 @@ const AddClient = () => {
                             <FileUploader onFileSelect={handleFileSelect} />
 
                         }
+                    </div> */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                     </div> */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <div className=''>
@@ -142,6 +166,7 @@ const AddClient = () => {
 
                         <div className=''>
                             <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         </div>
                         <div className=''>
                             <InputField required
@@ -157,13 +182,16 @@ const AddClient = () => {
 
                         <div className=''>
                             <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                            <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         </div>
 
 
 
                         <div className=''>
                             <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                            <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         </div>
+                        <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
                         <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
                         <CountryStateSelect isCountryView={false} isStateView={true} />
                         <div className=''>

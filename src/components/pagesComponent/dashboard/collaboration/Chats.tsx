@@ -47,7 +47,9 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
       };
 
   const unreadCount = Number(data?.totalUnread ?? 0);
+  const unreadCount = Number(data?.totalUnread ?? 0);
 
+  const imagePath = otherUser?.profileImage ? otherUser.profileImage : null;
   const imagePath = otherUser?.profileImage ? otherUser.profileImage : null;
 
   return (

@@ -7,7 +7,10 @@ import { HiPaperClip } from "react-icons/hi2";
 interface GroupChatDataType {
   data: GroupChat;
   activeId: string | undefined;
+  data: GroupChat;
+  activeId: string | undefined;
 
+  onClick: () => void;
   onClick: () => void;
 }
 
@@ -100,6 +103,14 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
           </div>
         </div>
 
+        {unreadCount > 0 && (
+          <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
+            {data.unreadCount}
+          </span>
+        )}
+      </div>
+    </div>
+  );
         {unreadCount > 0 && (
           <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
             {data.unreadCount}

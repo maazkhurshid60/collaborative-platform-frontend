@@ -1,6 +1,9 @@
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import LabelData from "../../../components/labelText/LabelData";
 import Button from "../../../components/button/Button";
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import LabelData from "../../../components/labelText/LabelData";
+import Button from "../../../components/button/Button";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,6 +13,20 @@ import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
+import { accountSchema } from "../../../schema/clientSchema/ClientSchema";
+import BackIcon from "../../../components/icons/back/Back";
+import UploadFile from "../../../components/inputField/UploadFile";
+import { AiOutlineDelete } from "react-icons/ai";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import loginUserApiService from "../../../apiServices/loginUserApi/LoginUserApi";
+import Loader from "../../../components/loader/Loader";
+import { saveLoginUserDetailsReducer } from "../../../redux/slices/LoginUserDetailSlice";
+import { GetMeType } from "../../../types/clientType/ClientType";
+import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
+import { useNavigate } from "react-router-dom";
+import CrossIcon from "../../../components/icons/cross/Cross";
+import { getCountryNameFromCode } from "../../../utils/GetCountryName";
+import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
 import { accountSchema } from "../../../schema/clientSchema/ClientSchema";
 import BackIcon from "../../../components/icons/back/Back";
 import UploadFile from "../../../components/inputField/UploadFile";
@@ -58,7 +75,19 @@ const Settings = () => {
   const [signAdd, setSignAdd] = useState<string | null>(null);
   const [isUploadedSignature, setIsUploadedSignature] =
     useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [signAdd, setSignAdd] = useState<string | null>(null);
+  const [isUploadedSignature, setIsUploadedSignature] =
+    useState<boolean>(false);
 
+  const loginUserId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails
+  );
+  const [getMeDetail, setGetMeDetail] = useState<GetMeType | undefined>(
+    undefined
+  );
+  const [isLoader, setIsLoader] = useState(false);
+  const queryClient = useQueryClient();
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails
   );
@@ -73,7 +102,20 @@ const Settings = () => {
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isShowDeleteModal = useSelector(
+    (state: RootState) => state.modalSlice.isModalDelete
+  );
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  // const {
+  //     register,
+  //     handleSubmit,
+  //     formState: { errors },
+  //     setValue
+  // } = useForm<FormFields>({
+  //     resolver: zodResolver(accountSchema),
+  // });
   // const {
   //     register,
   //     handleSubmit,
@@ -86,7 +128,16 @@ const Settings = () => {
   const methods = useForm<FormFields>({
     resolver: zodResolver(accountSchema),
   });
+  const methods = useForm<FormFields>({
+    resolver: zodResolver(accountSchema),
+  });
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = methods;
   const {
     register,
     handleSubmit,
@@ -98,7 +149,19 @@ const Settings = () => {
   //     import.meta.env.VITE_ENV === "LOCALHOST"
   //         ? "http://localhost:8000"
   //         : "https://collaborative-platform-backend.onrender.com";
+  // const baseUrl =
+  //     import.meta.env.VITE_ENV === "LOCALHOST"
+  //         ? "http://localhost:8000"
+  //         : "https://collaborative-platform-backend.onrender.com";
 
+  const blobUrlToFile = async (
+    blobUrl: string,
+    filename = "signature.png"
+  ): Promise<File> => {
+    const res = await fetch(blobUrl);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type });
+  };
   const blobUrlToFile = async (
     blobUrl: string,
     filename = "signature.png"
@@ -116,7 +179,23 @@ const Settings = () => {
   //         setIsUploadedSignature(true);
   //     }
   // };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const file = e.target.files?.[0];
+  //     if (file) {
+  //         const imageUrl = URL.createObjectURL(file);
+  //         setSignAdd(imageUrl);
+  //         setIsUploadedSignature(true);
+  //     }
+  // };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSignAdd(imageUrl);
+      setIsUploadedSignature(true); // This marks it as a new upload
+    }
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -130,7 +209,25 @@ const Settings = () => {
     mutationFn: async (formData: FormData) => {
       const response = await loginUserApiService.updateMeApi(formData);
       console.log("RESPONSE", response);
+  const updateMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await loginUserApiService.updateMeApi(formData);
+      console.log("RESPONSE", response);
 
+      dispatch(saveLoginUserDetailsReducer(response?.data));
+    },
+    onMutate: () => setIsLoader(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["loginUser"] });
+      toast.success("Account updated successfully");
+      setIsEdit(false);
+      setIsLoader(false);
+    },
+    onError: () => {
+      toast.error("Failed to update account");
+      setIsLoader(false);
+    },
+  });
       dispatch(saveLoginUserDetailsReducer(response?.data));
     },
     onMutate: () => setIsLoader(true),
@@ -154,7 +251,18 @@ const Settings = () => {
     formData.append("address", data.address);
     formData.append("country", data.country);
     formData.append("state", data.state);
+  const updateFunction = async (data: FormFields) => {
+    const formData = new FormData();
+    formData.append("fullName", data.fullName);
+    formData.append("licenseNo", data.licenseNo);
+    formData.append("email", data.email);
+    formData.append("address", data.address);
+    formData.append("country", data.country);
+    formData.append("state", data.state);
 
+    if (data.password) {
+      formData.append("password", data.password);
+    }
     if (data.password) {
       formData.append("password", data.password);
     }
@@ -172,9 +280,28 @@ const Settings = () => {
       // This is what you were missing
       formData.append("eSignature", signAdd);
     }
+    // Handle e-signature - this is the key fix
+    if (signAdd && isUploadedSignature) {
+      // User uploaded a new image
+      const file = await blobUrlToFile(signAdd);
+      formData.append("eSignature", file);
+    } else if (signAdd === null) {
+      // User removed the image
+      formData.append("eSignature", "");
+    } else {
+      // Keep the existing signature - send the URL as is
+      // This is what you were missing
+      formData.append("eSignature", signAdd);
+    }
 
     formData.append("loginUserId", loginUserId?.user?.id);
+    formData.append("loginUserId", loginUserId?.user?.id);
 
+    if (getMeDetail?.user?.role) {
+      formData.append("role", getMeDetail?.user?.role);
+    }
+    updateMutation.mutate(formData);
+  };
     if (getMeDetail?.user?.role) {
       formData.append("role", getMeDetail?.user?.role);
     }
@@ -195,7 +322,23 @@ const Settings = () => {
       return response?.data?.data;
     },
   });
+  const {
+    data: getMeData,
+    isLoading,
+    isError,
+  } = useQuery<GetMeType>({
+    queryKey: ["loginUser"],
+    queryFn: async () => {
+      const response = await loginUserApiService.getMeApi({
+        role: loginUserId?.user?.role,
+        loginUserId: loginUserId?.id,
+      });
+      return response?.data?.data;
+    },
+  });
 
+  useEffect(() => {
+    console.log("GET ME DATA", getMeData);
   useEffect(() => {
     console.log("GET ME DATA", getMeData);
 
@@ -217,7 +360,15 @@ const Settings = () => {
       }
     }
   }, [getMeData]);
+        setIsUploadedSignature(false);
+      } else {
+        setSignAdd(null);
+        setIsUploadedSignature(false);
+      }
+    }
+  }, [getMeData]);
 
+  const deleteMe = () => deleteMeMutation.mutate();
   const deleteMe = () => deleteMeMutation.mutate();
 
   const deleteMeMutation = useMutation({
@@ -230,7 +381,19 @@ const Settings = () => {
     },
     onError: () => toast.error("Failed to delete account!"),
   });
+  const deleteMeMutation = useMutation({
+    mutationFn: async () =>
+      await loginUserApiService.deleteMeApi(loginUserId?.user?.id),
+    onSuccess: () => {
+      dispatch(isModalDeleteReducer(false));
+      toast.error("Your Account has been deleted.");
+      navigate("/");
+    },
+    onError: () => toast.error("Failed to delete account!"),
+  });
 
+  if (isLoading) return <Loader text="Loading..." />;
+  if (isError) return <p>Something went wrong</p>;
   if (isLoading) return <Loader text="Loading..." />;
   if (isError) return <p>Something went wrong</p>;
 
@@ -275,7 +438,49 @@ const Settings = () => {
           }
         />
       )}
+  return (
+    <OutletLayout
+      heading="Account Settings"
+      button={
+        !isEdit && (
+          <Button
+            icon={<AiOutlineDelete size={18} className="text-white" />}
+            text="Delete Account"
+            onclick={() => dispatch(isModalDeleteReducer(true))}
+          />
+        )
+      }
+    >
+      {!isEdit && (
+        <div className="relative">
+          <div className="absolute hidden md:block -top-[6px] md:-top-10 md:left-[230px] text-primaryColorDark">
+            <EditIcon />
+          </div>
+        </div>
+      )}
+      {isLoader && <Loader text="Updating..." />}
+      {isEdit && (
+        <div className="relative">
+          <div className="absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14">
+            <BackIcon onClick={() => setIsEdit(false)} />
+          </div>
+        </div>
+      )}
+      {isShowDeleteModal && (
+        <DeleteClientModal
+          onDeleteConfirm={deleteMe}
+          heading="Delete Account"
+          text={
+            <div>
+              By deleting your account, you won’t be able to track your signed
+              documents. Are you sure you want to{" "}
+              <span className="font-semibold">Delete your Account</span>?
+            </div>
+          }
+        />
+      )}
 
+      <p className="font-bold mt-6">General Settings</p>
       <p className="font-bold mt-6">General Settings</p>
 
       {isEdit ? (
@@ -332,7 +537,35 @@ const Settings = () => {
             </div>
 
             <hr className="w-full h-[1px] text-greyColor mt-10" />
+            <hr className="w-full h-[1px] text-greyColor mt-10" />
 
+            <div className="w-[300px] mt-10">
+              <div className="flex items-start gap-x-2.5">
+                <p className="font-semibold mb-2">E-Signature</p>
+                <p className="text-redColor">*</p>
+              </div>
+              {signAdd ? (
+                <div className="relative">
+                  <img
+                    src={signAdd}
+                    alt="Uploaded Signature"
+                    style={{ maxHeight: "120px", objectFit: "contain" }}
+                  />
+                  <CrossIcon
+                    onClick={() => {
+                      setSignAdd(null);
+                      setIsUploadedSignature(true); // This marks it as changed
+                    }}
+                  />{" "}
+                </div>
+              ) : (
+                <UploadFile
+                  onChange={handleFileChange}
+                  text="Add your signature here"
+                  heading="Sign here"
+                />
+              )}
+            </div>
             <div className="w-[300px] mt-10">
               <div className="flex items-start gap-x-2.5">
                 <p className="font-semibold mb-2">E-Signature</p>
@@ -385,7 +618,32 @@ const Settings = () => {
             <LabelData label="State" data={getMeData?.user?.state} />
             {/* <LabelData label="Password" data="********" /> */}
           </div>
+            <div className="flex items-center justify-end">
+              <div className="mt-10 w-[100px]">
+                <Button text="Update" />
+              </div>
+            </div>
+          </form>
+        </FormProvider>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+            <LabelData label="Full Name" data={getMeData?.user?.fullName} />
+            <LabelData
+              label="License Number"
+              data={getMeData?.user?.licenseNo}
+            />
+            <LabelData label="Email ID" data={getMeData?.email} />
+            <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
+            <LabelData
+              label="Country"
+              data={getCountryNameFromCode(getMeData?.user?.country ?? "")}
+            />
+            <LabelData label="State" data={getMeData?.user?.state} />
+            {/* <LabelData label="Password" data="********" /> */}
+          </div>
 
+          <hr className="w-full h-[1px] text-greyColor mt-10" />
           <hr className="w-full h-[1px] text-greyColor mt-10" />
 
           <div className="w-[300px] mt-10">
@@ -404,7 +662,32 @@ const Settings = () => {
               <p>Upload Your E-Signature</p>
             )}
           </div>
+          <div className="w-[300px] mt-10">
+            <p className="font-semibold mb-2">E-Signature</p>
+            {signAdd ? (
+              <img
+                src={signAdd}
+                alt="E-Signature"
+                style={{
+                  maxHeight: "120px",
+                  objectFit: "contain",
+                  marginTop: "20px",
+                }}
+              />
+            ) : (
+              <p>Upload Your E-Signature</p>
+            )}
+          </div>
 
+          <div className="flex items-center justify-end w-full mt-8">
+            <div className="w-[100px]">
+              <Button text="Edit" sm onclick={() => setIsEdit(true)} />
+            </div>
+          </div>
+        </>
+      )}
+    </OutletLayout>
+  );
           <div className="flex items-center justify-end w-full mt-8">
             <div className="w-[100px]">
               <Button text="Edit" sm onclick={() => setIsEdit(true)} />

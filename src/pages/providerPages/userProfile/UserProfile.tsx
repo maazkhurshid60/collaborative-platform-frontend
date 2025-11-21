@@ -59,6 +59,9 @@ const UserProfile = () => {
         // if (selectedFile === null) {
         //     return toast.error("Profile Image is require.")
         // }
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is require.")
+        // }
         const formData = new FormData()
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
@@ -193,6 +196,7 @@ const UserProfile = () => {
                             </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
                             <div className=''>
                                 <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                             </div>
@@ -206,10 +210,12 @@ const UserProfile = () => {
                             </div>
                             <div className=''>
                                 <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                                <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                             </div>
                             <div className=''>
                                 <Dropdown<FormFields>
                                     name="department"
+                                    label="Department"
                                     label="Department"
                                     control={control}
                                     options={departmentOptions}
@@ -222,6 +228,7 @@ const UserProfile = () => {
                             </div>
 
                             <div className=''>
+                                <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                                 <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
@@ -250,6 +257,7 @@ const UserProfile = () => {
                                     {getMeDetail?.clientList?.map((data, index) => (
                                         <li key={index}>
                                             <div className="flex items-center gap-x-3">
+                                                <div className="flex items-center gap-x-2 whitespace-nowrap">
                                                 <div className="flex items-center gap-x-2 whitespace-nowrap">
 
                                                     <GoDotFill className='text-[6px]' />
@@ -302,6 +310,7 @@ const UserProfile = () => {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                             <div className=''>
                                 <LabelData label='Full Name' data={getMeData?.user?.fullName} />
                             </div>
@@ -312,6 +321,7 @@ const UserProfile = () => {
                                 <LabelData label='Age' data={getMeData?.user?.age ?? ""} />
                             </div>
                             <div className=''>
+                                <LabelData label='Department' data={getMeData?.department} />
                                 <LabelData label='Department' data={getMeData?.department} />
                             </div>
                             <div className=''>
@@ -341,6 +351,7 @@ const UserProfile = () => {
                                         getMeDetail?.clientList?.map((data, index) => (
                                             <li key={index}>
                                                 <div className="flex items-center gap-x-3">
+                                                    <div className="flex items-center gap-x-2 whitespace-nowrap">
                                                     <div className="flex items-center gap-x-2 whitespace-nowrap">
 
                                                         <GoDotFill className='text-[6px]' />

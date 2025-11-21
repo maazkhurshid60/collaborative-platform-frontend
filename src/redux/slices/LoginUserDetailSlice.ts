@@ -101,7 +101,7 @@ const LoginUserDetail = createSlice({
                     address: null,
                     age: null,
                     blockedMembers: [] as string[],
-                    licenseNo: "",
+                    licenseNo: '',
                     contactNo: null,
                     createdAt: "",
                     fullName: "",
