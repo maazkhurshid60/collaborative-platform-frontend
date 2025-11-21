@@ -96,10 +96,9 @@ const UserProfile = () => {
 
         if (getMeData) {
             setGetMeDetail(getMeData);
-
             setValue("fullName", getMeData?.user?.fullName ?? "")
             setValue("licenseNo", getMeData?.user?.licenseNo ?? "")
-            setValue("age", getMeData?.user?.age?.toString() ?? "")
+            setValue("age", Number(getMeData?.user?.age ?? 0) || 0)
             setValue("contactNo", getMeData?.user?.contactNo ?? "")
             setValue("email", getMeData?.email ?? "")
             setValue("department", getMeData?.department ?? "")
@@ -115,7 +114,6 @@ const UserProfile = () => {
             }
         }
     }, [getMeData])
-
     const handleFileSelect = (file: File) => {
         setSelectedFile(file)
         setPreviewUrl(URL.createObjectURL(file))
@@ -207,7 +205,7 @@ const UserProfile = () => {
                                     error={errors.licenseNo?.message} />
                             </div>
                             <div className=''>
-                                <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                                <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                             </div>
                             <div className=''>
                                 <Dropdown<FormFields>
@@ -217,8 +215,8 @@ const UserProfile = () => {
                                     options={departmentOptions}
                                     placeholder="Choose an option"
                                     error={errors.department?.message}
-                                />                
-                                </div>
+                                />
+                            </div>
                             <div className=''>
                                 <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                             </div>
@@ -227,23 +225,23 @@ const UserProfile = () => {
                                 <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
-                              <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                            <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
 
                             <CountryStateSelect
                                 isCountryView={true}
                                 isStateView={false}
                                 defaultCountry={getMeData?.user?.country}
-                                 required={false}
+                                required={false}
                             />
                             <CountryStateSelect
                                 isCountryView={false}
                                 isStateView={true}
                                 defaultState={getMeData?.user?.state}
-                                 required={false}
+                                required={false}
                             />
 
-                          
+
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />
@@ -285,8 +283,8 @@ const UserProfile = () => {
                             <LabelData label='User Image' />
                             {/* <UserIcon className='text-6xl mt-2' /> */}
 
-                            <div className="relative w-32 h-32">
-                                {
+                            <div className="relative w-32 h-32 ">
+                                {   
                                     previewUrl ? (
                                         <img
                                             src={previewUrl}
@@ -323,7 +321,7 @@ const UserProfile = () => {
                                 <LabelData label='Contact Number' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
 
-                             <div className=''>
+                            <div className=''>
                                 <LabelData label='Address' data={getMeData?.user?.address ?? "-"} />
                             </div>
 
@@ -334,7 +332,7 @@ const UserProfile = () => {
                             <div className=''>
                                 <LabelData label='State' data={getMeData?.user?.state} />
                             </div>
-                           
+
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />

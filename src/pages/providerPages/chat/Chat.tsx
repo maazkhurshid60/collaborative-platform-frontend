@@ -18,8 +18,8 @@ import ChatModalBodyContent from '../../../components/modals/providerModal/chatM
 import NewGroupChatModal from '../../../components/modals/providerModal/chatModal/NewGroupChatModal';
 import GroupChatData from '../../../components/pagesComponent/chat/groupChatData/GroupChatData';
 import { HiOutlineUserAdd } from "react-icons/hi";
-import providerApiService from '../../../apiServices/providerApi/ProviderApi';
-import { ProviderType } from '../../../types/providerType/ProviderType';
+// import providerApiService from '../../../apiServices/providerApi/ProviderApi';
+// import { ProviderType } from '../../../types/providerType/ProviderType';
 import { GroupChat, GroupCreatedBy } from '../../../types/chatType/GroupType';
 import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
 import ToolTip from '../../../components/toolTip/ToolTip';
@@ -30,7 +30,7 @@ import SpinnerLoader from '../../../components/loader/SpinnerLoader';
 
 const Chat = () => {
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
-    const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
+    // const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
     const isNewChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewChatModal);
     const isNewGroupChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewGroupChatModal);
@@ -51,7 +51,6 @@ const Chat = () => {
 
 
 
-    // GET ALL CHANNELS
     const { data: allChannels = [],
 
         isLoading: isChannelsLoading,
@@ -61,7 +60,6 @@ const Chat = () => {
             const res = await chatApiService.getAllChatChannels(loginUserId);
             const channels = res.data.findAllChatChannel || [];
 
-            // 🔥 Sort by latest lastMessage or updatedAt
             return channels.sort((a: GroupChat, b: GroupChat) => {
                 const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
                 const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
@@ -70,7 +68,6 @@ const Chat = () => {
         },
     });
 
-    // GET ALL GROUPS
     const { data: allGroups = [],
         isLoading: isGroupsLoading,
 
@@ -80,7 +77,6 @@ const Chat = () => {
         queryFn: async () => {
             const res = await chatApiService.getGroupChatChannels(loginUserId);
             const groups = res?.data?.allgroups || [];
-            // 🔥 Sort karo lastMessage ke time ya updatedAt ke basis pe
             return groups.sort((a: GroupChat, b: GroupChat) => {
                 const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
                 const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
@@ -91,6 +87,7 @@ const Chat = () => {
 
 
 
+    console.log(allChannels, "all channessssssssssslsss");
 
 
 
@@ -124,16 +121,13 @@ const Chat = () => {
         const socket = initSocket(loginUserId, "");
 
         const joinAllRooms = () => {
-            // Join individual 1-on-1 chats
             allChannels?.forEach((channel: ChatChannelType) => {
                 socket.emit("join_channel", { chatChannelId: channel?.id });
-                console.log("📥 Joined 1-on-1 chat room");
             });
 
             // Join group chats
             allGroups?.forEach((group: Group) => {
                 socket.emit("join_channel", { chatChannelId: group?.id });
-                console.log("📥 Joined group room");
             });
         };
 
@@ -207,20 +201,20 @@ const Chat = () => {
         }
     }, [loginUserId]);
 
-    const { data: providerData } = useQuery<ProviderType[]>({
-        queryKey: ["providers"],
-        queryFn: async () => {
-            try {
-                const response = await providerApiService.getAllProviders(loginUserDetail);
-                return response?.data?.providers; // Ensure it always returns an array
+    // const { data: providerData } = useQuery<ProviderType[]>({
+    //     queryKey: ["providers"],
+    //     queryFn: async () => {
+    //         try {
+    //             const response = await providerApiService.getAllProviders(loginUserDetail);
+    //             return response?.data?.providers; // Ensure it always returns an array
 
-            } catch (error) {
-                console.error("Error fetching providers:", error);
-                return []; // Return an empty array in case of an error
-            }
-        }
+    //         } catch (error) {
+    //             console.error("Error fetching providers:", error);
+    //             return []; // Return an empty array in case of an error
+    //         }
+    //     }
 
-    })
+    // })
 
 
 
@@ -235,7 +229,6 @@ const Chat = () => {
                 (activeChatType === 'group' && newMessage.groupId === activeChatObject?.id);
             const isFromSelf = newMessage.senderId === loginUserId;
 
-            // ✅ Always update single chat sidebar
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
                 if (!oldData) return oldData;
 
@@ -245,8 +238,10 @@ const Chat = () => {
                             ...channel,
                             lastMessage: {
                                 id: newMessage.id!,
-                                message: newMessage.message || newMessage.mediaUrl || '📎 File',
+                                message: newMessage.message || '📎 File',
                                 createdAt: newMessage.createdAt || new Date().toISOString(),
+                                mediaUrl: newMessage.mediaUrl,
+                                type: newMessage.type,
                             },
                             totalUnread:
                                 isFromSelf || isSameChatOpen
@@ -261,7 +256,6 @@ const Chat = () => {
                 return updatedChannels;
             });
 
-            // ✅ Update group chat sidebar
             queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups = []) => {
                 return oldGroups.map(group => {
                     if (group?.id === newMessage.groupId) {
@@ -269,19 +263,19 @@ const Chat = () => {
                             ...group,
                             lastMessage: {
                                 id: newMessage.id,
-                                message: newMessage.message || newMessage.mediaUrl || "📎 File",
+                                message: newMessage.message || "📎 File",
                                 createdAt: newMessage.createdAt || new Date().toISOString(),
+                                mediaUrl: newMessage.mediaUrl,
+                                type: newMessage.type,
                             },
                             unreadCount:
                                 newMessage.senderId === loginUserId
                                     ? group.unreadCount
                                     : (Number(group.unreadCount) || 0) + 1,
-                            // Force timestamp change
                             updatedAt: `${new Date().toISOString()}_${Math.random()}`,
                         };
                     }
 
-                    // Force rerender by creating new object
                     return {
                         ...group,
                         updatedAt: `${group.updatedAt}_${Math.random()}`
@@ -337,11 +331,9 @@ const Chat = () => {
             {isNewChatModal && <ModalLayout heading="New Chat with" modalBodyContent={<NewChatModal />} />}
             {isNewGroupChatModal && <ModalLayout heading="New Chat Group" modalBodyContent={<NewGroupChatModal />} />}
 
-
-
             <div className="flex items-start lg:justify-between relative h-[80vh]">
                 <div
-                    className={`w-[100%] border-r-[1px] border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? 'left-0' : '-left-[200%] lg:left-0'}`}
+                    className={`w-[100%] border-r-[1px] h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? 'left-0' : '-left-[200%] lg:left-0'}`}
                 >
                     <div className='flex items-center justify-between '>
 
@@ -356,9 +348,9 @@ const Chat = () => {
                         {isChannelsLoading ? <SpinnerLoader text="Chats are Loading" /> :
 
                             allChannels
-                                ?.filter((channel: ChatChannelType) =>
-                                    providerData?.some((provider) => channel?.providerBId === provider?.id)
-                                )
+                                // ?.filter((channel: ChatChannelType) =>
+                                //     providerData?.some((provider) => channel?.providerBId === provider?.id)
+                                // )
                                 ?.sort((a: ChatChannelType, b: ChatChannelType) => {
                                     const aTime = new Date(a?.updatedAt)?.getTime();
                                     const bTime = new Date(b?.updatedAt)?.getTime();
@@ -375,6 +367,8 @@ const Chat = () => {
                                             setIsChatSideBarClose(false);
                                             setActiveId(data?.id);
                                             setActiveChatType('individual');
+                                            // https://app.kolabme.com/invite-chat/individual/2cf93350-ae73-4b99-8b27-2e87c7d2c60f
+                                            
 
                                             // const socket = getSocket();
                                             // if (socket?.connected && data?.id) {
@@ -384,7 +378,6 @@ const Chat = () => {
                                                 loginUserId,
                                                 chatChannelId: data.id,
                                             }).then(() => {
-                                                // Update unread count in cache to 0
                                                 queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
                                                     if (!oldData) return oldData;
 
@@ -393,7 +386,7 @@ const Chat = () => {
                                                             ? {
                                                                 ...channel,
                                                                 totalUnread: 0,
-                                                                updatedAt: new Date().toISOString() 
+                                                                updatedAt: new Date().toISOString()
                                                             }
                                                             : channel
                                                     );
@@ -495,26 +488,7 @@ const Chat = () => {
                     {isMessagesLoading ? (
                         <div className="h-full flex items-center justify-center">
                             <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                <svg
-                                    className="w-5 h-5 animate-spin text-primaryColorDark"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
-                                    ></path>
-                                </svg>
-                                <span>Loading messages...</span>
+                                <SpinnerLoader text='Loading messages' />
                             </div>
                         </div>
                     ) : (

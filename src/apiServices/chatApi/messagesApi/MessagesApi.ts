@@ -46,6 +46,19 @@ class MessageApiService {
             toast.error(errMsg);
         }
     }
+      async getAllPublicMessagesOfSingleChatChannel(data: getAllMessagesOfSingleChatChannelType) {
+        try {
+
+            const response = await this.api.post("/public-chat/single-chat/all-messages", data)
+            return response?.data
+
+
+        } catch (error) {
+
+            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
     async getAllMessagesOfSingleChat(data: getAllMessagesOfSingleChat) {
         try {
 

@@ -20,7 +20,6 @@ import { FaCircleCheck } from "react-icons/fa6";
 
 
 
-
 interface Message {
     id: string;
     senderId: string;
@@ -65,19 +64,52 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
     const queryClient = useQueryClient();
+    
+    // Track unread messages per sender
+    const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+    // const [lastReadMessageIds, setLastReadMessageIds] = useState<Record<string, string>>({});
+    
+    // Function to mark messages as read for a specific sender
+    const markMessagesAsRead = (senderId: string) => {
+        setUnreadCounts(prevCounts => ({
+            ...prevCounts,
+            [senderId]: 0
+        }));
+        
+        // Find the latest message from this sender
+        // const latestMessage = messages
+        //     .filter(msg => msg.senderId === senderId && !msg.you)
+        //     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+            
+        // if (latestMessage) {
+        //     setLastReadMessageIds(prev => ({
+        //         ...prev,
+        //         [senderId]: latestMessage.id
+        //     }));
+        // }
+    };
 
     const socket = getSocket();
     // Load initial messages whenever `messageData` changes
     useEffect(() => {
         if (Array.isArray(messageData)) {
-            setMessages(
-                messageData.map(msg => ({
-                    ...msg,
-                    you: msg?.senderId === loginUserId,
-                }))
-            );
+            const mappedMessages = messageData.map(msg => ({
+                ...msg,
+                you: msg?.senderId === loginUserId,
+            }));
+            setMessages(mappedMessages);
+            
+            // Calculate initial unread counts for each sender
+            const counts: Record<string, number> = {};
+            mappedMessages.forEach(msg => {
+                if (!msg.you && msg.senderId !== loginUserId) {
+                    counts[msg.senderId] = (counts[msg.senderId] || 0) + 1;
+                }
+            });
+            setUnreadCounts(counts);
         } else {
             setMessages([]);
+            setUnreadCounts({});
         }
     }, [messageData, loginUserId]);
 
@@ -102,7 +134,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 const alreadyExists = prev.some(m => m.id === newMsg.id);
                 if (alreadyExists) return prev;
 
-                return [...prev, { ...newMsg, you: newMsg.senderId === loginUserId }];
+                const updatedMessage = { ...newMsg, you: newMsg.senderId === loginUserId };
+                
+                // Update unread count for non-user messages
+                if (!updatedMessage.you) {
+                    setUnreadCounts(prevCounts => ({
+                        ...prevCounts,
+                        [newMsg.senderId]: (prevCounts[newMsg.senderId] || 0) + 1
+                    }));
+                }
+
+                return [...prev, updatedMessage];
             });
         };
 
@@ -131,6 +173,21 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+    
+    // Automatically mark messages as read when they come into view
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // Mark all visible messages as read after a short delay
+            const uniqueSenderIds = [...new Set(messages.filter(msg => !msg.you).map(msg => msg.senderId))];
+            uniqueSenderIds.forEach(senderId => {
+                if (unreadCounts[senderId] > 0) {
+                    markMessagesAsRead(senderId);
+                }
+            });
+        }, 2000); // 2 second delay to ensure user has seen the messages
+        
+        return () => clearTimeout(timer);
+    }, [messages.length]); // Only run when new messages arrive
 
     // Send message: API → then socket emit
     const sendMessage = async () => {
@@ -456,17 +513,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
 
-                                // Render the message
                                 return (
                                     <div key={msg.id} className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}>
-                                        {/* If it's not your message, show the sender's profile */}
                                         {!msg.you && (
-                                            <>
+                                            <div className="relative cursor-pointer" onClick={() => markMessagesAsRead(msg.senderId)}>
                                                 {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
                                                     <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage} />
                                                     : <UserIcon size={30} />
                                                 }
-                                            </>
+                                                {/* <UnreadBadge count={unreadCounts[msg.senderId] || 0} /> */}
+                                            </div>
                                         )}
 
                                         {/* Message content */}

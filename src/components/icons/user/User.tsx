@@ -9,7 +9,7 @@ interface UserIconProps {
 const UserIcon: React.FC<UserIconProps> = ({
     onClick, className = "text-[32px] md:text-[40px] lg:text-[40px] " }) => {
     return (
-        <HiMiniUserCircle className={` ${className ? className : 'cursor-pointer  text-textGreyColor'}`} onClick={onClick} />
+        <HiMiniUserCircle className={` cursor-pointer ${className ? className : 'text-textGreyColor'}`} onClick={onClick} />
     )
 }
 

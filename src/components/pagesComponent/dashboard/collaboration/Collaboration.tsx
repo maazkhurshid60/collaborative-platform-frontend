@@ -76,14 +76,12 @@ const Collaboration = () => {
 
     const unBlockProviders = useMemo(() => {
         return allChannels
-            ?.filter((channel: ChatChannelType) =>
-                providerData?.some(provider => channel?.providerBId === provider?.id)
-            )
             ?.sort((a: ChatChannelType, b: ChatChannelType) => {
                 const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
                 const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
                 return bTime - aTime;
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allChannels, providerData]);
 
 
@@ -110,6 +108,7 @@ const Collaboration = () => {
     }, [allGroups, searchText]);
 
 
+    console.log(filteredChats, "dataaa of chaytss");
 
     useEffect(() => {
         if (!socket || !loginUserId) return;
@@ -154,8 +153,8 @@ const Collaboration = () => {
 
 
     return (
-        <div>
-            <div className='mt-4'>
+        <>
+            <div className='mt-4  '>
                 <SearchBar
                     sm
                     value={searchText}
@@ -238,7 +237,7 @@ const Collaboration = () => {
                     ))
                 )}
             </div>
-        </div>
+        </>
     );
 };
 

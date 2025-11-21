@@ -18,7 +18,6 @@ import clientApiService from '../../../apiServices/clientApi/ClientApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ClientType, Provider } from '../../../types/clientType/ClientType';
-import { ProviderType } from '../../../types/providerType/ProviderType';
 import { IoMdAdd } from "react-icons/io";
 import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
 import { getCountryNameFromCode } from '../../../utils/GetCountryName';
@@ -44,16 +43,11 @@ const Clients = () => {
         queryFn: async () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId?.user?.id);
-                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
-                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
-                );
-
-                return matchedClient; // Ensure it always returns an array
-
+                return response?.data?.clients || [];
 
             } catch (error) {
                 console.error("Error fetching client:", error);
-                return []; // Return an empty array in case of an error
+                return [];
             }
         }
 
@@ -98,13 +92,13 @@ const Clients = () => {
         dispatch(isModalDeleteReducer(false))
     }
 
-
     if (isLoading) {
         return <Loader text='Loading...' />
     }
     if (isError) {
         return <p>somethingwent wrong</p>
     }
+
 
     return (
         <OutletLayout heading='Client List' button={<Button text='Add New' onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}>
@@ -161,7 +155,7 @@ const Clients = () => {
                                                 <>
                                                     {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
                                                         <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                            {providerList?.provider?.user?.fullName}
+                                                            {providerList?.provider?.user?.fullName?.split(" ")[0]}
 
                                                         </p>
 
@@ -177,20 +171,22 @@ const Clients = () => {
 
                                     <td className="py-2 h-full align-middle">
                                         <div className="flex items-center justify-center gap-x-2 h-full">
-                                            {data?.providerList?.length !== 0 || data?.providerList !== undefined
-                                                &&
-                                                data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
+                                            {(() => {
+                                                const isOwnedByCurrentProvider = data?.providerList?.some((provider: Provider) => {
+                                                    return provider?.provider?.user?.id === loginUserId?.user?.id;
+                                                });
+                                                return isOwnedByCurrentProvider;
+                                            })() ? (
                                                 <>
-                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
-                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
+                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />
+                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />
                                                 </>
                                             ) : (
-                                                <>
-                                                    <EditIcon disabled />
+                                                <div className="flex items-center justify-center gap-x-2 h-full">
+                                                    <EditIcon disabled/>    
                                                     <DeleteIcon disabled />
-                                                </>
-                                            )
-                                            }
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

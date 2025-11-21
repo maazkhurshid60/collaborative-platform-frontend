@@ -1,5 +1,8 @@
 import { HiUserGroup } from "react-icons/hi";
 import { GroupChat } from "../../../../types/chatType/GroupType";
+import { HiPhoto } from "react-icons/hi2";
+import { HiDocumentText } from "react-icons/hi2";
+import { HiPaperClip } from "react-icons/hi2";
 
 interface GroupChatDataType {
   data: GroupChat;
@@ -14,6 +17,24 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
   activeId,
 }) => {
   const unreadCount = Number(data?.unreadCount ?? 0);
+
+  // Helper function to get media display info
+  const getMediaDisplayInfo = (mediaUrl?: string) => {
+    if (!mediaUrl) return null;
+    
+    const extension = mediaUrl.split('.').pop()?.toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
+    const isPdf = extension === 'pdf';
+    const isDoc = ['doc', 'docx'].includes(extension || '');
+    
+    if (isImage) {
+      return { icon: HiPhoto, text: 'Photo' };
+    } else if (isPdf || isDoc) {
+      return { icon: HiDocumentText, text: 'Document' };
+    } else {
+      return { icon: HiPaperClip, text: 'File' };
+    }
+  };
 
   return (
     <div className="">
@@ -40,12 +61,39 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
               >
                 {data?.name}
               </p>
-              {data?.lastMessage?.message && (
-                <p className="text-xs text-gray-500 truncate max-w-[90%]">
-                  {data.lastMessage?.message.length > 15
-                    ? data.lastMessage.message.slice(0, 15) + "..."
-                    : data.lastMessage.message}
-                </p>
+              {/* Display last message - either text or media */}
+              {data?.lastMessage && (
+                <div className="text-xs text-gray-500 truncate max-w-[90%]">
+                  {(data.lastMessage?.type === 'media' && data.lastMessage?.mediaUrl) ? (
+                    // Media message display with full info
+                    (() => {
+                      const mediaInfo = getMediaDisplayInfo(data.lastMessage.mediaUrl);
+                      if (mediaInfo) {
+                        const IconComponent = mediaInfo.icon;
+                        return (
+                          <div className="flex items-center gap-1">
+                            <IconComponent className="w-4 h-4" />
+                            <span>{mediaInfo.text}</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()
+                  ) : data.lastMessage?.message && data.lastMessage.message.trim() !== '' ? (
+                    // Text message display
+                    <p>
+                      {data.lastMessage.message.length > 15
+                        ? data.lastMessage.message.slice(0, 15) + "..."
+                        : data.lastMessage.message}
+                    </p>
+                  ) : (
+                    // Fallback for media messages with empty message field
+                    <div className="flex items-center gap-1">
+                      <HiPhoto className="w-4 h-4" />
+                      <span>Media</span>
+                    </div>
+                  )}
+                </div>
               )}
              
             </div>

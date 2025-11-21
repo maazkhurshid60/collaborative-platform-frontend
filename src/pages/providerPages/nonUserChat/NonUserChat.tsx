@@ -1,20 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { NavLink, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { RootState } from '../../../redux/store';
 import messageApiService from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { Message } from '../../../types/chatType/ChatType';
 import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
-import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
+// import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import logo from "../../../../public/assets/kolabme-logo.svg";
 import Loader from '../../../components/loader/Loader';
-
 const NonUserChat = () => {
-    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
-    const { id, type, email } = useParams();
-    const [isLoading, setIsLoading] = useState(false);
+    const { id, type, } = useParams();
+    const [isLoading,] = useState(false);
 
     const messageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -22,18 +18,18 @@ const NonUserChat = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch()
-    const naviagte = useNavigate()
+    // const dispatch = useDispatch()
+    // const naviagte = useNavigate()
     const fetchMessages = async (currentPage = 1) => {
-        if (!id || !loginUserId) return;
+        // if (!id || !loginUserId) return;
 
         const container = messageContainerRef.current;
         const oldScrollHeight = container?.scrollHeight || 0;
-
+        // https://app.kolabme.com/invite-chat/individual/2cf93350-ae73-4b99-8b27-2e87c7d2c60f
         setLoading(true);
 
         const payload = {
-            loginUserId,
+            chatChannelId: id,
             page: currentPage,
             limit: 10,
             ...(type === 'group' ? { groupId: id } : { chatChannelId: id })
@@ -42,14 +38,14 @@ const NonUserChat = () => {
         try {
             const response = type === 'group'
                 ? await messageApiService.getAllMessagesOfGroupChatChannel(payload)
-                : await messageApiService.getAllMessagesOfSingleChatChannel(payload);
+                : await messageApiService.getAllPublicMessagesOfSingleChatChannel(payload);
 
             const newMessages = (type === 'group'
                 ? response?.data?.groupMessages
                 : response?.data?.messages) || [];
 
             setMessages(prev => [
-                ...newMessages.map((m: Message) => ({ ...m, you: m.senderId === loginUserId })),
+                ...newMessages.map((m: Message) => ({ ...m, })),
                 ...prev,
             ]);
 
@@ -70,44 +66,44 @@ const NonUserChat = () => {
         setLoading(false);
     };
 
-    const joinChatFun = async () => {
-        setIsLoading(true)
-        const dataSendToBack = {
-            groupId: id, memberEmail: email
-        }
-        console.log("data send to joint chat", dataSendToBack);
-        try {
-            const response = await messageApiService.updateGroupApi(dataSendToBack)
+    // const joinChatFun = async () => {
+    //     setIsLoading(true)
+    //     const dataSendToBack = {
+    //         groupId: id, memberEmail: email
+    //     }
+    //     console.log("data send to joint chat", dataSendToBack);
+    //     try {
+    //         const response = await messageApiService.updateGroupApi(dataSendToBack)
 
-            console.log(response);
-            toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
-            naviagte("/")
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            console.error('❌:', err);
-            const errorMessage = typeof err === "string"
-                ? err
-                : err?.message || 'Error loading messages.';
+    //         console.log(response);
+    //         toast.success('You have joined the gourp. Please login yourself and go chat for more information.')
+    //         naviagte("/")
+    //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //     } catch (err: any) {
+    //         console.error('❌:', err);
+    //         const errorMessage = typeof err === "string"
+    //             ? err
+    //             : err?.message || 'Error loading messages.';
 
-            toast.error(errorMessage);
-            // If error contains a specific message, show it in the toast
+    //         toast.error(errorMessage);
+    //         // If error contains a specific message, show it in the toast
 
-            if (errorMessage === "Member is already part of this group.") {
-                naviagte("/");
-            } else {
+    //         if (errorMessage === "Member is already part of this group.") {
+    //             naviagte("/");
+    //         } else {
 
-                const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
+    //             const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
 
-                dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
-                naviagte("/provider-signup")
-            }
+    //             dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
+    //             naviagte("/provider-signup")
+    //         }
 
-        }
+    //     }
 
 
-        setLoading(false);
+    //     setLoading(false);
 
-    }
+    // }
 
     useEffect(() => {
         setMessages([]); // reset when chat changes
@@ -140,14 +136,14 @@ const NonUserChat = () => {
                     // <p onClick={joinChatFun} className='w-[80px] sm:w-[100px]'>
                     //     <Button text='Join Now' />
                     // </p>
-                     <div className='w-[160px] sm:w-[210px] flex items-center gap-x-3'>
-                            <NavLink to="/" className='w-[80px] sm:w-[100px]'>
-                                <Button text='Login' borderButton />
-                            </NavLink>
-                            <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
-                                <Button text='Signup' />
-                            </NavLink>
-                        </div>
+                    <div className='w-[160px] sm:w-[210px] flex items-center gap-x-3'>
+                        <NavLink to="/" className='w-[80px] sm:w-[100px]'>
+                            <Button text='Login' borderButton />
+                        </NavLink>
+                        <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
+                            <Button text='Signup' />
+                        </NavLink>
+                    </div>
                     : <>
                         <div className='w-[160px] sm:w-[210px] flex items-center gap-x-3'>
                             <NavLink to="/" className='w-[80px] sm:w-[100px]'>
@@ -167,7 +163,7 @@ const NonUserChat = () => {
                     {loading && (
                         <div className="text-center text-gray-400 text-sm py-2">Loading messages...</div>
                     )}
-                    <NonUserChatMessages messageData={messages} />
+                    {!loading && <NonUserChatMessages messageData={messages} />}
                 </div>
             </div>
         </>
