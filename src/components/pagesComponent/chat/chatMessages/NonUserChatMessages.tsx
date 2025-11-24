@@ -7,8 +7,10 @@ interface Message {
     message: string;
     chatChannelId: string;
     createdAt: string;
+    mediaUrl?: string;
+    type?: string;
     sender: {
-        user: { fullName: string };
+        user: { fullName: string; profileImage?: string | null };
     };
     you?: boolean;
 }
@@ -19,8 +21,6 @@ interface NonUserChatMessagesProps {
 
 const NonUserChatMessages: React.FC<NonUserChatMessagesProps> = ({ messageData }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    // Auto-scroll to bottom on any messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messageData]);
@@ -87,17 +87,57 @@ const NonUserChatMessages: React.FC<NonUserChatMessagesProps> = ({ messageData }
                                 key={msg.id}
                                 className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}
                             >
-                                {!msg.you && <UserIcon size={30} />}
+                                {!msg.you && (
+                                    <>
+                                        {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
+                                            <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage} />
+                                            : <UserIcon size={30} />
+                                        }
+                                    </>
+                                )}
                                 <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
                                     <p className="font-semibold mb-2">
                                         {msg?.you ? 'You' : msg?.sender?.user?.fullName}
                                     </p>
                                     <div className="flex items-center gap-x-4 text-[14px]">
-                                        <p
-                                            className={`p-4 break-all rounded-lg ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}
-                                        >
-                                            {msg?.message}
-                                        </p>
+                                        <div className="flex flex-col gap-2 relative">
+                                            {msg.mediaUrl && (
+                                                <div className="flex flex-col gap-2 mt-1">
+                                                    {msg.mediaUrl.split(',').map((url, index) => {
+                                                        const extension = url.split('.').pop()?.toLowerCase();
+                                                        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
+                                                        const isPdf = extension === 'pdf';
+                                                        const isDoc = ['doc', 'docx'].includes(extension || '');
+
+                                                        return (
+                                                            <div key={index} className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+                                                                {isImage ? (
+                                                                    <img src={url} alt="media" className="w-32 h-auto rounded-md object-cover border border-gray-300" />
+                                                                ) : (
+                                                                    <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-full text-xl">
+                                                                        {isPdf ? '📄' : isDoc ? '📝' : '📎'}
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="flex flex-col justify-center">
+                                                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline text-sm">
+                                                                        {isImage ? 'View Image' : isPdf ? 'View PDF' : isDoc ? 'Open Document' : 'Download File'}
+                                                                    </a>
+                                                                    <p className="text-xs text-gray-400 mt-1">.{extension?.toUpperCase()}</p>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {msg.message && (
+                                                <p className={`p-4 rounded-lg max-w-xs break-all ${msg?.you ? 'bg-primaryColorDark text-white' : 'bg-[#EAF5F4] text-textGreyColor'}`}>
+                                                    {msg.message}
+                                                </p>
+                                            )}
+                                        </div>
+
                                         <p className="text-textGreyColor text-[12px]">
                                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>

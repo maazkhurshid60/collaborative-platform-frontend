@@ -117,7 +117,7 @@ const ClientList = () => {
                                             <>
                                                 {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
                                                     <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                        {providerList?.provider?.user?.fullName}
+                                                        {providerList?.provider?.user?.fullName?.split(" ")[0]}
 
                                                     </p>
 

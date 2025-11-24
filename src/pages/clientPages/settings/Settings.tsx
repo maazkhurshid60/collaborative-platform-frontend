@@ -39,16 +39,16 @@ const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M24.9956 7.36083L13.6169 18.7594C12.4838 19.8945 9.1202 20.4202 8.36878 19.6674C7.61735 18.9147 8.13023 15.5453 9.26333 14.4102L20.654 2.9997C20.9349 2.6927 21.2749 2.44592 21.6538 2.27422C22.0325 2.10253 22.442 2.00945 22.8577 2.00068C23.2733 1.99192 23.6864 2.0676 24.072 2.22318C24.4576 2.37876 24.8078 2.61103 25.1014 2.90592C25.3949 3.2008 25.6258 3.55219 25.78 3.93891C25.9343 4.32564 26.0088 4.73964 25.9989 5.15598C25.989 5.57232 25.8949 5.98237 25.7225 6.3613C25.5501 6.74024 25.3028 7.08028 24.9956 7.36083Z"
       stroke="#2C9993"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M12.7346 4.49414H6.77095C5.50561 4.49414 4.29218 4.99766 3.39745 5.89396C2.50273 6.79025 2 8.00588 2 9.27343V21.2217C2 22.4892 2.50273 23.7048 3.39745 24.6011C4.29218 25.4974 5.50561 26.0009 6.77095 26.0009H19.8911C22.527 26.0009 23.4693 23.8503 23.4693 21.2217V15.2475"
       stroke="#2C9993"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -56,32 +56,20 @@ const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const Settings = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [signAdd, setSignAdd] = useState<string | null>(null);
-  const [isUploadedSignature, setIsUploadedSignature] =
-    useState<boolean>(false);
+  const [isUploadedSignature, setIsUploadedSignature] = useState<boolean>(false);
+  const [getMeDetail, setGetMeDetail] = useState<GetMeType | undefined>(undefined);
+  const [isLoader, setIsLoader] = useState(false);
 
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails
   );
-  const [getMeDetail, setGetMeDetail] = useState<GetMeType | undefined>(
-    undefined
-  );
-  const [isLoader, setIsLoader] = useState(false);
-  const queryClient = useQueryClient();
-
   const isShowDeleteModal = useSelector(
     (state: RootState) => state.modalSlice.isModalDelete
   );
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // const {
-  //     register,
-  //     handleSubmit,
-  //     formState: { errors },
-  //     setValue
-  // } = useForm<FormFields>({
-  //     resolver: zodResolver(accountSchema),
-  // });
+  const queryClient = useQueryClient();
 
   const methods = useForm<FormFields>({
     resolver: zodResolver(accountSchema),
@@ -94,11 +82,6 @@ const Settings = () => {
     setValue,
   } = methods;
 
-  // const baseUrl =
-  //     import.meta.env.VITE_ENV === "LOCALHOST"
-  //         ? "http://localhost:8000"
-  //         : "https://collaborative-platform-backend.onrender.com";
-
   const blobUrlToFile = async (
     blobUrl: string,
     filename = "signature.png"
@@ -108,21 +91,12 @@ const Settings = () => {
     return new File([blob], filename, { type: blob.type });
   };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const file = e.target.files?.[0];
-  //     if (file) {
-  //         const imageUrl = URL.createObjectURL(file);
-  //         setSignAdd(imageUrl);
-  //         setIsUploadedSignature(true);
-  //     }
-  // };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSignAdd(imageUrl);
-      setIsUploadedSignature(true); // This marks it as a new upload
+      setIsUploadedSignature(true);
     }
   };
 
@@ -130,7 +104,6 @@ const Settings = () => {
     mutationFn: async (formData: FormData) => {
       const response = await loginUserApiService.updateMeApi(formData);
       console.log("RESPONSE", response);
-
       dispatch(saveLoginUserDetailsReducer(response?.data));
     },
     onMutate: () => setIsLoader(true),
@@ -149,7 +122,6 @@ const Settings = () => {
   const updateFunction = async (data: FormFields) => {
     const formData = new FormData();
     formData.append("fullName", data.fullName);
-    formData.append("licenseNo", data.licenseNo);
     formData.append("email", data.email);
     formData.append("address", data.address);
     formData.append("country", data.country);
@@ -159,7 +131,7 @@ const Settings = () => {
       formData.append("password", data.password);
     }
 
-    // Handle e-signature - this is the key fix
+    // Handle e-signature
     if (signAdd && isUploadedSignature) {
       // User uploaded a new image
       const file = await blobUrlToFile(signAdd);
@@ -168,8 +140,7 @@ const Settings = () => {
       // User removed the image
       formData.append("eSignature", "");
     } else {
-      // Keep the existing signature - send the URL as is
-      // This is what you were missing
+      // Keep the existing signature
       formData.append("eSignature", signAdd);
     }
 
@@ -202,14 +173,14 @@ const Settings = () => {
     if (getMeData) {
       setGetMeDetail(getMeData);
       setValue("fullName", getMeData?.user?.fullName ?? "");
-      setValue("licenseNo", getMeData?.user?.licenseNo ?? "");
+      setValue("licenseNo", Number(getMeData?.user?.licenseNo ?? ""));
       setValue("email", getMeData?.email ?? "");
       setValue("country", getMeData?.user?.country ?? "");
       setValue("state", getMeData?.user?.state ?? "");
       setValue("address", getMeData?.user?.address ?? "");
+      
       if (getMeData?.eSignature) {
         setSignAdd(getMeData.eSignature);
-
         setIsUploadedSignature(false);
       } else {
         setSignAdd(null);
@@ -217,8 +188,6 @@ const Settings = () => {
       }
     }
   }, [getMeData]);
-
-  const deleteMe = () => deleteMeMutation.mutate();
 
   const deleteMeMutation = useMutation({
     mutationFn: async () =>
@@ -231,8 +200,10 @@ const Settings = () => {
     onError: () => toast.error("Failed to delete account!"),
   });
 
-  if (isLoading) return <Loader text="Loading..." />;
+  const deleteMe = () => deleteMeMutation.mutate();
+
   if (isError) return <p>Something went wrong</p>;
+  if (isLoading) return <Loader text="Loading..." />;
 
   return (
     <OutletLayout
@@ -268,7 +239,7 @@ const Settings = () => {
           heading="Delete Account"
           text={
             <div>
-              By deleting your account, you won’t be able to track your signed
+              By deleting your account, you won't be able to track your signed
               documents. Are you sure you want to{" "}
               <span className="font-semibold">Delete your Account</span>?
             </div>
@@ -304,7 +275,7 @@ const Settings = () => {
                 placeHolder="Enter Email."
                 error={errors.email?.message}
               />
-               <InputField
+              <InputField
                 label="Address"
                 register={register("address")}
                 placeHolder="Enter Address."
@@ -321,7 +292,6 @@ const Settings = () => {
                 isStateView={true}
                 defaultState={getMeData?.user?.state}
               />
-             
 
               <InputField
                 label="Password"
@@ -348,9 +318,9 @@ const Settings = () => {
                   <CrossIcon
                     onClick={() => {
                       setSignAdd(null);
-                      setIsUploadedSignature(true); // This marks it as changed
+                      setIsUploadedSignature(true);
                     }}
-                  />{" "}
+                  />
                 </div>
               ) : (
                 <UploadFile
@@ -383,7 +353,6 @@ const Settings = () => {
               data={getCountryNameFromCode(getMeData?.user?.country ?? "")}
             />
             <LabelData label="State" data={getMeData?.user?.state} />
-            {/* <LabelData label="Password" data="********" /> */}
           </div>
 
           <hr className="w-full h-[1px] text-greyColor mt-10" />

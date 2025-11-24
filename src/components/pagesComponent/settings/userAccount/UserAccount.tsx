@@ -4,11 +4,15 @@ interface UserAccountProps {
     profile?: string
     name?: string
     email?: string
+    profileUrl?: string
 }
 const UserAccount: React.FC<UserAccountProps> = (props) => {
+
     return (
         <div className='flex items-center bg-white relative gap-x-2 mt-6'>
-            <UserIcon className="text-[22px] md:text-[30px] lg:text-[38px]" />
+            {props?.profile && props.profile !== "null" ? <img src={props.profile} alt="profile" className='w-[50px] h-[50px] rounded-full object-cover'
+
+            /> : <UserIcon className="text-[22px] md:text-[30px] lg:text-[38px]" />}
 
             <div className='flex items-center gap-x-10'>
                 <div className='font-[Poppins]'>

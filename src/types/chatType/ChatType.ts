@@ -13,6 +13,8 @@ export interface NewMessage {
     senderId?: string
     isGroupMessage?: boolean | undefined
     groupId: string
+    mediaUrl?: string
+    type?: string
 }
 
 export interface LastMessage {

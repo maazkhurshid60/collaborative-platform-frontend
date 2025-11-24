@@ -23,31 +23,35 @@ const UserSetting = () => {
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const navigate = useNavigate()
-    const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType[]>({
+    const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType | blockListDataType[]>({
         queryKey: ["loginUser"],
         queryFn: async () => {
             try {
                 const response = await loginUserApiService.getAllUsersApi();
-                return response?.user; // Ensure it always returns an array
+                return response?.user; // could be a single object or an array
             } catch (error) {
                 console.error("Error fetching all users:", error);
-                return []; // Return an empty array in case of an error
+                return [] as blockListDataType[]; // Return an empty array in case of an error
             }
         }
     })
-    // console.log(allUsersData.blockedMembers, 'alluserddata');
+    // console.log(allUsersData?.blockedMembers, 'alluserddata');
 
-let filteredData ;
+    let filteredData: blockListDataType[] | undefined;
 
-if (Array.isArray(allUsersData)) {
-    // If it's an array, filter normally
-    filteredData = allUsersData.filter(
-        (user) => !user.blockedMembers?.includes(loginUserDetail?.user?.id)
-    );
-} else if (allUsersData && typeof allUsersData === 'object') {
-    // If it's a single object, check blockedMembers and include if allowed
-    console.log('n');
-}
+    if (Array.isArray(allUsersData)) {
+        // If it's an array, filter normally
+        filteredData = allUsersData.filter(
+            (user) => !user.blockedMembers?.includes(loginUserDetail?.user?.id)
+        );
+    } else if (allUsersData && typeof allUsersData === 'object') {
+        // allUsersData is a single object here, treat accordingly
+        if (!allUsersData.blockedMembers?.includes(loginUserDetail?.user?.id)) {
+            filteredData = [allUsersData]; // wrap single object in array
+        } else {
+            filteredData = [];
+        }
+    }
 
     const deleteMe = () => {
         deleteMeMutation.mutate()
@@ -77,7 +81,7 @@ if (Array.isArray(allUsersData)) {
         return <Loader text='Loading...' />
     }
     if (isError) {
-        return <p>somethingwent wrong</p>
+        return <p>something went wrong</p>
     }
 
 
@@ -86,7 +90,7 @@ if (Array.isArray(allUsersData)) {
             {isBlockListScreen && <BlockList blockListData={filteredData} />}
             {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}
-            <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} />
+            <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} profile={loginUserDetail?.user?.profileImage} />
             <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>
             <div className='mt-6'>
                 <p className='text-[16px] font-medium'>Email</p>
@@ -108,12 +112,14 @@ if (Array.isArray(allUsersData)) {
 
 
             <div>
-                <div className='flex items-center justify-between mt-6 w-full '>
-                    <div>
-                        <p className='text-[16px] font-medium'>Notification</p>
-                        <p className={`text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>Enable notifications to stay up-to-date</p>
+                <div>
+                    <div className='flex items-center justify-between mt-6 w-full '>
+                        <div>
+                            <p className='text-[16px] font-medium'>Notification</p>
+                            <p className={`text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>Enable notifications to stay up-to-date</p>
+                        </div>
+                        <CheckBox />
                     </div>
-                    <CheckBox />
                 </div>
             </div>
             <LabelText label='Block' text='If you find offensive messages you can block the person' onClick={() => { dispatch(isBlockScreenShowReducer(true)) }} />

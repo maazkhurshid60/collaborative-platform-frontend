@@ -16,6 +16,9 @@ export interface ChatChannelType {
 export interface LastMessage {
     message?: string
     createdAt: string
+    mediaUrl?: string
+    type?: string
+    id?: string
 }
 
 export interface Member {

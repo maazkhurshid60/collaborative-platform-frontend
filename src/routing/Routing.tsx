@@ -39,11 +39,11 @@ const Routing = () => {
         <Routes>
 
             {/* Public Routes */}
-            <Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
+            < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
             < Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
             < Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
             < Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
-            < Route path="/invite-chat/:type/:id" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
+             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
             < Route path="/signup-with-license" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
             < Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
             < Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />

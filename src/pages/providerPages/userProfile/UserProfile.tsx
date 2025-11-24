@@ -47,6 +47,7 @@ const UserProfile = () => {
     const methods = useForm<FormFields>({
         resolver: zodResolver(providerSchema),
     });
+    console.log(loginUserDetail, "all dataaa");
 
     const {
         register,
@@ -56,9 +57,9 @@ const UserProfile = () => {
     } = methods;
 
     const updateFunction = (data: FormFields) => {
-        // if (selectedFile === null) {
-        //     return toast.error("Profile Image is require.")
-        // }
+        if (selectedFile === null) {
+            return toast.error("Profile Image is require.")
+        }
         const formData = new FormData()
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
@@ -74,7 +75,7 @@ const UserProfile = () => {
         if (selectedFile !== null) {
             formData.append('profileImage', selectedFile)
         }
-        else {
+        else if (previewUrl === null) {
             formData.append('profileImage', "")
         }
         updateMutation.mutate(formData)
@@ -96,10 +97,9 @@ const UserProfile = () => {
 
         if (getMeData) {
             setGetMeDetail(getMeData);
-
             setValue("fullName", getMeData?.user?.fullName ?? "")
             setValue("licenseNo", getMeData?.user?.licenseNo ?? "")
-            setValue("age", getMeData?.user?.age?.toString() ?? "")
+            setValue("age", Number(getMeData?.user?.age ?? 0) || 0)
             setValue("contactNo", getMeData?.user?.contactNo ?? "")
             setValue("email", getMeData?.email ?? "")
             setValue("department", getMeData?.department ?? "")
@@ -115,7 +115,6 @@ const UserProfile = () => {
             }
         }
     }, [getMeData])
-
     const handleFileSelect = (file: File) => {
         setSelectedFile(file)
         setPreviewUrl(URL.createObjectURL(file))
@@ -149,8 +148,10 @@ const UserProfile = () => {
         return <Loader text='Loading...' />
     }
     if (isError) {
-        return <p>somethingwent wrong</p>
+        return <p>something went wrong</p>
     }
+    console.log(getMeDetail, "this is fucking adata");
+
     return (
         <OutletLayout heading='User profile'>
             {isLoader && <Loader text='Updating...' />}
@@ -177,7 +178,7 @@ const UserProfile = () => {
                                         />
                                     ) : (
 
-                                        <UserIcon className="text-8xl text-textColor" />
+                                        <UserIcon className="text-8xl text-textColor" profileImg={getMeDetail?.user?.profileImage} />
                                     )
                                 ) : (
                                     <FileUploader onFileSelect={handleFileSelect} />
@@ -217,8 +218,8 @@ const UserProfile = () => {
                                     options={departmentOptions}
                                     placeholder="Choose an option"
                                     error={errors.department?.message}
-                                />                
-                                </div>
+                                />
+                            </div>
                             <div className=''>
                                 <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                             </div>
@@ -227,23 +228,23 @@ const UserProfile = () => {
                                 <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                             </div>
 
-                              <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                            <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
 
                             <CountryStateSelect
                                 isCountryView={true}
                                 isStateView={false}
                                 defaultCountry={getMeData?.user?.country}
-                                 required={false}
+                                required={false}
                             />
                             <CountryStateSelect
                                 isCountryView={false}
                                 isStateView={true}
                                 defaultState={getMeData?.user?.state}
-                                 required={false}
+                                required={false}
                             />
 
-                          
+
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />
@@ -268,9 +269,9 @@ const UserProfile = () => {
                             </div>
 
                         </div>
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center justify-end -mt-8" >
 
-                            <div className='mt-10  w-[100px]'>
+                            <div className='w-[100px]'>
 
                                 <Button text='Update' sm />
                             </div>
@@ -285,7 +286,7 @@ const UserProfile = () => {
                             <LabelData label='User Image' />
                             {/* <UserIcon className='text-6xl mt-2' /> */}
 
-                            <div className="relative w-32 h-32">
+                            <div className="relative w-32 h-32 ">
                                 {
                                     previewUrl ? (
                                         <img
@@ -323,7 +324,7 @@ const UserProfile = () => {
                                 <LabelData label='Contact Number' data={getMeData?.user?.contactNo ?? ""} />
                             </div>
 
-                             <div className=''>
+                            <div className=''>
                                 <LabelData label='Address' data={getMeData?.user?.address ?? "-"} />
                             </div>
 
@@ -334,7 +335,6 @@ const UserProfile = () => {
                             <div className=''>
                                 <LabelData label='State' data={getMeData?.user?.state} />
                             </div>
-                           
 
                             <div className=' '>
                                 <LabelData label='List of Active Clients' />
@@ -357,13 +357,17 @@ const UserProfile = () => {
                             </div>
 
                         </div>
-
-                    </div>
-                    <div className='flex items-center justify-end w-full'>
-                        <div className='w-[100px] mt-10'>
-                            <Button text='Edit' sm onclick={() => setIsEdit(true)} />
+                        <div className='flex items-center justify-end w-full -mt-8'>
+                            <div className='w-[100px]'>
+                                <Button text='Edit' sm onclick={() => {
+                                    setIsEdit(true)
+                                    setPreviewUrl(getMeData?.user?.profileImage || null);
+                                }
+                                } />
+                            </div>
                         </div>
                     </div>
+
                 </>
             }
 
