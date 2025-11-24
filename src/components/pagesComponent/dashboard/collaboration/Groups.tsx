@@ -6,8 +6,8 @@ import { HiPhoto } from 'react-icons/hi2';
 
 
 interface GroupsProps {
-    data: GroupChat
-    activeId: string | undefined
+    data: GroupChat;
+    activeId: string | undefined;
     onClick: () => void;
 }
 const Groups: React.FC<GroupsProps> = ({ data, onClick }) => {
@@ -88,9 +88,4 @@ const Groups: React.FC<GroupsProps> = ({ data, onClick }) => {
     );
 };
 
-
-export default Groups
-
-
-
-
+export default Groups;

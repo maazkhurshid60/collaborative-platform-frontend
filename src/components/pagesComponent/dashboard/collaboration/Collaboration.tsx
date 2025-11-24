@@ -122,7 +122,7 @@ const Collaboration = () => {
                         return {
                             ...channel,
                             totalUnread: (Number(channel.totalUnread) || 0) + 1,
-                            lastMessage: newMessage, // Optionally update last message
+                            lastMessage: newMessage, 
                         };
                     }
                     return channel;
