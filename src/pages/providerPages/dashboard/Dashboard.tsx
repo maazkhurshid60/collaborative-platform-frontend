@@ -103,7 +103,7 @@ const Dashboard = () => {
 
 
     return (
-        <OutletLayout heading='Dashboard' classs>
+        <OutletLayout heading='Dashboard'>
             <div className='flex flex-col gap-3'>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {cardData?.map((data, id: number) => {
@@ -138,7 +138,7 @@ const Dashboard = () => {
                             </CardDashboardLayout>
                         </div>
                     </div>
-                    <div className='w-[100%] lg:w-[31%] h-[821px]'>
+                    <div className='w-[100%] lg:w-[31%] h-[820px]'>
                         <CardDashboardLayout heading='Collaborations'>
                             <Collaboration />
                         </CardDashboardLayout>
