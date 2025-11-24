@@ -5,12 +5,9 @@ import { HiDocumentText } from "react-icons/hi2";
 import { HiPaperClip } from "react-icons/hi2";
 
 interface GroupChatDataType {
-  data: GroupChat;
   activeId: string | undefined;
   data: GroupChat;
-  activeId: string | undefined;
 
-  onClick: () => void;
   onClick: () => void;
 }
 
@@ -24,12 +21,12 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
   // Helper function to get media display info
   const getMediaDisplayInfo = (mediaUrl?: string) => {
     if (!mediaUrl) return null;
-    
+
     const extension = mediaUrl.split('.').pop()?.toLowerCase();
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
     const isPdf = extension === 'pdf';
     const isDoc = ['doc', 'docx'].includes(extension || '');
-    
+
     if (isImage) {
       return { icon: HiPhoto, text: 'Photo' };
     } else if (isPdf || isDoc) {
@@ -43,11 +40,10 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
     <div className="">
       <div
         className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md
-                 ${
-                   activeId === data?.id
-                     ? "bg-primaryColorLight rounded-md"
-                     : "bg-white"
-                 }`}
+                 ${activeId === data?.id
+            ? "bg-primaryColorLight rounded-md"
+            : "bg-white"
+          }`}
         onClick={onClick}
       >
         <div className="w-[80%]">
@@ -58,9 +54,8 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
             <HiUserGroup className="text-[40px]" />
             <div>
               <p
-                className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${
-                  data?.unreadCount !== 0 ? "font-semibold" : "font-normal "
-                }`}
+                className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.unreadCount !== 0 ? "font-semibold" : "font-normal "
+                  }`}
               >
                 {data?.name}
               </p>
@@ -98,7 +93,7 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
                   )}
                 </div>
               )}
-             
+
             </div>
           </div>
         </div>
@@ -111,14 +106,7 @@ const GroupChatData: React.FC<GroupChatDataType> = ({
       </div>
     </div>
   );
-        {unreadCount > 0 && (
-          <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
-            {data.unreadCount}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+
 };
 
 export default GroupChatData;

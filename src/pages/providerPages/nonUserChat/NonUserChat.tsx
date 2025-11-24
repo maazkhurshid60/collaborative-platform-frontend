@@ -6,7 +6,6 @@ import { Message } from '../../../types/chatType/ChatType';
 import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
 // import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
-import logo from "../../../../public/assets/kolabme-logo.svg";
 // import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import logo from "../../../../public/assets/kolabme-logo.svg";
 import Loader from '../../../components/loader/Loader';
@@ -25,6 +24,8 @@ const NonUserChat = () => {
     // const dispatch = useDispatch()
     // const naviagte = useNavigate()
     const fetchMessages = async (currentPage = 1) => {
+        // Prevent multiple concurrent API calls
+        if (loading) return;
         // if (!id || !loginUserId) return;
 
         const container = messageContainerRef.current;
@@ -41,17 +42,23 @@ const NonUserChat = () => {
 
         try {
             const response = type === 'group'
-                ? await messageApiService.getAllMessagesOfGroupChatChannel(payload)
+                ? await messageApiService.getAllPublicMessagesOfGroupChatChannel(payload)
                 : await messageApiService.getAllPublicMessagesOfSingleChatChannel(payload);
 
             const newMessages = (type === 'group'
                 ? response?.data?.groupMessages
                 : response?.data?.messages) || [];
 
-            setMessages(prev => [
-                ...newMessages.map((m: Message) => ({ ...m, })),
-                ...prev,
-            ]);
+            // Use functional update to prevent race conditions and duplicate messages
+            setMessages(prev => {
+                const existingMessageIds = new Set(prev.map(msg => msg.id));
+                const filteredNewMessages = newMessages.filter((msg: Message) => !existingMessageIds.has(msg.id));
+                
+                return [
+                    ...filteredNewMessages.map((m: Message) => ({ ...m })),
+                    ...prev,
+                ];
+            });
 
             setPage(currentPage);
             setHasMore(response?.data?.hasMore);
@@ -139,7 +146,7 @@ const NonUserChat = () => {
     // }
 
     useEffect(() => {
-        setMessages([]); // reset when chat changes
+        setMessages([]); 
         setPage(1);
         setHasMore(true);
         fetchMessages(1);
@@ -149,14 +156,21 @@ const NonUserChat = () => {
         const container = messageContainerRef.current;
         if (!container) return;
 
+        let timeoutId: ReturnType<typeof setTimeout>;
         const handleScroll = () => {
-            if (container.scrollTop === 0 && hasMore && !loading) {
-                fetchMessages(page + 1);
-            }
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                if (container.scrollTop === 0 && hasMore && !loading) {
+                    fetchMessages(page + 1);
+                }
+            }, 100);
         };
 
         container.addEventListener('scroll', handleScroll);
-        return () => container.removeEventListener('scroll', handleScroll);
+        return () => {
+            container.removeEventListener('scroll', handleScroll);
+            clearTimeout(timeoutId);
+        };
     }, [page, hasMore, loading]);
 
     return (
@@ -173,7 +187,7 @@ const NonUserChat = () => {
                         <NavLink to="/" className='w-[80px] sm:w-[100px]'>
                             <Button text='Login' borderButton />
                         </NavLink>
-                        <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
+                        <NavLink to="/provider-signup" className='w-[80px] sm:w-[100px]'>
                             <Button text='Signup' />
                         </NavLink>
                     </div>
@@ -182,7 +196,7 @@ const NonUserChat = () => {
                             <NavLink to="/" className='w-[80px] sm:w-[100px]'>
                                 <Button text='Login' borderButton />
                             </NavLink>
-                            <NavLink to="/client-signup" className='w-[80px] sm:w-[100px]'>
+                            <NavLink to="/provider-signup" className='w-[80px] sm:w-[100px]'>
                                 <Button text='Signup' />
                             </NavLink>
                         </div>

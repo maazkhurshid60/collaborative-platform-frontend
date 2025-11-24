@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
 import { isBlockScreenShowReducer } from '../../redux/slices/BlockListUserSlice';
 import CheckBox from '../../components/toggle/Toggle';
-import CheckBox from '../../components/toggle/Toggle';
 import Loader from '../../components/loader/Loader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { blockListDataType } from '../../types/usersType/UsersType';
@@ -24,21 +23,21 @@ const UserSetting = () => {
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const navigate = useNavigate()
-    const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType[]>({
+    const { data: allUsersData, isLoading, isError } = useQuery<blockListDataType | blockListDataType[]>({
         queryKey: ["loginUser"],
         queryFn: async () => {
             try {
                 const response = await loginUserApiService.getAllUsersApi();
-                return response?.user; // Ensure it always returns an array
+                return response?.user; // could be a single object or an array
             } catch (error) {
                 console.error("Error fetching all users:", error);
-                return []; // Return an empty array in case of an error
+                return [] as blockListDataType[]; // Return an empty array in case of an error
             }
         }
     })
-    // console.log(allUsersData.blockedMembers, 'alluserddata');
+    // console.log(allUsersData?.blockedMembers, 'alluserddata');
 
-    let filteredData;
+    let filteredData: blockListDataType[] | undefined;
 
     if (Array.isArray(allUsersData)) {
         // If it's an array, filter normally
@@ -46,9 +45,11 @@ const UserSetting = () => {
             (user) => !user.blockedMembers?.includes(loginUserDetail?.user?.id)
         );
     } else if (allUsersData && typeof allUsersData === 'object') {
-        // If it's a single object, check blockedMembers and include if allowed
+        // allUsersData is a single object here, treat accordingly
         if (!allUsersData.blockedMembers?.includes(loginUserDetail?.user?.id)) {
             filteredData = [allUsersData]; // wrap single object in array
+        } else {
+            filteredData = [];
         }
     }
 
@@ -80,7 +81,7 @@ const UserSetting = () => {
         return <Loader text='Loading...' />
     }
     if (isError) {
-        return <p>somethingwent wrong</p>
+        return <p>something went wrong</p>
     }
 
 
@@ -111,15 +112,15 @@ const UserSetting = () => {
 
 
             <div>
-            <div>
-                <div className='flex items-center justify-between mt-6 w-full '>
-                    <div>
-                        <p className='text-[16px] font-medium'>Notification</p>
-                        <p className={`text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>Enable notifications to stay up-to-date</p>
+                <div>
+                    <div className='flex items-center justify-between mt-6 w-full '>
+                        <div>
+                            <p className='text-[16px] font-medium'>Notification</p>
+                            <p className={`text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]`}>Enable notifications to stay up-to-date</p>
+                        </div>
+                        <CheckBox />
                     </div>
-                    <CheckBox />
                 </div>
-            </div>
             </div>
             <LabelText label='Block' text='If you find offensive messages you can block the person' onClick={() => { dispatch(isBlockScreenShowReducer(true)) }} />
             <div className='flex items-center justify-between mt-6'>

@@ -135,6 +135,18 @@ class MessageApiService {
             toast.error(errMsg);
         }
     }
+       async getAllPublicMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChat) {
+        try {
+
+            const response = await this.api.post("/public-chat/get-group-messages", data)
+            return response?.data
+
+
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
     async sendMessagesOfGroupChatChannel(data: FormData) {
         try {
 

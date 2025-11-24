@@ -62,8 +62,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("status", clientData?.user?.status ?? "")
             setValue("address", clientData?.user?.address ?? "")
             setValue("contactNo", clientData?.user?.contactNo ?? "")
-            setValue("age", parseInt(clientData?.user?.age ?? ""))
-            setValue("age", parseInt(clientData?.user?.age ?? ""))
+            setValue("age", Number(clientData?.user?.age ?? ""))
             setValue("gender", clientData?.user?.gender ?? "")
             setValue("country", clientData?.user?.country ?? "")
             setValue("state", clientData?.user?.state ?? "")
@@ -113,17 +112,12 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('fullName', data.fullName)
         formData.append('email', data.email)
         formData.append('licenseNo', data.licenseNo)
-        formData.append('age', data?.age?.toString() ?? '')
-        formData.append('gender', data.gender ?? 'Male')
+        formData.append('age', data?.age?.toString() || '');
         formData.append('status', data.status ?? 'active')
-        formData.append('address', data.address ?? '')
-        formData.append('age', data?.age?.toString() ?? '')
         formData.append('gender', data.gender ?? 'Male')
-        formData.append('status', data.status ?? 'active')
         formData.append('address', data.address ?? '')
         formData.append('contactNo', data.contactNo)
         formData.append('state', data.state)
-        formData.append('country', data.country ?? '')
         formData.append('country', data.country ?? '')
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
@@ -153,10 +147,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setIsLoader(false)
         }
     })
-
+    if (isLoader) {
+        return <Loader text='Updating Client...' />
+    }
     return (
         <div className='relative pl-2'>
-            {isLoader && <Loader text='Updating...' />}
             {isShowDeleteModal && <DeleteClientModal />}
             <FormProvider {...methods}>
 
@@ -192,13 +187,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         </div>
 
                     </div> */}
-                    </div> */}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                        <InputField required label='license Number' type='number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                        <InputField required label='license Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
-                        <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                         <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
@@ -221,8 +214,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isCountryView={true}
                             isStateView={false}
                             defaultCountry={clientData?.user?.country}
-                             required={false}
-                             required={false}
+                            required={false}
                         // defaultState={getMeData?.user?.state}
                         />
                         <CountryStateSelect
@@ -230,8 +222,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isStateView={true}
                             // defaultCountry={getMeData?.user?.country}
                             defaultState={clientData?.user?.state}
-                             required={false}
-                             required={false}
+                            required={false}
                         />
                         <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
@@ -247,7 +238,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                         <div className=' '>
                             <LabelData label='List of Providers' />
-                            <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
+                            <ul className='text-[14px] font-medium text-textGreyColor list-disc ' />
                             <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
                                 {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
                                     ? <p>No Providers Found</p>

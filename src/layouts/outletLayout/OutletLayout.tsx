@@ -18,8 +18,8 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
 
 
         <div className={`${isWhiteColor ? "bg-white" : "bg-transparent"}  w-full p-3  pt-5 lg:p-5 md:pt-15 rounded-lg min-h-[86.5vh]  
-        font-[Poppins] text-textColor
-          h-auto sm:h-auto 
+        font-[Poppins] text-textColor md:h-full
+           sm:h-auto 
         `}>
             <div className='flex items-center justify-between w-full'>
 

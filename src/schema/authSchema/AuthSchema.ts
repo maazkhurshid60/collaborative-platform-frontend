@@ -39,7 +39,7 @@ export const LicenseNoSchema = z.object({
 export const ClientSignupSchema = z.object({
     email: z.string().email(),
     fullName: z.string().min(1, "Full Name is required"),
-    licenseNo: z.number().min(1, "License number is required"),
+    licenseNo: z.string().min(1, "License number is required"),
     country: z.string().nonempty("Country is required"),
     state: z.string().nonempty("State is required"),
     password: strongPassword,

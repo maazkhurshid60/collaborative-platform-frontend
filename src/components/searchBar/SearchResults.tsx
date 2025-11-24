@@ -3,6 +3,7 @@ import { ClientType } from '../../types/clientType/ClientType';
 import UserIcon from '../icons/user/User';
 import AddIcon from '../icons/add/Add';
 import { FaCheckCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 interface SearchResultsProps {
     results: ClientType[];
@@ -68,7 +69,8 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     );
 
     return (
-        <div className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+
+        <Link to={`/providers/${user.id}`} className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
@@ -128,7 +130,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                     </button>
                 ) : null}
             </div>
-        </div>
+        </Link>
     );
 };
 
