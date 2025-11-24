@@ -1,7 +1,6 @@
 import OutletLayout from '../../../layouts/outletLayout/OutletLayout'
 import CardDashboardLayout from '../../../layouts/dashboardLayout/CardDashboardLayout'
 import Collaboration from '../../../components/pagesComponent/dashboard/collaboration/Collaboration'
-
 import ClientList from '../../../components/pagesComponent/dashboard/clientList/ClientList';
 import ProviderList from '../../../components/pagesComponent/dashboard/providerList/ProviderList';
 import { useQuery } from '@tanstack/react-query';
@@ -104,14 +103,9 @@ const Dashboard = () => {
 
 
     return (
-        <OutletLayout heading='Dashboard'>
-
-
+        <OutletLayout heading='Dashboard' classs>
             <div className='flex flex-col gap-3'>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-
-
                     {cardData?.map((data, id: number) => {
                         const Icon = data?.icon
                         return (
@@ -129,12 +123,7 @@ const Dashboard = () => {
                             </div>
                         )
                     })}
-
-
-
                 </div>
-
-
                 <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-between flex-wrap'>
                     <div className=' flex flex-col gap-3 flex-wrap w-[100%] lg:w-[68%] '>
                         <div className=' w-[100%] lg:w-[100%] overflow-x-auto rounded-md'>
@@ -149,7 +138,7 @@ const Dashboard = () => {
                             </CardDashboardLayout>
                         </div>
                     </div>
-                    <div className='w-[100%] lg:w-[31%] h-[792px]'>
+                    <div className='w-[100%] lg:w-[31%] h-[821px]'>
                         <CardDashboardLayout heading='Collaborations'>
                             <Collaboration />
                         </CardDashboardLayout>

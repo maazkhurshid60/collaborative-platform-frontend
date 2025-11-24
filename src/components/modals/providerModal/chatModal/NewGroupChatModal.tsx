@@ -27,6 +27,7 @@ const NewGroupChatModal = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const [isCreating, setIsCreating] = useState(false);
     const [groupMembers, setGroupMembers] = useState<string[]>([])
+    const [searchQuery, setSearchQuery] = useState("")
     const dispatch = useDispatch<AppDispatch>()
     const queryClient = useQueryClient()
     const { data: allProviders, isLoading, isError } = useQuery<ProviderType[]>({
@@ -117,10 +118,20 @@ const NewGroupChatModal = () => {
             </div>
             <div className='mt-4'>
 
-                <SearchBar sm bgColor='bg-inputBgColor' isBorder={false} borderRounded='rounded-[8px]' />
+                <SearchBar
+                    sm
+                    bgColor='bg-inputBgColor'
+                    isBorder={false}
+                    borderRounded='rounded-[8px]'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search users..."
+                />
             </div>
             <div className='mt-2 mb-4'>
-                {allProviders?.map((data: ProviderType, id: number) => {
+                {allProviders?.filter((data: ProviderType) =>
+                    data?.user?.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((data: ProviderType, id: number) => {
                     if (!data?.id || loginUserDetail?.id === data?.id) return null;  // skip if id is missing or same as logged-in user
 
                     const isMember = groupMembers.includes(data.id.toString());

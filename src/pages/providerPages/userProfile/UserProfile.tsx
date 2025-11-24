@@ -150,22 +150,18 @@ const UserProfile = () => {
     if (isError) {
         return <p>something went wrong</p>
     }
-    console.log(getMeDetail, "this is fucking adata");
-
     return (
         <OutletLayout heading='User profile'>
             {isLoader && <Loader text='Updating...' />}
 
-            {isEdit && <div className='relative'>
-                <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
-                    <BackIcon onClick={() => setIsEdit(false)} />
-                </div>
+            {isEdit && <div className='absolute -mt-10'>
+                <BackIcon onClick={() => setIsEdit(false)} />
             </div>}
             {isShowDeleteModal && <DeleteClientModal />}
 
             {isEdit ?
                 <FormProvider {...methods}>
-                    <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
+                    <form onSubmit={handleSubmit(updateFunction)} className="mt-6 space-y-5">
                         <div>
                             <LabelData label='User Image' />
                             <div className="relative w-32 h-32">
@@ -281,11 +277,9 @@ const UserProfile = () => {
 
                 :
                 <>
-                    <div className='mt-6'>
+                    <div className='mt-6 space-y-5'>
                         <div>
                             <LabelData label='User Image' />
-                            {/* <UserIcon className='text-6xl mt-2' /> */}
-
                             <div className="relative w-32 h-32 ">
                                 {
                                     previewUrl ? (

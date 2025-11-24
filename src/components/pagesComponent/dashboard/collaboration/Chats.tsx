@@ -81,7 +81,6 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
                 >
                   {otherUser?.fullName}
                 </p>
-                {/* Display last message - either text or media */}
                 {data?.lastMessage && (
                   <div className="text-xs text-gray-500 truncate max-w-[90%]">
                     {(data.lastMessage?.type === 'media' && data.lastMessage?.mediaUrl) ? (
