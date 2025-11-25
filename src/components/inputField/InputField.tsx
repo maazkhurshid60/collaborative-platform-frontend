@@ -49,12 +49,12 @@ const InputField: React.FC<InputFieldProps> = ({
                 />
                 {type === "password" &&
                     (isHidden ? (
-                        <HiOutlineEyeOff
+                        <HiOutlineEye
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
                             onClick={() => setIsHidden(false)}
                         />
                     ) : (
-                        <HiOutlineEye
+                        <HiOutlineEyeOff
                             onClick={() => setIsHidden(true)}
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
                         />
