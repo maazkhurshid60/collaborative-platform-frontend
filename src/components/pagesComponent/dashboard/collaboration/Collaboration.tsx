@@ -122,7 +122,7 @@ const Collaboration = () => {
                         return {
                             ...channel,
                             totalUnread: (Number(channel.totalUnread) || 0) + 1,
-                            lastMessage: newMessage, 
+                            lastMessage: newMessage,
                         };
                     }
                     return channel;
@@ -185,7 +185,7 @@ const Collaboration = () => {
 
             <div className='mt-4'>
                 {activeTab === 0 ? (
-                    <div className="min-h-[100vh] max-h-[100vh] p-2 lg:p-0 overflow-auto mt-4">
+                    <div className="min-h-[100vh] max-h-[100vh] p-2 lg:p-0  mt-4">
                         {filteredChats?.length === 0 ? (
                             <NoRecordFound />
                         ) : (
