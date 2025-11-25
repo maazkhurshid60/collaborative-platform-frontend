@@ -75,9 +75,8 @@ const Navbar = () => {
     useEffect(() => {
         if (searchQuery.trim() !== '') {
             const searchTerm = searchQuery.toLowerCase();
-            const activeUsers = allUsers.filter((user) => user.user?.role === "provider" && user.user?.status === "active");
             const timeoutId = setTimeout(() => {
-                const filtered = activeUsers.filter((user) => {
+                const filtered = allUsers.filter((user) => {
                     return (
                         user.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
                         user.user?.fullName?.toLowerCase().includes(searchTerm) ||
