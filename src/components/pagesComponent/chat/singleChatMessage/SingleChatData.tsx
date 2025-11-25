@@ -24,12 +24,12 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
   // Helper function to get media display info
   const getMediaDisplayInfo = (mediaUrl?: string) => {
     if (!mediaUrl) return null;
-    
+
     const extension = mediaUrl.split('.').pop()?.toLowerCase();
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
     const isPdf = extension === 'pdf';
     const isDoc = ['doc', 'docx'].includes(extension || '');
-    
+
     if (isImage) {
       return { icon: HiPhoto, text: 'Photo' };
     } else if (isPdf || isDoc) {
@@ -73,20 +73,10 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
       >
         <div className="w-[100%] flex items-center justify-between">
           <div className="flex items-start gap-x-6">
-            <div className="w-10 h-10">
-              {imagePath && imagePath !== "null" ? (
-                <img
-                  src={imagePath}
-                  alt="Client"
-                  className="w-full h-full  rounded-full  object-fill"
-                />
-              ) : (
-                <UserIcon />
-              )}
-            </div>
+            <UserIcon size={30} profileImg={imagePath} />
             <div>
               <p
-                className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                className={`font-bold flex mt-2  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
                   }`}
               >
                 {otherUser?.fullName}

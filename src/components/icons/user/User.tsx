@@ -4,21 +4,22 @@ interface UserIconProps {
     onClick?: () => void;
     size?: number;
     className?: string;
-    profileImg?: string;
+    profileImg?: string | null
 }
 
 const UserIcon: React.FC<UserIconProps> = ({
     onClick,
-    className = "text-[32px] md:text-[40px] lg:text-[40px]",
-    profileImg
+    className = "",
+    profileImg,
+    size
 }) => {
 
-    if (profileImg) {
+    if (profileImg && profileImg !== "null") {
         return (
             <img
                 src={profileImg}
                 alt="User Profile"
-                className={`rounded-full object-cover cursor-pointer ${className}`}
+                className={`rounded-full w-[50px] h-[50px] object-cover cursor-pointer ${className}`}
                 onClick={onClick}
             />
         );
@@ -26,7 +27,9 @@ const UserIcon: React.FC<UserIconProps> = ({
 
     return (
         <HiMiniUserCircle
-            className={`cursor-pointer ${className}`}
+            size={size}
+            color="black"
+            className={`w-[60px] h-[60px] rounded-full cursor-pointer ${className}`}
             onClick={onClick}
         />
     );

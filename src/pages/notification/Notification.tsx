@@ -101,28 +101,6 @@ const Notification = () => {
             socket.off("new_notification", handleNewNotification);
         };
     }, []);
-
-
-    const checkProfileImage = (data: NotificationType) => {
-
-        if (data?.sender?.id !== loginUserId) {
-
-            if(data?.sender?.profileImage !== null && data?.sender?.profileImage !== "null") {
-                return true;
-            } else {
-                return false;
-            }
-
-        } else  if (data?.sender?.id === loginUserId) {
-            if(data?.recipient?.profileImage !== null && data?.recipient?.profileImage !== "null") {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-    }
-
     return (
         <OutletLayout heading='Notifications'>
             {isLoader && <Loader text='Deleting...' />}
@@ -141,25 +119,11 @@ const Notification = () => {
                                     <div className='flex items-start gap-x-4'>
 
                                         {
-                                            
-                                            (checkProfileImage(data)) ? (
-                                                <img
-                                                    src={`${data?.sender?.id !== loginUserId
-                                                        ? data?.sender?.profileImage
-                                                        : data?.recipient?.profileImage
-                                                        }`}
-                                                    alt="User"
-                                                    className="w-12 h-12 rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <>
-                                                    <UserIcon className="text-[32px] md:text-[40px] lg:text-[30px]" />
-                                                </>
-                                            )
 
+                                            <UserIcon size={80} profileImg={data?.sender?.id !== loginUserId
+                                                ? data?.sender?.profileImage
+                                                : data?.recipient?.profileImage} />
                                         }
-
-
 
                                         <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
                                             <div className='flex items-center justify-between gap-x-5'>

@@ -368,7 +368,7 @@ const Chat = () => {
                                             setActiveId(data?.id);
                                             setActiveChatType('individual');
                                             // https://app.kolabme.com/invite-chat/individual/2cf93350-ae73-4b99-8b27-2e87c7d2c60f
-                                            
+
 
                                             // const socket = getSocket();
                                             // if (socket?.connected && data?.id) {

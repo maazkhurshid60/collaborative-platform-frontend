@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { IoAttachSharp } from "react-icons/io5";
 import { IoIosSend } from "react-icons/io";
 import UserIcon from '../../../icons/user/User';
-import { RootState } from '../../../../redux/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../redux/store';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
+import loginUserApiService from '../../../../apiServices/loginUserApi/LoginUserApi';
+import { updateBlockedMembers } from '../../../../redux/slices/LoginUserDetailSlice';
 import { getSocket, initSocket } from '../../../../socket/Socket';  // Corrected import
+import { toast } from 'react-toastify';
 import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { GroupChat, GroupCreatedBy, GroupMember } from '../../../../types/chatType/GroupType';
@@ -17,6 +20,7 @@ import SpinnerLoader from '../../../loader/SpinnerLoader';
 
 import { FaRegCircle } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
+import { Link } from 'react-router-dom';
 
 
 
@@ -44,16 +48,10 @@ interface ChatMessagesProps {
 
 }
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType, groupCreatedBy }) => {
-
-
-
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
-
-
-
-
-
     const loginUserProfileImage = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user.profileImage);
+    const blockedMembers = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.blockedMembers);
+    const dispatch = useDispatch<AppDispatch>();
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -64,33 +62,26 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
     const queryClient = useQueryClient();
-    
+
     // Track unread messages per sender
     const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
     // const [lastReadMessageIds, setLastReadMessageIds] = useState<Record<string, string>>({});
-    
+
     // Function to mark messages as read for a specific sender
     const markMessagesAsRead = (senderId: string) => {
         setUnreadCounts(prevCounts => ({
             ...prevCounts,
             [senderId]: 0
         }));
-        
+
         // Find the latest message from this sender
         // const latestMessage = messages
         //     .filter(msg => msg.senderId === senderId && !msg.you)
         //     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-            
-        // if (latestMessage) {
-        //     setLastReadMessageIds(prev => ({
-        //         ...prev,
-        //         [senderId]: latestMessage.id
-        //     }));
-        // }
+
     };
 
     const socket = getSocket();
-    // Load initial messages whenever `messageData` changes
     useEffect(() => {
         if (Array.isArray(messageData)) {
             const mappedMessages = messageData.map(msg => ({
@@ -98,8 +89,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 you: msg?.senderId === loginUserId,
             }));
             setMessages(mappedMessages);
-            
-            // Calculate initial unread counts for each sender
+
             const counts: Record<string, number> = {};
             mappedMessages.forEach(msg => {
                 if (!msg.you && msg.senderId !== loginUserId) {
@@ -128,15 +118,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
             const isSameChat = isSameGroup || isSameIndividual;
 
-            if (!isSameChat) return; // 🛑 Ignore message not related to open chat
+            if (!isSameChat) return;
 
             setMessages(prev => {
                 const alreadyExists = prev.some(m => m.id === newMsg.id);
                 if (alreadyExists) return prev;
 
                 const updatedMessage = { ...newMsg, you: newMsg.senderId === loginUserId };
-                
-                // Update unread count for non-user messages
+
                 if (!updatedMessage.you) {
                     setUnreadCounts(prevCounts => ({
                         ...prevCounts,
@@ -169,27 +158,22 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
 
-    // Auto-scroll to bottom on any messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
-    
-    // Automatically mark messages as read when they come into view
+
     useEffect(() => {
         const timer = setTimeout(() => {
-            // Mark all visible messages as read after a short delay
             const uniqueSenderIds = [...new Set(messages.filter(msg => !msg.you).map(msg => msg.senderId))];
             uniqueSenderIds.forEach(senderId => {
                 if (unreadCounts[senderId] > 0) {
                     markMessagesAsRead(senderId);
                 }
             });
-        }, 2000); // 2 second delay to ensure user has seen the messages
-        
+        }, 1000);
         return () => clearTimeout(timer);
-    }, [messages.length]); // Only run when new messages arrive
+    }, [messages.length]);
 
-    // Send message: API → then socket emit
     const sendMessage = async () => {
         if ((!sendMessageText.trim() && selectedFiles.length === 0) || !activeChatObject) return;
 
@@ -316,6 +300,21 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         }
     }, [loginUserId]);
 
+
+    // const handleUnblock = async (blockUserid: string) => {
+    //     const dataSendToBackend = {
+    //         blockUserid,
+    //         loginUserId
+    //     }
+    //     try {
+    //         const response = await loginUserApiService.unBlockUserApi(dataSendToBackend);
+    //         dispatch(updateBlockedMembers(response?.data?.user?.blockedMembers));
+    //         toast.success("User unblocked successfully");
+    //     } catch (error) {
+    //         console.error("Error unblocking user:", error);
+    //         toast.error("Failed to unblock user");
+    //     }
+    // }
 
     const messageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -644,37 +643,63 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                     </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                    <input
-                        className="outline-none pl-4 py-2 w-[70%] bg-white  rounded-lg"
-                        placeholder="Type here..."
-                        value={sendMessageText}
-                        onChange={e => setSendMessageText(e.target.value)}
-                        onKeyPress={e => e.key === 'Enter' && sendMessage()}
-                    />
-                    <div className="flex items-center gap-x-4 p-2">
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            multiple
-                            onChange={(e) => {
-                                const files = e.target.files;
-                                if (files) {
-                                    setSelectedFiles(prev => [...prev, ...Array.from(files)]);
-                                }
-                            }}
-                        />
+                {/* Check if the other user is blocked */
+                    (() => {
+                        const otherUserId = activeChatObject?.providerA?.id === loginUserId
+                            ? activeChatObject?.providerB?.userId
+                            : activeChatObject?.providerA?.userId;
 
-                        <IoAttachSharp size={30} className="rotate-45 cursor-pointer text-textGreyColor" onClick={() => fileInputRef.current?.click()} />
-                        <button
-                            className="h-[38px] w-[38px] bg-primaryColorDark rounded-full flex items-center justify-center text-white"
-                            onClick={sendMessage}
-                        >
-                            <IoIosSend size={24} className='cursor-pointer' />
-                        </button>
-                    </div>
-                </div>
+                        const isBlocked = activeChatType === 'individual' && blockedMembers?.includes(otherUserId);
+                        if (isBlocked) {
+                            return (
+                                <div className="flex items-center justify-center ">
+                                    <div className="text-center">
+                                        <span className="text-red-500 mb-2">You have blocked this user please unblock in <Link to='/setting' className="text-blue-500 text-sm underline">Settings</Link> </span>
+                                        {/* <button
+                                            onClick={() => handleUnblock(otherUserId)}
+                                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                        >
+                                            Unblock
+                                        </button> */}
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <div className="flex items-center justify-between">
+                                <input
+                                    className="outline-none pl-4 py-2 w-[70%] bg-white  rounded-lg"
+                                    placeholder="Type here..."
+                                    value={sendMessageText}
+                                    onChange={e => setSendMessageText(e.target.value)}
+                                    onKeyPress={e => e.key === 'Enter' && sendMessage()}
+                                />
+                                <div className="flex items-center gap-x-4 p-2">
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        multiple
+                                        onChange={(e) => {
+                                            const files = e.target.files;
+                                            if (files) {
+                                                setSelectedFiles(prev => [...prev, ...Array.from(files)]);
+                                            }
+                                        }}
+                                    />
+
+                                    <IoAttachSharp size={30} className="rotate-45 cursor-pointer text-textGreyColor" onClick={() => fileInputRef.current?.click()} />
+                                    <button
+                                        className="h-[38px] w-[38px] bg-primaryColorDark rounded-full flex items-center justify-center text-white"
+                                        onClick={sendMessage}
+                                    >
+                                        <IoIosSend size={24} className='cursor-pointer' />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })()}
             </div >
         </>
     );
