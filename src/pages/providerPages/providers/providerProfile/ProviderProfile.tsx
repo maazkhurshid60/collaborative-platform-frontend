@@ -19,27 +19,28 @@ const ProviderProfile = () => {
     const { id } = useParams()
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
     const [selectedProviderData, setSelectedProviderData] = useState<ProviderType>()
-    //FETCH ALL PROVIDERS
     const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
-        queryKey: ["providers"],
+        queryKey: ["providers", loginUserId],
         queryFn: async () => {
             try {
                 const response = await providerApiService.getAllProviders(loginUserId);
-                return response?.data?.providers; // Ensure it always returns an array
+                return response?.data?.providers;
 
             } catch (error) {
                 console.error("Error fetching providers:", error);
-                return []; // Return an empty array in case of an error
+                return [];
             }
         }
 
     })
 
-
     useEffect(() => {
-        setSelectedProviderData(providerData?.find(data => data?.id === id));
+        if (providerData) {
+            const selected = providerData.find(data => data?.id === id)
+            setSelectedProviderData(selected)
+        }
+    }, [providerData, id])
 
-    }, [])
 
     if (isLoading) {
         return <Loader text='Loading...' />
@@ -87,7 +88,7 @@ const ProviderProfile = () => {
                         <LabelData label='Department' data={selectedProviderData?.department ?? "-"} />
                     </div>
 
-                     <div className=''>
+                    <div className=''>
                         <LabelData label='Address' data={selectedProviderData?.user?.address ?? "-"} />
                     </div>
 
@@ -98,7 +99,7 @@ const ProviderProfile = () => {
                     <div className=''>
                         <LabelData label='State' data={selectedProviderData?.user?.state ?? "-"} />
                     </div>
-                   
+
 
                     <div className=' '>
                         <LabelData label='List of Active Clients' />
