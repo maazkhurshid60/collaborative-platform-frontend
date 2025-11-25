@@ -103,8 +103,25 @@ const Notification = () => {
     }, []);
 
 
+    const checkProfileImage = (data: NotificationType) => {
 
+        if (data?.sender?.id !== loginUserId) {
 
+            if(data?.sender?.profileImage !== null && data?.sender?.profileImage !== "null") {
+                return true;
+            } else {
+                return false;
+            }
+
+        } else  if (data?.sender?.id === loginUserId) {
+            if(data?.recipient?.profileImage !== null && data?.recipient?.profileImage !== "null") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    }
 
     return (
         <OutletLayout heading='Notifications'>
@@ -124,7 +141,8 @@ const Notification = () => {
                                     <div className='flex items-start gap-x-4'>
 
                                         {
-                                            (data?.sender?.profileImage !== null && data?.sender?.profileImage !== "null" || data?.recipient?.profileImage !== null && data?.recipient?.profileImage !== "null") ? (
+                                            
+                                            (checkProfileImage(data)) ? (
                                                 <img
                                                     src={`${data?.sender?.id !== loginUserId
                                                         ? data?.sender?.profileImage
@@ -133,13 +151,12 @@ const Notification = () => {
                                                     alt="User"
                                                     className="w-12 h-12 rounded-full object-cover"
                                                 />
-                                            ) : (<>
-
-                                                <UserIcon className="text-[32px] md:text-[40px] lg:text-[30px]" />
-
-
-                                            </>
+                                            ) : (
+                                                <>
+                                                    <UserIcon className="text-[32px] md:text-[40px] lg:text-[30px]" />
+                                                </>
                                             )
+
                                         }
 
 
