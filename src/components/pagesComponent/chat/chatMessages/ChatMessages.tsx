@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { IoAttachSharp } from "react-icons/io5";
 import { IoIosSend } from "react-icons/io";
 import UserIcon from '../../../icons/user/User';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../../redux/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../redux/store';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
-import loginUserApiService from '../../../../apiServices/loginUserApi/LoginUserApi';
-import { updateBlockedMembers } from '../../../../redux/slices/LoginUserDetailSlice';
 import { getSocket, initSocket } from '../../../../socket/Socket';  // Corrected import
-import { toast } from 'react-toastify';
 import ChatNavbar from './ChatNavbar';
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType';
 import { GroupChat, GroupCreatedBy, GroupMember } from '../../../../types/chatType/GroupType';
@@ -51,7 +48,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
     const loginUserProfileImage = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user.profileImage);
     const blockedMembers = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.blockedMembers);
-    const dispatch = useDispatch<AppDispatch>();
     const [sendMessageText, setSendMessageText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
