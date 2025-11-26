@@ -358,7 +358,7 @@ const Chat = () => {
                                 })
                                 ?.map((data: ChatChannelType) => (
                                     <SingleChatData
-                                        key={`${data.id}-${data.updatedAt}`}
+                                        key={`${data?.id}-${data?.updatedAt}`}
                                         data={data}
                                         activeId={activeId}
                                         onClick={() => {

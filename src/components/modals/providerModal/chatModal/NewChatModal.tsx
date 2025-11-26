@@ -44,8 +44,9 @@ const NewChatModal = () => {
         onSuccess: (newChat) => {
             // Push to cache or refetch
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (old = []) => {
-                const exists = old?.find((item) => item?.id === newChat?.id);
-                return exists ? old : [newChat, ...old];
+                    const exists = old?.find((item) => item?.id === newChat?.id);
+                    return exists ? old : [newChat, ...old];
+                return old;
             });
 
             // Optional: force full refetch

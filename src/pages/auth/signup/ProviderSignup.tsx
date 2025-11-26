@@ -151,7 +151,7 @@ const ProviderSignup = () => {
 
     return (
         <>
-            {isLoading && <Loader />}
+            {isLoading && <Loader  />}
             <AuthLayout heading="Sign up" >
                 <FormProvider {...methods}>
 

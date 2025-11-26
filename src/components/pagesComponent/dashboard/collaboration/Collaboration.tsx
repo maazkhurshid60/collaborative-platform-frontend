@@ -154,7 +154,7 @@ const Collaboration = () => {
 
     return (
         <>
-            <div className='mt-4 h-fit  overflow-y-auto'>
+            <div className='mt-3 h-fit overflow-y-auto'>
                 <SearchBar
                     sm
                     value={searchText}
@@ -164,7 +164,7 @@ const Collaboration = () => {
                 />
             </div>
 
-            <div className='flex items-center mt-4'>
+            <div className='flex items-center mt-3'>
                 {tabs.map((tab, id) => (
                     <p
                         key={id}
@@ -175,17 +175,15 @@ const Collaboration = () => {
                     </p>
                 ))}
             </div>
-
             <div className='relative'>
                 <hr className='text-textGreyColor/30 h-[1px] w-full mt-2' />
                 <hr
                     className={`text-primaryColorDark h-[1px] w-1/2 mt-2 absolute -top-2 transition-all duration-300 ease-in-out ${activeTab === 0 ? 'left-0' : 'left-1/2'}`}
                 />
             </div>
-
             <div className='mt-4'>
                 {activeTab === 0 ? (
-                    <div className="min-h-[100vh] max-h-[100vh] p-2 lg:p-0  mt-4">
+                    <div className="min-h-screen overflow-y-auto p-2 lg:p-0  mt-4">
                         {filteredChats?.length === 0 ? (
                             <NoRecordFound />
                         ) : (
@@ -222,7 +220,7 @@ const Collaboration = () => {
                     </div>
                 ) : (
                     filteredGroups?.length === 0 ? <NoRecordFound /> : filteredGroups.map((data: GroupChat) => (
-                        <div className="gap-y-3" key={data?.id}>
+                        <div className="gap-y-2" key={data?.id}>
                             <Groups
                                 data={data}
                                 activeId={activeId}

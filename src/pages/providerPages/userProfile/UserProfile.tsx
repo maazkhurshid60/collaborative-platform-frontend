@@ -239,10 +239,7 @@ const UserProfile = () => {
                                 defaultState={getMeData?.user?.state}
                                 required={false}
                             />
-
-
-
-                            <div className=' '>
+                            <div className=''>
                                 <LabelData label='List of Active Clients' />
 
                                 <ul className="text-[14px] font-medium text-textGreyColor">

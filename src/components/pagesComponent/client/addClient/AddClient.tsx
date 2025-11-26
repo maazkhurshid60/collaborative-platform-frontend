@@ -165,8 +165,7 @@ const AddClient = () => {
                         </div>
 
                         <div className=''>
-                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
-                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                            <InputField label='Age' register={register("age")} placeHolder='Enter Age.' required error={errors.age?.message} />
                         </div>
                         
                         <div className=''>
@@ -183,16 +182,13 @@ const AddClient = () => {
 
                         <div className=''>
                             <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                            <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         </div>
 
 
 
                         <div className=''>
                             <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
-                            <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         </div>
-                        <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
                         <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
                         <CountryStateSelect isCountryView={false} isStateView={true} />
                         <div className=''>
@@ -203,9 +199,8 @@ const AddClient = () => {
                                 options={statusOption}
                                 placeholder="Choose an option"
                                 error={errors.status?.message}
-                            />                </div>
-
-
+                            />     
+                            </div>
                     </div>
                     <div className='mt-8'
                     >
@@ -216,9 +211,7 @@ const AddClient = () => {
                         />
                     </div>
                     <div className="flex items-center justify-end">
-
                         <div className='mt-10  w-[100px]'>
-
                             <Button text='Save' />
                         </div>
                     </div>

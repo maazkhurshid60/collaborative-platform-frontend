@@ -45,7 +45,7 @@ const DashboardLayout = () => {
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto sm:p-2 bg-gray-100  ">
+                    <div className="flex-1  overflow-y-auto sm:p-2 bg-gray-100  ">
                         <Outlet />
                     </div>
                 </div>

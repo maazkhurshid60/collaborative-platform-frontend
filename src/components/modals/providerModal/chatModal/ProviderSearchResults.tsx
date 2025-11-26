@@ -74,8 +74,8 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
             <div className="flex-shrink-0">
                 {provider?.user?.profileImage && provider?.user?.profileImage !== "null" ? (
                     <img
-                        src={provider.user.profileImage}
-                        alt={provider.user?.fullName || "Provider"}
+                        src={provider?.user.profileImage}
+                        alt={provider?.user?.fullName || "Provider"}
                         className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                     />
                 ) : (

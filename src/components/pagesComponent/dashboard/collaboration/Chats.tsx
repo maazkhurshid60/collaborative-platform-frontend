@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink,} from "react-router-dom";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
 import { useSelector } from "react-redux";
@@ -51,10 +51,9 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
   const imagePath = otherUser?.profileImage ? otherUser.profileImage : null;
 
   return (
-    < >
+    <>
       <NavLink
         to="/chat"
-
       >
         <div
           className={`pb-2 pt-2 pl-2 flex items-center  w-full gap-x-2  transition-all duration-300 cursor-pointer 
@@ -76,7 +75,7 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
               </div>
               <div>
                 <p
-                  className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                  className={`font-[Poppins] flex items-center justify-items-start gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
                     }`}
                 >
                   {otherUser?.fullName}

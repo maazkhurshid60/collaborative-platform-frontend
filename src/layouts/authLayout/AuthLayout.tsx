@@ -8,10 +8,10 @@ interface authProps {
 
 const AuthLayout: React.FC<authProps> = (props) => {
     return (
-        <div className='flex min-h-screen items-stretch'>
+        <div className='flex min-h-screen items-stretch '>
             {/* Left Side - Form Section */}
             <div className='w-full md:w-1/2 flex items-center justify-center md:py-8 lg:py-[60px]'>
-                <div className='w-full md:w-[70%] rounded-[20px] bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
+                <div className='w-full md:w-[70%] rounded-[20px]  max-w-screen  bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
                     <p className='heading text-center mb-4 capitalize'>{props.heading}</p>
                     {props.children}
                 </div>
@@ -24,7 +24,7 @@ const AuthLayout: React.FC<authProps> = (props) => {
                     alt=""
                     aria-hidden="true"
                     loading="lazy"
-                    className='w-full h-screen object-cover'
+                    className='w-full max-h-screen object-cover'
                 />
 
             </div>

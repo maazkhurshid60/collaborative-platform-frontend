@@ -46,7 +46,7 @@ const ProviderList = () => {
         return <p>somethingwent wrong</p>
     }
     return (<>
-        <div className='mt-2'>
+        <div className='mt-2 '>
             {filteredData?.length === 0 ? <NoRecordFound /> : <>
                 <Table heading={heading} >
                     {filteredData

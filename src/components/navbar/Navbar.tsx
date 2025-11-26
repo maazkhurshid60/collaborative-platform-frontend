@@ -209,7 +209,7 @@ const Navbar = () => {
                                 results={filteredUsers || []}
                                 onAddClient={addClientFun}
                                 currentUserId={loginUserDetail.id}
-                                isVisible={showSearchResults}
+                                  isVisible={showSearchResults}
                                 // isLoading={isSearchLoading}
                                 emptyMessage={searchQuery ? `No users found for "${searchQuery}"` : "Start typing to search users..."}
                             />
@@ -235,7 +235,7 @@ const Navbar = () => {
                                 )
                             }
 
-                            <div className='flex items-center lg:gap-x-10 bg-white z-20'> <div className='font-[Montserrat]'> <p className='text-gray-800 font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName}</p>
+                            <div className='flex items-center lg:gap-x-4 bg-white z-20'> <div className='font-[Montserrat]'> <p className='text-gray-800 font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName.slice(0,6)}{loginUserDetail?.user?.fullName.length > 6 ? "..." : ""} </p>
                                 <p className='text-gray-500 font-medium text-sm -mt-1.5'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>
                             </div> {loginUserDetail?.user?.role === "provider" && (
                                 <div className='p-1 rounded-full hover:bg-gray-100 transition-colors duration-200'> <IoIosArrowDown className={`text-textColor transition-all duration-700 ease-in-out ${isDropDownOpen ? 'rotate-180' : 'rotate-0'} cursor-pointer`} size={22} onClick={() => setIsDropDownOpen(!isDropDownOpen)} />
@@ -243,8 +243,8 @@ const Navbar = () => {
                             </div>
                             <ul
                                 className={`bg-white shadow-[0_0_10px_0_rgba(0,0,0,0.1)] -z-10 p-1  mt-0.5 rounded-[10px] flex flex-col  font-[Poppins] text-[12px] md:text-[14px] lg:text-[16px]'> absolute right-0 transition-all duration-700 ease-in-out 
-    ${isDropDownOpen ? 'opacity-100 translate-y-2  top-[45px] md:top-[50px] z-20' : 'opacity-0 hidden z-[0] -translate-y-3 pointer-events-none top-[-80px]'}
-  `}
+                                ${isDropDownOpen ? 'opacity-100 translate-y-2  top-[45px] md:top-[50px] z-20' : 'opacity-0 hidden z-[0] -translate-y-3 pointer-events-none top-[-80px]'}
+                            `}
                             >
                                 <Link className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' to="/notification" >Notifications</Link>
                                 <Link className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' to="/setting">Settings</Link>

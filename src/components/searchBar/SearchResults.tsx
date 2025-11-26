@@ -21,8 +21,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     isVisible,
     isLoading = false,
     emptyMessage = "No users found"
+    
 }) => {
     if (!isVisible) return null;
+console.log(results);
 
     return (
         <div className="absolute top-12 left-0 w-full z-[9999] bg-white border border-lightGreyColor rounded-lg shadow-lg overflow-hidden">
@@ -67,10 +69,11 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     const isAlreadyAdded = user?.providerList?.some(
         provider => provider.providerId === currentUserId
     );
+console.log(user.user);
 
     return (
 
-        <Link to={`/providers/${user.id}`} className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+        <Link to={user?.user?.role==="client" ? "/dashboard" : `/providers/${user.id}`}  className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
