@@ -220,7 +220,7 @@ const Settings = () => {
     >
       {!isEdit && (
         <div className="relative">
-          <div className="absolute hidden md:block -top-[6px] md:-top-10 md:left-[230px] text-primaryColorDark">
+          <div className="absolute hidden md:block -top-[6px] md:-top-10 md:left-[230px] lg:-top-17 text-primaryColorDark">
             <EditIcon />
           </div>
         </div>
@@ -228,7 +228,7 @@ const Settings = () => {
       {isLoader && <Loader text="Updating..." />}
       {isEdit && (
         <div className="relative">
-          <div className="absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14">
+          <div className="absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-2 lg:-top-8">
             <BackIcon onClick={() => setIsEdit(false)} />
           </div>
         </div>
@@ -332,7 +332,7 @@ const Settings = () => {
             </div>
 
             <div className="flex items-center justify-end">
-              <div className="mt-10 w-[100px]">
+              <div className="mt-1 w-[100px]">
                 <Button text="Update" />
               </div>
             </div>

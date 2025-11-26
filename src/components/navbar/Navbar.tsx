@@ -243,7 +243,7 @@ const Navbar = () => {
                             </div>
                             <ul
                                 className={`bg-white shadow-[0_0_10px_0_rgba(0,0,0,0.1)] -z-10 p-1  mt-0.5 rounded-[10px] flex flex-col  font-[Poppins] text-[12px] md:text-[14px] lg:text-[16px]'> absolute right-0 transition-all duration-700 ease-in-out 
-    ${isDropDownOpen ? 'opacity-100 translate-y-2  top-[45px] md:top-[50px] z-10' : 'opacity-0 hidden z-[0] -translate-y-3 pointer-events-none top-[-80px]'}
+    ${isDropDownOpen ? 'opacity-100 translate-y-2  top-[45px] md:top-[50px] z-20' : 'opacity-0 hidden z-[0] -translate-y-3 pointer-events-none top-[-80px]'}
   `}
                             >
                                 <Link className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' to="/notification" >Notifications</Link>

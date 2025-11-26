@@ -57,9 +57,9 @@ const UserProfile = () => {
     } = methods;
 
     const updateFunction = (data: FormFields) => {
-        if (selectedFile === null) {
-            return toast.error("Profile Image is require.")
-        }
+        // if (selectedFile === null) {
+        //     return toast.error("Profile Image is require.")
+        // }
         const formData = new FormData()
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
