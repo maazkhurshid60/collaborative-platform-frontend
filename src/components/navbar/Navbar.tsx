@@ -41,6 +41,23 @@ const Navbar = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    
+      const userDepartment = useMemo(() => {
+        const departmentName = loginUserDetail?.department;
+        if (!departmentName) return '';
+    
+        // This splits the string into words, capitalizes the first letter of each,
+        // and joins them back together.
+        return departmentName
+            .split(' ')
+            .map(word => {
+                if (!word) return ''; // Skips any empty strings from multiple spaces
+                // Capitalizes the first letter and adds the rest of the word in lowercase.
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
+            .join(' ');
+    }, [loginUserDetail?.department]);
+    
     const { data: clientData } = useQuery<ClientType[]>({
         queryKey: ["allclients"],
         queryFn: async () => {
@@ -117,7 +134,6 @@ const Navbar = () => {
         updateMutation.mutate(data);
         handleClearSearch(); // Clear search after adding
     }
-
 
     const updateMutation = useMutation({
 
@@ -198,7 +214,7 @@ const Navbar = () => {
                                 />
                             )}
                             <SearchBar
-                                placeholder='Search by name, email, license or role...'
+                                placeholder='Search By Name,Email,License No or Role...'
                                 onChange={handleSearchChange}
                                 onClear={handleClearSearch}
                                 value={searchQuery}
@@ -230,13 +246,13 @@ const Navbar = () => {
                                     />
                                 ) : (
 
-                                    <UserIcon className="text-[32px] md:text-[40px] lg:text-[48px]" />
+                                    <UserIcon className="text-[32px] w-12 h-12 md:text-[40px] lg:text-[48px]" />
 
                                 )
                             }
 
                             <div className='flex items-center lg:gap-x-4 bg-white z-20'> <div className='font-[Montserrat]'> <p className='text-gray-800 font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName.slice(0,6)}{loginUserDetail?.user?.fullName.length > 6 ? "..." : ""} </p>
-                                <p className='text-gray-500 font-medium text-sm -mt-1.5'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>
+                                <p className='text-gray-500 font-medium text-sm -mt-1.5'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? userDepartment : "Client"}</p>
                             </div> {loginUserDetail?.user?.role === "provider" && (
                                 <div className='p-1 rounded-full hover:bg-gray-100 transition-colors duration-200'> <IoIosArrowDown className={`text-textColor transition-all duration-700 ease-in-out ${isDropDownOpen ? 'rotate-180' : 'rotate-0'} cursor-pointer`} size={22} onClick={() => setIsDropDownOpen(!isDropDownOpen)} />
                                 </div>)}

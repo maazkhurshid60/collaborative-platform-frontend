@@ -63,8 +63,8 @@ const Sidebar = () => {
     }, [loginUserRole])
     return (
         <div className="p-6 border-r flex justify-between flex-col border-[#D9D9D9] w-[100vw] md:w-[260px] h-[100vh] overflow-y-hidden">
-            <div className="flex items-center justify-between">
-                <img src={logo} alt="logo" className="w-[100px] md:w-[120px] " />
+            <div className="flex items-center ml-10 justify-between">
+                <img src={logo} alt="logo" className="w-[200px]   md:w-[120px] " />
                 <div className="md:hidden">
                     {isSideBarClose === true && <RxCross2 size={24} onClick={() => dispatch(isSideBarCloseReducser(false))} />}
                 </div>

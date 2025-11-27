@@ -168,7 +168,12 @@ const Collaboration = () => {
                 {tabs.map((tab, id) => (
                     <p
                         key={id}
-                        className={`w-1/2 font-medium cursor-pointer text-center transition-colors duration-300 ${activeTab === id ? 'text-primaryColorDark' : 'text-gray-500'}`}
+                        className={`w-1/2 
+                             font-medium 
+                             cursor-pointer
+                             text-center
+                             transition-colors
+                             duration-300 ${activeTab === id ? 'text-primaryColorDark' : 'text-gray-500'}`}
                         onClick={() => setActiveTab(id)}
                     >
                         {tab}
@@ -183,7 +188,7 @@ const Collaboration = () => {
             </div>
             <div className='mt-4'>
                 {activeTab === 0 ? (
-                    <div className="min-h-screen overflow-y-auto p-2 lg:p-0  mt-4">
+                    <div className="min-h-screen overflow-y-auto p lg:p-0  mt-4">
                         {filteredChats?.length === 0 ? (
                             <NoRecordFound />
                         ) : (

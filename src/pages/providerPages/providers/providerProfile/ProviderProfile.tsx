@@ -61,7 +61,7 @@ const ProviderProfile = () => {
                    <LabelData label='Provider Image' />
                     {selectedProviderData?.user?.profileImage ? (
                         <img
-                            src={selectedProviderData.user.profileImage}
+                            src={selectedProviderData?.user?.profileImage}
                             alt="Provider Image"
                             className="w-20 h-20 rounded-lg object-cover"
                         />
