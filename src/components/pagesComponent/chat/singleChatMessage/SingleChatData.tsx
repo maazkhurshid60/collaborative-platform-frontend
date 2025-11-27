@@ -71,12 +71,16 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
             `}
         onClick={onClick}
       >
-        <div className="w-[100%] flex items-center justify-between">
-          <div className="flex items-start gap-x-6">
-            <UserIcon size={30} profileImg={imagePath} />
+        <div className="w-[100%] flex items-start pl-2 justify-between">
+          <div className="flex items-start justify-between gap-x-6">
+            {
+            imagePath ?
+             <img src={imagePath} className={`rounded-full w-[50px] h-[50px] `}  />
+             :      
+            <UserIcon size={30} className={`w-13 h-13 ${imagePath ? "": "ml-[-8px]"}`} />}
             <div>
               <p
-                className={`font-bold flex mt-2  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                className={`font-bold flex mt-2 ${imagePath ? "mt-1" : "ml-[-10px]"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
                   }`}
               >
                 {otherUser?.fullName}
