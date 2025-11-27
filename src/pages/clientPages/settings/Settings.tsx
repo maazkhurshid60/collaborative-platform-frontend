@@ -56,7 +56,6 @@ const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const Settings = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [signAdd, setSignAdd] = useState<string | null>(null);
-  const [isUploadedSignature, setIsUploadedSignature] = useState<boolean>(false);
   const [getMeDetail, setGetMeDetail] = useState<GetMeType | undefined>(undefined);
   const [isLoader, setIsLoader] = useState(false);
 
@@ -96,7 +95,6 @@ const Settings = () => {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSignAdd(imageUrl);
-      setIsUploadedSignature(true);
     }
   };
 
@@ -123,7 +121,7 @@ const Settings = () => {
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
-    formData.append("address", data.address);
+    formData.append("address", data.address!);
     formData.append("country", data.country);
     formData.append("state", data.state);
     formData.append("licenseNo",String(data.licenseNo))
@@ -182,10 +180,8 @@ const Settings = () => {
       
       if (getMeData?.eSignature) {
         setSignAdd(getMeData.eSignature);
-        setIsUploadedSignature(false);
       } else {
         setSignAdd(null);
-        setIsUploadedSignature(false);
       }
     }
   }, [getMeData]);
@@ -313,8 +309,8 @@ const Settings = () => {
                   <CrossIcon
                     onClick={() => {
                       setSignAdd(null);
-                      setIsUploadedSignature(true);
                     }}
+                    
                   />
                 </div>
               ) : (
