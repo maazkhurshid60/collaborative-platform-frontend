@@ -51,33 +51,37 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
   const imagePath = otherUser?.profileImage ? otherUser.profileImage : null;
 
   return (
-    <>
+    <div className="">
       <NavLink
-        to="/chat"
-      >
+        to="/chat">
         <div
-          className={`pb-2 pt-2 pl-2 flex items-center  w-full gap-x-2  transition-all duration-300 cursor-pointer 
+          className={`pb-2 pt-2 pl-1 flex items-center  w-full gap-x-2 transition-all duration-300 cursor-pointer 
             `}
-          onClick={onClick}
-        >
+            onClick={onClick}
+            >
+          {/* Main content Container */}
           <div className="w-[100%] flex items-center justify-between">
-            <div className="flex items-start gap-x-6">
-              <div>
+            <div className="flex items-start justify-between gap-x-6">
+              <div className="">
                 {imagePath && imagePath !== "null" ? (
-                  <img
+                  
+                  <div className={`${imagePath ? "pl-1.5" : ""}`}>
+                   <img
                     src={imagePath}
                     alt="Client"
                     className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <UserIcon />
-                )}
+                    />
+                  </div>
+
+) : (
+  <UserIcon className="rounded-full object-cover" />
+)}
               </div>
-              <div>
+              <div className='flex flex-col items-start justify-items-center pt-1'>
                 <p
-                  className={`font-[Poppins] flex items-center justify-items-start gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
-                    }`}
-                >
+                  className={`font-[Poppins] flex items-center justify-items-start gap-x-3   capitalize  text-[14px] text-textColor ${imagePath ? "" : "mt-2 ml-[-5px]"}  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                  }`}
+                  >
                   {otherUser?.fullName}
                 </p>
                 {data?.lastMessage && (
@@ -122,7 +126,8 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
           )}
         </div>
       </NavLink>
-    </>
+      </div>
+    
   );
 };
 

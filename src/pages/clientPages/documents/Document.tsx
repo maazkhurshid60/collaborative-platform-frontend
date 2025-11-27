@@ -162,7 +162,7 @@ const Document = () => {
                     <SearchBar
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by Name, Type, Date, etc..."
+                        placeholder="Search by Name"
                     />                </div>
             </div>
 

@@ -104,7 +104,7 @@ const Dashboard = () => {
 
     return (
         <OutletLayout heading='Dashboard'>
-            <div className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-3  '>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {cardData?.map((data, id: number) => {
                         const Icon = data?.icon
@@ -124,21 +124,20 @@ const Dashboard = () => {
                         )
                     })}
                 </div>
-                <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-between flex-wrap'>
+                <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap'>
                     <div className=' flex flex-col gap-2 flex-wrap w-[100%] lg:w-[68%] '>
-                        <div className=' w-[100%]  max-h-screen lg:w-[100%] overflow-x-auto rounded-md'>
+                        <div className=' w-[100%]  max-h-screen lg:w-[98%] overflow-x-auto rounded-md'>
                             <CardDashboardLayout heading='Clients List'>
                                 <ClientList />
                             </CardDashboardLayout>
                         </div>
-                        <div className='w-[100%] lg:w-[100%] max-h-screen overflow-x-auto rounded-md'>
+                        <div className='w-[100%] lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
                             <CardDashboardLayout heading='Providers List'>
                                 <ProviderList />
-
                             </CardDashboardLayout>
                         </div>
                     </div>
-                    <div className='w-[100%] lg:w-[31%] overflow-y-auto mb-40'>
+                    <div className='w-[110%] min-h-screen  lg:w-[31.5%] overflow-y-auto'>
                         <CardDashboardLayout heading='Collaborations'>
                             <Collaboration />
                         </CardDashboardLayout>

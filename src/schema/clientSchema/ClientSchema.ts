@@ -25,17 +25,18 @@ export const clientSchema = z.object({
 
 })
 export const accountSchema = z.object({
-    fullName: z.string().min(1, "Full Name is required"),
-    licenseNo: z.number().min(1, { message: "license number is required." }),
-    country: z.string().min(1, "Country is required"),
-    state: z.string().min(1, "State is required"),
-    address: z.string().min(1, "Address is required"),
-    email: z.string().email(),
-    password: z
-        .string()
-        .optional()
-        .refine(
-            (val) => !val || val.length >= 10,
-            { message: "Password is required and should not be less than 10 characters" }
-        )
+  fullName: z.string().min(2, "Full name is required"),
+  licenseNo: z.string().min(1, "License number is required"),
+  email: z.string().email("Invalid email address"),
+  address: z.string().optional(),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State is required"),
+    // password: z
+    //     .string()
+    //     .optional()
+    //     .refine(
+    //         (val) => !val || val.length >= 10,
+    //         { message: "Password is required and should not be less than 10 characters" }
+    //     )
 })
+export type AccountSchemaType = z.infer<typeof accountSchema>;

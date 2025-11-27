@@ -126,19 +126,20 @@ const Settings = () => {
     formData.append("address", data.address);
     formData.append("country", data.country);
     formData.append("state", data.state);
+    formData.append("licenseNo",String(data.licenseNo))
 
-    if (data.password) {
-      formData.append("password", data.password);
-    }
+    // if (data.password) {
+    //   formData.append("password", data.password);
+    // }
 
     // Handle e-signature
-    if (signAdd && isUploadedSignature) {
+    if (signAdd) {
       // User uploaded a new image
       const file = await blobUrlToFile(signAdd);
       formData.append("eSignature", file);
     } else if (signAdd === null) {
       // User removed the image
-      formData.append("eSignature", "");
+      formData.append("eSignature", "null");
     } else {
       // Keep the existing signature
       formData.append("eSignature", signAdd);
@@ -173,7 +174,7 @@ const Settings = () => {
     if (getMeData) {
       setGetMeDetail(getMeData);
       setValue("fullName", getMeData?.user?.fullName ?? "");
-      setValue("licenseNo", Number(getMeData?.user?.licenseNo ?? ""));
+      setValue("licenseNo", getMeData?.user?.licenseNo ?? '');
       setValue("email", getMeData?.email ?? "");
       setValue("country", getMeData?.user?.country ?? "");
       setValue("state", getMeData?.user?.state ?? "");
@@ -293,13 +294,7 @@ const Settings = () => {
                 defaultState={getMeData?.user?.state}
               />
 
-              <InputField
-                label="Password"
-                register={register("password")}
-                placeHolder="Enter Password."
-                error={errors.password?.message}
-              />
-            </div>
+              </div>
 
             <hr className="w-full h-[1px] text-greyColor mt-10" />
 
@@ -359,7 +354,7 @@ const Settings = () => {
 
           <div className="w-[300px] mt-10">
             <p className="font-semibold mb-2">E-Signature</p>
-            {signAdd ? (
+            {signAdd  ? (
               <img
                 src={signAdd}
                 alt="E-Signature"
@@ -386,3 +381,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
