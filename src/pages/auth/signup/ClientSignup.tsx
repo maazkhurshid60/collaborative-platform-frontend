@@ -73,7 +73,7 @@ const ClientSignup = () => {
 
     useEffect(() => {
         setValue("fullName", licenseNoData?.fullName);
-        setValue("licenseNo", licenseNoData?.licenseNo);
+        setValue("licenseNo", Number(licenseNoData?.licenseNo));
         setValue("email", licenseNoData?.email);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseNoData]);
