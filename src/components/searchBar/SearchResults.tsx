@@ -87,7 +87,7 @@ console.log(user.user);
                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                             <UserIcon className="text-gray-400 text-lg" />
                         </div>
-                    )}
+                    )}  
                 </div>
 
                 <div className="flex-1 min-w-0">
