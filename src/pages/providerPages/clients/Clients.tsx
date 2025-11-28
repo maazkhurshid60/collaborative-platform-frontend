@@ -113,7 +113,7 @@ const Clients = () => {
                     <SearchBar
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by name, email, state, role, etc..."
+                        placeholder="Search by Name, Email, State, Role, etc..."
                     />                </div>
             </div>
             <div className='mt-10 w-[100%]'>

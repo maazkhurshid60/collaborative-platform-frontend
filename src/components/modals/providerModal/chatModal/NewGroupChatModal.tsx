@@ -114,7 +114,13 @@ const NewGroupChatModal = () => {
         >
             <div className='mt-4'>
 
-                <InputField required label='Group Name' register={register("name")} placeHolder='Enter Full Name.' error={errors.name?.message} />
+                <InputField 
+                required label='Group Name' 
+                  register={register("name")} 
+                  placeHolder='Enter Full Name.'
+                   error={errors.name?.message}
+                   
+                   />
             </div>
             <div className='mt-4'>
 
@@ -125,7 +131,7 @@ const NewGroupChatModal = () => {
                     borderRounded='rounded-[8px]'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search users..."
+                    placeholder="Search Users..."
                 />
             </div>
             <div className='mt-2 mb-4'>

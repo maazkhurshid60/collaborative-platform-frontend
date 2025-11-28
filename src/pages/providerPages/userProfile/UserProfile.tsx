@@ -75,8 +75,11 @@ const UserProfile = () => {
         if (selectedFile !== null) {
             formData.append('profileImage', selectedFile)
         }
-        else if (previewUrl === null) {
-            formData.append('profileImage', "")
+        else if (previewUrl && previewUrl !== "null") {
+            formData.append('profileImage', previewUrl)
+        }
+        else {
+            formData.append("profileImage", "")
         }
         updateMutation.mutate(formData)
 
@@ -135,6 +138,8 @@ const UserProfile = () => {
             queryClient.invalidateQueries({ queryKey: ['loginUser'] });
             toast.success("Account has updated successfully")
             setIsEdit(false)
+            setSelectedFile(null) // Clear selected file after successfull update
+            setIsLoader(false)
 
             setIsLoader(false)
         },
@@ -151,12 +156,19 @@ const UserProfile = () => {
         return <p>something went wrong</p>
     }
     return (
-        <OutletLayout heading='User profile'>
+           <OutletLayout heading='User profile'  
+            isEdit={isEdit} // pass the local edit state
+            backButton={
+                // dispalay back button only when u update the profile
+                isEdit ? ( 
+                   <BackIcon  onClick={() => {
+                    setIsEdit(false)
+                   }} />
+                ) 
+                : null
+            }
+           >
             {isLoader && <Loader text='Updating...' />}
-
-            {isEdit && <div className='absolute -mt-10'>
-                <BackIcon onClick={() => setIsEdit(false)} />
-            </div>}
             {isShowDeleteModal && <DeleteClientModal />}
 
             {isEdit ?
@@ -168,12 +180,12 @@ const UserProfile = () => {
                                 {!showUploader ? (
                                     previewUrl ? (
                                         <img
-                                            src={previewUrl}
-                                            alt="Client"
-                                            className="w-32 h-32 rounded-md object-cover "
+                                        src={previewUrl}
+                                        alt="Client"
+                                        className="w-32 h-32 rounded-md object-cover "
                                         />
                                     ) : (
-
+                                        
                                         <UserIcon className="text-8xl text-textColor" profileImg={getMeDetail?.user?.profileImage} />
                                     )
                                 ) : (
@@ -182,7 +194,7 @@ const UserProfile = () => {
 
                                 {/* Show cross icon even if there's no image */}
                                 {!showUploader && (
-
+                                    
                                     <CrossIcon onClick={() => {
                                         setShowUploader(true);
                                         setSelectedFile(null);
@@ -214,7 +226,7 @@ const UserProfile = () => {
                                     options={departmentOptions}
                                     placeholder="Choose an option"
                                     error={errors.department?.message}
-                                />
+                                    />
                             </div>
                             <div className=''>
                                 <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
@@ -232,13 +244,13 @@ const UserProfile = () => {
                                 isStateView={false}
                                 defaultCountry={getMeData?.user?.country}
                                 required={false}
-                            />
+                                />
                             <CountryStateSelect
                                 isCountryView={false}
                                 isStateView={true}
                                 defaultState={getMeData?.user?.state}
                                 required={false}
-                            />
+                                />
                             <div className=''>
                                 <LabelData label='List of Active Clients' />
 
@@ -272,8 +284,8 @@ const UserProfile = () => {
                     </form>
                 </FormProvider>
 
-                :
-                <>
+:
+<>
                     <div className='mt-6 space-y-5'>
                         <div>
                             <LabelData label='User Image' />
@@ -281,13 +293,12 @@ const UserProfile = () => {
                                 {
                                     previewUrl ? (
                                         <img
-                                            src={previewUrl}
+                                        src={previewUrl}
                                             alt="Client"
                                             className="w-32 h-32 rounded-lg object-cover"
-                                        />
-                                    ) : (
-
-                                        <UserIcon className="text-8xl text-textColor" />
+                                            />
+                                        ) : (
+                                            <UserIcon className="text-8xl text-textColor" />
                                     )
                                 }
 
@@ -354,7 +365,7 @@ const UserProfile = () => {
                                     setIsEdit(true)
                                     setPreviewUrl(getMeData?.user?.profileImage || null);
                                 }
-                                } />
+                            } />
                             </div>
                         </div>
                     </div>
@@ -364,6 +375,7 @@ const UserProfile = () => {
 
 
         </OutletLayout>
+        
     )
 }
 

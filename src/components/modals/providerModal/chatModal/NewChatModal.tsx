@@ -147,7 +147,7 @@ const NewChatModal = () => {
                     bgColor='bg-inputBgColor'
                     isBorder={false}
                     borderRounded='rounded-lg'
-                    placeholder='Search providers by name, email, department...'
+                    placeholder='Search Providers by Name, Email, Department...'
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onClear={handleClearSearch}

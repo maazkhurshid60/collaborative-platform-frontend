@@ -212,8 +212,12 @@ const Settings = () => {
             text="Delete Account"
             onclick={() => dispatch(isModalDeleteReducer(true))}
           />
-        )
+        )  
       }
+      backButton={  isEdit ? (
+            <BackIcon onClick={() => setIsEdit(false)} />
+      ) : null
+    }
     >
       {!isEdit && (
         <div className="relative">
@@ -223,13 +227,7 @@ const Settings = () => {
         </div>
       )}
       {isLoader && <Loader text="Updating..." />}
-      {isEdit && (
-        <div className="relative">
-          <div className="absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-2 lg:-top-8">
-            <BackIcon onClick={() => setIsEdit(false)} />
-          </div>
-        </div>
-      )}
+   
       {isShowDeleteModal && (
         <DeleteClientModal
           onDeleteConfirm={deleteMe}
@@ -337,7 +335,7 @@ const Settings = () => {
               label="License Number"
               data={getMeData?.user?.licenseNo}
             />
-            <LabelData label="Email ID" data={getMeData?.email} />
+            <LabelData label="Email ID" data={getMeData?.email.toLowerCase()} />
             <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
             <LabelData
               label="Country"

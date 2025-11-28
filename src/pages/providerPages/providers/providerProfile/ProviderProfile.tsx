@@ -49,13 +49,8 @@ const ProviderProfile = () => {
         return <p>somethingwent wrong</p>
     }
     return (
-        <OutletLayout heading='Provider profile'>
-            <div className='relative'>
-                <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
-
-                    <BackIcon onClick={() => navigate(-1)} />
-                </div>
-            </div>
+        <OutletLayout heading='Provider profile' backButton={<BackIcon  onClick={() => navigate(-1)} />}  isEdit>
+            
             <div className='mt-6'>
                 <div>
                    <LabelData label='Provider Image' />
