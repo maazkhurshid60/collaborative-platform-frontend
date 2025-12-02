@@ -5,7 +5,6 @@ import ClientList from '../../../components/pagesComponent/dashboard/clientList/
 import ProviderList from '../../../components/pagesComponent/dashboard/providerList/ProviderList';
 import { useQuery } from '@tanstack/react-query';
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
-import Loader from '../../../components/loader/Loader';
 import { useEffect, useState } from 'react';
 import clientApiService from '../../../apiServices/clientApi/ClientApi';
 import { ClientType } from '../../../types/clientType/ClientType';
@@ -104,14 +103,14 @@ const Dashboard = () => {
 
     return (
         <OutletLayout heading='Dashboard'>
-            <div className='flex flex-col gap-3  '>
+            <div className='flex flex-col gap-3'>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {cardData?.map((data, id: number) => {
                         const Icon = data?.icon
                         return (
                             <div className=" h-[120px] " key={id}>
                                 <CardDashboardLayout>
-                                    {data.isLoading && <Loader text="Loading..." />}
+                                    {/* {data.isLoading && <Loader text="12232" />} */}
                                     <div key={id} className=''>
                                         <div className='flex items-center gap-x-3 font-[Montserrat] font-semibold text-textGreyColor'>
                                             <Icon className='text-primaryColorDark' />

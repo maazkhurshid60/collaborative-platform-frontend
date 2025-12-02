@@ -28,11 +28,10 @@ const DashboardLayout = () => {
             {/* Fixed Sidebar */}
             <div
                 className={`
-    bg-white absolute md:relative z-50 transition-all duration-300 ease-in-out  
-    ${isSideBarClose ? 'left-0' : '-left-[1000px]'} 
-    md:left-0 
-  `}
-            >
+                bg-white absolute md:relative z-50 transition-all duration-300 ease-in-out  
+                ${isSideBarClose ? 'left-0' : '-left-[1000px]'} 
+                md:left-0 
+               `}>
                 <Sidebar />
             </div>
 

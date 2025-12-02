@@ -23,11 +23,11 @@ import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../..
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 
 const departmentOptions = [
-    { value: "nutritionist", label: "Nutritionist" },
-    { value: "psychiatrist", label: "Psychiatrist" },
-    { value: "therapist", label: "Therapist" },
-    { value: "eyeSpecialist", label: "Eye Specialist" },
-    { value: "heartSpecialist", label: "Heart Specialist" },
+    { value: "Nutritionist", label: "Nutritionist" },
+    { value: "Psychiatrist", label: "Psychiatrist" },
+    { value: "Therapist", label: "Therapist" },
+    { value: "Eye Specialist", label: "Eye Specialist" },
+    { value: "Heart Specialist", label: "Heart Specialist" },
 ]
 
 type FormFields = z.infer<typeof ProviderSignupSchema>;
@@ -151,7 +151,7 @@ const ProviderSignup = () => {
 
     return (
         <>
-            {isLoading && <Loader  />}
+            {isLoading && <Loader />}
             <AuthLayout heading="Sign up" >
                 <FormProvider {...methods}>
 
@@ -170,7 +170,7 @@ const ProviderSignup = () => {
                                 register={register("licenseNo")}
                                 placeHolder='Enter license number.'
                                 error={errors.licenseNo?.message} />
-                                
+
                         </div>
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>

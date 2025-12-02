@@ -27,12 +27,13 @@ import CountryStateSelect from '../../../components/dropdown/CountryStateSelect'
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
-    { value: "nutritionist", label: "Nutritionist" },
-    { value: "psychiatrist", label: "Psychiatrist" },
-    { value: "therapist", label: "Therapist" },
-    { value: "eyeSpecialist", label: "Eye Specialist" },
-    { value: "heartSpecialist", label: "Heart Specialist" },
+    { value: "Nutritionist", label: "Nutritionist" },
+    { value: "Psychiatrist", label: "Psychiatrist" },
+    { value: "Therapist", label: "Therapist" },
+    { value: "Eye Specialist", label: "Eye Specialist" },
+    { value: "Heart Specialist", label: "Heart Specialist" },
 ]
+
 const UserProfile = () => {
     const [isEdit, setIsEdit] = useState(false)
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
@@ -42,12 +43,12 @@ const UserProfile = () => {
     const [showUploader, setShowUploader] = useState(false)
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [imageChanged, setImageChanged] = useState(false) // Track if image was modified
     const queryClient = useQueryClient()
     const dispatch = useDispatch<AppDispatch>()
     const methods = useForm<FormFields>({
         resolver: zodResolver(providerSchema),
     });
-    console.log(loginUserDetail, "all dataaa");
 
     const {
         register,
@@ -57,13 +58,10 @@ const UserProfile = () => {
     } = methods;
 
     const updateFunction = (data: FormFields) => {
-        // if (selectedFile === null) {
-        //     return toast.error("Profile Image is require.")
-        // }
         const formData = new FormData()
         formData.append('address', data?.address)
         formData.append('fullName', data?.fullName)
-        formData.append('email', data?.email)
+        formData.append('email', data?.email.toLowerCase())
         formData.append('licenseNo', data?.licenseNo)
         formData.append('age', data?.age?.toString())
         formData.append('department', data?.department)
@@ -72,17 +70,20 @@ const UserProfile = () => {
         formData.append('state', data?.state)
         formData.append('country', data?.country)
         formData.append('contactNo', data?.contactNo)
-        if (selectedFile !== null) {
-            formData.append('profileImage', selectedFile)
-        }
-        else if (previewUrl && previewUrl !== "null") {
-            formData.append('profileImage', previewUrl)
-        }
-        else {
-            formData.append("profileImage", "")
-        }
-        updateMutation.mutate(formData)
 
+        // Only include profileImage field if user explicitly changed it
+        if (imageChanged) {
+            if (selectedFile !== null) {
+                // User uploaded a new image
+                formData.append('profileImage', selectedFile)
+            } else {
+                // User removed the image
+                formData.append("profileImage", "")
+            }
+        }
+        // If imageChanged is false, don't send profileImage at all - backend will keep existing image
+
+        updateMutation.mutate(formData)
     }
 
 
@@ -105,23 +106,27 @@ const UserProfile = () => {
             setValue("age", Number(getMeData?.user?.age ?? 0) || 0)
             setValue("contactNo", getMeData?.user?.contactNo ?? "")
             setValue("email", getMeData?.email ?? "")
-            setValue("department", getMeData?.department ?? "")
+            setValue("department", getMeData?.department?.toLowerCase() ?? "")
             setValue("address", getMeData?.user?.address ?? "")
             setValue("state", getMeData?.user?.state ?? "")
             setValue("country", getMeData?.user?.country ?? "")
 
             if (getMeData?.user?.profileImage && getMeData?.user?.profileImage !== "null") {
                 setPreviewUrl(getMeData?.user?.profileImage)
-                // setSelectedFile(null)
             } else {
                 setPreviewUrl(null)
             }
+
+            // Reset imageChanged when data loads
+            setImageChanged(false)
         }
     }, [getMeData])
+
     const handleFileSelect = (file: File) => {
         setSelectedFile(file)
         setPreviewUrl(URL.createObjectURL(file))
         setShowUploader(false)
+        setImageChanged(true) // Mark that image was changed
     }
 
     const updateMutation = useMutation({
@@ -139,8 +144,7 @@ const UserProfile = () => {
             toast.success("Account has updated successfully")
             setIsEdit(false)
             setSelectedFile(null) // Clear selected file after successfull update
-            setIsLoader(false)
-
+            setImageChanged(false) // Reset imageChanged flag
             setIsLoader(false)
         },
         onError: () => {
@@ -149,25 +153,28 @@ const UserProfile = () => {
         },
 
     });
+
     if (isLoading) {
         return <Loader text='Loading...' />
     }
     if (isError) {
         return <p>something went wrong</p>
     }
+
     return (
-           <OutletLayout heading='User profile'  
+        <OutletLayout heading='User profile'
             isEdit={isEdit} // pass the local edit state
             backButton={
                 // dispalay back button only when u update the profile
-                isEdit ? ( 
-                   <BackIcon  onClick={() => {
-                    setIsEdit(false)
-                   }} />
-                ) 
-                : null
+                isEdit ? (
+                    <BackIcon onClick={() => {
+                        setIsEdit(false)
+                        setImageChanged(false) // Reset when cancelling edit
+                    }} />
+                )
+                    : null
             }
-           >
+        >
             {isLoader && <Loader text='Updating...' />}
             {isShowDeleteModal && <DeleteClientModal />}
 
@@ -180,12 +187,12 @@ const UserProfile = () => {
                                 {!showUploader ? (
                                     previewUrl ? (
                                         <img
-                                        src={previewUrl}
-                                        alt="Client"
-                                        className="w-32 h-32 rounded-md object-cover "
+                                            src={previewUrl}
+                                            alt="Client"
+                                            className="w-32 h-32 rounded-md object-cover "
                                         />
                                     ) : (
-                                        
+
                                         <UserIcon className="text-8xl text-textColor" profileImg={getMeDetail?.user?.profileImage} />
                                     )
                                 ) : (
@@ -194,11 +201,12 @@ const UserProfile = () => {
 
                                 {/* Show cross icon even if there's no image */}
                                 {!showUploader && (
-                                    
+
                                     <CrossIcon onClick={() => {
                                         setShowUploader(true);
                                         setSelectedFile(null);
                                         setPreviewUrl(null);
+                                        setImageChanged(true); // Mark that image was removed
                                     }} />
                                 )}
                             </div>
@@ -226,7 +234,7 @@ const UserProfile = () => {
                                     options={departmentOptions}
                                     placeholder="Choose an option"
                                     error={errors.department?.message}
-                                    />
+                                />
                             </div>
                             <div className=''>
                                 <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
@@ -244,13 +252,13 @@ const UserProfile = () => {
                                 isStateView={false}
                                 defaultCountry={getMeData?.user?.country}
                                 required={false}
-                                />
+                            />
                             <CountryStateSelect
                                 isCountryView={false}
                                 isStateView={true}
                                 defaultState={getMeData?.user?.state}
                                 required={false}
-                                />
+                            />
                             <div className=''>
                                 <LabelData label='List of Active Clients' />
 
@@ -284,8 +292,8 @@ const UserProfile = () => {
                     </form>
                 </FormProvider>
 
-:
-<>
+                :
+                <>
                     <div className='mt-6 space-y-5'>
                         <div>
                             <LabelData label='User Image' />
@@ -293,12 +301,12 @@ const UserProfile = () => {
                                 {
                                     previewUrl ? (
                                         <img
-                                        src={previewUrl}
+                                            src={previewUrl}
                                             alt="Client"
                                             className="w-32 h-32 rounded-lg object-cover"
-                                            />
-                                        ) : (
-                                            <UserIcon className="text-8xl text-textColor" />
+                                        />
+                                    ) : (
+                                        <UserIcon className="text-8xl text-textColor" />
                                     )
                                 }
 
@@ -365,7 +373,7 @@ const UserProfile = () => {
                                     setIsEdit(true)
                                     setPreviewUrl(getMeData?.user?.profileImage || null);
                                 }
-                            } />
+                                } />
                             </div>
                         </div>
                     </div>
@@ -375,7 +383,7 @@ const UserProfile = () => {
 
 
         </OutletLayout>
-        
+
     )
 }
 

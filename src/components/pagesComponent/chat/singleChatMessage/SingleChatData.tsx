@@ -51,7 +51,9 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
       };
 
   const unreadCount = Number(data?.totalUnread ?? 0);
-  const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;
+  const imagePath = otherUser?.profileImage;
+  const isValidImage = imagePath && imagePath !== "null" && imagePath.trim() !== "";
+
   // useEffect(() => {
   //   console.log(
   //     data.id,
@@ -74,13 +76,15 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
         <div className="w-[100%] flex items-start pl-2 justify-between">
           <div className="flex items-start justify-between gap-x-6">
             {
-            imagePath ?
-             <img src={imagePath} className={`rounded-full w-[50px] h-[50px] `}  />
-             :      
-            <UserIcon size={30} className={`w-13 h-13 ${imagePath ? "": "ml-[-8px]"}`} />}
+              isValidImage ?
+                <img src={imagePath} className={`rounded-full w-[50px] h-[50px] `} />
+                :
+                <UserIcon size={30} className={`w-13 h-13 ml-[-8px]`} />
+            }
+
             <div>
               <p
-                className={`font-bold flex mt-2 ${imagePath ? "mt-1" : "ml-[-10px]"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                className={`font-bold flex mt-2 ${isValidImage ? "mt-1" : "ml-[-10px]"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
                   }`}
               >
                 {otherUser?.fullName}

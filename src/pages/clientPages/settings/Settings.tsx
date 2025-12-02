@@ -82,7 +82,7 @@ const Settings = () => {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = methods;
+  } =methods;
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

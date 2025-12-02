@@ -117,15 +117,8 @@ const AddClient = () => {
     });
 
     return (
-        <OutletLayout heading='Add Client'>
+        <OutletLayout heading='Add Client' backButton={<BackIcon onClick={() => navigate(-1)} />}>
             {isLoader && <Loader text='Adding...' />}
-
-            <div className='relative'>
-                <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
-
-                    <BackIcon onClick={() => navigate(-1)} />
-                </div>
-            </div>
             <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(addFunction)} className="mt-6">
                     {/* <div>
@@ -148,7 +141,7 @@ const AddClient = () => {
                         }
                     </div> */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
-                    </div> 
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <div className=''>
                             <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
@@ -167,7 +160,7 @@ const AddClient = () => {
                         <div className=''>
                             <InputField label='Age' register={register("age")} placeHolder='Enter Age.' required error={errors.age?.message} />
                         </div>
-                        
+
                         <div className=''>
                             <InputField required
                                 type='number'
@@ -189,7 +182,7 @@ const AddClient = () => {
                         <div className=''>
                             <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
                         </div>
-                        <CountryStateSelect isCountryView={true} isStateView={false}  required={false} />
+                        <CountryStateSelect isCountryView={true} isStateView={false} required={false} />
                         <CountryStateSelect isCountryView={false} isStateView={true} />
                         <div className=''>
                             <Dropdown<FormFields>
@@ -199,8 +192,8 @@ const AddClient = () => {
                                 options={statusOption}
                                 placeholder="Choose an option"
                                 error={errors.status?.message}
-                            />     
-                            </div>
+                            />
+                        </div>
                     </div>
                     <div className='mt-8'
                     >

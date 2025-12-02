@@ -72,8 +72,10 @@ const NewChatModal = () => {
             return res.data.findAllChatChannel;
         },
     });
-    console.log(allProviders,"datataaI");
     
+    useEffect(() => {
+            
+    }, [allProviders])
     const providers = allProviders?.filter(data => data?.id !== loginUserDetail.id && data.user?.isApprove === 'approve');
     const providersWithoutChat = providers?.filter(provider => {
         return !allChannels?.some((channel: ChatChannelType) => channel?.providerBId === provider?.id || channel?.providerAId === provider?.id);
