@@ -56,15 +56,8 @@ const EditClient = () => {
         return <p>somethingwent wrong</p>
     }
     return (
-        <OutletLayout heading='Client Profile'>
-            <div className='relative'>
-                <div className='absolute  -left-2 -top-14 md:-top-23.5 md:-left-2.5 lg:-left-5 lg:-top-14'>
-                    <div className='relative group'>
+        <OutletLayout heading='Client Profile' backButton={<BackIcon onClick={() => navigate(-1)} />}>
 
-                        <BackIcon onClick={() => navigate(-1)} />
-                    </div>
-                </div>
-            </div>
             <div className='flex items-center mt-4 md:w-[60%] lg:w-[50%] xl:w-[30%] mb-3'>
                 {tabData.map((tab, id) => (
                     <p

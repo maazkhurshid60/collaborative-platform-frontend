@@ -58,6 +58,9 @@ const Settings = () => {
   const [signAdd, setSignAdd] = useState<string | null>(null);
   const [getMeDetail, setGetMeDetail] = useState<GetMeType | undefined>(undefined);
   const [isLoader, setIsLoader] = useState(false);
+  const [selectedSignatureFile, setSelectedSignatureFile] = useState<File | null>(null);
+
+
 
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails
@@ -79,23 +82,16 @@ const Settings = () => {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = methods;
+  } =methods;
 
-  const blobUrlToFile = async (
-    blobUrl: string,
-    filename = "signature.png"
-  ): Promise<File> => {
-    const res = await fetch(blobUrl);
-    const blob = await res.blob();
-    return new File([blob], filename, { type: blob.type });
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSignAdd(imageUrl);
-    }
+      setSelectedSignatureFile(file) // store the actual file object
+     }
   };
 
   const updateMutation = useMutation({
@@ -109,6 +105,7 @@ const Settings = () => {
       queryClient.invalidateQueries({ queryKey: ["loginUser"] });
       toast.success("Account updated successfully");
       setIsEdit(false);
+      setSelectedSignatureFile(null) // Clear selected file after successfull update
       setIsLoader(false);
     },
     onError: () => {
@@ -131,17 +128,23 @@ const Settings = () => {
     // }
 
     // Handle e-signature
-    if (signAdd) {
-      // User uploaded a new image
-      const file = await blobUrlToFile(signAdd);
-      formData.append("eSignature", file);
-    } else if (signAdd === null) {
-      // User removed the image
-      formData.append("eSignature", "null");
-    } else {
-      // Keep the existing signature
-      formData.append("eSignature", signAdd);
+    if(selectedSignatureFile){
+      // A new file was selected by the user
+      formData.append("eSignature", selectedSignatureFile);
+    } else if(signAdd === null && getMeDetail?.eSignature){
+      formData.append("eSignature", "null")
     }
+  //   if (signAdd) {
+  //     // User uploaded a new image
+  //     const file = await blobUrlToFile(signAdd);
+  //     formData.append("eSignature", file);
+  //   } else if (signAdd === null) {
+  //     // User removed the image
+  //     formData.append("eSignature", "null");
+  //   } else {
+  //     // Keep the existing signature
+  //     formData.append("eSignature", signAdd);
+  //   }
 
     formData.append("loginUserId", loginUserId?.user?.id);
 
@@ -149,7 +152,7 @@ const Settings = () => {
       formData.append("role", getMeDetail?.user?.role);
     }
     updateMutation.mutate(formData);
-  };
+   };
 
   const {
     data: getMeData,
@@ -178,13 +181,14 @@ const Settings = () => {
       setValue("state", getMeData?.user?.state ?? "");
       setValue("address", getMeData?.user?.address ?? "");
       
-      if (getMeData?.eSignature) {
+      if (getMeData?.eSignature && getMeData.eSignature !== "" && getMeData.eSignature.toLowerCase()  !== "null") {
         setSignAdd(getMeData.eSignature);
       } else {
         setSignAdd(null);
       }
+      setSelectedSignatureFile(null) // Reset selected file whenever getMeData changes
     }
-  }, [getMeData]);
+  }, [getMeData, setValue]);
 
   const deleteMeMutation = useMutation({
     mutationFn: async () =>
@@ -307,6 +311,7 @@ const Settings = () => {
                   <CrossIcon
                     onClick={() => {
                       setSignAdd(null);
+                      setSelectedSignatureFile(null)
                     }}
                     
                   />
@@ -348,7 +353,7 @@ const Settings = () => {
 
           <div className="w-[300px] mt-10">
             <p className="font-semibold mb-2">E-Signature</p>
-            {signAdd  ? (
+            {signAdd !== null  ? (
               <img
                 src={signAdd}
                 alt="E-Signature"
