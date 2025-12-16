@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../../../public/assets/kolabme-logo.svg";
+import logo from "../../../public/assets/logo.png";
 import { ClientSidebarData, ProviderSidebarData, SuperAdminSidebarData } from "../../constantData/SidebarData";
 import { RxCross2 } from "react-icons/rx";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
@@ -107,14 +107,14 @@ const Sidebar = () => {
                         );
                     })}
                 </div>
-              
+
 
             </div>
-              <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
+            <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
 
-                    <Logout onClick={logoutFunction} />
-                    <ToolTip toolTipText="Logout" />
-                </span>
+                <Logout onClick={logoutFunction} />
+                <ToolTip toolTipText="Logout" />
+            </span>
         </div>
     );
 };

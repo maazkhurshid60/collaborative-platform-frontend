@@ -16,8 +16,9 @@ import Loader from '../../../components/loader/Loader';
 import { toast } from 'react-toastify';
 import clientApiService from '../../../apiServices/clientApi/ClientApi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ClientType, Provider } from '../../../types/clientType/ClientType';
+import { ProviderType } from '../../../types/providerType/ProviderType';
 import { IoMdAdd } from "react-icons/io";
 import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
 import { getCountryNameFromCode } from '../../../utils/GetCountryName';
@@ -44,16 +45,13 @@ const Clients = () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId?.user?.id);
                 return response?.data?.clients || [];
-
             } catch (error) {
                 console.error("Error fetching client:", error);
-                return [];
+                return []; // Return an empty array in case of an error
             }
         }
 
     })
-
-
 
     const deleteMutation = useMutation({
         mutationFn: async (id: selectedClientIdType) => {
@@ -64,7 +62,9 @@ const Clients = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
-            queryClient.invalidateQueries({ queryKey: ['totalclients'] });
+            queryClient.invalidateQueries({ queryKey: ['providers'] });
+            queryClient.invalidateQueries({ queryKey: ['allclients'] });
+            queryClient.invalidateQueries({ queryKey: ['allproviders'] });
             toast.success("Account has deleted successfully")
 
             setIsLoader(false)
@@ -76,7 +76,13 @@ const Clients = () => {
 
     });
 
-    const filteredSearchProviders = filterClients(clientData || [], searchTerm);
+    const myClients = useMemo(() => {
+        return clientData?.filter((client: ClientType) =>
+            client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
+        ) || [];
+    }, [clientData, loginUserId?.user?.id]);
+
+    const filteredSearchProviders = filterClients(myClients, searchTerm);
 
     const { totalPages,
         getCurrentRecords,
@@ -92,6 +98,7 @@ const Clients = () => {
         dispatch(isModalDeleteReducer(false))
     }
 
+
     if (isLoading) {
         return <Loader text='Loading...' />
     }
@@ -99,21 +106,20 @@ const Clients = () => {
         return <p>somethingwent wrong</p>
     }
 
-
     return (
         <OutletLayout heading='Client List' button={<Button text='Add New' onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}>
             {isLoader && <Loader text='Deleting...' />}
             {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}
 
-            <div className="flex items-center md:justify-end mt-6">
+            <div className="flex items-center justify-end mt-6">
 
-                <div className="w-[100%] md:w-[40%] ">
+                <div className="w-[40%] ">
 
                     <SearchBar
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by Name, Email, State, Role, etc..."
+                        placeholder="Search by name, email, state, role, etc..."
                     />                </div>
             </div>
             <div className='mt-10 w-[100%]'>
@@ -126,10 +132,10 @@ const Clients = () => {
                                     <td className="px-2 py-2">{id + 1}</td>
                                     <td className="px-2 py-2">{data?.user?.fullName}</td>
                                     <td className="px-2 py-2">{data?.user?.licenseNo}</td>
-                                    <td className="px-2 py-2 capitalize">{data?.user?.gender}</td>
+                                    <td className="px-2 py-2">{data?.user?.gender}</td>
                                     <td className="px-2 py-2 lowercase">{data?.email}</td>
                                     <td className="px-2 py-2">
-                                        <p className={`ps-1 pe-4 py-1 rounded-md inline-block capitalize  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
+                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
 
                                             {data?.user?.status}
 
@@ -153,13 +159,21 @@ const Clients = () => {
                                                 ? <p>No Providers Found</p>
                                                 :
                                                 <>
-                                                    {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
-                                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                            {providerList?.provider?.user?.fullName?.split(" ")[0]}
-
-                                                        </p>
-
-                                                    ))}
+                                                    {data?.providerList
+                                                        ?.slice()
+                                                        ?.sort((a, b) => {
+                                                            const isA = a?.provider?.user?.id === loginUserId?.user?.id;
+                                                            const isB = b?.provider?.user?.id === loginUserId?.user?.id;
+                                                            return isA === isB ? 0 : isA ? -1 : 1;
+                                                        })
+                                                        ?.slice(0, 2)
+                                                        ?.map((providerItem: Provider, index) => {
+                                                            return (
+                                                                <p className={`flex items-center gap-x-1 capitalize `} key={index}>
+                                                                    {providerItem?.provider?.user?.fullName}
+                                                                </p>
+                                                            )
+                                                        })}
 
                                                     {data?.providerList?.length > 2 && (
                                                         <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }}>... View All</p>
@@ -171,22 +185,20 @@ const Clients = () => {
 
                                     <td className="py-2 h-full align-middle">
                                         <div className="flex items-center justify-center gap-x-2 h-full">
-                                            {(() => {
-                                                const isOwnedByCurrentProvider = data?.providerList?.some((provider: Provider) => {
-                                                    return provider?.provider?.user?.id === loginUserId?.user?.id;
-                                                });
-                                                return isOwnedByCurrentProvider;
-                                            })() ? (
+                                            {data?.providerList?.length !== 0 || data?.providerList !== undefined
+                                                &&
+                                                data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
                                                 <>
-                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />
-                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />
+                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
+                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
                                                 </>
                                             ) : (
-                                                <div className="flex items-center justify-center gap-x-2 h-full">
-                                                    <EditIcon disabled/>    
+                                                <>
+                                                    <EditIcon disabled />
                                                     <DeleteIcon disabled />
-                                                </div>
-                                            )}
+                                                </>
+                                            )
+                                            }
                                         </div>
                                     </td>
                                 </tr>

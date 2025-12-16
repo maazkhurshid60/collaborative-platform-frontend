@@ -21,10 +21,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     isVisible,
     isLoading = false,
     emptyMessage = "No users found"
-    
+
 }) => {
     if (!isVisible) return null;
-console.log(results);
+    console.log(results);
 
     return (
         <div className="absolute top-12 left-0 w-full z-[9999] bg-white border border-lightGreyColor rounded-lg shadow-lg overflow-hidden">
@@ -69,11 +69,11 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     const isAlreadyAdded = user?.providerList?.some(
         provider => provider.providerId === currentUserId
     );
-console.log(user.user);
+    console.log(user.user);
 
     return (
 
-        <Link to={user?.user?.role==="client" ? `/clients/edit-client/${user.id}` : `/providers/${user.id}`}  className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+        <Link to={user?.user?.role === "client" ? `/clients/edit-client/${user.id}` : `/providers/${user.id}`} className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 {/* Profile Image */}
                 <div className="flex-shrink-0">
@@ -87,7 +87,7 @@ console.log(user.user);
                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                             <UserIcon className="text-gray-400 text-lg" />
                         </div>
-                    )}  
+                    )}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -125,7 +125,11 @@ console.log(user.user);
                     </span>
                 ) : user?.user?.role !== "provider" ? (
                     <button
-                        onClick={() => onAddClient(user)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onAddClient(user);
+                        }}
                         className="p-2 text-primaryColorDark hover:text-white hover:bg-primaryColorDark rounded-md transition-colors duration-200 group"
                         title="Add to your list"
                     >

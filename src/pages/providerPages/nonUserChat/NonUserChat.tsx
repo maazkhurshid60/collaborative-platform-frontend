@@ -7,7 +7,7 @@ import Button from '../../../components/button/Button';
 import NonUserChatMessages from '../../../components/pagesComponent/chat/chatMessages/NonUserChatMessages';
 // import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 // import { addDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
-import logo from "../../../../public/assets/kolabme-logo.svg";
+import logo from "../../../../public/assets/logo.png";
 import Loader from '../../../components/loader/Loader';
 const NonUserChat = () => {
     const { id, type, } = useParams();
@@ -53,7 +53,7 @@ const NonUserChat = () => {
             setMessages(prev => {
                 const existingMessageIds = new Set(prev.map(msg => msg.id));
                 const filteredNewMessages = newMessages.filter((msg: Message) => !existingMessageIds.has(msg.id));
-                
+
                 return [
                     ...filteredNewMessages.map((m: Message) => ({ ...m })),
                     ...prev,
@@ -146,7 +146,7 @@ const NonUserChat = () => {
     // }
 
     useEffect(() => {
-        setMessages([]); 
+        setMessages([]);
         setPage(1);
         setHasMore(true);
         fetchMessages(1);
