@@ -2,7 +2,7 @@
 import Table from '../../../table/Table'
 import CustomPagination from '../../../customPagination/CustomPagination'
 import usePaginationHook from '../../../../hook/usePaginationHook'
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../redux/store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,13 +35,7 @@ const ClientList = () => {
         queryFn: async () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId?.user?.id);
-                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
-                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
-                );
-
-                return matchedClient; // Ensure it always returns an array
-
-
+                return response?.data?.clients || [];
             } catch (error) {
                 console.error("Error fetching client:", error);
                 return []; // Return an empty array in case of an error
@@ -59,6 +53,8 @@ const ClientList = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
             queryClient.invalidateQueries({ queryKey: ['totalclients'] });
+            queryClient.invalidateQueries({ queryKey: ['allclients'] });
+
             toast.success("Account has deleted successfully")
 
             setIsLoader(false)
@@ -70,11 +66,16 @@ const ClientList = () => {
 
     });
 
+    const myClients = useMemo(() => {
+        return clientData?.filter((client: ClientType) =>
+            client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
+        ) || [];
+    }, [clientData, loginUserId?.user?.id]);
 
     const { totalPages,
         getCurrentRecords,
         handlePageChange, currentPage,
-    } = usePaginationHook({ data: clientData ?? [], recordPerPage: 4 })
+    } = usePaginationHook({ data: myClients ?? [], recordPerPage: 4 })
 
     const handleDeleteFun = (id: string, loginUserId: string) => {
         dispatch(isModalDeleteReducer(true))
@@ -108,20 +109,28 @@ const ClientList = () => {
                                 <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
                                 <td className="px-2 py-4 lowercase">{data?.email}</td>
                                 <td className="px-2 py-4 capitalize">{data?.user?.status}</td>
-                                <td className="px-2 py-4 w-[100px]">
+                                <td className="px-2 py-2 w-[100px]">
                                     {
 
                                         data?.providerList?.length === 0 || data?.providerList === undefined
                                             ? <p>No Providers Found</p>
                                             :
                                             <>
-                                                {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
-                                                    <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                        {providerList?.provider?.user?.fullName?.split(" ")[0]}
-
-                                                    </p>
-
-                                                ))}
+                                                {data?.providerList
+                                                    ?.slice()
+                                                    ?.sort((a, b) => {
+                                                        const isA = a?.provider?.user?.id === loginUserId?.user?.id;
+                                                        const isB = b?.provider?.user?.id === loginUserId?.user?.id;
+                                                        return isA === isB ? 0 : isA ? -1 : 1;
+                                                    })
+                                                    ?.slice(0, 2)
+                                                    ?.map((providerItem: Provider, index) => {
+                                                        return (
+                                                            <p className={`flex items-center gap-x-1 capitalize `} key={index}>
+                                                                {providerItem?.provider?.user?.fullName}
+                                                            </p>
+                                                        )
+                                                    })}
 
                                                 {data?.providerList?.length > 2 && (
                                                     <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }}>... View All</p>
@@ -130,7 +139,6 @@ const ClientList = () => {
                                     }
 
                                 </td>
-
                                 <td className="py-4 h-full align-middle">
                                     <div className="flex items-center justify-center gap-x-2 h-full">
                                         {data?.providerList?.length !== 0 || data?.providerList !== undefined

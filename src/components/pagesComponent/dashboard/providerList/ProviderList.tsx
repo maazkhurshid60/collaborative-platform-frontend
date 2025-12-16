@@ -10,6 +10,7 @@ import { RootState } from '../../../../redux/store'
 import Loader from '../../../loader/Loader'
 import NoRecordFound from '../../../noRecordFound/NoRecordFound'
 import { useNavigate } from 'react-router-dom'
+import { useMemo, } from 'react'
 
 const ProviderList = () => {
     const heading = ["S.No", "name", "license No", "email", "status", "clients"]
@@ -32,11 +33,15 @@ const ProviderList = () => {
     })
 
 
+    const filteredData = useMemo(() => {
+        return providerData?.filter(data => !data?.user?.blockedMembers?.includes(loginUserDetail)) || [];
+    }, [providerData, loginUserDetail])
+
     const { totalPages,
         getCurrentRecords,
         handlePageChange, currentPage,
-    } = usePaginationHook({ data: providerData ?? [], recordPerPage: 4 })
-    const filteredData = getCurrentRecords()?.filter(data => !data?.user?.blockedMembers?.includes(loginUserDetail))
+    } = usePaginationHook({ data: filteredData, recordPerPage: 4 })
+    const currentRecords = getCurrentRecords();
 
 
     if (isLoading) {
@@ -47,9 +52,9 @@ const ProviderList = () => {
     }
     return (<>
         <div className='mt-2 '>
-            {filteredData?.length === 0 ? <NoRecordFound /> : <>
+            {currentRecords?.length === 0 ? <NoRecordFound /> : <>
                 <Table heading={heading} >
-                    {filteredData
+                    {currentRecords
                         .map((data: ProviderType, id: number) => (
 
                             <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
