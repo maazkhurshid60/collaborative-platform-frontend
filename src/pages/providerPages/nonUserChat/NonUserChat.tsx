@@ -177,7 +177,7 @@ const NonUserChat = () => {
         <>
             {isLoading && <Loader />}
             <div className='p-4 flex items-center justify-between'>
-                <img src={logo} alt="logo" className="w-[50px] md:w-[70px] lg:w-auto" />
+                <img src={logo} alt="logo" className="w-[150px] h-[110px] md:w-[70px] lg:w-auto" />
 
                 {type === "group" ?
                     // <p onClick={joinChatFun} className='w-[80px] sm:w-[100px]'>
