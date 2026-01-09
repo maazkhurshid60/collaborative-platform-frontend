@@ -24,6 +24,7 @@ const ProviderProfile = () => {
         queryFn: async () => {
             try {
                 const response = await providerApiService.getAllProviders(loginUserId);
+                console.log("Fetched providers:", response);
                 return response?.data?.providers;
 
             } catch (error) {
@@ -130,5 +131,3 @@ const ProviderProfile = () => {
 }
 
 export default ProviderProfile
-
-

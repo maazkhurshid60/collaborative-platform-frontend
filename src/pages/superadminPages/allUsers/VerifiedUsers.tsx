@@ -58,6 +58,8 @@ const VerifiedUsers = () => {
         setIsDocLoading(true);
 
         const response = await loginUserApiService.getAllUsersApi();
+
+        console.log("Fetched users:", response);
         const allUsers = response.user?.filter(
           (data: User) =>
             data?.role !== "superadmin" && data?.isApprove === "approve"
