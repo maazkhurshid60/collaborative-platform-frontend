@@ -24,6 +24,8 @@ import { GroupChat, GroupCreatedBy } from '../../../types/chatType/GroupType';
 import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
 import ToolTip from '../../../components/toolTip/ToolTip';
 import SpinnerLoader from '../../../components/loader/SpinnerLoader';
+import { useLocation, useParams } from "react-router-dom";
+
 
 
 
@@ -42,11 +44,17 @@ const Chat = () => {
     const [activeChatType, setActiveChatType] = useState<'individual' | 'group' | undefined>(undefined);
 
     const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+    const { id } = useParams();
+    const location = useLocation();
+    const isGroup = location.pathname.includes("/chat/group/");
+
 
 
     const queryClient = useQueryClient();
     const dispatch = useDispatch<AppDispatch>()
     const socket = getSocket();
+
+    
 
 
 
@@ -113,7 +121,26 @@ const Chat = () => {
     //         });
     //     }
     // }, [loginUserId, allGroups]);
+    useEffect(() => {
+        if (!id) return;
 
+        if (isGroup) {
+            const group = allGroups.find((g: any) => g.id === id);
+            if (group) {
+            setActiveChatObject(group);
+            setActiveChatType("group");
+            setActiveId(group.id);
+            }
+        } else {
+            const channel = allChannels.find((c: any) => c.id === id);
+            if (channel) {
+            setActiveChatObject(channel);
+            setActiveChatType("individual");
+            setActiveId(channel.id);
+            }
+        }
+    }, [id, isGroup, allChannels, allGroups]);
+                                        
 
     useEffect(() => {
         if (!loginUserId || (!allChannels?.length && !allGroups?.length)) return;
@@ -166,31 +193,29 @@ const Chat = () => {
 
 
     // React Query to fetch messages for the active group chat
-    const { data: allGroupMessage } = useQuery<Message[]>({
-        queryKey: ['groupmessages', activeChatObject?.id],
-        queryFn: async () => {
-            if (!activeChatObject?.id) {
-                toast.error("Group channel ID is missing.");
-                return;
-            }
-            // const dataSendToBack = { loginUserId, groupId: activeChatObject?.id };
-            const dataSendToBack: getAllMessagesOfSingleChat = {
-                loginUserId,
-                page: 1,
-                limit: 10,
-                groupId: activeChatObject?.id
-            };
+    const { data: allGroupMessage = [] } = useQuery<Message[]>({
+    queryKey: ["groupmessages", activeChatObject?.id],
+    queryFn: async () => {
+        if (!activeChatObject?.id) return [];
 
-            try {
-                const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
-                return response?.data?.groupMessages;
-            } catch (error) {
-                console.error('Error fetching messages:', error);
-                return [];
-            }
-        },
-        enabled: !!activeChatObject?.id && activeChatType === 'group',
+        const dataSendToBack: getAllMessagesOfSingleChat = {
+        loginUserId,
+        page: 1,
+        limit: 10,
+        groupId: activeChatObject?.id,
+        };
+
+        try {
+        const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
+        return response?.data?.groupMessages ?? [];
+        } catch (error) {
+        console.error("Error fetching group messages:", error);
+        return [];
+        }
+    },
+    enabled: !!activeChatObject?.id && activeChatType === "group",
     });
+
 
 
 

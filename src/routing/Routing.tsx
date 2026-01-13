@@ -116,6 +116,9 @@ const Routing = () => {
                 <Route path="/providers" element={<WrappedRoute ><Providers /></WrappedRoute>} />
                 <Route path="/providers/:id" element={<WrappedRoute ><ProviderProfile /></WrappedRoute>} />
                 <Route path="/help-and-support" element={<WrappedRoute ><HelpAndSupport /></WrappedRoute>} />
+                <Route path="/chat/individual/:id" element={<Chat />} />
+                <Route path="/chat/group/:id" element={<Chat />} />
+
             </Route>
         </Routes >
     );

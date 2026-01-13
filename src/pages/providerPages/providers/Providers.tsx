@@ -1,28 +1,44 @@
-import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
-import Button from '../../../components/button/Button';
+// Providers.tsx
+// Alignment fixes applied:
+// - Consistent td padding/vertical alignment across ALL columns
+// - Prevent wrapping in narrow columns (email/status/action) to avoid column drift
+// - Fix Action column padding (was missing px-2) and center alignment
+// - Clients column: allow wrapping inside cell without breaking table grid
+// - Uses the same Table.tsx (table-fixed recommended)
 
-import usePaginationHook from '../../../hook/usePaginationHook';
-import Table from '../../../components/table/Table';
-import CustomPagination from '../../../components/customPagination/CustomPagination';
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import Button from "../../../components/button/Button";
 
-import { Link, useNavigate } from 'react-router-dom';
-import Loader from '../../../components/loader/Loader';
-import providerApiService from '../../../apiServices/providerApi/ProviderApi';
-import { useQuery } from '@tanstack/react-query';
-import { Client, ProviderType } from '../../../types/providerType/ProviderType';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import usePaginationHook from "../../../hook/usePaginationHook";
+import Table from "../../../components/table/Table";
+import CustomPagination from "../../../components/customPagination/CustomPagination";
+
+import { Link, useNavigate } from "react-router-dom";
+import Loader from "../../../components/loader/Loader";
+import providerApiService from "../../../apiServices/providerApi/ProviderApi";
+import { useQuery } from "@tanstack/react-query";
+import { Client, ProviderType } from "../../../types/providerType/ProviderType";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import ViewIcon from '../../../components/icons/view/View';
-import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
-import { useMemo, useState } from 'react';
-import { filterProviders } from '../../../utils/FilteredUsers';
-import SearchBar from '../../../components/searchBar/SearchBar';
+import ViewIcon from "../../../components/icons/view/View";
+import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
+import { useMemo, useState } from "react";
+import { filterProviders } from "../../../utils/FilteredUsers";
+import SearchBar from "../../../components/searchBar/SearchBar";
 
 const Providers = () => {
-  // 1) Add "S.No." in heading as the first column
-  const heading = ["S.No.", "name", "license number", "gender", "email", "status", "clients", "action"];
+  const heading = [
+    "S.No.",
+    "Name",
+    "License Number",
+    "Gender",
+    "Email",
+    "Status",
+    "Clients",
+    "Action",
+  ];
 
   const navigate = useNavigate();
 
@@ -46,31 +62,22 @@ const Providers = () => {
     enabled: Boolean(loginUserDetail),
   });
 
-  // Keep recordPerPage in a constant so S.No. stays correct
   const recordPerPage = 6;
 
-  const {
-    totalPages,
-    getCurrentRecords,
-    handlePageChange,
-    currentPage,
-  } = usePaginationHook({ data: providerData ?? [], recordPerPage });
+  const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
+    usePaginationHook({ data: providerData ?? [], recordPerPage });
 
-  // Current page data (from pagination)
   const currentRecords = getCurrentRecords() ?? [];
 
-  // Filter out blocked members (current page only, consistent with your original approach)
   const filteredData = useMemo(() => {
     return currentRecords.filter((p) => !p?.user?.blockedMembers?.includes(loginUserDetail));
   }, [currentRecords, loginUserDetail]);
 
-  // Apply search filter
   const filteredSearchProviders = useMemo(() => {
     return filterProviders(filteredData || [], searchTerm);
   }, [filteredData, searchTerm]);
 
   const downloadXLS = (data: ProviderType[], fileName: string = "providers.xls") => {
-    // Optional: include S.No. in excel too (page-based)
     const formattedData = data.map((provider, index) => ({
       "S.No.": (currentPage - 1) * recordPerPage + index + 1,
       Name: provider?.user?.fullName ?? "",
@@ -119,35 +126,62 @@ const Providers = () => {
           <>
             <Table heading={heading}>
               {filteredSearchProviders.map((data: ProviderType, index: number) => {
-                // 2) S.No. calculation with pagination offset
                 const serialNo = (currentPage - 1) * recordPerPage + index + 1;
 
                 return (
                   <tr
                     key={data?.id ?? index}
-                    className="border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s"
+                    className="border-b-[1px] border-b-solid border-b-lightGreyColor"
                   >
-                    {/* S.No. column */}
-                    <td className="px-2 py-4">{serialNo}</td>
+                    {/* S.No. */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                      {serialNo}
+                    </td>
 
-                    <td className="px-2 py-4">{data?.user?.fullName}</td>
-                    <td className="px-2 py-4">{data?.user?.licenseNo}</td>
-                    <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
-                    <td className="px-2 py-4 lowercase">{data?.email}</td>
-                    <td className="px-2 py-4 capitalize">{data?.user?.status}</td>
+                    {/* Name */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                      {data?.user?.fullName}
+                    </td>
 
-                    <td className="px-2 py-4 w-[100px]">
+                    {/* License */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                      {data?.user?.licenseNo}
+                    </td>
+
+                    {/* Gender */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
+                      {data?.user?.gender}
+                    </td>
+
+                    {/* Email */}
+                    <td className="px-2 py-3 align-middle">
+                      <span className="block max-w-[260px] truncate lowercase" title={data?.email}>
+                        {data?.email}
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
+                      {data?.user?.status}
+                    </td>
+
+                    {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
+                    <td className="px-2 py-3 align-middle">
                       {data?.clientList === undefined ||
                       data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
                         .length === 0 ? (
-                        <p>No Clients</p>
+                        <p className="whitespace-nowrap">No Clients</p>
                       ) : (
-                        <>
+                        <div className="min-w-0">
                           {data?.clientList
                             .filter((client: Client) => client?.client?.clientShowToOthers === true)
                             .slice(0, 2)
                             .map((client: Client, idx) => (
-                              <p className="flex items-center gap-x-1 capitalize whitespace-nowrap" key={idx}>
+                              <p
+                                className="capitalize truncate max-w-[220px]"
+                                title={client?.client?.user?.fullName}
+                                key={idx}
+                              >
                                 {client?.client?.user?.fullName}
                               </p>
                             ))}
@@ -155,18 +189,19 @@ const Providers = () => {
                           {data?.clientList.filter((p: Client) => p?.client?.clientShowToOthers === true)
                             .length > 2 && (
                             <p
-                              className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark"
+                              className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark whitespace-nowrap"
                               onClick={() => navigate(`/providers/${data?.id}`)}
                             >
                               ... View All
                             </p>
                           )}
-                        </>
+                        </div>
                       )}
                     </td>
 
-                    <td className="py-2 h-full w-[80px] align-middle">
-                      <div className="flex items-center justify-center h-full">
+                    {/* Action (fixed padding + centered icon) */}
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                      <div className="flex items-center justify-center">
                         <Link to={`/providers/${data?.id}`}>
                           <ViewIcon />
                         </Link>

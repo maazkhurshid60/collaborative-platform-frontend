@@ -1,7 +1,4 @@
 
-
-
-
 interface TableProps {
   heading?: string[];
   children?: React.ReactNode;
