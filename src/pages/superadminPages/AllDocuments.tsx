@@ -390,14 +390,28 @@ const AllDocuments = () => {
     recipientId: "",
   });
 
+  // const { data: documentData = [], isLoading, isFetching } = useQuery({
+  //   queryKey: ["documents", clientId],
+  //   enabled: Boolean(clientId),
+  //   queryFn: async () => {
+  //     const response = await documentApiService.getAllDocuments(clientId);
+  //     return response?.data?.data?.allDocuments || [];
+  //   },
+  // });
+
   const { data: documentData = [], isLoading, isFetching } = useQuery({
-    queryKey: ["documents", clientId],
-    enabled: Boolean(clientId),
-    queryFn: async () => {
-      const response = await documentApiService.getAllDocuments(clientId);
-      return response?.data?.data?.allDocuments || [];
-    },
-  });
+  queryKey: ["documents", clientId],
+  enabled: Boolean(clientId),
+  queryFn: async () => {
+    const response = await documentApiService.getAllDocuments(clientId);
+
+    console.log("✅ getAllDocuments raw response:", response);
+    console.log("✅ allDocuments array:", response?.data?.data?.allDocuments);
+
+    return response?.data?.data?.allDocuments || [];
+  },
+});
+
 
   const filteredDocuments = useMemo(() => {
     return filterDocuments(Array.isArray(documentData) ? documentData : [], searchTerm);

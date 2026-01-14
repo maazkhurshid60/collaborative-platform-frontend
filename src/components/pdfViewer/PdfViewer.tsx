@@ -1,38 +1,60 @@
 import { useMemo, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
-
-type PdfViewerProps = { url: string };
-
-const PdfViewer = ({ url }: PdfViewerProps) => {
-  const [numPages, setNumPages] = useState(0);
-
-  // If your server uses cookie auth, this is required:
-  const file = useMemo(() => ({ url, withCredentials: true }), [url]);
-
-  return (
-    <div className="h-[300px] overflow-auto">
-      <Document
-        file={file}
-        loading={<p className="p-4">Loading PDF...</p>}
-        error={<p className="p-4">Unable to render PDF. Check console.</p>}
-        onLoadSuccess={(info) => setNumPages(info.numPages)}
-        onLoadError={(e) => console.error("PDF load error details:", e)}
-      >
-        {Array.from({ length: numPages }, (_, i) => (
-          <div key={i} className="flex justify-center py-2">
-            <Page pageNumber={i + 1} />
-          </div>
-        ))}
-      </Document>
-    </div>
-  );
+type PdfViewerProps = {
+  url: string;      // must be publicly accessible
+  maxPages: number;
 };
 
-export default PdfViewer;
+export default function PdfViewer({ url, maxPages }: PdfViewerProps) {
+  const [page, setPage] = useState(1);
 
+  const prev = () => setPage((p) => Math.max(1, p - 1));
+  const next = () => setPage((p) => Math.min(maxPages, p + 1));
 
+  const src = useMemo(() => {
+    const gview = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+    return `${gview}#page=${page}`;
+  }, [url, page]);
+
+  return (
+    <div className="w-full">
+      {/* <div className="mb-3 grid grid-cols-3 items-center gap-2">
+        <div className="flex justify-start">
+          <button
+            type="button"
+            onClick={prev}
+            disabled={page <= 1}
+            className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium shadow-sm
+                       hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300
+                       disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span aria-hidden="true">←</span>
+            Prev
+          </button>
+        </div>
+
+        <div className="flex justify-center text-sm tabular-nums text-gray-600">
+          
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={next}
+            disabled={page >= maxPages}
+            className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium shadow-sm
+                       hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300
+                       disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div> */}
+
+      <div className="h-[75vh] w-full overflow-hidden rounded-xl border bg-gray-50 shadow-sm">
+        <iframe key={page} className="h-full w-full border-0" src={src} title="PDF" />
+      </div>
+    </div>
+  );
+}

@@ -3,7 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { lazy } from "react";
-import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
+import WrappedRoute from "../components/wrappedRoute/WrappedRoute";     
+import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";   
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
@@ -118,6 +119,8 @@ const Routing = () => {
                 <Route path="/help-and-support" element={<WrappedRoute ><HelpAndSupport /></WrappedRoute>} />
                 <Route path="/chat/individual/:id" element={<Chat />} />
                 <Route path="/chat/group/:id" element={<Chat />} />
+                <Route path="/super-admin" element={<SuperAdminMePage />} />
+
 
             </Route>
         </Routes >
