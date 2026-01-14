@@ -285,6 +285,9 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
     }
   }
 
+
+
+
   // Case: { error: { email: "Invalid email", age: "Required" } }
   if (isObject(payload) && isObject((payload as any).error)) {
     const errObj = (payload as any).error as Record<string, unknown>;
@@ -341,11 +344,18 @@ const AddClient = () => {
   const [wantToBeSeen, setWantToBeSeen] = useState(true);
 
   // ✅ Make this consistent with the rest of your app:
-  const providerId =
-    useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id) ||
-    useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+  // const providerId =
+  //   useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id) ||
+  //   useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+
+  const providerId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+
 
   const handleCheckboxChange = () => setWantToBeSeen((prev) => !prev);
+
+
+  console.log("Redux userDetails:", useSelector((s: RootState) => s.LoginUserDetail?.userDetails));
+  console.log("providerId being sent:", providerId);
 
   const mutation = useMutation({
     mutationFn: async (data: FormFields) => {
