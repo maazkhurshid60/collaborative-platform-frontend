@@ -1,7 +1,7 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import InputField from '../../../components/inputField/InputField'
 import AuthLayout from '../../../layouts/authLayout/AuthLayout'
-import { z } from 'zod';
+import { string, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ClientSignupSchema } from '../../../schema/authSchema/AuthSchema';
 import Button from '../../../components/button/Button';
@@ -73,7 +73,7 @@ const ClientSignup = () => {
 
     useEffect(() => {
         setValue("fullName", licenseNoData?.fullName);
-        setValue("licenseNo", Number(licenseNoData?.licenseNo));
+        setValue("licenseNo", String(licenseNoData?.licenseNo ?? ""));
         setValue("email", licenseNoData?.email);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseNoData]);

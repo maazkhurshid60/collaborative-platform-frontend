@@ -194,7 +194,7 @@ interface ViewDocModalProps {
   isOnlyRead?: boolean;
 
   // NEW
-  previewKind: PreviewKind;
+  previewKind?: PreviewKind;
   pdfUrl?: string;
 }
 
@@ -322,7 +322,7 @@ const ViewDocModal: React.FC<ViewDocModalProps> = ({
   sharedDocs,
   data,
   isOnlyRead = false,
-  previewKind,
+  previewKind = "html",
   pdfUrl,
 }) => {
   return (

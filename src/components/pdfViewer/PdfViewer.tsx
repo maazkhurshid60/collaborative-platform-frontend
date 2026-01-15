@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 
 type PdfViewerProps = {
   url: string;      // must be publicly accessible
-  maxPages: number;
+  maxPages?: number;
 };
 
 export default function PdfViewer({ url, maxPages }: PdfViewerProps) {
   const [page, setPage] = useState(1);
 
   const prev = () => setPage((p) => Math.max(1, p - 1));
-  const next = () => setPage((p) => Math.min(maxPages, p + 1));
+  
 
   const src = useMemo(() => {
     const gview = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;

@@ -48,7 +48,7 @@ const ProviderSignup = () => {
         criteriaMode: "all"
     });
 
-    const { register, handleSubmit, formState: { errors }, setValue } = methods;
+    const { register, handleSubmit, formState: { errors }, setValue, control } = methods;
     const dispatch = useDispatch()
     const navigate = useNavigate()
     //FUNCTIONS
@@ -192,10 +192,12 @@ const ProviderSignup = () => {
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>
                                 name="department"
+                                control={control}
                                 label="Department"
                                 options={departmentOptions}
                                 placeholder="Choose an option"
                                 error={errors.department?.message}
+                                
                             />
                         </div>
                         {/* 👇 Country & State Dropdown 👇 */}

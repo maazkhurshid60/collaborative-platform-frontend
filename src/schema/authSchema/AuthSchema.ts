@@ -88,3 +88,19 @@ export const ProviderSignupSchema = z
     message: "Passwords must match",
     path: ["confirmPassword"],
   });
+
+
+  export const ChangePasswordSchema = z
+  .object({
+    oldPassword: z
+      .string()
+      .min(1, "Old Password is required"),
+    newPassword: strongPassword,
+    confirmPassword: z
+      .string()
+      .min(1, "Confirm Password is required"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "New and Confirm Password must match",
+    path: ["confirmPassword"],
+  });
