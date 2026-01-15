@@ -149,6 +149,7 @@ const ProviderSignup = () => {
 
     }, [joinUser])
 
+
     return (
         <>
             {isLoading && <Loader />}
@@ -163,7 +164,7 @@ const ProviderSignup = () => {
                             <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
                         </div>
 
-                        <div className='mb-1.5'>
+                        {/* <div className='mb-1.5'>
                             <InputField required
                                 type='text'
                                 label='License Number'
@@ -171,7 +172,23 @@ const ProviderSignup = () => {
                                 placeHolder='Enter license number.'
                                 error={errors.licenseNo?.message} />
 
+                        </div> */}
+
+                        <div className='mb-1.5'>
+                            <InputField
+                                required
+                                type='text'
+                                label='License Number'
+                                register={register("licenseNo")}
+                                placeHolder='e.g. AB12@cd'
+                                error={errors.licenseNo?.message}
+                            />
+
+                            <p className="text-xs text-gray-500 mt-1">
+                                Must include at least 1 letter, 1 number, and 1 special character (min 6 chars).
+                            </p>
                         </div>
+
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>
                                 name="department"

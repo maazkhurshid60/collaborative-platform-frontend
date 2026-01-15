@@ -18,7 +18,6 @@ import Loader from '../../../components/loader/Loader';
 
 
 type FormFields = z.infer<typeof LicenseNoSchema>;
-
 export interface ISigninData {
     emailOrUsername: string;
     password: string;
@@ -92,13 +91,10 @@ const LicenseNo = () => {
                     <InputField required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
                 </div>
                 <div className='mt-10'>
-
                     <Button text='sign up' />
                 </div>
-
                 <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
-            </form>
-
+            </form>                                                                                   
         </AuthLayout>
     </>
     )
