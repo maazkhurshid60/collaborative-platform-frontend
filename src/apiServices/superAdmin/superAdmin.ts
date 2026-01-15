@@ -9,7 +9,7 @@ export type SuperAdminMeResponse = {
 };
 
 export async function fetchSuperAdmin() {
-  const res = await fetch(`${import.meta.env.VITE_LOCAL_BASE_URL}/super-admin/first`);
+  const res = await fetch(`${import.meta.env.VITE_RENDER_BASE_URL}/super-admin/first`);
   const json = await res.json();
   return json.data;
 }
