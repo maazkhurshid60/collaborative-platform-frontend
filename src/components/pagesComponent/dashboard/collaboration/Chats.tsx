@@ -53,7 +53,7 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
   return (
     <div className="">
       <NavLink
-        to="/chat">
+        to={`/chat/individual/${data.id}`}>
         <div
           className={`pb-2 pt-2 pl-1 flex items-center  w-full gap-x-2 transition-all duration-300 cursor-pointer 
             `}

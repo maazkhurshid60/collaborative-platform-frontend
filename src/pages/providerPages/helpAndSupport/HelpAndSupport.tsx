@@ -1,78 +1,119 @@
-import { useState } from 'react'
-import OutletLayout from '../../../layouts/outletLayout/OutletLayout'
-import { RiArrowLeftSLine } from 'react-icons/ri'
+import { useState } from "react";
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import { RiArrowLeftSLine } from "react-icons/ri";
+
+type HelpItem = {
+  name: string;
+  data: string[];
+};
 
 const HelpAndSupport = () => {
-    const data = [{
-        name: "What's New",
-        data: ["Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-            "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-            "when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-        ]
-    },
-    {
-        name: "Sign-in Issues",
-        data: ["It has survived not only five centuries.",
-            "but also the leap into electronic typesetting.",
-            "remaining essentially unchanged."
-        ]
-    },
-    {
-        name: "Who can use this platform",
-        data: ["It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages."]
-    },
-    {
-        name: "Can I know how many members does it supports?",
-        data: ["Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-            "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-            "when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-        ]
-    },
-    {
-        name: "How to add designation and department?",
-        data: ["It has survived not only five centuries.",
-            "but also the leap into electronic typesetting.",
-            "remaining essentially unchanged."
-        ]
-    }
-        ,
-    {
-        name: "How restrict offensive messages?",
-        data: ["It has survived not only five centuries.",
-            "but also the leap into electronic typesetting.",
-            "remaining essentially unchanged."
-        ]
-    }
-        ,
-    {
-        name: "How do I delete my account?",
-        data: [" It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages."]
+  const helpData = [
+  {
+    name: "What's New",
+    data: [
+      "A redesigned dashboard for faster access to providers, clients, and chats.",
+      "Improved collaboration features with real-time messaging.",
+      "Performance enhancements and minor bug fixes for a smoother experience.",
+    ],
+  },
+  {
+    name: "Sign-in Issues",
+    data: [
+      "Ensure your email and password are entered correctly.",
+      "If you forgot your password, use the 'Forgot Password' option to reset it.",
+      "Contact support if your account is locked or access is restricted.",
+    ],
+  },
+  {
+    name: "Who can use this platform?",
+    data: [
+      "Licensed healthcare providers such as nutritionists, eye specialists, and heart specialists.",
+      "Administrative staff managing clients and providers.",
+      "Authorized professionals collaborating on patient care.",
+    ],
+  },
+  {
+    name: "How many members does the platform support?",
+    data: [
+      "The platform supports multiple providers and clients under one organization.",
+      "There is no fixed limit for users; capacity scales based on your subscription plan.",
+      "Contact support for enterprise-level usage requirements.",
+    ],
+  },
+  {
+    name: "How to add designation and department?",
+    data: [
+      "Navigate to your User Profile from the sidebar.",
+      "Edit your professional details including designation and department.",
+      "Save changes to update your profile across the platform.",
+    ],
+  },
+  {
+    name: "How to restrict offensive messages?",
+    data: [
+      "The system automatically monitors messages for inappropriate language.",
+      "Users can report offensive content directly from the chat interface.",
+      "Repeated violations may result in account suspension or restricted access.",
+    ],
+  },
+  {
+    name: "How do I delete my account?",
+    data: [
+      "Go to User Profile and select Account Settings.",
+      "Submit an account deletion request.",
+      "Your account and data will be permanently removed after verification.",
+    ],
+  },
+];
 
-    }
 
-    ]
+  // null = none open, number = index open
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-    const [isOpen, setIsOpen] = useState<number | null>(0)
+  const toggle = (index: number) => {
+    setOpenIndex((prev) => (prev === index ? null : index));
+  };
 
-    return (
-        <OutletLayout heading='Help and support'>
-            {data?.map((data, id: number) =>
-                <div className='bg-inputBgColor p-2 rounded-[10px] text-textColor mt-4' key={id}>
-                    <div className='flex items-center justify-between '>
-                        <p className='text-[14px] md:text-[16px] font-medium w-[90%] '>{data.name}</p>
-                        <RiArrowLeftSLine
-                            onClick={() => setIsOpen(prev => (prev === id ? null : id))}
-                            className={`text-xl sm:text-2xl md:text-3xl transition-transform duration-300 text-textGreyColor cursor-pointer ${isOpen === id ? "-rotate-90" : "rotate-180"}`}
-                        />                    </div>
-                    {data?.data?.map((data, index: number) => <p className={`${isOpen === id ? "block" : "hidden"} mt-2 text-xs md:text-sm`}>
-                        {index + 1}- {data}
-                    </p>)}
+  return (
+    <OutletLayout heading="Help and support">
+      {helpData.map((item, idx) => {
+        const isOpen = openIndex === idx;
 
-                </div>
+        return (
+          <div
+            key={item.name}
+            className="bg-inputBgColor p-2 rounded-[10px] text-textColor mt-4"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-[14px] md:text-[16px] font-medium w-[90%]">
+                {item.name}
+              </p>
+
+              <RiArrowLeftSLine
+                onClick={() => toggle(idx)}
+                className={[
+                  "text-xl sm:text-2xl md:text-3xl transition-transform duration-300",
+                  "text-textGreyColor cursor-pointer",
+                  isOpen ? "-rotate-90" : "rotate-180",
+                ].join(" ")}
+              />
+            </div>
+
+            {isOpen && (
+              <div className="mt-2">
+                {item.data.map((line, lineIdx) => (
+                  <p key={`${item.name}-${lineIdx}`} className="text-xs md:text-sm mt-2">
+                    {lineIdx + 1}- {line}
+                  </p>
+                ))}
+              </div>
             )}
+          </div>
+        );
+      })}
+    </OutletLayout>
+  );
+};
 
-        </OutletLayout>
-    )
-}
-
-export default HelpAndSupport 
+export default HelpAndSupport;
