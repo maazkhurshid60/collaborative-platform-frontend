@@ -39,14 +39,13 @@ class MessageApiService {
             const response = await this.api.post("/chat/single-chat/all-messages", data)
             return response?.data
 
-
         } catch (error) {
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
         }
     }
-      async getAllPublicMessagesOfSingleChatChannel(data: getAllMessagesOfSingleChatChannelType) {
+    async getAllPublicMessagesOfSingleChatChannel(data: getAllMessagesOfSingleChatChannelType) {
         try {
 
             const response = await this.api.post("/public-chat/single-chat/all-messages", data)
@@ -94,10 +93,7 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/read-message", data)
-
             return response?.data
-
-
         } catch (error) {
 
 
@@ -135,7 +131,7 @@ class MessageApiService {
             toast.error(errMsg);
         }
     }
-       async getAllPublicMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChat) {
+    async getAllPublicMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChat) {
         try {
 
             const response = await this.api.post("/public-chat/get-group-messages", data)
