@@ -5,6 +5,7 @@ import ProvidersIcon from "../components/icons/dashboardIcons/providersPortalIco
 import { RiUserLine } from "react-icons/ri";
 import DocumentIcon from "../components/icons/dashboardIcons/clientsPortalIcons/document/Document";
 import SettingIcon from "../components/icons/dashboardIcons/clientsPortalIcons/setting/Setting";
+import { FileText } from "lucide-react"
 
 export const ProviderSidebarData = [
     {
@@ -47,6 +48,7 @@ export const ClientSidebarData = [
         icon: SettingIcon
     }
 ]
+
 export const SuperAdminSidebarData = [
     {
         name: "Pending Users",
@@ -68,4 +70,14 @@ export const SuperAdminSidebarData = [
         url: "/all-documents",
         icon: DocumentIcon
     },
+    {
+        name: "Transaction Details",
+        url: "/transaction-details",
+        icon: FileText
+    },
+    {
+        name: "Billing MGT",
+        url: "/billing-mgt",
+        icon: FileText
+    }
 ]

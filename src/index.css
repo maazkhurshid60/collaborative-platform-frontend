@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+@theme {
+    --color-transaction-summary-text: #6B7280;
+    --color-transaction-summary-ammont: #2C9993;
+}

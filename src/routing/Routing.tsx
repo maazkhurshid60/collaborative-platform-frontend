@@ -3,9 +3,12 @@ import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { lazy } from "react";
-import WrappedRoute from "../components/wrappedRoute/WrappedRoute";     
-import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";   
+import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
+import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
+import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
+import TransactionDetailByUserId from "../pages/superadminPages/transaction-detail/TransactionDetailByUserId";
+import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDetail";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
@@ -42,9 +45,22 @@ const Routing = () => {
             {/* Public Routes */}
             < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
             < Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
+            {/* Implementation of payment module */}
+            {/* <Route path="/free-trail-form" element={<WrappedRoute><FreeTrailForm /></WrappedRoute>} />
+            <Route path="/pricing-plan" element={<WrappedRoute><PricingPlan /></WrappedRoute>} />
+            <Route path="/payment-success" element={<WrappedRoute><PaymentSuccess /></WrappedRoute>} />
+            <Route path="/payment-failure" element={<WrappedRoute><PaymentFailure /></WrappedRoute>} />
+            <Route path="/payment-cancel" element={<WrappedRoute><PaymentCancel /></WrappedRoute>} /> */}
+
+
+            {/* Admin Biling routes */}
+            {/* <Route path="transection-details" element={<WrappedRoute><TransectionDetails /></WrappedRoute>} />
+            <Route path="provider-update-transection" /> */}
+
+
             < Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
             < Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
-             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
+            <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
             < Route path="/signup-with-license" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
             < Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
             < Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
@@ -83,6 +99,7 @@ const Routing = () => {
                                 </WrappedRoute>
                             }
                         />
+
                     )
                 }
 
@@ -98,6 +115,33 @@ const Routing = () => {
                         />
                     )
                 }
+
+                {
+                    loginUserRole === "superadmin" && (
+                        <Route
+                            path="/transaction-details"
+                            element={
+                                <WrappedRoute>
+                                    <TransactionDetail />
+                                </WrappedRoute>
+                            }
+                        />
+                    )
+                }
+                {
+                    loginUserRole === "superadmin" && (
+                        <Route
+                            path="/transaction-details/:id"
+                            element={
+                                <WrappedRoute>
+                                    <TransactionDetailByUserId />
+                                </WrappedRoute>
+                            }
+                        />
+                    )
+                }
+
+
 
                 <Route path="/settings" element={<WrappedRoute ><Settings /></WrappedRoute>} />
                 <Route path="/pending-users/view-user/:id" element={<WrappedRoute ><ViewUser /></WrappedRoute>} />
