@@ -32,6 +32,11 @@ export const ProviderSidebarData = [
         name: "Providers",
         url: "/providers",
         icon: ProvidersIcon
+    },
+    {
+        name: "Billing",
+        url: "/billing",
+        icon: FileText
     }
 ];
 
@@ -76,8 +81,8 @@ export const SuperAdminSidebarData = [
         icon: FileText
     },
     {
-        name: "Billing MGT",
-        url: "/billing-mgt",
+        name: "Subscription",
+        url: "/subscription",
         icon: FileText
     }
 ]

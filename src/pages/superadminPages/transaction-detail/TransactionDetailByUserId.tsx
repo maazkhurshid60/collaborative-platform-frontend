@@ -2,7 +2,7 @@ import { Info } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom"
 
-const TransactionDetailByUserId = () => {
+const RefundTransaction = () => {
     const { id } = useParams()
     const [selectedAction, setSelectedAction] = useState<"full" | "partial" | "manual">("full"); // Default to full or null
 
@@ -225,4 +225,4 @@ const TransactionDetailByUserId = () => {
     )
 }
 
-export default TransactionDetailByUserId
+export default RefundTransaction

@@ -3,6 +3,7 @@ import CardDashboardLayout from '../../../layouts/dashboardLayout/CardDashboardL
 import Collaboration from '../../../components/pagesComponent/dashboard/collaboration/Collaboration'
 import ClientList from '../../../components/pagesComponent/dashboard/clientList/ClientList';
 import ProviderList from '../../../components/pagesComponent/dashboard/providerList/ProviderList';
+import TrialBanner from '../../../components/pagesComponent/dashboard/trialBanner/TrialBanner';
 import { useQuery } from '@tanstack/react-query';
 import providerApiService from '../../../apiServices/providerApi/ProviderApi';
 import { useEffect, useState } from 'react';
@@ -17,15 +18,11 @@ import ProvidersIcon from '../../../components/icons/dashboardIcons/providersPor
 const Dashboard = () => {
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
 
-
-
     const [cardData, setCardData] = useState([
         { icon: ClientsIcon, heading: "Total Users", numbers: 200 },
         { icon: ClientsIcon, heading: "Clients", numbers: 1034, isLoading: true, error: "" },
         { icon: ProvidersIcon, heading: "Providers", numbers: 1024, isLoading: true, error: "" },
     ])
-
-
     // Fetch total provider using React Query
     const { data: totalNoOfProvider = 0, isLoading: isLoadingProviders, isError: isErrorProviders } = useQuery<number>({
         queryKey: ['totalproviders'],
@@ -55,8 +52,6 @@ const Dashboard = () => {
             }
         }
     })
-
-
 
     useEffect(() => {
         setCardData((prev) =>
@@ -98,53 +93,53 @@ const Dashboard = () => {
         isErrorProviders,
     ]);
 
-
-
-
     return (
-        <OutletLayout heading='Dashboard'>
-            <div className='flex flex-col gap-3'>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {cardData?.map((data, id: number) => {
-                        const Icon = data?.icon
-                        return (
-                            <div className=" h-[120px] " key={id}>
-                                <CardDashboardLayout>
-                                    {/* {data.isLoading && <Loader text="12232" />} */}
-                                    <div key={id} className=''>
-                                        <div className='flex items-center gap-x-3 font-[Montserrat] font-semibold text-textGreyColor'>
-                                            <Icon className='text-primaryColorDark' />
-                                            <p>{data?.heading}</p>
+        <div className='flex flex-col w-full h-full p-3 overflow-y-auto rounded-lg pt-5 bg-white'>
+            <TrialBanner />
+            <OutletLayout heading='Dashboard'>
+                <div className='flex flex-col gap-3'>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {cardData?.map((data, id: number) => {
+                            const Icon = data?.icon
+                            return (
+                                <div className=" h-[120px] " key={id}>
+                                    <CardDashboardLayout>
+                                        {/* {data.isLoading && <Loader text="12232" />} */}
+                                        <div key={id} className=''>
+                                            <div className='flex items-center gap-x-3 font-[Montserrat] font-semibold text-textGreyColor'>
+                                                <Icon className='text-primaryColorDark' />
+                                                <p>{data?.heading}</p>
+                                            </div>
+                                            <p className='font-[Poppins] font-semibold text-textColor text-[32px] mt-3'>{data?.numbers}</p>
                                         </div>
-                                        <p className='font-[Poppins] font-semibold text-textColor text-[32px] mt-3'>{data?.numbers}</p>
-                                    </div>
+                                    </CardDashboardLayout>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap'>
+                        <div className=' flex flex-col gap-2 flex-wrap w-[100%] lg:w-[68%] '>
+                            <div className=' w-[100%]  max-h-screen lg:w-[98%] overflow-x-auto rounded-md'>
+                                <CardDashboardLayout heading='Clients List'>
+                                    <ClientList />
                                 </CardDashboardLayout>
                             </div>
-                        )
-                    })}
-                </div>
-                <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap'>
-                    <div className=' flex flex-col gap-2 flex-wrap w-[100%] lg:w-[68%] '>
-                        <div className=' w-[100%]  max-h-screen lg:w-[98%] overflow-x-auto rounded-md'>
-                            <CardDashboardLayout heading='Clients List'>
-                                <ClientList />
-                            </CardDashboardLayout>
+                            <div className='w-[100%] lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
+                                <CardDashboardLayout heading='Providers List'>
+                                    <ProviderList />
+                                </CardDashboardLayout>
+                            </div>
                         </div>
-                        <div className='w-[100%] lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
-                            <CardDashboardLayout heading='Providers List'>
-                                <ProviderList />
+                        <div className='w-[110%] min-h-screen  lg:w-[31.5%] overflow-y-auto'>
+                            <CardDashboardLayout heading='Collaborations'>
+                                <Collaboration />
                             </CardDashboardLayout>
                         </div>
                     </div>
-                    <div className='w-[110%] min-h-screen  lg:w-[31.5%] overflow-y-auto'>
-                        <CardDashboardLayout heading='Collaborations'>
-                            <Collaboration />
-                        </CardDashboardLayout>
-                    </div>
-                </div>
 
-            </div>
-        </OutletLayout>
+                </div>
+            </OutletLayout>
+        </div>
     )
 }
 

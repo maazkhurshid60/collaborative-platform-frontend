@@ -15,6 +15,7 @@ const initialState = {
 
   // ✅ ADDED
   isInviteProviderModal: false,
+  isCancelSubscriptionModal: false,
 };
 
 const modalSlice = createSlice({
@@ -59,6 +60,9 @@ const modalSlice = createSlice({
     isInviteProviderModalShowReducser: (state, action) => {
       state.isInviteProviderModal = action.payload;
     },
+    isCancelSubscriptionModalShowReducer: (state, action) => {
+      state.isCancelSubscriptionModal = action.payload;
+    },
   },
 });
 
@@ -77,6 +81,7 @@ export const {
 
   // ✅ ADDED
   isInviteProviderModalShowReducser,
+  isCancelSubscriptionModalShowReducer,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

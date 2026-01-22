@@ -85,6 +85,7 @@ import {
   isModalShowRejectReducer,
   isshowSignedDocumentModalClientPortalReducer,
   isInviteProviderModalShowReducser, // ✅ ADD THIS
+  isCancelSubscriptionModalShowReducer,
 } from "../../../redux/slices/ModalSlice";
 
 interface ModalLayoutProps {
@@ -109,6 +110,7 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
     dispatch(isModalShowRejectReducer(false));
     dispatch(isshowSignedDocumentModalClientPortalReducer(false));
     dispatch(isInviteProviderModalShowReducser(false)); // ✅ CRITICAL FIX
+    dispatch(isCancelSubscriptionModalShowReducer(false));
   };
 
   const handleClose = () => {
@@ -122,10 +124,12 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
       <div className="w-[90%] md:w-[40%]">
         <div className="bg-white w-[100%] p-5 pb-10 rounded-[20px]">
           {/* HEADER */}
-          <div className="flex items-center pb-4 border-b-[1px] border-b-greyColor border-b-solid">
-            <div className="w-[100%] text-center">
-              <p className="text-center font-semibold text-[18px]">{props.heading}</p>
-            </div>
+          <div className={`flex items-center ${props.heading ? 'pb-4 border-b-[1px] border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>
+            {props.heading && (
+              <div className="w-[100%] text-center">
+                <p className="text-center font-semibold text-[18px]">{props.heading}</p>
+              </div>
+            )}
 
             <div className="relative group">
               <RxCross2
@@ -135,8 +139,9 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
               />
               <ToolTip toolTipText="Close" />
             </div>
-          </div>
 
+          </div>
+          <div className="w-full border mt-2.5 border-[#F3F3F3]" />
           <div>{props.modalBodyContent}</div>
         </div>
       </div>

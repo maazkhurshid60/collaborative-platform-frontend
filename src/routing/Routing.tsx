@@ -9,6 +9,14 @@ import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
 import TransactionDetailByUserId from "../pages/superadminPages/transaction-detail/TransactionDetailByUserId";
 import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDetail";
+import SubscriptionPage from "../pages/superadminPages/subscription/SubscriptionPage";
+import BilingPage from "../pages/providerPages/biling/BilingPage";
+import ChangePlanScreen from "../pages/providerPages/change-plan-screen/ChangePlanScreen";
+import SubscriptionSettingPage from "../pages/providerPages/subscription-setting/SubscriptionPage";
+import RefundTransaction from "../pages/superadminPages/transaction-detail/TransactionDetailByUserId";
+import PaymentSuccessPage from "../pages/payment-pages/PaymentSuccessPage";
+import { PaymentFailurePage } from "../pages/payment-pages/PaymentFailurePage";
+import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
@@ -43,6 +51,10 @@ const Routing = () => {
         <Routes>
 
             {/* Public Routes */}
+            <Route path="/payment-success" element={<WrappedRoute><PaymentSuccessPage /></WrappedRoute>} />
+            <Route path="/payment-failure" element={<WrappedRoute><PaymentFailurePage /></WrappedRoute>} />
+            <Route path="/payment-checkout" element={<WrappedRoute><PaymentCheckoutPage /></WrappedRoute>} />
+
             < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
             < Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
             {/* Implementation of payment module */}
@@ -56,6 +68,7 @@ const Routing = () => {
             {/* Admin Biling routes */}
             {/* <Route path="transection-details" element={<WrappedRoute><TransectionDetails /></WrappedRoute>} />
             <Route path="provider-update-transection" /> */}
+
 
 
             < Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
@@ -134,13 +147,23 @@ const Routing = () => {
                             path="/transaction-details/:id"
                             element={
                                 <WrappedRoute>
-                                    <TransactionDetailByUserId />
+                                    <ProviderDetail />
                                 </WrappedRoute>
                             }
                         />
                     )
                 }
 
+                {
+                    loginUserRole === "superadmin" && (
+                        <Route path="/subscription" element={<WrappedRoute><SubscriptionPage /></WrappedRoute>} />
+                    )
+                }
+                {
+                    loginUserRole === "superadmin" && (
+                        <Route path="/provider/refund/:id" element={<WrappedRoute><RefundTransaction /></WrappedRoute>} />
+                    )
+                }
 
 
                 <Route path="/settings" element={<WrappedRoute ><Settings /></WrappedRoute>} />
@@ -155,6 +178,16 @@ const Routing = () => {
                 <Route path="/setting/change-password" element={<WrappedRoute ><ChangePassword /></WrappedRoute>} />
                 <Route path="/chat" element={<WrappedRoute><Chat /></WrappedRoute>} />
                 <Route path="/clients" element={<WrappedRoute ><Clients /></WrappedRoute>} />
+
+                {/* Screens for subscription */}
+                <Route path="/billing" element={<WrappedRoute ><BilingPage /></WrappedRoute>} />
+                <Route path="/billing/change-plan" element={<WrappedRoute ><ChangePlanScreen /></WrappedRoute>} />
+                <Route path="/billing/settings" element={<WrappedRoute ><SubscriptionSettingPage /></WrappedRoute>} />
+
+
+
+
+
                 <Route path="/clients/add-client" element={<WrappedRoute ><AddClient /></WrappedRoute>} />
                 <Route path="/clients/edit-client/:id" element={<WrappedRoute ><EditClient /></WrappedRoute>} />
                 <Route path="/user-profile" element={<WrappedRoute ><UserProfile /></WrappedRoute>} />
