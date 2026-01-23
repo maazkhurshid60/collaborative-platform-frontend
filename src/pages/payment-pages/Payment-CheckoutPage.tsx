@@ -131,10 +131,13 @@ export const PaymentCheckoutPage = () => {
 
                     {/* Right Column: Trust Badges */}
                     <div className="w-full xl:w-[440px]">
-                        <div className="bg-[#2C9993]/20 rounded-[12px] p-8 border border-[#CCFBEF]">
-                            <div className="flex items-center gap-2 text-[#0D9488] mb-8">
-                                <ShieldCheck size={24} />
-                                <h2 className="text-[24px] font-bold">Trust Badges</h2>
+                        <div className="bg-[#2C9993]/20 rounded-[12px] flex flex-col lg:flex-row xl:flex-col p-8 border border-[#CCFBEF]">
+                            <div className="flex flex-row flex-wrap">
+
+                                <div className="flex items-center gap-2 text-[#0D9488] mb-8">
+                                    <ShieldCheck size={24} />
+                                    <h2 className="text-[24px] font-bold">Trust Badges</h2>
+                                </div>
                             </div>
 
                             <div className="flex flex-col lg:flex-row xl:flex-col gap-10 items-center justify-between">
@@ -155,7 +158,7 @@ export const PaymentCheckoutPage = () => {
                                 </div>
 
                                 <div className="flex flex-col items-center text-center flex-1">
-                                    <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm border border-[#CCFBEF]">
+                                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm border border-[#CCFBEF]">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
                                             <path d="M3.07172 1.88805C4.14923 0.999166 5.37114 0.421389 6.73747 0.15472C8.07047 -0.100834 9.39236 -0.0397224 10.7031 0.338055C12.0473 0.738054 13.2247 1.43805 14.2356 2.43805C15.0243 3.23805 15.6297 4.16028 16.0518 5.20472C16.4628 6.20472 16.6683 7.24916 16.6683 8.33805C16.6683 9.42694 16.4628 10.4714 16.0518 11.4714C15.6297 12.5158 15.0215 13.4353 14.2273 14.2297C13.433 15.0242 12.5138 15.6325 11.4696 16.0547C10.4699 16.4658 9.42568 16.6714 8.33707 16.6714C7.24845 16.6714 6.20427 16.4658 5.20452 16.0547C4.16034 15.6325 3.23834 15.0269 2.43854 14.2381C1.40547 13.1936 0.694535 11.9714 0.305744 10.5714C-0.0719397 9.21583 -0.0997105 7.84916 0.222431 6.47139L0.272419 6.22139L1.88868 6.63805C1.58876 7.77139 1.58876 8.89917 1.88868 10.0214C2.18861 11.1881 2.76624 12.1992 3.62158 13.0547C4.47692 13.9103 5.48778 14.4881 6.65416 14.7881C7.7761 15.0769 8.89804 15.0769 10.02 14.7881C11.1864 14.4881 12.1972 13.9103 13.0526 13.0547C13.9079 12.1992 14.4855 11.1881 14.7855 10.0214C15.0743 8.89917 15.0743 7.77694 14.7855 6.65472C14.4855 5.48805 13.9079 4.47694 13.0526 3.62139C12.2861 2.85472 11.3863 2.31028 10.3532 1.98805C9.35348 1.66583 8.33151 1.58805 7.28733 1.75472C6.24315 1.92139 5.29339 2.31583 4.43804 2.93805L4.25476 3.07139L5.10454 3.92139L1.27217 4.80472L2.15528 0.971388L3.07172 1.88805ZM9.17019 3.33805V5.00472H11.253V6.67139H6.67082C6.55973 6.67139 6.46254 6.71305 6.37922 6.79639C6.29591 6.87972 6.25426 6.97416 6.25426 7.07972C6.25426 7.18528 6.28758 7.27694 6.35423 7.35472C6.42088 7.4325 6.50419 7.4825 6.60417 7.50472H6.67082H10.0033C10.381 7.50472 10.7281 7.59916 11.0447 7.78805C11.3613 7.97694 11.614 8.22972 11.8029 8.54639C11.9917 8.86305 12.0861 9.21028 12.0861 9.58805C12.0861 9.96583 11.9917 10.3131 11.8029 10.6297C11.614 10.9464 11.3613 11.1992 11.0447 11.3881C10.7281 11.5769 10.381 11.6714 10.0033 11.6714H9.17019V13.3381H7.50394V11.6714H5.42113V10.0047H10.0033C10.1144 10.0047 10.2116 9.96305 10.2949 9.87972C10.3782 9.79639 10.4199 9.70194 10.4199 9.59639C10.4199 9.49083 10.3866 9.39917 10.3199 9.32139C10.2533 9.24361 10.1699 9.19361 10.07 9.17139H10.0033H6.67082C6.29314 9.17139 5.946 9.07694 5.62941 8.88805C5.31282 8.69916 5.06011 8.44639 4.87127 8.12972C4.68243 7.81305 4.58801 7.46583 4.58801 7.08805C4.58801 6.71028 4.68243 6.36305 4.87127 6.04639C5.06011 5.72972 5.31282 5.47694 5.62941 5.28805C5.946 5.09916 6.29314 5.00472 6.67082 5.00472H7.50394V3.33805H9.17019Z" fill="#2C9993" />
                                         </svg>
@@ -165,8 +168,8 @@ export const PaymentCheckoutPage = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-12 text-center">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/50 rounded-full border border-[#CCFBEF]">
+                            <div className="mt-12 ">
+                                <div className="flex items-center gap-2 px-4 py-2 ">
                                     <Info size={16} className="text-[#2C9993]" />
                                     <p className="text-[12px] text-[#475467]">Your payment information is encrypted and secure. We never store your card details.</p>
                                 </div>

@@ -17,10 +17,13 @@ import CountryStateSelect from '../../../components/dropdown/CountryStateSelect'
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
 import CryptoJS from 'crypto-js';
+import confirmFreeAccount from "../../../../public/assets/confirm-free-account.png"
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
+import { ArrowLeft, ArrowRight, Check, Info } from 'lucide-react';
+import StepIndicator from '../../../components/stepIndicator/StepIndicator';
 
 const departmentOptions = [
     { value: "Nutritionist", label: "Nutritionist" },
@@ -30,13 +33,21 @@ const departmentOptions = [
     { value: "Heart Specialist", label: "Heart Specialist" },
 ]
 
+const features = [
+    "Up to 100 customers",
+    "Basic invoicing & billing",
+    "Email support",
+    "Payment processing",
+    "Basic analytics",
+    "Mobile app access"
+]
 type FormFields = z.infer<typeof ProviderSignupSchema>;
 
 export interface ISigninData {
     emailOrUsername: string;
     password: string;
 }
-const ProviderSignup = () => {
+const ConfirmFreeAccount = () => {
     const [isLoading, setIsLoading] = useState(false)
     const joinUser = useSelector((state: RootState) => state?.joinUserSlice?.data)
     console.log("joinUserSlice", joinUser);
@@ -91,7 +102,7 @@ const ProviderSignup = () => {
                 await updateGroupApi(dataSendToBack)
                 dispatch(emptyDataNewJoinUserReducer())
             }
-            navigate("/select-plan")
+            // navigate("/")
         } catch (error: unknown) {
             const err = error as AxiosError<AuthErrorResponse>;
 
@@ -153,76 +164,75 @@ const ProviderSignup = () => {
     return (
         <>
             {isLoading && <Loader />}
-            <AuthLayout heading="Sign up" currentStep={1} totalSteps={2}>
-                <FormProvider {...methods}>
+            <div className='flex min-h-screen items-stretch'>
+                {/* Left Side - Form Section */}
 
-                    <form onSubmit={handleSubmit(signupFunction)}>
-                        <div className='mb-1.5'>
-                            <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                <div className='w-full md:w-1/2 flex flex-col items-center justify-center md:py-8 lg:py-[60px]'>
+                    <StepIndicator currentStep={2} totalSteps={2} />
+                    <div className='w-full md:w-[70%] rounded-[20px]  max-w-screen  bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
+                        <p className='heading text-left mb-4 capitalize'>Confirm Your Free Account</p>
+                        {/* Features */}
+                        <div className={`mt-auto p-6 rounded-[16px] bg-inputBgColor`}>
+                            <ul className="space-y-4">
+                                {features.map((feature, i) => (
+                                    <li key={i} className="flex items-start gap-3">
+                                        <div className="mt-1 shrink-0">
+                                            <Check size={18} className={'text-[#059669]'} strokeWidth={3} />
+                                        </div>
+                                        <span className={`text-[14px] text-[#666666]`}>
+                                            {feature}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                        <div className='mb-1.5'>
-                            <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                        <div className="bg-[#FFFBEB] mt-4 w-full min-h-[107px] rounded-[8px] p-4 pt-6 flex flex-col">
+                            <div className="flex flex-row items-center align-middle gap-2">
+                                <Info size={24} className="text-[#D97706]" />
+                                <p className="text-[16px] font-medium text-[#78350F]">Limited Features Included</p>
+                            </div>
+                            <div className="flex flex-col gap-2 mt-2 ml-6">
+                                <p className="text-[14px] font-normal text-[#78350F]">Your free account includes basic features to get you started. Upgrade anytime to unlock advanced capabilities </p>
+                            </div>
                         </div>
+                        <p className="text-[12px] mt-4 text-[#64748B] text-center max-w-[450px]">
+                            By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+                        </p>
 
-                        {/* <div className='mb-1.5'>
-                            <InputField required
-                                type='text'
-                                label='License Number'
-                                register={register("licenseNo")}
-                                placeHolder='Enter license number.'
-                                error={errors.licenseNo?.message} />
+                        <div className='w-full mt-6 border border-[#E5E7EB]' />
+                        <p className='text-[18px] mt-4 text-[#333333] font-[Poppins] font-medium text-center max-w-[450px]'>
+                            Need more features for your team?
+                        </p>
+                        <button className='flex flex-row items-center justify-center gap-2 w-full mt-4 py-2'>
+                            <p className='text-[16px] font-medium font-[Poppins] text-[#2C9993] cursor-pointer'>View Pricing Plans </p>
+                            <ArrowRight size={18} className={'text-[#2C9993]'} strokeWidth={3} />
+                        </button>
+                    </div>
+                    <div className="w-full md:w-[70%] flex flex-row items-center mt-20 justify-between gap-x-2">
+                        <button className="flex flex-row items-center gap-2 border-[#2C9993] border text-[#2C9993] cursor-pointer hover:text-white hover:bg-[#2C9993] px-4 py-2 rounded-lg">
+                            <ArrowLeft size={18} className={'text-inherit'} strokeWidth={3} />
+                            Back
+                        </button>
+                        <button className="bg-[#2C9993] text-white cursor-pointer hover:bg-[#2C9993]/90 px-4 py-2 rounded-lg">
+                            Start 14-Day Free Trial
+                        </button>
+                    </div>
+                </div>
 
-                        </div> */}
+                {/* Right Side - Image Section */}
+                <div className='hidden md:flex md:w-1/2 bg-primaryColorLight items-center justify-center rounded-bl-[20px] rounded-tl-[20px]'>
+                    <img
+                        src={confirmFreeAccount}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        className='w-full max-h-screen object-cover'
+                    />
 
-                        <div className='mb-1.5'>
-                            <InputField
-                                required
-                                type='text'
-                                label='License Number'
-                                register={register("licenseNo")}
-                                placeHolder='e.g. AB12@cd'
-                                error={errors.licenseNo?.message}
-                            />
-
-                            <p className="text-xs text-gray-500 mt-1">
-                                Must include at least 1 letter, 1 number, and 1 special character (min 6 chars).
-                            </p>
-                        </div>
-
-                        <div className='mb-1.5'>
-                            <Dropdown<FormFields>
-                                name="department"
-                                control={control}
-                                label="Department"
-                                options={departmentOptions}
-                                placeholder="Choose an option"
-                                error={errors.department?.message}
-
-                            />
-                        </div>
-                        {/* 👇 Country & State Dropdown 👇 */}
-                        <CountryStateSelect isCountryView={true} isStateView={false} />
-                        <CountryStateSelect isCountryView={false} isStateView={true} />
-                        <div className='mb-1.5'>
-                            <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
-                        </div>
-
-                        <div className='mb-1.5'>
-                            <InputField required label='Confirm Password' type='password' register={register("confirmPassword")} placeHolder='Enter Confirm Password.' error={errors.confirmPassword?.message} />
-                        </div>
-                        <div className='mt-10'>
-
-                            <Button text='sign up' />
-                        </div>
-
-                        <p className='font-normal labelNormal  text-center mt-8'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }} >Sign in</span></p>
-                    </form>
-                </FormProvider>
-
-
-            </AuthLayout>
+                </div>
+            </div>
         </>
     )
 }
 
-export default ProviderSignup
+export default ConfirmFreeAccount

@@ -1,16 +1,19 @@
-
 import authImage from "../../assets/images/authImage.webp"
+import StepIndicator from "../../components/stepIndicator/StepIndicator";
 
 interface authProps {
     children?: React.ReactNode
     heading?: string
+    currentStep?: number
+    totalSteps?: number
 }
 
 const AuthLayout: React.FC<authProps> = (props) => {
     return (
         <div className='flex min-h-screen items-stretch'>
             {/* Left Side - Form Section */}
-            <div className='w-full md:w-1/2 flex items-center justify-center md:py-8 lg:py-[60px]'>
+            <div className='w-full md:w-1/2 flex flex-col items-center justify-center md:py-8 lg:py-[60px]'>
+                {props.currentStep && <StepIndicator currentStep={props.currentStep} totalSteps={props.totalSteps || 2} />}
                 <div className='w-full md:w-[70%] rounded-[20px]  max-w-screen  bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
                     <p className='heading text-center mb-4 capitalize'>{props.heading}</p>
                     {props.children}

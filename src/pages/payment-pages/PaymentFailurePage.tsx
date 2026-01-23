@@ -9,14 +9,14 @@ export const PaymentFailurePage = () => {
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
             {/* Custom Header (Consistent with Success Page) */}
-            <header className="bg-white px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+            <header className="bg-white px-4 md:px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
                 {/* Logo Section */}
                 <div className="flex items-center gap-2">
                     <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
                 </div>
 
                 {/* Search Bar */}
-                <div className="flex-1 max-w-[600px] mx-10">
+                <div className="flex-1 max-w-[600px] mx-4 md:mx-10 hidden md:block">
                     <div className="relative group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
                         <input
@@ -41,8 +41,8 @@ export const PaymentFailurePage = () => {
             </header>
 
             {/* Main Content Area */}
-            <main className="max-w-[1280px] mx-auto px-6 py-20 lg:py-32">
-                <div className="bg-white rounded-[32px] shadow-sm p-12 md:p-16 flex flex-col items-center max-w-[800px] mx-auto">
+            <main className="w-full mx-auto px-4 md:px-6 py-12 lg:py-32 flex justify-center">
+                <div className="bg-white rounded-[24px] md:rounded-[32px] shadow-sm p-8 md:p-16 flex flex-col items-center w-full max-w-[1474px] mx-auto">
 
                     {/* Failure Icon */}
                     <div className="relative mb-8">
@@ -72,8 +72,8 @@ export const PaymentFailurePage = () => {
                         </svg>
                     </div>
 
-                    <h1 className="text-[30px] md:text-[36px] font-bold text-[#101828] mb-4">Payment Failed</h1>
-                    <p className="text-[16px] md:text-[18px] text-[#667085] text-center mb-10 leading-relaxed max-w-[650px]">
+                    <h1 className="text-[28px] md:text-[36px] font-bold text-[#101828] mb-4 text-center">Payment Failed</h1>
+                    <p className="text-[15px] md:text-[18px] text-[#667085] text-center mb-10 leading-relaxed max-w-[650px]">
                         We couldn't process your payment. This might be due to insufficient funds,
                         an expired card, or your bank declining the transaction.
                         Please try again or use a different payment method.
@@ -83,13 +83,13 @@ export const PaymentFailurePage = () => {
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
                         <button
                             onClick={() => navigate("/dashboard")}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white text-[#101828] font-medium text-[20px] hover:bg-[#F9FAFB] transition-all cursor-pointer"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white text-[#101828] font-medium text-[18px] md:text-[20px] hover:bg-[#F9FAFB] transition-all cursor-pointer"
                         >
                             <span>Go to Home</span>
                         </button>
                         <button
                             onClick={() => navigate("/billing/change-plan")}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl bg-[#2C9993] text-white font-medium text-[20px] hover:bg-[#237c76] shadow-lg shadow-[#2c9993]/20 transition-all cursor-pointer"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl bg-[#2C9993] text-white font-medium text-[18px] md:text-[20px] hover:bg-[#237c76] shadow-lg shadow-[#2c9993]/20 transition-all cursor-pointer"
                         >
                             <span>Retry Payment</span>
                         </button>

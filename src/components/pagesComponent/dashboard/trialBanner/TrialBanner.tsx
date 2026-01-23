@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import FreeTrailEndedModal from '../../../modals/providerModal/free-trail-end/FreeTrailEndedModal';
 import UnlockPremiumModal from '../../../modals/UnlockPremiumModal';
+import DeleteProviderModal from '../../../modals/DeleteProviderModal';
 
 const TrialBanner: React.FC = () => {
     const [isVisible, setIsVisible] = useState(true);
@@ -10,7 +10,7 @@ const TrialBanner: React.FC = () => {
 
     return (
         <>
-            <div className="w-full bg-[#FFE0B2] rounded-[12px] p-6 mb-6 flex items-center justify-between">
+            <div className="w-full bg-[#FFE0B2]/30 border-[#FFE0B2]/30 border-3 rounded-[24px] p-6 mb-6 flex items-center justify-between">
                 <div className="flex-1">
                     <h2 className="text-[24px] font-semibold text-[#8A5A00] font-[Poppins] mb-2">
                         Your free trial ends in 3 days
@@ -146,7 +146,7 @@ const TrialBanner: React.FC = () => {
                 </div>
             </div>
             {showTrialEndModal && (
-                <UnlockPremiumModal onClose={() => setShowTrialEndModal(false)} />
+                <DeleteProviderModal onClose={() => setShowTrialEndModal(false)} />
             )}
         </>
     );

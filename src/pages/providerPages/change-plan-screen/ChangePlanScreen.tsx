@@ -117,7 +117,6 @@ export default function ChangePlanScreen() {
             </OutletLayout>
 
             {/* Pricing Selection Section */}
-
             <div className="px-[30px] flex flex-col items-center bg-white pt-4 rounded-2xl pb-[44px]">
                 <h2 className="text-[32px] font-semibold text-[#101828] font-[Poppins] self-start mb-8">Ready to Change Your Plan?</h2>
 

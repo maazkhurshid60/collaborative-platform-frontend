@@ -7,16 +7,18 @@ import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
-import TransactionDetailByUserId from "../pages/superadminPages/transaction-detail/TransactionDetailByUserId";
+import TransactionDetailByUserId from "../pages/superadminPages/transaction-detail/RefundDetailByUserId";
 import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDetail";
 import SubscriptionPage from "../pages/superadminPages/subscription/SubscriptionPage";
 import BilingPage from "../pages/providerPages/biling/BilingPage";
 import ChangePlanScreen from "../pages/providerPages/change-plan-screen/ChangePlanScreen";
 import SubscriptionSettingPage from "../pages/providerPages/subscription-setting/SubscriptionPage";
-import RefundTransaction from "../pages/superadminPages/transaction-detail/TransactionDetailByUserId";
+import RefundTransaction from "../pages/superadminPages/transaction-detail/RefundDetailByUserId";
 import PaymentSuccessPage from "../pages/payment-pages/PaymentSuccessPage";
 import { PaymentFailurePage } from "../pages/payment-pages/PaymentFailurePage";
 import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage";
+import ConfirmFreeAccount from "../pages/auth/confirmFreeAccount/ConfirmFreeAccount";
+import SelectPlan from "../pages/payment-pages/SelectPlan";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
@@ -56,7 +58,9 @@ const Routing = () => {
             <Route path="/payment-checkout" element={<WrappedRoute><PaymentCheckoutPage /></WrappedRoute>} />
 
             < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
-            < Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
+            <Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
+            <Route path="/confirm-free-account" element={<WrappedRoute><ConfirmFreeAccount /></WrappedRoute>} />
+            <Route path="/select-plan" element={<WrappedRoute><SelectPlan /></WrappedRoute>} />
             {/* Implementation of payment module */}
             {/* <Route path="/free-trail-form" element={<WrappedRoute><FreeTrailForm /></WrappedRoute>} />
             <Route path="/pricing-plan" element={<WrappedRoute><PricingPlan /></WrappedRoute>} />

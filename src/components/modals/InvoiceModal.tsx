@@ -100,7 +100,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                         <div className="flex justify-between items-start mb-12">
                             <div className="flex flex-col gap-2">
                                 <img src={logo} alt="Kolabme" className="h-10 w-fit object-contain mb-2" />
-                                <div className="text-sm text-gray-500 space-y-1">
+                                <div className="text-sm text-gray-500 font-normal font-[Poppins] space-y-1">
                                     <p>123 Business Street</p>
                                     <p>San Francisco, CA 94102</p>
                                     <p>support@example.com</p>
@@ -108,7 +108,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                             </div>
                             <div className="text-right">
                                 <h1 className="text-3xl font-bold text-gray-900 mb-4">INVOICE</h1>
-                                <div className="text-sm text-gray-600 space-y-1">
+                                <div className="text-sm text-gray-600 font-normal font-[Poppins] space-y-1">
                                     <p><span className="font-medium text-gray-500">Invoice #:</span> {invoice.invoiceNo}</p>
                                     <p><span className="font-medium text-gray-500">Date:</span> {invoice.date}</p>
                                     <p><span className="font-medium text-gray-500">Due Date:</span> {invoice.dueDate}</p>
@@ -117,9 +117,9 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                         </div>
                         {/* Bill To */}
                         <div className="mb-8">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Bill To:</h3>
+                            <h3 className="text-lg font-bold font-[Poppins] text-gray-900 mb-2">Bill To:</h3>
                             <div className="text-sm text-gray-600">
-                                <p className="font-medium text-gray-900">{invoice.billTo.name}</p>
+                                <p className="font-medium font-[Poppins] text-gray-900">{invoice.billTo.name}</p>
                                 <p>{invoice.billTo.email}</p>
                                 <p>{invoice.billTo.address}</p>
                                 <p>{invoice.billTo.city}</p>
