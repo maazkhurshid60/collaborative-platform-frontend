@@ -7,7 +7,6 @@ import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
-import TransactionDetailByUserId from "../pages/superadminPages/transaction-detail/RefundDetailByUserId";
 import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDetail";
 import SubscriptionPage from "../pages/superadminPages/subscription/SubscriptionPage";
 import BilingPage from "../pages/providerPages/biling/BilingPage";
@@ -75,12 +74,12 @@ const Routing = () => {
 
 
 
-            < Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
-            < Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
+            <Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
+            <Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
-            < Route path="/signup-with-license" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
-            < Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
-            < Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
+            <Route path="/signup-with-license" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
+            <Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
+            <Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
 
             {/* Protected Routes */}
             <Route

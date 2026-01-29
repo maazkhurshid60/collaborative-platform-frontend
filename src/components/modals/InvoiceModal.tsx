@@ -80,35 +80,36 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
             <div className="flex min-h-full justify-center p-4">
-                <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
+                <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
                     {/* Modal Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                        <h2 className="text-xl font-semibold text-gray-800">Invoice</h2>
+                    <div className="flex items-center justify-between  p-4 border-b border-gray-100">
+                        <div className='flex items-center gap-2 w-1/2 ml-12 justify-end'>
+                            <h2 className="text-[24px] font-[Poppins] font-semibold text-gray-800">Invoice</h2>
+                        </div>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                            className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
                         >
                             <X size={24} className="text-gray-500" />
                         </button>
                     </div>
-
                     {/* Invoice Content (Target for PDF) */}
-                    <div className="p-8 bg-white" ref={invoiceRef}>
+                    <div className="p-5 bg-white" ref={invoiceRef}>
                         {/* Header Section */}
-                        <div className="flex justify-between items-start mb-12">
-                            <div className="flex flex-col gap-2">
-                                <img src={logo} alt="Kolabme" className="h-10 w-fit object-contain mb-2" />
-                                <div className="text-sm text-gray-500 font-normal font-[Poppins] space-y-1">
+                        <div className="flex justify-between items-start mb-6">
+                            <div className="flex flex-col gap-1">
+                                <img src={logo} alt="Kolabme" className="h-7 w-fit object-contain mb-1" />
+                                <div className="text-xs text-gray-500 font-normal font-[Poppins] space-y-0.5">
                                     <p>123 Business Street</p>
                                     <p>San Francisco, CA 94102</p>
                                     <p>support@example.com</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <h1 className="text-3xl font-bold text-gray-900 mb-4">INVOICE</h1>
-                                <div className="text-sm text-gray-600 font-normal font-[Poppins] space-y-1">
+                                <h1 className="text-xl font-bold text-gray-900 mb-1">INVOICE</h1>
+                                <div className="text-[10px] text-gray-600 font-normal font-[Poppins] space-y-0.5">
                                     <p><span className="font-medium text-gray-500">Invoice #:</span> {invoice.invoiceNo}</p>
                                     <p><span className="font-medium text-gray-500">Date:</span> {invoice.date}</p>
                                     <p><span className="font-medium text-gray-500">Due Date:</span> {invoice.dueDate}</p>
@@ -116,19 +117,18 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                             </div>
                         </div>
                         {/* Bill To */}
-                        <div className="mb-8">
-                            <h3 className="text-lg font-bold font-[Poppins] text-gray-900 mb-2">Bill To:</h3>
-                            <div className="text-sm text-gray-600">
+                        <div className="mb-4">
+                            <h3 className="text-sm font-bold font-[Poppins] text-gray-900 mb-0.5">Bill To:</h3>
+                            <div className="text-[11px] text-gray-600">
                                 <p className="font-medium font-[Poppins] text-gray-900">{invoice.billTo.name}</p>
                                 <p>{invoice.billTo.email}</p>
-                                <p>{invoice.billTo.address}</p>
-                                <p>{invoice.billTo.city}</p>
+                                <p>{invoice.billTo.address} {invoice.billTo.city}</p>
                             </div>
                         </div>
 
                         {/* Items Table */}
-                        <div className="bg-gray-50 rounded-lg p-6 mb-8">
-                            <div className="grid grid-cols-12 gap-4 text-sm font-bold text-gray-900 mb-4 pb-4 border-b border-gray-200">
+                        <div className="bg-inputBgColor rounded-[8px] p-4 mb-4">
+                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold text-gray-900 mb-2 pb-2 border-b border-gray-200">
                                 <div className="col-span-5">Description</div>
                                 <div className="col-span-2 text-center">Qty</div>
                                 <div className="col-span-2 text-right">Price</div>
@@ -136,16 +136,16 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                                 <div className="col-span-1 text-right">Status</div>
                             </div>
                             {invoice.items.map((item, idx) => (
-                                <div key={idx} className="grid grid-cols-12 gap-4 text-sm text-gray-600 items-center py-2">
+                                <div key={idx} className="grid grid-cols-12 gap-2 text-[10px] text-gray-600 items-center py-1">
                                     <div className="col-span-5">
                                         <p className="font-semibold text-gray-900">{item.description}</p>
-                                        <p className="text-xs text-gray-500">{item.subtext}</p>
+                                        <p className="text-[9px] text-gray-500">{item.subtext}</p>
                                     </div>
-                                    <div className="col-span-2 text-center  font-medium">{item.qty}</div>
+                                    <div className="col-span-2 text-center font-medium">{item.qty}</div>
                                     <div className="col-span-2 text-right">{item.price}</div>
                                     <div className="col-span-2 text-right text-gray-900 font-medium">{item.amount}</div>
                                     <div className="col-span-1 text-right">
-                                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">
+                                        <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[9px] font-medium">
                                             {item.status}
                                         </span>
                                     </div>
@@ -154,29 +154,27 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                         </div>
 
                         {/* Totals */}
-                        <div className="flex flex-col items-start justify-between w-full  mb-12">
-                            <div className="w-full space-y-3">
-                                <div className="flex justify-between items-center text-sm text-gray-600">
+                        <div className="flex flex-col items-start justify-between w-full mb-4">
+                            <div className="w-full space-y-1.5">
+                                <div className="flex justify-between items-center text-[10px] text-gray-600">
                                     <span>Subtotal:</span>
                                     <span>{invoice.subtotal}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm text-gray-600">
+                                <div className="flex justify-between items-center text-[10px] text-gray-600">
                                     <span>Tax (0%):</span>
                                     <span>{invoice.tax}</span>
                                 </div>
-                                <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-200">
+                                <div className="flex justify-between text-base font-bold pt-2 border-t border-gray-200">
                                     <span>Total:</span>
                                     <span className=' text-teal-600 font-normal font-[poppins]'>{invoice.total}</span>
                                 </div>
-                                <div className="flex justify-between text-lg font-bold pt-3 border-t border-gray-200" />
-
                             </div>
                         </div>
 
                         {/* Footer / Notes */}
-                        <div className="text-sm text-gray-600">
-                            <h4 className="font-bold text-gray-900 mb-2">Notes:</h4>
-                            <p className="leading-relaxed">{invoice.notes}</p>
+                        <div className="text-[10px] text-gray-600">
+                            <h4 className="font-bold text-gray-900 mb-1">Notes:</h4>
+                            <p className="leading-tight">{invoice.notes}</p>
                         </div>
                     </div>
 

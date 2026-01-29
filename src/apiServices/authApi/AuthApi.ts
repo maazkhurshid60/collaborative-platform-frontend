@@ -46,8 +46,6 @@ class AuthService {
 
         }
     }
-
-
     async resetPassword(token: string, password: string) {
         try {
             const response = await this.api.patch(`/reset-password/${token}`, { newPassword: password });
@@ -57,8 +55,6 @@ class AuthService {
             throw error || "Reset password failed";
         }
     }
-
-
     async findLicenseNo(data: LicenseNoData) {
 
 
@@ -70,7 +66,6 @@ class AuthService {
 
         }
     }
-
     async signup(data: unknown) {
 
         try {
@@ -82,6 +77,15 @@ class AuthService {
 
             throw error || "Sign up failed";
 
+        }
+    }
+    async verifyInvitation(token: string) {
+        try {
+            const response = await this.api.post("/verify-invitation", { token });
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error verifyInvitation", error);
+            throw error || "Verification failed";
         }
     }
 

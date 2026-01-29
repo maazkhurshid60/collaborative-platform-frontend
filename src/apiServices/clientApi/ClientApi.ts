@@ -3,6 +3,11 @@ import axiosInstance from "../axiosInstance/AxiosInstance";
 import { ClientType } from "../../types/clientType/ClientType";
 import { isAxiosError } from "axios";
 import { selectedClientIdType } from "../../pages/providerPages/clients/Clients";
+import { baseUrl } from "../../apiServices/baseUrl/BaseUrl";
+import { getApiBaseUrl } from "../config/api";
+
+const API_BASE_URL = getApiBaseUrl();
+
 
 class ClientApiService {
     private api = axiosInstance
@@ -10,7 +15,7 @@ class ClientApiService {
     async getAllTotalClient() {
         try {
 
-            const response = await this.api.get("/client/get-total-clients")
+            const response = await this.api.get(`${API_BASE_URL}/client/get-total-clients`)
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
@@ -21,7 +26,7 @@ class ClientApiService {
     async getAllClient(loginUserId: string) {
         try {
 
-            const response = await this.api.post("/client/get-all-clients", { loginUserId })
+            const response = await this.api.post(`${API_BASE_URL}/client/get-all-clients`, { loginUserId })
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
@@ -31,7 +36,7 @@ class ClientApiService {
     async deleteClientApi(data: selectedClientIdType) {
         try {
 
-            const response = await this.api.delete("/client/delete-client", { data: { clientId: data?.clientId, providerId: data?.providerId } })
+            const response = await this.api.delete(`${API_BASE_URL}/client/delete-client`, { data: { clientId: data?.clientId, providerId: data?.providerId } })
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
@@ -41,7 +46,7 @@ class ClientApiService {
     async updateClientApi(data: FormData) {
 
         try {
-            const response = await this.api.patch("/client/update-client", data, {
+            const response = await this.api.patch(`${API_BASE_URL}/client/update-client`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -58,7 +63,7 @@ class ClientApiService {
     async addClientApi(data: FormData) {
 
         try {
-            const response = await this.api.post("/client/add-client", data, {
+            const response = await this.api.post(`${API_BASE_URL}/client/add-client`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -78,7 +83,7 @@ class ClientApiService {
     async addExistingClientToProvider(data: FormData) {
 
         try {
-            const response = await this.api.post("/client/add-existing-client-to-provider", data, {
+            const response = await this.api.post(`${baseUrl}/client/add-existing-client-to-provider`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -99,7 +104,7 @@ class ClientApiService {
     async updateExistingClientApi(data: ClientType) {
 
         try {
-            const response = await this.api.patch("/client/update-existing-client", data);
+            const response = await this.api.patch(`${API_BASE_URL}/client/update-existing-client`, data);
             return response.data;
         } catch (error: unknown) {
 

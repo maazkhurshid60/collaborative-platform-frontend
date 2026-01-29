@@ -47,7 +47,7 @@ const Login = () => {
             const response = await authService.login(data);
 
             const userData = response?.data?.user;
-            if (userData?.user?.isApprove === "pending") {
+            if (userData?.user?.isApprove === "pending" && userData?.user?.role !== "provider") {
                 toast.error("Your account has not been approved or verified by the super admin yet. Please check your email for the verification link.");
                 navigate("/");
                 return;

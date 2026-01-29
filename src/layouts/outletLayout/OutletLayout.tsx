@@ -7,7 +7,7 @@ interface OutletLayoutProps {
     button?: React.ReactNode
     heading?: string
     isWhiteColor?: boolean
-    backButton?: React.ReactNode // Add a new prop for back button
+    backButton?: React.ReactNode
     isEdit?: boolean
 }
 

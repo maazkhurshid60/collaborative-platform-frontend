@@ -61,6 +61,8 @@ const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({ onClo
                                     <feFlood flood-opacity="0" result="BackgroundImageFix" />
                                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                                     <feOffset dy="2.37992" />
+
+
                                     <feGaussianBlur stdDeviation="1.58661" />
                                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0" />
                                     <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2676_4137" />

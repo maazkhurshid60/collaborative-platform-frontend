@@ -11,6 +11,7 @@ export interface ChatChannelType {
     members?: Member[]
     lastMessage?: LastMessage
     unreadCount?: number | string
+    isPinned?: boolean
 }
 
 export interface LastMessage {

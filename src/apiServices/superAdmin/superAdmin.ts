@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "../config/api";
+
 export type SuperAdminMeResponse = {
   id: string;
   email: string;
@@ -14,7 +16,7 @@ export type UpdateSuperAdminPayload = {
   address?: string;
   country?: string;
   state?: string;
-  email?: string; 
+  email?: string;
 };
 
 export async function fetchSuperAdmin(): Promise<SuperAdminMeResponse> {
@@ -26,7 +28,7 @@ export async function fetchSuperAdmin(): Promise<SuperAdminMeResponse> {
   }
 
   const res = await fetch(
-    `${import.meta.env.VITE_LOCAL_BASE_URL}/super-admin/first`,
+    `${getApiBaseUrl()}/super-admin/first`,
     {
       method: "GET",
       headers: {
@@ -58,7 +60,7 @@ export async function updateSuperAdmin(
   }
 
   const res = await fetch(
-    `${import.meta.env.VITE_LOCAL_BASE_URL}/super-admin/${id}`,
+    `${getApiBaseUrl()}/super-admin/${id}`,
     {
       method: "PATCH",
       headers: {
@@ -73,9 +75,8 @@ export async function updateSuperAdmin(
     // Backend returns 400 for "No fields provided" and 404 for "not found"
     const text = await res.text().catch(() => "");
     throw new Error(
-      `Failed to update super admin: ${res.status} ${
-        text || res.statusText
-      }`.trim()
+      `Failed to update super admin: ${res.status} ${text || res.statusText
+        }`.trim()
     );
   }
 

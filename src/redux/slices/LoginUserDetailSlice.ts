@@ -1,8 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-
-
-
 const initialState = {
     searchByLicenseNo: "",
     decryptedPrivateKey: null as Uint8Array | null,
@@ -31,7 +27,7 @@ const initialState = {
             role: "",
             status: null,
             updatedAt: "",
-            isApprove: false
+            isApprove: ""
         }
     },
     licenseNoResult: {
@@ -46,7 +42,7 @@ const initialState = {
         status: null,
         isClientExist: false,
         isAccountCreatedByOwnClient: true,
-        isApprove: false,
+        isApprove: "",
         state: "",
         country: ""
     }
@@ -82,7 +78,7 @@ const LoginUserDetail = createSlice({
                 status: null,
                 isClientExist: false,
                 isAccountCreatedByOwnClient: true,
-                isApprove: false,
+                isApprove: "",
                 state: "",
                 country: ""
             }
@@ -111,7 +107,7 @@ const LoginUserDetail = createSlice({
                     role: "",
                     status: null,
                     updatedAt: "",
-                    isApprove: false
+                    isApprove: ""
                 }
             }
             state.decryptedPrivateKey = null;

@@ -36,16 +36,25 @@ const InviteProviderModal: React.FC<InviteProviderModalProps> = ({ onClose }) =>
     try {
       setIsSending(true);
 
-      await inviteApiService.inviteProviderSignup({
-        invitationEmail: trimmed,
-        invitedByUserId: loginUserId,
-      });
+      const res =
+        await inviteApiService.inviteProviderSignup({
+          invitationEmail: trimmed,
+          invitedByUserId: loginUserId,
+        });
 
-      toast.success("Invitation email sent");
-      setEmail("");
 
-      // ✅ Close modal after success (optional)
-      onClose?.();
+      if (res.success) {
+        toast.success("Invitation email sent successfully");
+        setEmail("");
+        // ✅ Close modal after success (optional)
+        onClose?.();
+      }
+      else if (res.statusCode === 409) {
+        toast.error("Provider is already on the platform");
+      }
+      else {
+        toast.error(res.message || "Failed to send invitation");
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to send invitation");
     } finally {

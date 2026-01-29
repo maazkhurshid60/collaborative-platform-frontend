@@ -37,10 +37,12 @@ export interface ISigninData {
     password: string;
 }
 const ProviderSignup = () => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
     const [isLoading, setIsLoading] = useState(false)
     const joinUser = useSelector((state: RootState) => state?.joinUserSlice?.data)
-    console.log("joinUserSlice", joinUser);
-
+    const [invitedByName, setInvitedByName] = useState<string | null>(null);
+    const [isVerified, setIsVerified] = useState(false);
 
     const methods = useForm<FormFields>({
         resolver: zodResolver(ProviderSignupSchema),
@@ -51,18 +53,43 @@ const ProviderSignup = () => {
     const { register, handleSubmit, formState: { errors }, setValue, control } = methods;
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    //FUNCTIONS
+
+    // 1️⃣ Verify token on mount and pre-fill email
+    useEffect(() => {
+        const verifyToken = async () => {
+            if (token) {
+                setIsLoading(true);
+                try {
+                    const response = await authService.verifyInvitation(token);
+                    if (response?.data?.email) {
+                        setValue("email", response.data.email);
+                        setInvitedByName(response.data.invitedByName);
+                        setIsVerified(true);
+                    }
+                } catch (error: any) {
+                    console.error("Invitation verification failed", error);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        if (joinUser?.memberEmail) {
+            setValue("email", joinUser.memberEmail);
+            setIsVerified(true);
+        } else {
+            verifyToken();
+        }
+    }, [token, setValue, joinUser]);
+
+    // 2️⃣ Signup Function
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
-        // 1️⃣ Generate key pair
         const keyPair = nacl.box.keyPair();
         const publicKey = naclUtil.encodeBase64(keyPair.publicKey);
         const privateKey = naclUtil.encodeBase64(keyPair.secretKey);
-
-        // 2️⃣ Encrypt private key using user's password
         const encryptedPrivateKey = CryptoJS.AES.encrypt(privateKey, data.password).toString();
 
-        // 3️⃣ Combine all fields including public + encrypted private key
         const dataSendToBackend = {
             email: data.email,
             fullName: data.fullName,
@@ -75,13 +102,9 @@ const ProviderSignup = () => {
             role: "provider",
             publicKey: publicKey,
             privateKey: encryptedPrivateKey,
+            inviteToken: token || undefined,
         };
 
-
-        console.log("log", dataSendToBackend);
-
-
-        // const dataSendToBackend = { email: data?.email, isApprove: "pending", password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, department: data?.department, role: "provider", country: data?.country, state: data?.state };
 
         try {
             const response = await authService.signup(dataSendToBackend);
@@ -91,7 +114,7 @@ const ProviderSignup = () => {
                 await updateGroupApi(dataSendToBack)
                 dispatch(emptyDataNewJoinUserReducer())
             }
-            navigate("/select-plan")
+            navigate("/dashboard")
         } catch (error: unknown) {
             const err = error as AxiosError<AuthErrorResponse>;
 
@@ -108,18 +131,16 @@ const ProviderSignup = () => {
             const response = await messageApiService.updateGroupApi(dataSendToBack)
 
             console.log(response);
-            toast.success('You have joined the group. Please login yourself and go chat for more information once you verified in next 24hours .')
+            toast.success('You have joined the group. Please login to continue.')
 
         } catch (err) {
             console.error("❌:", err);
 
             let errorMessage = "Error loading messages.";
 
-            // If err is an Error object (normal case)
             if (err instanceof Error) {
                 errorMessage = err.message;
             }
-            // If err was thrown as a string
             else if (typeof err === "string") {
                 errorMessage = err;
             }
@@ -128,26 +149,8 @@ const ProviderSignup = () => {
 
             const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
             dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
-            // console.error('❌:', err);
-
-            // // If error contains a specific message, show it in the toast
-            // if (err) {
-            //     toast.error(err || 'Error loading messages.');
-            //     const newJoinDataSendToBack = { ...dataSendToBack, isNewJoin: true }
-
-            //     dispatch(addDataNewJoinUserReducer(newJoinDataSendToBack))
-
-            // }
         }
     }
-
-    useEffect(() => {
-
-        if (joinUser?.memberEmail) {
-            setValue("email", joinUser.memberEmail)
-        }
-
-    }, [joinUser])
 
 
     return (
@@ -157,11 +160,16 @@ const ProviderSignup = () => {
                 <FormProvider {...methods}>
 
                     <form onSubmit={handleSubmit(signupFunction)}>
+                        {invitedByName && (
+                            <p className="text-sm text-greenColor mb-4 text-center">
+                                Invited by <b>{invitedByName}</b>
+                            </p>
+                        )}
                         <div className='mb-1.5'>
                             <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
                         </div>
                         <div className='mb-1.5'>
-                            <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                            <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} disabled={isVerified} />
                         </div>
 
                         {/* <div className='mb-1.5'>
