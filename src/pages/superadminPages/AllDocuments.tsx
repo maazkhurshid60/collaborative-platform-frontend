@@ -341,7 +341,10 @@ function previewTypeByExt(url: string): PreviewType {
 
 async function previewTypeByHead(url: string): Promise<PreviewType> {
   try {
-    const head = await fetch(url, { method: "HEAD" });
+    const head = await fetch(url, {
+      method: "HEAD",
+      credentials: 'include'
+    });
     const ct = (head.headers.get("content-type") || "").toLowerCase();
 
     if (ct.startsWith("image/")) return "image";
@@ -400,17 +403,17 @@ const AllDocuments = () => {
   // });
 
   const { data: documentData = [], isLoading, isFetching } = useQuery({
-  queryKey: ["documents", clientId],
-  enabled: Boolean(clientId),
-  queryFn: async () => {
-    const response = await documentApiService.getAllDocuments(clientId);
+    queryKey: ["documents", clientId],
+    enabled: Boolean(clientId),
+    queryFn: async () => {
+      const response = await documentApiService.getAllDocuments(clientId);
 
-    console.log("✅ getAllDocuments raw response:", response);
-    console.log("✅ allDocuments array:", response?.data?.data?.allDocuments);
+      console.log("✅ getAllDocuments raw response:", response);
+      console.log("✅ allDocuments array:", response?.data?.data?.allDocuments);
 
-    return response?.data?.data?.allDocuments || [];
-  },
-});
+      return response?.data?.data?.allDocuments || [];
+    },
+  });
 
 
   const filteredDocuments = useMemo(() => {
@@ -448,6 +451,7 @@ const AllDocuments = () => {
         setSelectedDocHtml(`
           <div style="display:flex;justify-content:center;align-items:center;width:100%;">
             <img src="${fileUrl}" alt="Document preview"
+              crossorigin="use-credentials"
               style="max-width:100%;height:auto;border-radius:8px;" />
           </div>
         `);
@@ -468,7 +472,9 @@ const AllDocuments = () => {
         setPreviewKind("html");
         setSelectedPdfUrl("");
 
-        const res = await fetch(fileUrl);
+        const res = await fetch(fileUrl, {
+          credentials: 'include'
+        });
         if (!res.ok) throw new Error(`Unable to fetch document (HTTP ${res.status}).`);
 
         const arrayBuffer = await res.arrayBuffer();

@@ -47,7 +47,7 @@ const Clients = () => {
   const heading = [
     "S.No",
     "Name",
-    "License Number",
+    "Client Id",
     "Gender",
     "Email",
     "Status",
@@ -192,7 +192,7 @@ const Clients = () => {
                     <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.fullName}</td>
 
                     {/* License */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.licenseNo}</td>
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.id}</td>
 
                     {/* Gender */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">{data?.user?.gender}</td>

@@ -1,0 +1,42 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "Junaid",
+    "Junaid-db",
+    "Junaid-temp",
+    "bugs-fixing",
+    "feat/subscription-sync-automation",
+    "feature/uzair-updates",
+    "hamza-temp",
+    "junaid",
+    "junaid-db",
+    "main",
+    "zohaib"
+  ],
+  "parent": {
+    "Junaid": "main",
+    "Junaid-db": "Junaid",
+    "Junaid-temp": "Junaid",
+    "bugs-fixing": "main",
+    "feat/subscription-sync-automation": "main",
+    "feature/uzair-updates": "main",
+    "hamza-temp": "main",
+    "junaid": "main",
+    "junaid-db": "junaid",
+    "main": null,
+    "zohaib": "main"
+  },
+  "order": [
+    "main",
+    "Junaid",
+    "bugs-fixing",
+    "feat/subscription-sync-automation",
+    "feature/uzair-updates",
+    "hamza-temp",
+    "junaid",
+    "zohaib",
+    "Junaid-db",
+    "Junaid-temp",
+    "junaid-db"
+  ]
+}

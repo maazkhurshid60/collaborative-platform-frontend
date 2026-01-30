@@ -20,6 +20,7 @@ import CryptoJS from 'crypto-js';
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
+import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 
 const departmentOptions = [
@@ -109,6 +110,37 @@ const ProviderSignup = () => {
         try {
             const response = await authService.signup(dataSendToBackend);
             toast.success(response?.message);
+
+            const token = response?.data?.token;
+            const userData = response?.data?.user;
+
+            if (token && userData) {
+                // Save token
+                localStorage.setItem("token", token);
+
+                // Decrypt and save private key (consistent with Login flow)
+                const encryptedPrivateKey = userData?.user?.privateKey;
+                if (encryptedPrivateKey) {
+                    try {
+                        const decryptedKeyString = CryptoJS.AES.decrypt(encryptedPrivateKey, data.password).toString(CryptoJS.enc.Utf8);
+                        const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
+                        const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
+                        dispatch(saveDecryptedPrivateKey(base64Key));
+                    } catch (decryptError) {
+                        console.error("Failed to decrypt private key during auto-login:", decryptError);
+                    }
+                }
+
+                // Prepare user data (handle potential clientList nesting)
+                const fixedUserData = {
+                    ...userData,
+                    clientList: userData?.clientList?.map((item: any) => item.client) || []
+                };
+
+                // Save user details to Redux
+                dispatch(saveLoginUserDetailsReducer(fixedUserData));
+            }
+
             if (joinUser?.isNewJoin) {
                 const dataSendToBack = { groupId: joinUser?.groupId, memberEmail: joinUser?.memberEmail }
                 await updateGroupApi(dataSendToBack)

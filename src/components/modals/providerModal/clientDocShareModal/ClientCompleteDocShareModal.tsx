@@ -33,7 +33,9 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         const loadDocx = async () => {
             if (!completedDoc?.url) return;
             try {
-                const response = await fetch(completedDoc.url);
+                const response = await fetch(completedDoc.url, {
+                    credentials: 'include'
+                });
                 if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
 
                 const arrayBuffer = await response.arrayBuffer();
@@ -141,7 +143,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                                 key={record.id}
                                                 src={record.eSignature}
                                                 alt="eSignature"
-                                                crossOrigin="anonymous"
+                                                crossOrigin="use-credentials"
                                                 className="w-[400px] h-[200px] border rounded shadow mt-4"
                                                 onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                                             />

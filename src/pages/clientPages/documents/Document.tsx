@@ -67,7 +67,9 @@ const Document = () => {
         try {
 
 
-            const response = await fetch(fileUrl);
+            const response = await fetch(fileUrl, {
+                credentials: 'include'
+            });
             if (!response.ok) throw new Error("File not found");
 
             const blob = await response.blob();
@@ -116,7 +118,9 @@ const Document = () => {
                 const fileUrl = value?.document?.url && value?.document?.url.startsWith("http") && value?.document?.url;
 
                 if (fileUrl) {
-                    const response = await fetch(fileUrl);
+                    const response = await fetch(fileUrl, {
+                        credentials: 'include'
+                    });
                     if (!response.ok) throw new Error("File not found");
 
                     const arrayBuffer = await response.arrayBuffer();
@@ -166,14 +170,14 @@ const Document = () => {
                     />                </div>
             </div>
 
-            <div className='mt-10 w-[100%]'>
+            <div className='mt-10 w-full'>
                 {getCurrentRecords()?.length === 0 ? <NoRecordFound />
                     : <>
 
                         <Table heading={heading} >
                             {getCurrentRecords()?.map((data: DocumentType, id: number) => (
 
-                                <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
+                                <tr key={id} className={`border-b border-b-solid border-b-lightGreyColor pb-4`}>
                                     <td className="px-2 py-2 font-semibold">{data?.document?.name}</td>
                                     <td className="px-2 py-2">{data?.document?.type ? data?.document?.type : "Questionaire"}</td>
                                     <td className="px-2 py-2 ">
@@ -196,7 +200,11 @@ const Document = () => {
 
                                             {/* <UserIcon /> */}
                                             {(data?.provider?.user?.profileImage !== null && data?.provider?.user?.profileImage !== "null") ?
-                                                <img className='w-10 h-10 rounded-full object-cover' src={data?.provider?.user?.profileImage ? data?.provider?.user?.profileImage : undefined} />
+                                                <img
+                                                    className='w-10 h-10 rounded-full object-cover'
+                                                    src={data?.provider?.user?.profileImage ? data?.provider?.user?.profileImage : undefined}
+                                                    crossOrigin="use-credentials"
+                                                />
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
                                                 <p>{data?.provider?.user?.fullName}</p>
