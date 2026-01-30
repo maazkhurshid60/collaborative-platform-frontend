@@ -36,7 +36,9 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
         const loadDocx = async () => {
             if (!completedDoc?.document?.url) return;
             try {
-                const response = await fetch(completedDoc?.document.url);
+                const response = await fetch(completedDoc?.document.url, {
+                    credentials: 'include' // Send cookies to the backend
+                });
                 if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
 
                 const arrayBuffer = await response.arrayBuffer();
@@ -153,7 +155,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                     key={completedDoc?.eSignature}
                                     src={completedDoc?.eSignature}
                                     alt="eSignature"
-                                    crossOrigin="anonymous"
+                                    crossOrigin="use-credentials" // Match backend auth requirements
                                     className="w-[400px] h-[200px] border rounded shadow mt-4"
                                     onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                                 />

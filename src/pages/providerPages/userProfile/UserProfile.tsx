@@ -306,6 +306,7 @@ const UserProfile = () => {
                     <img
                       src={previewUrl}
                       alt="Client"
+                      crossOrigin="use-credentials"
                       className="w-32 h-32 rounded-md object-cover"
                     />
                   ) : (
@@ -462,6 +463,7 @@ const UserProfile = () => {
                   <img
                     src={previewUrl}
                     alt="Client"
+                    crossOrigin="use-credentials"
                     className="w-32 h-32 rounded-lg object-cover"
                   />
                 ) : (
