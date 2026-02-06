@@ -71,13 +71,13 @@ const ProviderList = () => {
                     <td className="px-2 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
                     <td className="px-2 py-4">{data?.user?.fullName}</td>
                     <td className="px-2 py-4">{data?.user?.licenseNo}</td>
-                    <td className="px-2 py-4 lowercase">{data?.email}</td>
+                    <td className="px-2 py-4 lowercase">{data?.user?.email}</td>
                     <td className="px-2 py-4 capitalize">{data?.department}</td>
 
                     <td className="px-2 py-4 w-[100px]">
                       {data?.clientList === undefined ||
-                      data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
-                        .length === 0 ? (
+                        data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
+                          .length === 0 ? (
                         <p>No Clients</p>
                       ) : (
                         <>
@@ -92,13 +92,13 @@ const ProviderList = () => {
 
                           {data?.clientList.filter((p: Client) => p?.client?.clientShowToOthers === true)
                             .length > 2 && (
-                            <p
-                              className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark"
-                              onClick={() => navigate(`/providers/${data?.id}`)}
-                            >
-                              ... View All
-                            </p>
-                          )}
+                              <p
+                                className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark"
+                                onClick={() => navigate(`/providers/${data?.id}`)}
+                              >
+                                ... View All
+                              </p>
+                            )}
                         </>
                       )}
                     </td>

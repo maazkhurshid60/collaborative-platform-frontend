@@ -27,6 +27,8 @@ import CrossIcon from "../../../components/icons/cross/Cross";
 import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
 
+import { Country } from "country-state-city";
+
 type FormFields = z.infer<typeof providerSchema>;
 
 const departmentOptions = [
@@ -35,6 +37,7 @@ const departmentOptions = [
   { value: "Therapist", label: "Therapist" },
   { value: "Eye Specialist", label: "Eye Specialist" },
   { value: "Heart Specialist", label: "Heart Specialist" },
+  { value: "General Medicine", label: "General Medicine" },
 ];
 
 // Ensure Dropdown gets a value that matches one of the option values (case-insensitive)
@@ -45,6 +48,23 @@ function normalizeDepartmentValue(dep?: string | null) {
     (o) => o.value.toLowerCase() === trimmed.toLowerCase()
   );
   return match?.value ?? trimmed;
+}
+
+// Helper to find ISO2 code from name or code (e.g. "USA" -> "US")
+function getCountryIsoCode(val?: string | null) {
+  if (!val) return "";
+  const countries = Country.getAllCountries();
+  const exact = countries.find(c => c.isoCode === val);
+  if (exact) return exact.isoCode;
+
+  // Try matching by name
+  const byName = countries.find(c => c.name.toLowerCase() === val.toLowerCase());
+  if (byName) return byName.isoCode;
+
+  // Handle specific "USA" case if "United States" is the name
+  if (val === "USA") return "US";
+
+  return val; // Fallback
 }
 
 const UserProfile = () => {
@@ -121,10 +141,10 @@ const UserProfile = () => {
       licenseNo: getMeData?.user?.licenseNo ?? "",
       age: Number(getMeData?.user?.age ?? 0) || 0,
       contactNo: getMeData?.user?.contactNo ?? "",
-      email: getMeData?.email ?? "",
+      email: getMeData?.user?.email ?? "",
       department: normalizeDepartmentValue(getMeData?.department),
       address: getMeData?.user?.address ?? "",
-      country: getMeData?.user?.country ?? "",
+      country: getCountryIsoCode(getMeData?.user?.country),
       state: getMeData?.user?.state ?? "",
     } as Partial<FormFields>;
   }, [getMeData]);
@@ -220,8 +240,8 @@ const UserProfile = () => {
     formData.append("licenseNo", data?.licenseNo ?? "");
     formData.append("age", data?.age?.toString() ?? "0");
     formData.append("department", safeDepartment);
-    formData.append("loginUserId", String(loginUserDetail?.user?.id ?? ""));
-    formData.append("role", String(loginUserDetail?.user?.role ?? ""));
+    formData.append("loginUserId", getMeData?.user?.id ?? "");
+    formData.append("role", getMeData?.user?.role ?? "");
     formData.append("state", safeState);
     formData.append("country", safeCountry);
     formData.append("contactNo", String(data?.contactNo ?? ""));
@@ -250,22 +270,6 @@ const UserProfile = () => {
 
     if (initialFormValues) {
       reset(initialFormValues as any, { keepDirty: false, keepTouched: false });
-    }
-
-    // Inform user if profile is incomplete
-    const v = getValues();
-    const missing =
-      !String(v?.fullName ?? "").trim() ||
-      !String(v?.licenseNo ?? "").trim() ||
-      !String(v?.email ?? "").trim() ||
-      !String(v?.department ?? "").trim() ||
-      Number(v?.age ?? 0) <= 0 ||
-      !String(v?.contactNo ?? "").trim() ||
-      !String(v?.country ?? "").trim() ||
-      !String(v?.state ?? "").trim();
-
-    if (missing) {
-      toast.info("Your profile is incomplete. Fill required fields to enable Update.");
     }
   };
 
@@ -445,11 +449,11 @@ const UserProfile = () => {
                 />
               </div>
 
-              {!canSubmitUpdate && (
+              {/* {!canSubmitUpdate && (
                 <p className="ml-3 text-xs text-red-600">
                   Fill all required fields to enable Update.
                 </p>
-              )}
+              )} */}
             </div>
           </form>
         </FormProvider>
@@ -477,7 +481,7 @@ const UserProfile = () => {
               <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
               <LabelData label="Age" data={getMeData?.user?.age ?? ""} />
               <LabelData label="Department" data={getMeData?.department} />
-              <LabelData label="Email" data={getMeData?.email} />
+              <LabelData label="Email" data={getMeData?.user?.email} />
               <LabelData label="Contact Number" data={getMeData?.user?.contactNo ?? ""} />
               <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
               <LabelData

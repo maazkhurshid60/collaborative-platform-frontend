@@ -141,7 +141,7 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
             </div>
 
           </div>
-          <div className="w-full border mt-2.5 border-[#F3F3F3]" />
+
           <div>{props.modalBodyContent}</div>
         </div>
       </div>

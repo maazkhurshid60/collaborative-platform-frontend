@@ -31,8 +31,8 @@ const ProviderSearchResults: React.FC<ProviderSearchResultsProps> = ({
             <div className="p-6 text-center text-lightGreyColor">
                 <div className="mb-2">
                     <svg className="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
-                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
                 <p className="text-sm">
@@ -88,7 +88,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
             {/* Provider Info */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                    {provider?.user?.isApprove === "approve" && (
+                    {provider?.user?.isApprove === "APPROVED" && (
                         <img
                             src={verifyBadge}
                             alt="Verified"
@@ -99,35 +99,34 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                         {provider?.user?.fullName || 'Unknown Provider'}
                     </h4>
                 </div>
-                
+
                 <div className="space-y-1">
                     <p className="text-xs text-gray-600 truncate">
-                        <span className="font-medium">Email:</span> {provider?.email || 'N/A'}
+                        <span className="font-medium">Email:</span> {provider?.user?.email || 'N/A'}
                     </p>
-                    
+
                     {provider?.department && (
                         <p className="text-xs text-gray-600 truncate">
                             <span className="font-medium">Department:</span> {provider.department}
                         </p>
                     )}
-                    
+
                     {provider?.user?.licenseNo && (
                         <p className="text-xs text-gray-600 truncate">
                             <span className="font-medium">License:</span> {provider.user.licenseNo}
                         </p>
                     )}
-                    
+
                     <div className="flex items-center gap-2">
                         {provider?.user?.status && (
-                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                provider.user.status === 'active' 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-gray-100 text-gray-600'
-                            }`}>
-                                {provider.user.status}
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${provider.user.status?.toLowerCase() === 'active'
+                                ? 'bg-primaryColorDark text-white'
+                                : 'bg-redColor text-primary'
+                                }`}>
+                                {provider.user.status?.toLowerCase()}
                             </span>
                         )}
-                        
+
                         {provider?.user?.role && (
                             <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium capitalize">
                                 {provider.user.role}

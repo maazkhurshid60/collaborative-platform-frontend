@@ -82,7 +82,7 @@ const EditClient = () => {
                 <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
             </div>
 
-            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} clientEmail={selectedClientData?.email} />}
+            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} clientEmail={selectedClientData?.user?.email} />}
         </OutletLayout>
     )
 }

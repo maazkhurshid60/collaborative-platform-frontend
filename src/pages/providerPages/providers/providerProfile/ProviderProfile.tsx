@@ -50,11 +50,11 @@ const ProviderProfile = () => {
         return <p>somethingwent wrong</p>
     }
     return (
-        <OutletLayout heading='Provider profile' backButton={<BackIcon  onClick={() => navigate(-1)} />}  isEdit>
-            
+        <OutletLayout heading='Provider profile' backButton={<BackIcon onClick={() => navigate(-1)} />} isEdit>
+
             <div className='mt-6'>
                 <div>
-                   <LabelData label='Provider Image' />
+                    <LabelData label='Provider Image' />
                     {selectedProviderData?.user?.profileImage ? (
                         <img
                             src={selectedProviderData?.user?.profileImage}
@@ -78,7 +78,7 @@ const ProviderProfile = () => {
                         <LabelData label='Age' data={selectedProviderData?.user?.age ?? "-"} />
                     </div>
                     <div className=''>
-                        <LabelData label='Email' data={selectedProviderData?.email ?? "-"} />
+                        <LabelData label='Email' data={selectedProviderData?.user?.email ?? "-"} />
                     </div>
                     <div className=''>
                         <LabelData label='Contact Number' data={selectedProviderData?.user?.contactNo ?? "-"} />

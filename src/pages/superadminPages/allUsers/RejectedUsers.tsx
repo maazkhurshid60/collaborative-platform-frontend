@@ -45,7 +45,7 @@ const RejectedUsers = () => {
                 setIsDocLoading(true);
 
                 const response = await loginUserApiService.getAllUsersApi();
-                const allUsers = response.user?.filter((data: User) => data?.role !== "superadmin" && data?.isApprove === "reject")
+                const allUsers = response.user?.filter((data: User) => data?.role !== "superAdmin" && data?.isApprove === "REJECTED")
                 return allUsers; // Ensure it always returns an array
 
 
@@ -69,7 +69,7 @@ const RejectedUsers = () => {
             await loginUserApiService.restoreUsersApi({
                 id: data?.id,
                 name: data?.fullName,
-                email: data?.client?.email || data?.provider?.email,
+                email: data?.email,
             });
             toast.success("User restored successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -130,7 +130,7 @@ const RejectedUsers = () => {
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
                                                 <p className="capitalize">{data?.fullName}</p>
-                                                <p>{(data?.client?.email || data?.provider?.email)?.toLowerCase()}</p>
+                                                <p>{data?.email?.toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -146,10 +146,10 @@ const RejectedUsers = () => {
                                         >
                                             <span>
                                                 <GoDotFill
-                                                    className={`text-base ${data.isApprove === "reject" && "text-textColor"}`}
+                                                    className={`text-base ${data.isApprove === "REJECTED" && "text-textColor"}`}
                                                 />
                                             </span>
-                                            {data.isApprove === "reject" && "Rejected"}
+                                            {data.isApprove === "REJECTED" && "Rejected"}
                                         </p>
 
                                     </td>

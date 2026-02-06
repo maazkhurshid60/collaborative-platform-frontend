@@ -1,4 +1,4 @@
-import { NavLink,} from "react-router-dom";
+import { NavLink, } from "react-router-dom";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
 import { useSelector } from "react-redux";
@@ -15,7 +15,7 @@ interface ChatsProps {
 
 const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
   const loginUserId = useSelector(
-    (state: RootState) => state.LoginUserDetail.userDetails.id
+    (state: RootState) => state.LoginUserDetail.userDetails.userId
   );
 
   const getMediaDisplayInfo = (mediaUrl?: string) => {
@@ -36,14 +36,14 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
   };
 
   const otherUser =
-    data?.providerA?.id === loginUserId
+    data?.providerAId === loginUserId
       ? {
-        fullName: data.providerB?.user?.fullName,
-        profileImage: data.providerB?.user?.profileImage,
+        fullName: data.providerB?.fullName,
+        profileImage: data.providerB?.profileImage,
       }
       : {
-        fullName: data.providerA?.user?.fullName,
-        profileImage: data.providerA?.user?.profileImage,
+        fullName: data.providerA?.fullName,
+        profileImage: data.providerA?.profileImage,
       };
 
   const unreadCount = Number(data?.totalUnread ?? 0);
@@ -57,31 +57,31 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
         <div
           className={`pb-2 pt-2 pl-1 flex items-center  w-full gap-x-2 transition-all duration-300 cursor-pointer 
             `}
-            onClick={onClick}
-            >
+          onClick={onClick}
+        >
           {/* Main content Container */}
-          <div className="w-[100%] flex items-center justify-between">
+          <div className="w-full flex items-center justify-between">
             <div className="flex items-start justify-between gap-x-6">
               <div className="">
                 {imagePath && imagePath !== "null" ? (
-                  
+
                   <div className={`${imagePath ? "pl-1.5" : ""}`}>
-                   <img
-                    src={imagePath}
-                    alt="Client"
-                    className="w-12 h-12 rounded-full object-cover"
+                    <img
+                      src={imagePath}
+                      alt="Client"
+                      className="w-12 h-12 rounded-full object-cover"
                     />
                   </div>
 
-) : (
-  <UserIcon className="rounded-full object-cover" />
-)}
+                ) : (
+                  <UserIcon className="rounded-full object-cover" />
+                )}
               </div>
               <div className='flex flex-col items-start justify-items-center pt-1'>
                 <p
                   className={`font-[Poppins] flex items-center justify-items-start gap-x-3   capitalize  text-[14px] text-textColor ${imagePath ? "" : "mt-2 ml-[-5px]"}  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
-                  }`}
-                  >
+                    }`}
+                >
                   {otherUser?.fullName}
                 </p>
                 {data?.lastMessage && (
@@ -126,8 +126,8 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
           )}
         </div>
       </NavLink>
-      </div>
-    
+    </div>
+
   );
 };
 

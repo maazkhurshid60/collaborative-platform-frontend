@@ -4,6 +4,7 @@ import UserIcon from '../icons/user/User';
 import AddIcon from '../icons/add/Add';
 import { FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { _email } from 'zod/v4/core';
 
 interface SearchResultsProps {
     results: ClientType[];
@@ -92,7 +93,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1 mb-1">
-                        {user?.user?.isApprove === "approve" && (
+                        {user?.user?.isApprove === "APPROVED" && (
                             <FaCheckCircle color='green' />
                         )}
                         <h4 className="text-sm font-semibold text-gray-900 capitalize truncate">
@@ -101,7 +102,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                     </div>
                     <div className="space-y-1">
                         <p className="text-xs text-gray-600 truncate">
-                            <span className="font-medium">Email:</span> {user?.email || 'N/A'}
+                            <span className="font-medium">Email:</span> {user?.user?.email || 'N/A'}
                         </p>
                         {user?.user?.licenseNo && (
                             <p className="text-xs text-gray-600 truncate">

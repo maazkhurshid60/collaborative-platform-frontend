@@ -275,8 +275,8 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
           const field = (e as any).field ?? (e as any).property;
           const msg =
             (e as any).message ||
-            (e as any).msg ||
-            (e as any)?.constraints
+              (e as any).msg ||
+              (e as any)?.constraints
               ? Object.values((e as any).constraints || {}).join(", ")
               : "";
           return msg ? { field, message: msg } : null;
@@ -483,7 +483,7 @@ const AddClient = () => {
 
             <InputField
               required
-              type="number"
+              type="text"
               label="License Number"
               register={register("licenseNo")}
               placeHolder="Enter license number."

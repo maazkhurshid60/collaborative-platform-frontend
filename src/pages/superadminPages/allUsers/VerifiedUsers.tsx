@@ -91,7 +91,7 @@ const VerifiedUsers = () => {
 
         const approvedUsers =
           response.user?.filter(
-            (u: User) => u?.role !== "superadmin" && u?.isApprove === "approve"
+            (u: User) => u?.role !== "superAdmin" && u?.isApprove === "APPROVED"
           ) ?? [];
 
         return approvedUsers;
@@ -196,7 +196,7 @@ const VerifiedUsers = () => {
               {currentRecords?.map((data: User, idx: number) => (
                 <tr
                   key={data?.id ?? idx}
-                  className="border-b-[1px] border-b-solid border-b-lightGreyColor"
+                  className="border-b border-b-solid border-b-lightGreyColor"
                 >
                   {/* Name */}
                   <td className="px-2 py-3 align-middle">
@@ -216,7 +216,7 @@ const VerifiedUsers = () => {
                       <div className="min-w-0 text-left">
                         <p className="capitalize leading-5">{data?.fullName}</p>
                         <p className="truncate leading-5">
-                          {(data?.client?.email || data?.provider?.email)?.toLowerCase()}
+                          {data?.email?.toLowerCase()}
                         </p>
                       </div>
                     </div>
@@ -236,14 +236,13 @@ const VerifiedUsers = () => {
 
                   <td className="px-2 py-3 align-middle whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${
-                        data.isApprove ? "bg-primaryColorDark/20" : "bg-inputBgColor"
-                      }`}
+                      className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove ? "bg-primaryColorDark/20" : "bg-inputBgColor"
+                        }`}
                     >
                       <GoDotFill
                         className={`text-base ${data.isApprove ? "text-textColor" : ""}`}
                       />
-                      {data.isApprove === "approve" ? "Verified" : ""}
+                      {data.isApprove === "APPROVED" ? "Verified" : ""}
                     </span>
                   </td>
 

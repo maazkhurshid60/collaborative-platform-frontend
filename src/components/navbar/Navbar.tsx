@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LuSearch } from "react-icons/lu";
 
 const Navbar = () => {
+
   const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose);
   const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
 
@@ -34,9 +35,7 @@ const Navbar = () => {
   const [isSearchbarClose, setIsSearchbarClose] = useState(false);
   const [isLoader, setIsLoader] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-
   const queryClient = useQueryClient();
-  const formData = new FormData();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -64,7 +63,7 @@ const Navbar = () => {
       try {
         const response = await clientApiService.getAllTotalClient();
         const verifiedUsers = response?.data?.clients?.filter(
-          (data: ClientType) => data?.user?.isApprove === "approve"
+          (data: ClientType) => data?.user?.isApprove === "APPROVED"
         );
         return verifiedUsers || [];
       } catch (error) {
@@ -80,7 +79,7 @@ const Navbar = () => {
       try {
         const response = await providerApiService.getAllTotalProviders();
         const verifiedProviders = response?.data?.providers?.filter(
-          (data: ClientType) => data?.user?.isApprove === "approve"
+          (data: ClientType) => data?.user?.isApprove === "APPROVED"
         );
         return verifiedProviders || [];
       } catch (error) {
@@ -140,21 +139,22 @@ const Navbar = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (data: ClientType) => {
-      formData.append("fullName", data?.user?.fullName ?? "");
-      formData.append("licenseNo", data?.user?.licenseNo ?? "");
-      formData.append("age", data?.user?.age ?? "18");
-      formData.append("email", data?.email ?? "");
-      formData.append("contactNo", data?.user?.contactNo ?? "00000000000000");
-      formData.append("address", data?.user?.address ?? "No Address");
-      formData.append("gender", data?.user?.gender ?? "");
-      formData.append("status", data?.user?.status ?? "");
-      formData.append("country", data?.user?.country ?? "");
-      formData.append("state", data?.user?.state ?? "");
-      formData.append("role", "client");
-      formData.append("isApprove", "pending");
-      formData.append("providerId", loginUserDetail.id);
-      formData.append("profileImage", data?.user?.profileImage ?? "");
-      await clientApiService.addExistingClientToProvider(formData);
+      const localFormData = new FormData();
+      localFormData.append("fullName", data?.user?.fullName || "Unkown User");
+      localFormData.append("licenseNo", data?.user?.licenseNo || "");
+      localFormData.append("age", String(data?.user?.age || "18"));
+      localFormData.append("email", data?.user?.email || "");
+      localFormData.append("contactNo", data?.user?.contactNo || "0000000000");
+      localFormData.append("address", data?.user?.address || "No Address");
+      localFormData.append("gender", (data?.user?.gender || "male").toLowerCase());
+      localFormData.append("status", (data?.user?.status || "active").toLowerCase());
+      localFormData.append("country", data?.user?.country || "");
+      localFormData.append("state", data?.user?.state || "");
+      localFormData.append("role", "client");
+      localFormData.append("isApprove", "pending");
+      localFormData.append("providerId", loginUserDetail?.id || "");
+      localFormData.append("profileImage", data?.user?.profileImage || "");
+      await clientApiService.addExistingClientToProvider(localFormData);
     },
     onMutate: () => setIsLoader(true),
     onSuccess: () => {
@@ -186,12 +186,12 @@ const Navbar = () => {
 
   // ✅ Navigate to super admin page when clicking the profile area (only for superadmin)
   const goToSuperAdmin = () => {
-    if (loginUserDetail?.user?.role === "superadmin") {
+    if (loginUserDetail?.user?.role === "superAdmin") {
       navigate("/super-admin");
     }
   };
 
-  const isSuperAdmin = loginUserDetail?.user?.role === "superadmin";
+  const isSuperAdmin = loginUserDetail?.user?.role === "superAdmin";
   const isProvider = loginUserDetail?.user?.role === "provider";
 
   return (
@@ -255,12 +255,12 @@ const Navbar = () => {
             {isProvider && (
               <div>
                 <span
-                  className={`px-2 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full ${loginUserDetail?.user?.isApprove === "approve"
+                  className={`px-2 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full ${loginUserDetail?.user?.isApprove === "APPROVED"
                     ? "bg-green-100 text-green-700 border border-green-200"
                     : "bg-red-100 text-red-700 border border-red-200"
                     }`}
                 >
-                  {loginUserDetail?.user?.isApprove === "approve" ? "Verified" : "Unverified"}
+                  {loginUserDetail?.user?.isApprove === "APPROVED" ? "Verified" : "Unverified"}
                 </span>
               </div>
             )}

@@ -92,8 +92,12 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                 <div className='flex items-center gap-x-4 '>
 
                     <p className='font-semibold text-[16px] md:text-[20px] lg:text-[24px] font-[Montserrat] inline-block  capitalize'>{props.name}</p>
-                    {(props?.groupMembers?.length > 0) && <p className='text-xs bg-primaryColorDark text-white capitalize py-1 px-2  rounded-md'>Admin: {loginUserId === props.groupCreatedBy?.id ? "You" : props.groupCreatedBy?.name}</p>
-                    } </div>
+                    {(props?.groupMembers?.length > 0) && (
+                        <p className='text-xs bg-primaryColorDark text-white capitalize py-1 px-2 rounded-md'>
+                            Admin: {(loginUserId === props.groupCreatedBy?.id) ? "You" : (props.groupCreatedBy?.name || "Admin")}
+                        </p>
+                    )}
+                </div>
                 <div className='flex items-center gap-x-4'>
                     <div className='w-[100px]'>
                         {props?.groupMembers?.length !== undefined && (
@@ -107,12 +111,11 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
 
 
 
-                                        {(data?.Provider?.user?.profileImage !== null && data?.Provider?.user?.profileImage !== "null") ?
+                                        {((data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage) && (data?.Provider?.user?.profileImage !== "null" && (data as any)?.user?.profileImage !== "null")) ?
                                             <img
                                                 className='w-10 h-10 rounded-full object-cover'
-                                                // src={`${localhostBaseUrl}uploads/eSignatures/${data?.Provider?.user?.profileImage?.split('/').pop()}`} />
-                                                src={data?.Provider?.user?.profileImage} />
-                                            : <UserIcon className="text-[20px] md:text-[24px] lg:text-[40px]" />}
+                                                src={data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage} />
+                                            : <UserIcon className="w-10! h-10! rounded-full object-cover text-gray-400" />}
                                     </div>
                                 ))}
                                 <div
@@ -137,15 +140,15 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                             <p className='text-sm font-semibold'>Other Group Members:</p>
                                             <hr className='h-2 text-2xl' />
                                             {props?.groupMembers?.map((data) => <div className='flex items-center gap-x-2 '>
-                                                {(data?.Provider?.user?.profileImage !== null && data?.Provider?.user?.profileImage !== "null") ?
+                                                {((data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage) && (data?.Provider?.user?.profileImage !== "null" && (data as any)?.user?.profileImage !== "null")) ?
                                                     <img
-                                                        className='w-7 h-7 rounded-full object-cover'
-                                                        src={data?.Provider?.user?.profileImage} />
+                                                        className='w-10 h-10 rounded-full object-cover'
+                                                        src={data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage} />
 
-                                                    : <UserIcon className="text-[20px] md:text-[24px] lg:text-[28px]" />}
+                                                    : <UserIcon className="w-10! h-10! rounded-full object-cover text-gray-400" />}
                                                 <div className='text-xs '>
-                                                    <p className='font-semibold capitalize'>{data?.Provider?.user?.fullName}</p>
-                                                    <p>{data?.Provider?.email}</p>
+                                                    <p className='font-semibold capitalize'>{data?.Provider?.user?.fullName || (data as any)?.user?.fullName}</p>
+                                                    <p>{(data?.Provider?.user as any)?.email || (data as any)?.user?.email || (data?.Provider as any)?.email}</p>
                                                 </div>
                                             </div>)}
                                         </div>

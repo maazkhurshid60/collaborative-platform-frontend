@@ -45,6 +45,7 @@ const Document = lazy(() => import("../pages/clientPages/documents/Document"));
 const PendingUsers = lazy(() => import("../pages/superadminPages/allUsers/PendingUsers"));
 const VerifiedUsers = lazy(() => import("../pages/superadminPages/allUsers/VerifiedUsers"));
 const AllDocuments = lazy(() => import("../pages/superadminPages/AllDocuments"));
+const ClientProfile = lazy(() => import("../pages/providerPages/clients/clientProfile/ClientProfile"));
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -106,7 +107,7 @@ const Routing = () => {
                 }
 
                 {
-                    loginUserRole === "superadmin" && (
+                    loginUserRole === "superAdmin" && (
                         <Route
                             path="/pending-users"
                             element={
@@ -120,7 +121,7 @@ const Routing = () => {
                 }
 
                 {
-                    loginUserRole !== "client" && loginUserRole !== "superadmin" && (
+                    loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
                         <Route
                             path="/dashboard"
                             element={
@@ -133,7 +134,7 @@ const Routing = () => {
                 }
 
                 {
-                    loginUserRole === "superadmin" && (
+                    loginUserRole === "superAdmin" && (
                         <Route
                             path="/transaction-details"
                             element={
@@ -145,7 +146,7 @@ const Routing = () => {
                     )
                 }
                 {
-                    loginUserRole === "superadmin" && (
+                    loginUserRole === "superAdmin" && (
                         <Route
                             path="/transaction-details/:id"
                             element={
@@ -158,12 +159,12 @@ const Routing = () => {
                 }
 
                 {
-                    loginUserRole === "superadmin" && (
+                    loginUserRole === "superAdmin" && (
                         <Route path="/subscription" element={<WrappedRoute><SubscriptionPage /></WrappedRoute>} />
                     )
                 }
                 {
-                    loginUserRole === "superadmin" && (
+                    loginUserRole === "superAdmin" && (
                         <Route path="/provider/refund/:id" element={<WrappedRoute><RefundTransaction /></WrappedRoute>} />
                     )
                 }
@@ -192,6 +193,7 @@ const Routing = () => {
 
 
                 <Route path="/clients/add-client" element={<WrappedRoute ><AddClient /></WrappedRoute>} />
+                <Route path="/clients/:id" element={<WrappedRoute ><ClientProfile /></WrappedRoute>} />
                 <Route path="/clients/edit-client/:id" element={<WrappedRoute ><EditClient /></WrappedRoute>} />
                 <Route path="/user-profile" element={<WrappedRoute ><UserProfile /></WrappedRoute>} />
                 <Route path="/providers" element={<WrappedRoute ><Providers /></WrappedRoute>} />

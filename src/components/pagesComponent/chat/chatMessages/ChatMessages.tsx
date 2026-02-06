@@ -30,7 +30,8 @@ interface Message {
     mediaUrl?: string
     createdAt: string;
     sender: {
-        user: { fullName: string, profileImage?: string | null };
+        fullName: string;
+        profileImage?: string | null;
     };
     you?: boolean;
     status?: string
@@ -45,7 +46,8 @@ interface ChatMessagesProps {
 
 }
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObject, activeChatType, groupCreatedBy }) => {
-    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId);
     const loginUserProfileImage = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user.profileImage);
     const blockedMembers = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.blockedMembers);
     const [sendMessageText, setSendMessageText] = useState('');
@@ -63,18 +65,29 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
     // const [lastReadMessageIds, setLastReadMessageIds] = useState<Record<string, string>>({});
 
-    // Function to mark messages as read for a specific sender
-    const markMessagesAsRead = (senderId: string) => {
-        setUnreadCounts(prevCounts => ({
-            ...prevCounts,
-            [senderId]: 0
-        }));
+    // Function to mark messages as read
+    const markMessagesAsRead = async () => {
+        if (!activeChatObject?.id || !loginUserProviderId) return;
 
-        // Find the latest message from this sender
-        // const latestMessage = messages
-        //     .filter(msg => msg.senderId === senderId && !msg.you)
-        //     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+        try {
+            if (activeChatType === 'individual') {
+                await messageApiService.readMessageSingleConservation({
+                    loginUserId: loginUserProviderId,
+                    chatChannelId: activeChatObject.id,
+                });
+                queryClient.invalidateQueries({ queryKey: ['chatchannels'] });
+            } else {
+                await messageApiService.readMessageGroupConservation({
+                    loginUserId: loginUserProviderId,
+                    groupId: activeChatObject.id,
+                });
+                queryClient.invalidateQueries({ queryKey: ['groupChatchannels'] });
+            }
 
+            setUnreadCounts({});
+        } catch (error) {
+            console.error("❌ Failed to mark messages as read:", error);
+        }
     };
 
     const socket = getSocket();
@@ -82,13 +95,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         if (Array.isArray(messageData)) {
             const mappedMessages = messageData.map(msg => ({
                 ...msg,
-                you: msg?.senderId === loginUserId,
+                you: msg?.senderId === loginUserUserId,
             }));
             setMessages(mappedMessages);
 
             const counts: Record<string, number> = {};
             mappedMessages.forEach(msg => {
-                if (!msg.you && msg.senderId !== loginUserId) {
+                if (!msg.you && msg.senderId !== loginUserUserId) {
                     counts[msg.senderId] = (counts[msg.senderId] || 0) + 1;
                 }
             });
@@ -97,10 +110,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             setMessages([]);
             setUnreadCounts({});
         }
-    }, [messageData, loginUserId]);
-
-
-
+    }, [messageData, loginUserUserId]);
 
     useEffect(() => {
 
@@ -120,7 +130,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 const alreadyExists = prev.some(m => m.id === newMsg.id);
                 if (alreadyExists) return prev;
 
-                const updatedMessage = { ...newMsg, you: newMsg.senderId === loginUserId };
+                const updatedMessage = { ...newMsg, you: newMsg.senderId === loginUserUserId };
 
                 if (!updatedMessage.you) {
                     setUnreadCounts(prevCounts => ({
@@ -159,16 +169,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     }, [messages]);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const uniqueSenderIds = [...new Set(messages.filter(msg => !msg.you).map(msg => msg.senderId))];
-            uniqueSenderIds.forEach(senderId => {
-                if (unreadCounts[senderId] > 0) {
-                    markMessagesAsRead(senderId);
-                }
-            });
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, [messages.length]);
+        const hasUnread = Object.values(unreadCounts).some(count => count > 0);
+        if (hasUnread) {
+            const timer = setTimeout(() => {
+                markMessagesAsRead();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [messages.length, unreadCounts]);
 
     const sendMessage = async () => {
         if ((!sendMessageText.trim() && selectedFiles.length === 0) || !activeChatObject) return;
@@ -176,11 +184,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         const tempId = `temp-${Date.now()}`;
         const tempMsg: Message = {
             id: tempId,
-            senderId: loginUserId,
+            senderId: loginUserUserId, // optimistic update uses User ID for display
             message: sendMessageText || selectedFiles.map(f => f.name).join(', '),
             chatChannelId: activeChatObject.id,
             createdAt: new Date().toISOString(),
-            sender: { user: { fullName: 'You' } },
+            sender: { fullName: 'You', profileImage: loginUserProfileImage },
             you: true,
             status: 'sending'
         };
@@ -191,7 +199,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
         try {
             const formData = new FormData();
-            formData.append("senderId", loginUserId);
+            formData.append("senderId", loginUserUserId);
             formData.append("type", selectedFiles.length ? "media" : "text");
 
             if (activeChatType === "individual") {
@@ -220,9 +228,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 saved = res?.data?.chatMessage;
 
 
-                const otherId = activeChatObject.providerA.id === loginUserId
-                    ? activeChatObject.providerB.id
-                    : activeChatObject.providerA.id;
+                const otherId = (activeChatObject as ChatChannelType).providerA.id === loginUserUserId
+                    ? (activeChatObject as ChatChannelType).providerB.id
+                    : (activeChatObject as ChatChannelType).providerA.id;
 
                 socket?.emit("send_direct", { toProviderId: otherId, message: saved });
             } else {
@@ -262,7 +270,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 createdAt: saved.createdAt || new Date().toISOString(),
                             },
                             unreadCount:
-                                saved.senderId === loginUserId
+                                saved.senderId === loginUserUserId
                                     ? group.unreadCount
                                     : (Number(group.unreadCount) || 0) + 1,
                             updatedAt: new Date().toISOString(),
@@ -291,10 +299,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
-        if (!socket && loginUserId) {
-            initSocket(loginUserId, "");
+        if (!socket && loginUserProviderId) {
+            initSocket(loginUserProviderId, "");
         }
-    }, [loginUserId]);
+    }, [loginUserProviderId]);
 
 
     // const handleUnblock = async (blockUserid: string) => {
@@ -325,7 +333,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
         try {
             const payload = {
-                loginUserId,
+                loginUserId: loginUserProviderId,
                 page: currentPage,
                 limit: 10,
                 ...(activeChatType === 'individual'
@@ -345,7 +353,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             }
 
             setMessages(prev => [
-                ...newMessages.map(m => ({ ...m, you: m.senderId === loginUserId })),
+                ...newMessages.map(m => ({ ...m, you: m.senderId === loginUserUserId })),
                 ...prev,
             ]);
 
@@ -368,7 +376,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
-        if (!socket || !loginUserId) return;
+        if (!socket || !loginUserUserId) return;
 
         const handleNewMessage = (newMessage: NewMessage) => {
             const isGroup = newMessage?.isGroupMessage;
@@ -387,10 +395,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                             },
                             ...(isGroup
                                 ? {
-                                    unreadCount: newMessage.senderId === loginUserId ? channel.unreadCount : Number(channel.unreadCount || 0) + 1
+                                    unreadCount: newMessage.senderId === loginUserUserId ? channel.unreadCount : Number(channel.unreadCount || 0) + 1
                                 }
                                 : {
-                                    totalUnread: newMessage.senderId === loginUserId ? channel.totalUnread : Number(channel.totalUnread || 0) + 1
+                                    totalUnread: newMessage.senderId === loginUserUserId ? channel.totalUnread : Number(channel.totalUnread || 0) + 1
                                 }
                             ),
                             updatedAt: new Date().toISOString(),
@@ -407,7 +415,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
             socket.off('receive_direct', handleNewMessage);
             socket.off('receive_group', handleNewMessage);
         };
-    }, [socket, loginUserId, queryClient]);
+    }, [socket, loginUserUserId, queryClient]);
 
 
     useEffect(() => {
@@ -472,9 +480,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     const otherName = activeChatObject?.name ? activeChatObject?.name :
-        activeChatObject?.providerA?.id === loginUserId
-            ? activeChatObject?.providerB?.user?.fullName
-            : activeChatObject?.providerA?.user?.fullName;
+        (activeChatObject as ChatChannelType)?.providerA?.id === loginUserUserId
+            ? (activeChatObject as ChatChannelType)?.providerB?.fullName
+            : (activeChatObject as ChatChannelType)?.providerA?.fullName;
 
 
 
@@ -511,9 +519,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                 return (
                                     <div key={msg.id} className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}>
                                         {!msg.you && (
-                                            <div className="relative cursor-pointer" onClick={() => markMessagesAsRead(msg.senderId)}>
-                                                {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
-                                                    <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage} />
+                                            <div className="relative cursor-pointer" onClick={() => markMessagesAsRead()}>
+                                                {(msg?.sender?.profileImage !== null && msg?.sender?.profileImage !== "null") ?
+                                                    <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.profileImage} />
                                                     : <UserIcon size={30} />
                                                 }
                                                 {/* <UnreadBadge count={unreadCounts[msg.senderId] || 0} /> */}
@@ -523,7 +531,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                         {/* Message content */}
                                         <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
                                             <p className="font-semibold mb-2 capitalize">
-                                                {msg?.you ? 'You' : msg?.sender?.user?.fullName}
+                                                {msg?.you ? 'You' : msg?.sender?.fullName}
                                             </p>
 
                                             <div className="flex items-center gap-x-4 text-[14px]">
@@ -641,9 +649,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                 {/* Check if the other user is blocked */
                     (() => {
-                        const otherUserId = activeChatObject?.providerA?.id === loginUserId
-                            ? activeChatObject?.providerB?.userId
-                            : activeChatObject?.providerA?.userId;
+                        const otherUserId = (activeChatObject as ChatChannelType)?.providerA?.id === loginUserUserId
+                            ? (activeChatObject as ChatChannelType)?.providerB?.id
+                            : (activeChatObject as ChatChannelType)?.providerA?.id;
 
                         const isBlocked = activeChatType === 'individual' && blockedMembers?.includes(otherUserId);
                         if (isBlocked) {

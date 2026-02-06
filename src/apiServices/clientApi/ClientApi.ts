@@ -26,7 +26,7 @@ class ClientApiService {
     async getAllClient(loginUserId: string) {
         try {
 
-            const response = await this.api.post(`${API_BASE_URL}/client/get-all-clients`, { loginUserId })
+            const response = await this.api.post(`${API_BASE_URL}/client/get-all-clients?limit=1000`, { loginUserId })
             return response?.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";

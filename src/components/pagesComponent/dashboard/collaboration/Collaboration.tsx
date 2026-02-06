@@ -16,12 +16,15 @@ import chatApiService from '../../../../apiServices/chatApi/ChatApi';
 import NoRecordFound from '../../../noRecordFound/NoRecordFound';
 import { Message } from '../../../../types/chatType/ChatType';
 
+import SpinnerLoader from '../../../loader/SpinnerLoader';
+
 const Collaboration = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [searchText, setSearchText] = useState('');
     const tabs = ["Chats", "Groups"];
 
-    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+    const loginUserUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId);
     const loginUserDetail = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id);
 
     const [activeId, setActiveId] = useState<string>();
@@ -30,35 +33,30 @@ const Collaboration = () => {
     const socket = getSocket();
 
     useEffect(() => {
-        if (loginUserId) initSocket(loginUserId, "");
-    }, [loginUserId]);
+        if (loginUserProviderId) initSocket(loginUserProviderId, "");
+    }, [loginUserProviderId]);
 
     const { data: allChannels = [] } = useQuery({
         queryKey: ['chatchannels'],
         queryFn: async () => {
-            const res = await chatApiService.getAllChatChannels(loginUserId);
+            const res = await chatApiService.getAllChatChannels(loginUserProviderId);
             return res.data.findAllChatChannel;
         },
+        enabled: !!loginUserProviderId
     });
 
-    // const { data: allGroups = [] } = useQuery({
-    //     queryKey: ['groupChatchannels'],
-    //     queryFn: async () => {
-    //         const res = await chatApiService.getGroupChatChannels(loginUserId);
-    //         return res?.data?.allgroups;
-    //     },
-    // });
-    const { data: allGroups = [] } = useQuery({
+    const { data: allGroups = [], isLoading: isGroupLoading } = useQuery({
         queryKey: ['groupChatchannels'],
         queryFn: async () => {
             try {
-                const res = await chatApiService.getGroupChatChannels(loginUserId);
-                return res?.data?.allgroups || []; // <-- ensure it never returns undefined
+                const res = await chatApiService.getGroupChatChannels(loginUserUserId);
+                return res?.data?.allgroups || [];
             } catch (error) {
                 console.error("Error fetching group chat channels:", error);
-                return []; // <-- fallback on error
+                return [];
             }
         },
+        enabled: !!loginUserUserId
     });
 
     const { data: providerData } = useQuery<ProviderType[]>({
@@ -82,13 +80,13 @@ const Collaboration = () => {
                 return bTime - aTime;
             });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [allChannels, providerData]);
+    }, [allChannels, providerData, loginUserProviderId]);
 
 
     const filteredChats = searchText
         ? unBlockProviders?.filter((channel: ChatChannelType) => {
-            const recipient = channel?.providerAId === loginUserId ? channel?.providerB : channel?.providerA;
-            const name = recipient?.user?.fullName || '';
+            const recipient = channel?.providerAId === loginUserUserId ? channel?.providerB : channel?.providerA;
+            const name = recipient?.fullName || '';
             return name.toLowerCase().includes(searchText.toLowerCase());
         })
         : unBlockProviders;
@@ -111,7 +109,7 @@ const Collaboration = () => {
     console.log(filteredChats, "dataaa of chaytss");
 
     useEffect(() => {
-        if (!socket || !loginUserId) return;
+        if (!socket || !loginUserProviderId) return;
 
         const handleNewMessage = (newMessage: Message) => {
             // Increment totalUnread for the chat channel
@@ -135,7 +133,7 @@ const Collaboration = () => {
         return () => {
             socket.off('new_message', handleNewMessage);
         };
-    }, [socket, loginUserId]);
+    }, [socket, loginUserProviderId]);
 
     useEffect(() => {
         const socket = getSocket();
@@ -203,7 +201,7 @@ const Collaboration = () => {
                                                 socket.emit('join_channel', { chatChannelId: data.id });
                                             }
                                             messageApiService.readMessageSingleConservation({
-                                                loginUserId,
+                                                loginUserId: loginUserProviderId,
                                                 chatChannelId: data.id,
                                             }).then(() => {
                                                 queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
@@ -224,20 +222,28 @@ const Collaboration = () => {
                         )}
                     </div>
                 ) : (
-                    filteredGroups?.length === 0 ? <NoRecordFound /> : filteredGroups.map((data: GroupChat) => (
-                        <div className="gap-y-2" key={data?.id}>
-                            <Groups
-                                data={data}
-                                activeId={activeId}
-                                onClick={() => {
-                                    setActiveId(data?.id);
-                                    if (socket?.connected && data?.id) {
-                                        socket.emit('join_channel', { chatChannelId: data.id });
-                                    }
-                                }}
-                            />
+                    isGroupLoading ? (
+                        <div className="flex justify-center mt-10">
+                            <SpinnerLoader text="Loading groups..." />
                         </div>
-                    ))
+                    ) : filteredGroups?.length === 0 ? (
+                        <NoRecordFound />
+                    ) : (
+                        filteredGroups.map((data: GroupChat) => (
+                            <div className="gap-y-2" key={data?.id}>
+                                <Groups
+                                    data={data}
+                                    activeId={activeId}
+                                    onClick={() => {
+                                        setActiveId(data?.id);
+                                        if (socket?.connected && data?.id) {
+                                            socket.emit('join_channel', { chatChannelId: data.id });
+                                        }
+                                    }}
+                                />
+                            </div>
+                        ))
+                    )
                 )}
             </div>
         </>

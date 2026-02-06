@@ -26,6 +26,7 @@ export interface User {
     id?: string
     isApprove?: string
     fullName?: string
+    email?: string
     profileImage?: string | null
     gender?: string | null
     age?: string | null

@@ -97,7 +97,14 @@ const ModalBodyContent: React.FC = () => {
     setStatusMsg("");
 
     // Validate type
-    if (!allowedTypes.includes(file.type as (typeof allowedTypes)[number])) {
+    const isPDF = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const isWord = file.type.includes("word") ||
+      file.type === "application/msword" ||
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      file.name.toLowerCase().endsWith(".doc") ||
+      file.name.toLowerCase().endsWith(".docx");
+
+    if (!isPDF && !isWord) {
       const msg = "Only PDF or Word documents are allowed.";
       toast.error(msg);
       setStatusMsg(msg);
@@ -115,11 +122,8 @@ const ModalBodyContent: React.FC = () => {
     setSelectedFile(file);
 
     // Set icon
-    const isPDF = file.type === "application/pdf";
-    const isDOC = file.type.includes("word");
-
     if (isPDF) setFileIconComponent(() => FaFilePdf);
-    else if (isDOC) setFileIconComponent(() => IoDocumentText);
+    else if (isWord) setFileIconComponent(() => IoDocumentText);
     else setFileIconComponent(null);
 
     const ok = "File selected and validated.";
@@ -242,7 +246,10 @@ const ModalBodyContent: React.FC = () => {
           </div>
         ) : (
           <div className="mt-3">
-            <FileUploader onFileSelect={handleFileSelect} />
+            <FileUploader
+              onFileSelect={handleFileSelect}
+              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            />
             {statusMsg ? <p className="text-xs mt-2 text-red-600">{statusMsg}</p> : null}
           </div>
         )}

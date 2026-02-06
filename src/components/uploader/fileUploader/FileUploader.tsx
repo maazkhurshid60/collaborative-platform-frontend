@@ -4,9 +4,10 @@ import UploadArrowIcon from '../../../assets/icons/uploadArrowIcon.svg';
 
 interface FileUploaderProps {
     onFileSelect: (file: File) => void;
+    accept?: string;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect, accept = "image/*" }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +28,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect }) => {
             <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={accept}
                 onChange={handleFileChange}
                 className="hidden"
             />

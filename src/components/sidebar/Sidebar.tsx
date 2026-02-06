@@ -54,7 +54,7 @@ const Sidebar = () => {
             setSideBarData(ClientSidebarData)
         } else if (loginUserRole === "provider") {
             setSideBarData(ProviderSidebarData)
-        } else if (loginUserRole === "superadmin") {
+        } else if (loginUserRole === "superAdmin") {
 
             setSideBarData(SuperAdminSidebarData)
         }

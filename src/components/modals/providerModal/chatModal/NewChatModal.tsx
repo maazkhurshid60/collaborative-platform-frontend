@@ -10,7 +10,7 @@ import chatApiService from '../../../../apiServices/chatApi/ChatApi'
 import { isNewChatModalShowReducser } from '../../../../redux/slices/ModalSlice'
 import { ChatChannelType } from '../../../../types/chatType/ChatChannelType'
 import { toast } from 'react-toastify'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 const NewChatModal = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
@@ -44,8 +44,8 @@ const NewChatModal = () => {
         onSuccess: (newChat) => {
             // Push to cache or refetch
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (old = []) => {
-                    const exists = old?.find((item) => item?.id === newChat?.id);
-                    return exists ? old : [newChat, ...old];
+                const exists = old?.find((item) => item?.id === newChat?.id);
+                return exists ? old : [newChat, ...old];
                 return old;
             });
 
@@ -68,18 +68,24 @@ const NewChatModal = () => {
     const { data: allChannels = [] } = useQuery({
         queryKey: ['chatchannels'],
         queryFn: async () => {
-            const res = await chatApiService.getAllChatChannels(loginUserDetail.id);     
+            const res = await chatApiService.getAllChatChannels(loginUserDetail.id);
             return res.data.findAllChatChannel;
         },
     });
-    
+
     useEffect(() => {
-            
+
     }, [allProviders])
-    const providers = allProviders?.filter(data => data?.id !== loginUserDetail.id && data.user?.isApprove === 'approve');
-    const providersWithoutChat = providers?.filter(provider => {
-        return !allChannels?.some((channel: ChatChannelType) => channel?.providerBId === provider?.id || channel?.providerAId === provider?.id);
-    });
+
+    const providers = useMemo(() => {
+        return allProviders?.filter(data => data?.id !== loginUserDetail.id && data.user?.isApprove === 'APPROVED');
+    }, [allProviders, loginUserDetail.id]);
+
+    const providersWithoutChat = useMemo(() => {
+        return providers?.filter(provider => {
+            return !allChannels?.some((channel: ChatChannelType) => channel?.providerBId === provider?.user?.id || channel?.providerAId === provider?.user?.id);
+        });
+    }, [providers, allChannels]);
 
     // Search functionality with debounce
     useEffect(() => {
@@ -98,7 +104,7 @@ const NewChatModal = () => {
             const filtered = providersWithoutChat.filter((provider) => {
                 return (
                     provider.user?.fullName?.toLowerCase().includes(searchTerm) ||
-                    provider.email?.toLowerCase().includes(searchTerm) ||
+                    provider.user?.email?.toLowerCase().includes(searchTerm) ||
                     provider.department?.toLowerCase().includes(searchTerm) ||
                     provider.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
                     provider.user?.role?.toLowerCase().includes(searchTerm)

@@ -46,7 +46,7 @@ const LicenseNo = () => {
             toast.success(response?.message);
             if (response.data.data !== null) {
                 const dataSendToRedux = {
-                    email: response?.data?.data?.client?.email,
+                    email: response?.data?.data?.email,
                     licenseNo: response?.data?.data?.licenseNo,
                     fullName: response?.data?.data?.fullName,
                     clientId: response?.data?.data?.client?.id,
@@ -59,19 +59,30 @@ const LicenseNo = () => {
                     state: response?.data?.data?.state,
                     country: response?.data?.data?.country,
                     isApprove: response?.data?.data?.isApprove,
+                    isAccountCreatedByOwnClient: response?.data?.data?.client?.isAccountCreatedByOwnClient ?? false
                 }
                 dispatch(saveLicenseNoResult(dataSendToRedux))
 
-                navigate("/client-signup")
+                navigate("/client-signup", { state: { fromLicense: true } })
             } else {
                 const dataSendToRedux = {
                     email: "",
                     licenseNo: "",
                     fullName: "",
-                    isClientExist: false
+                    clientId: "",
+                    isClientExist: false,
+                    gender: null,
+                    age: null,
+                    contactNo: null,
+                    address: null,
+                    status: null,
+                    state: "",
+                    country: "",
+                    isApprove: "",
+                    isAccountCreatedByOwnClient: false
                 }
                 dispatch(saveLicenseNoResult(dataSendToRedux))
-                navigate("/client-signup")
+                navigate("/client-signup", { state: { fromLicense: true } })
             }
         } catch (error) {
 
@@ -94,7 +105,7 @@ const LicenseNo = () => {
                     <Button text='sign up' />
                 </div>
                 <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
-            </form>                                                                                   
+            </form>
         </AuthLayout>
     </>
     )

@@ -5,9 +5,9 @@ import axios from "axios"; // make sure this is imported
 
 class DocumentApiService {
     private api = axiosInstance
-    async getAllDocuments(clientId: string) {
+    async getAllDocuments(clientId: string, providerId?: string) {
         try {
-            const response = await this.api.post("/document/get-all-document", { clientId });
+            const response = await this.api.post("/document/get-all-document", { clientId, providerId });
             return response?.data;
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get total provider";

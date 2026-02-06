@@ -1,4 +1,3 @@
-;
 import { useForm } from 'react-hook-form';
 import InputField from '../../../components/inputField/InputField'
 import AuthLayout from '../../../layouts/authLayout/AuthLayout'
@@ -47,17 +46,17 @@ const Login = () => {
             const response = await authService.login(data);
 
             const userData = response?.data?.user;
-            if (userData?.user?.isApprove === "pending" && userData?.user?.role !== "provider") {
+            if (userData?.user?.isApprove === "PENDING" && userData?.user?.role !== "provider") {
                 toast.error("Your account has not been approved or verified by the super admin yet. Please check your email for the verification link.");
                 navigate("/");
                 return;
             }
-            if (userData?.user?.isApprove === "reject") {
+            if (userData?.user?.isApprove === "REJECTED") {
                 toast.error("Your account has been reject by the super admin yet. Please contact with super admin.");
                 navigate("/");
                 return;
             }
-            if (userData?.user?.status !== "active") {
+            if (userData?.user?.status?.toLowerCase() !== "active") {
                 toast.error("Oops! Your account has been disabled. Contact with super admin.");
                 navigate("/");
                 return;
@@ -111,7 +110,7 @@ const Login = () => {
 
     const navigateToRoleDashboard = (role: string) => {
         if (role === "client") return navigate("/documents");
-        if (role === "superadmin") return navigate("/pending-users");
+        if (role === "superAdmin") return navigate("/pending-users");
         return navigate("/dashboard");
     }
 

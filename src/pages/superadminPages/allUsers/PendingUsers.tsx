@@ -47,7 +47,7 @@ const PendingUsers = () => {
             try {
                 setIsAllUsersLoading(true);
                 const response = await loginUserApiService.getAllUsersApi();
-                return response.user?.filter((data: User) => data?.role !== "superadmin" && data?.isApprove === "pending") || [];
+                return response.user?.filter((data: User) => data?.role !== "superAdmin" && data?.isApprove === "PENDING") || [];
             } catch (error) {
                 console.error("Error fetching users:", error);
                 return [];
@@ -66,7 +66,7 @@ const PendingUsers = () => {
             await loginUserApiService.approveUsersApi({
                 id: data?.id,
                 name: data?.fullName,
-                email: data?.client?.email || data?.provider?.email,
+                email: data?.email,
             });
             toast.success("User approved successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -82,7 +82,7 @@ const PendingUsers = () => {
             await loginUserApiService.rejectUsersApi({
                 id: data?.id,
                 name: data?.fullName,
-                email: data?.client?.email || data?.provider?.email,
+                email: data?.email,
             });
             toast.success("User rejected successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -147,7 +147,7 @@ const PendingUsers = () => {
                                                 ) : <UserIcon size={30} />}
                                                 <div className="text-left=">
                                                     <p className="capitalize">{data.fullName}</p>
-                                                    <p>{data?.client?.email || data?.provider?.email}</p>
+                                                    <p>{data?.email}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -155,9 +155,9 @@ const PendingUsers = () => {
                                         <td className="px-2 py-2">{getCountryNameFromCode(data.country)}</td>
                                         <td className="px-2 py-2">{data.state}</td>
                                         <td className="px-2 py-2">
-                                            <p className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove === "pending" ? "bg-primaryColorDark/20" : "bg-inputBgColor"}`}>
-                                                <GoDotFill className={`text-base ${data.isApprove === "pending" && "text-textColor"}`} />
-                                                {data.isApprove === "pending" && "Pending"}
+                                            <p className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove === "PENDING" ? "bg-primaryColorDark/20" : "bg-inputBgColor"}`}>
+                                                <GoDotFill className={`text-base ${data.isApprove === "PENDING" && "text-textColor"}`} />
+                                                {data.isApprove === "PENDING" && "Pending"}
                                             </p>
                                         </td>
                                         <td className="px-2 py-2 capitalize">{data.role}</td>

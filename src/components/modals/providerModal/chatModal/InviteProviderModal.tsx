@@ -8,9 +8,8 @@ import inviteApiService from "../../../../apiServices/chatApi/inviteApi/InviteAp
 type InviteProviderModalProps = {
   onClose?: () => void;
 };
-
 const InviteProviderModal: React.FC<InviteProviderModalProps> = ({ onClose }) => {
-  const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+  const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id);
   const [email, setEmail] = useState("");
   const [isSending, setIsSending] = useState(false);
 

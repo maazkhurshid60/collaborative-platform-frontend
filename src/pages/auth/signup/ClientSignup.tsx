@@ -5,7 +5,7 @@ import { string, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ClientSignupSchema } from '../../../schema/authSchema/AuthSchema';
 import Button from '../../../components/button/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import authService from '../../../apiServices/authApi/AuthApi';
 import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
@@ -32,6 +32,15 @@ const ClientSignup = () => {
 
     const { register, handleSubmit, formState: { errors }, setValue } = methods;
 
+    const isLicenseFound = !!licenseNoData?.licenseNo
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!location.state?.fromLicense) {
+            dispatch(emptyResult());
+        }
+    }, [dispatch, location.state]);
+
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true);
 
@@ -47,7 +56,7 @@ const ClientSignup = () => {
             age: licenseNoData.age ?? undefined,
             contactNo: licenseNoData.contactNo ?? undefined,
             address: licenseNoData.address ?? undefined,
-            gender: licenseNoData.gender ?? undefined,
+            gender: licenseNoData.gender?.toLowerCase() ?? undefined,
             status: licenseNoData.status ?? undefined,
             clientId: licenseNoData.clientId,
             isApprove: licenseNoData.isApprove
@@ -72,10 +81,16 @@ const ClientSignup = () => {
     };
 
     useEffect(() => {
-        setValue("fullName", licenseNoData?.fullName);
-        setValue("licenseNo", String(licenseNoData?.licenseNo ?? ""));
-        setValue("email", licenseNoData?.email);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        setValue("fullName", licenseNoData?.fullName, { shouldValidate: true });
+        setValue("licenseNo", String(licenseNoData?.licenseNo ?? ""), { shouldValidate: true });
+        setValue("email", licenseNoData?.email, { shouldValidate: true });
+        if (licenseNoData?.country) {
+            setValue("country", licenseNoData.country, { shouldValidate: true });
+        }
+        if (licenseNoData?.state) {
+            setValue("state", licenseNoData.state, { shouldValidate: true });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseNoData]);
 
     return (
@@ -85,16 +100,16 @@ const ClientSignup = () => {
                 <FormProvider {...methods}>
                     <form onSubmit={handleSubmit(signupFunction)}>
                         <div className='mb-3.5'>
-                            <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name' error={errors?.fullName?.message} />
+                            <InputField disabled={isLicenseFound} required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name' error={errors?.fullName?.message} />
                         </div>
                         <div className='mb-3.5'>
-                            <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
+                            <InputField disabled={isLicenseFound} required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
                         </div>
                         <div className='mb-3.5'>
-                            <InputField required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter License Number' error={errors?.licenseNo?.message} />
+                            <InputField disabled={isLicenseFound} required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter License Number' error={errors?.licenseNo?.message} />
                         </div>
-                        <CountryStateSelect isCountryView={true} isStateView={false} defaultCountry={licenseNoData?.country} />
-                        <CountryStateSelect isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />
+                        <CountryStateSelect disable={isLicenseFound} isCountryView={true} isStateView={false} defaultCountry={licenseNoData?.country} />
+                        <CountryStateSelect disable={isLicenseFound} isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />
                         <div className='mb-3.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password' error={errors?.password?.message} />
                         </div>

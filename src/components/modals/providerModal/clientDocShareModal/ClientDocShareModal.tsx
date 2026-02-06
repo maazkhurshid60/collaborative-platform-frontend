@@ -1,4 +1,3 @@
-
 import ModalLayout from '../../modalLayout/ModalLayout'
 import Button from '../../../button/Button'
 import { IoDocumentTextOutline } from 'react-icons/io5'
@@ -9,6 +8,7 @@ import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
 import { useState } from 'react'
 import Loader from '../../../loader/Loader'
 import InputFieldOnlyRead from '../../../inputField/InputFieldOnlyRead'
+import { useQueryClient } from '@tanstack/react-query'
 
 
 interface ClientDocShareModalProps {
@@ -20,9 +20,11 @@ interface ClientDocShareModalProps {
     clientEmail?: string
 
 }
+
 export const modalBodyContent = (docs: string[], providerId: string, clientId: string, sharedDocsId: string[], dispatch: AppDispatch, recipientId: string, senderId: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
     , clientEmail?: string,) => {
 
+    const queryClient = useQueryClient()
 
     const dataSendToBackend = {
         providerId: providerId,
@@ -39,6 +41,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         setIsLoading(true)
         try {
             await documentApiService.documentSharedWithClientApi(dataSendToBackend)
+            queryClient.invalidateQueries({ queryKey: ["documents"] })
             // Send notification to client
             // const notificationSendToBackend = {
             //     recipientId: recipientId, // userId of client

@@ -156,7 +156,7 @@ const Providers = () => {
                     {/* Email */}
                     <td className="px-2 py-3 align-middle">
                       <span className="block max-w-[260px] truncate lowercase" title={data?.email}>
-                        {data?.email}
+                        {data?.user?.email}
                       </span>
                     </td>
 
@@ -168,8 +168,8 @@ const Providers = () => {
                     {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
                     <td className="px-2 py-3 align-middle">
                       {data?.clientList === undefined ||
-                      data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
-                        .length === 0 ? (
+                        data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
+                          .length === 0 ? (
                         <p className="whitespace-nowrap">No Clients</p>
                       ) : (
                         <div className="min-w-0">
@@ -188,13 +188,13 @@ const Providers = () => {
 
                           {data?.clientList.filter((p: Client) => p?.client?.clientShowToOthers === true)
                             .length > 2 && (
-                            <p
-                              className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark whitespace-nowrap"
-                              onClick={() => navigate(`/providers/${data?.id}`)}
-                            >
-                              ... View All
-                            </p>
-                          )}
+                              <p
+                                className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark whitespace-nowrap"
+                                onClick={() => navigate(`/providers/${data?.id}`)}
+                              >
+                                ... View All
+                              </p>
+                            )}
                         </div>
                       )}
                     </td>

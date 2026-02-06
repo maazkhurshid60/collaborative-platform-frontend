@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const strongPassword = z
   .string()
-  .min(8, { message: "Password must be at least 8 characters long" })
+  .min(10, { message: "Password must be at least 10 characters long" })
   .regex(/[a-z]/, { message: "One sohuld be lower case letter" })
   .regex(/[A-Z]/, { message: "One sohuld be upper case letter" })
   .regex(/[0-9]/, { message: "One sohuld be numeric number" })
@@ -90,7 +90,7 @@ export const ProviderSignupSchema = z
   });
 
 
-  export const ChangePasswordSchema = z
+export const ChangePasswordSchema = z
   .object({
     oldPassword: z
       .string()

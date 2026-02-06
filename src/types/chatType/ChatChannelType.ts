@@ -32,14 +32,8 @@ export interface Member {
 
 export interface Provider {
     id: string;
-    email: string;
-    password: string;
-    department: string;
-    createdAt: string;
-    updatedAt: string;
-    userId: string;
-    user: ProviderUser;
-
+    fullName: string;
+    profileImage?: string | null;
 }
 
 export interface ProviderUser {

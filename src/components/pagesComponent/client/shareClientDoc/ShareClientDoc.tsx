@@ -46,7 +46,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
         queryKey: ["documents"],
         queryFn: async () => {
             try {
-                const response = await documentApiService.getAllDocuments(clientId);
+                const response = await documentApiService.getAllDocuments(clientId, providerId);
 
 
                 return response?.data?.data; // Ensure it always returns an array

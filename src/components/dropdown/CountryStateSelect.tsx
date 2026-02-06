@@ -14,6 +14,7 @@ interface CountryStateSelectProps {
   isCountryView: boolean;
   isStateView: boolean;
   required?: boolean;
+  disable?: boolean;
 }
 
 type FormShape = {
@@ -27,6 +28,7 @@ const CountryStateSelect = ({
   isCountryView,
   isStateView,
   required = true,
+  disable = false,
 }: CountryStateSelectProps) => {
   const {
     control,
@@ -100,6 +102,7 @@ const CountryStateSelect = ({
             placeholder="Select a country"
             error={errors?.country?.message as unknown as FieldError}
             required={required}
+            disable={disable}
             // Side effect only: clear state when user selects a country
             onChange={() => {
               setValue("state", "", { shouldDirty: true, shouldValidate: true });
@@ -118,7 +121,7 @@ const CountryStateSelect = ({
             placeholder={selectedCountry ? "Select a state" : "Select country first"}
             error={errors?.state?.message as unknown as FieldError}
             required={required}
-            disable={!selectedCountry}
+            disable={disable || !selectedCountry}
           />
         </div>
       )}

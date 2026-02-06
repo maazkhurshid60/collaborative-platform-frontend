@@ -16,6 +16,7 @@ import EditIcon from '../../../icons/edit/Edit';
 import DeleteIcon from '../../../icons/delete/DeleteIcon';
 import NoRecordFound from '../../../noRecordFound/NoRecordFound';
 import { selectedClientIdType } from '../../../../pages/providerPages/clients/Clients';
+import ViewIcon from '../../../icons/view/View';
 
 const ClientList = () => {
   // 1) Add S.No. as first heading
@@ -141,8 +142,12 @@ const ClientList = () => {
                     <td className="px-2 py-4">{data?.user?.fullName}</td>
                     <td className="px-2 py-4">{data?.user?.licenseNo}</td>
                     <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
-                    <td className="px-2 py-4 lowercase">{data?.email}</td>
-                    <td className="px-2 py-4 capitalize">{data?.user?.status}</td>
+                    <td className="px-2 py-4 lowercase">{data?.user?.email}</td>
+                    <td className="px-2 py-4">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'bg-red-100 text-red-800'}`}>
+                        {data?.user?.status?.toLowerCase()}
+                      </span>
+                    </td>
 
                     <td className="px-2 py-2 w-[100px]">
                       {data?.providerList?.length === 0 || data?.providerList === undefined ? (
@@ -184,13 +189,17 @@ const ClientList = () => {
                           )
                         ) ? (
                           <>
-                            <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
+                            <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
+                            {(data?.createdByProviderId === loginUserId?.user?.id ||
+                              data?.createdByProviderId === loginUserId?.id ||
+                              loginUserId?.user?.role === "superAdmin") && (
+                                <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
+                              )}
                             <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.user?.id)} />
                           </>
                         ) : (
                           <>
-                            <EditIcon disabled />
-                            <DeleteIcon disabled />
+                            <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
                           </>
                         )}
                       </div>

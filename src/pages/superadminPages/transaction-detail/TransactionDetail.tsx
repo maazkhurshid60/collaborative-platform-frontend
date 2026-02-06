@@ -36,7 +36,20 @@ const TransactionDetail = () => {
         "Action",
     ];
 
-    const mockData = [
+    interface Transaction {
+        id: string;
+        fullName: string;
+        client?: { email: string };
+        provider?: { email: string };
+        licenseNo?: string;
+        plan: string;
+        status: string;
+        amount: string;
+        createdAt: string;
+        profileImage?: string | null;
+    }
+
+    const mockData: Transaction[] = [
         {
             id: "1",
             fullName: "John Doe",

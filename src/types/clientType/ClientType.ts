@@ -14,7 +14,8 @@ export interface ClientType {
     age?: number | string
     eSignature?: string
     clientShowToOthers?: boolean
-
+    createdByProviderId?: string
+    isAccountCreatedByOwnClient?: boolean
 }
 
 
@@ -32,6 +33,7 @@ export interface Provider {
 export interface User {
     id?: string
     fullName?: string
+    email?: string
     profileImage?: string | null
     gender?: string | null
     age?: string | null

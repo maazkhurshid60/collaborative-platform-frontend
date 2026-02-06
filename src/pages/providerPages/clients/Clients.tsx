@@ -18,6 +18,7 @@ import EditIcon from "../../../components/icons/edit/Edit";
 import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 import { useNavigate } from "react-router-dom";
 import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
+import ViewIcon from "../../../components/icons/view/View";
 import { useDispatch, useSelector } from "react-redux";
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import { AppDispatch, RootState } from "../../../redux/store";
@@ -47,14 +48,14 @@ const Clients = () => {
   const heading = [
     "S.No",
     "Name",
-    "Client Id",
+    "License No",
     "Gender",
     "Email",
     "Status",
     "Country",
     "State",
     "Is Verified",
-    "Providers",
+    "Provider Name",
     "Action",
   ];
 
@@ -175,44 +176,43 @@ const Clients = () => {
 
                 // ✅ permission check (fix: correct boolean grouping)
                 const canEditDelete =
-                  (data?.providerList?.length ?? 0) > 0 &&
-                  data?.providerList?.some(
-                    (p: any) => p?.provider?.user?.id === loginUserId?.user?.id
-                  );
+                  loginUserId?.user?.role === "superAdmin" ||
+                  (data?.createdByProviderId === loginUserId?.id) ||
+                  (data?.createdByProviderId === loginUserId?.user?.id);
 
                 return (
                   <tr
                     key={data?.id ?? rowIndex}
-                    className="border-b-[1px] border-b-solid border-b-lightGreyColor"
+                    className="border-b border-b-solid border-b-lightGreyColor"
                   >
                     {/* S.No */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap">{serialNo}</td>
 
                     {/* Name */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.fullName}</td>
+                    <td
+                      className="px-2 py-3 align-middle whitespace-nowrap cursor-pointer text-primaryColorDark hover:underline"
+                      onClick={() => navigate(`/clients/${data?.id}`)}
+                    >
+                      {data?.user?.fullName}
+                    </td>
 
                     {/* License */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.id}</td>
+                    <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.licenseNo}</td>
 
                     {/* Gender */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">{data?.user?.gender}</td>
 
                     {/* Email (truncate) */}
                     <td className="px-2 py-3 align-middle">
-                      <span className="block max-w-[240px] truncate lowercase" title={data?.email}>
-                        {data?.email}
+                      <span className="block max-w-[240px] truncate lowercase" title={data?.user?.email}>
+                        {data?.user?.email}
                       </span>
                     </td>
 
                     {/* Status (pill) */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
-                      <span
-                        className={[
-                          "inline-block rounded-md px-3 py-1 text-sm",
-                          data?.user?.status === "active" ? "text-primaryColorDark" : "text-redColor",
-                        ].join(" ")}
-                      >
-                        {data?.user?.status}
+                    <td className="px-2 py-4">
+                      <span className={`px-3 py-1 rounded-md text-sm font-medium ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'bg-redColor text-white'}`}>
+                        {data?.user?.status?.toLowerCase()}
                       </span>
                     </td>
 
@@ -229,12 +229,12 @@ const Clients = () => {
                       <span
                         className={[
                           "inline-block rounded-md px-3 py-1 text-sm",
-                          data?.user?.isApprove === "approve"
+                          data?.user?.isApprove === "APPROVED"
                             ? "text-primaryColorDark"
                             : "text-redColor",
                         ].join(" ")}
                       >
-                        {data?.user?.isApprove === "approve" ? "Verified" : "Pending"}
+                        {data?.user?.isApprove === "APPROVED" ? "Verified" : "Pending"}
                       </span>
                     </td>
 
@@ -277,24 +277,18 @@ const Clients = () => {
                     {/* Action (fixed padding + equal icon boxes) */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap">
                       <div className="flex items-center justify-center gap-x-2">
-                        {canEditDelete ? (
+                        <div className="w-9 h-9 flex items-center justify-center">
+                          <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
+                        </div>
+                        {canEditDelete && (
                           <>
                             <div className="w-9 h-9 flex items-center justify-center">
                               <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
                             </div>
                             <div className="w-9 h-9 flex items-center justify-center">
                               <DeleteIcon
-                                onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.user?.id)}
+                                onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)}
                               />
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-9 h-9 flex items-center justify-center">
-                              <EditIcon disabled />
-                            </div>
-                            <div className="w-9 h-9 flex items-center justify-center">
-                              <DeleteIcon disabled />
                             </div>
                           </>
                         )}

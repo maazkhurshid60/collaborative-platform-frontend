@@ -30,6 +30,12 @@ interface EditClientDetailProps {
 
 const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     const isShowDeleteModal = useSelector((state: RootState) => state.modalSlice.isModalDelete)
+    const loginUser = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+
+    const isSuperAdmin = loginUser?.user?.role === "superAdmin";
+    // For providers, userDetails.id is the Provider.id.
+    const isCreator = (clientData?.createdByProviderId === loginUser?.id) || (clientData?.createdByProviderId === loginUser?.user?.id);
+    const canEdit = isSuperAdmin || isCreator;
 
     const methods = useForm<FormFields>({
         resolver: zodResolver(clientSchema),
@@ -57,13 +63,13 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
         if (clientData) {
             setValue("licenseNo", clientData?.user?.licenseNo ?? "")
-            setValue("email", clientData?.email ?? "")
+            setValue("email", clientData?.user?.email ?? "")
             setValue("fullName", clientData?.user?.fullName ?? "")
-            setValue("status", clientData?.user?.status ?? "")
+            setValue("status", (clientData?.user?.status ?? "").toLowerCase())
             setValue("address", clientData?.user?.address ?? "")
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", String(clientData?.user?.age ?? ""))
-            setValue("gender", clientData?.user?.gender ?? "")
+            setValue("gender", (clientData?.user?.gender ?? "").toLowerCase())
             setValue("country", clientData?.user?.country ?? "")
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
@@ -156,6 +162,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             <FormProvider {...methods}>
 
                 <form onSubmit={handleSubmit(updateFunction)} className="mt-6">
+                    {!canEdit && (
+                        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm">
+                            Only the original creator of this client can modify their profile information.
+                        </div>
+                    )}
                     {/* <div className='mb-5'>
                     {/* <div className='mb-5'>
                         <LabelData label='Client Image' />
@@ -189,13 +200,12 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                     </div> */}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
-                        <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                        <InputField required label='license Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                        <InputField disabled={!canEdit} required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                        <InputField disabled={!canEdit} required label='license Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
 
-                        <InputField label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
-                        <InputField required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
-                        <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
-                        <InputField required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
+                        <InputField disabled={!canEdit} label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
+                        <InputField disabled={!canEdit} required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
+                        <InputField disabled={!canEdit} required label='Contact Number' type='number' register={register("contactNo")} placeHolder='Enter contact.' error={errors.contactNo?.message} />
                         <Dropdown<FormFields>
                             name="gender"
                             label="Gender"
@@ -203,6 +213,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
                             placeholder="Choose an option"
                             error={errors.gender?.message}
+                            disable={!canEdit}
                         />
                         {/* 
                         <CountryStateSelect isFlex
@@ -215,6 +226,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             isStateView={false}
                             defaultCountry={clientData?.user?.country}
                             required={false}
+                            disable={!canEdit}
                         // defaultState={getMeData?.user?.state}
                         />
                         <CountryStateSelect
@@ -223,9 +235,9 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             // defaultCountry={getMeData?.user?.country}
                             defaultState={clientData?.user?.state}
                             required={false}
+                            disable={!canEdit}
                         />
-                        <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
-                        <InputField label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
+                        <InputField disabled={!canEdit} label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
                         <Dropdown<FormFields>
                             name="status"
@@ -234,6 +246,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             options={statusOption}
                             placeholder="Choose an option"
                             error={errors.status?.message}
+                            disable={!canEdit}
                         />
 
                         <div className=' '>
@@ -259,11 +272,13 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end">
-                        <div className='mt-10 w-[100px]'>
-                            <Button text='Update' />
+                    {canEdit && (
+                        <div className="flex items-center justify-end">
+                            <div className='mt-10 w-[100px]'>
+                                <Button text='Update' />
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </form>
             </FormProvider>
         </div>

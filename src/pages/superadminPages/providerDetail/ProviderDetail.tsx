@@ -186,8 +186,8 @@ const ProviderDetail = () => {
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-[#FAF5FF] flex items-center justify-center">
                                 <p className="font-[Poppins] text-[12px] font-medium text-[#9D27B0]">Enterprise</p>
                             </div>
-                            <div className="w-[80px] h-[26px] rounded-[4px] bg-[#ECFDF5] flex items-center justify-center">
-                                <p className="font-[Poppins] text-[12px] font-medium text-[#047857]">Active</p>
+                            <div className="w-[80px] h-[26px] rounded-[4px] bg-primaryColorDark flex items-center justify-center">
+                                <p className="font-[Poppins] text-[12px] font-medium text-white">active</p>
                             </div>
                         </div>
                     </div>

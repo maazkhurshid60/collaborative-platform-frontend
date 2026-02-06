@@ -39,27 +39,7 @@ export interface Message {
 
     sender: {
         id: string;
-        email: string;
-        password: string;
-        department: string;
-        createdAt: string;
-        updatedAt: string;
-        userId: string;
-
-        user: {
-            id: string;
-            fullName: string;
-            age: number;
-            gender: string;
-            licenseNo: string;
-            contactNo: string;
-            address: string;
-            role: string;
-            status: string;
-            profileImage: string | null;
-            createdAt: string;
-            updatedAt: string;
-            blockedMembers: string[]; // Define type if available
-        };
+        fullName: string;
+        profileImage: string | null;
     };
 }

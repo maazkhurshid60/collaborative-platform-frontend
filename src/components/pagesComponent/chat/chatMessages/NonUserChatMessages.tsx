@@ -10,7 +10,8 @@ interface Message {
     mediaUrl?: string;
     type?: string;
     sender: {
-        user: { fullName: string; profileImage?: string | null };
+        fullName: string;
+        profileImage?: string | null;
     };
     you?: boolean;
 }
@@ -89,15 +90,15 @@ const NonUserChatMessages: React.FC<NonUserChatMessagesProps> = ({ messageData }
                             >
                                 {!msg.you && (
                                     <>
-                                        {(msg?.sender?.user?.profileImage !== null && msg?.sender?.user?.profileImage !== "null") ?
-                                            <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.user?.profileImage} />
+                                        {(msg?.sender?.profileImage !== null && msg?.sender?.profileImage !== "null") ?
+                                            <img className='w-10 h-10 rounded-full object-cover' src={msg?.sender?.profileImage} />
                                             : <UserIcon size={30} />
                                         }
                                     </>
                                 )}
                                 <div className={`max-w-[75%] flex flex-col ${msg.you ? 'items-end' : ''}`}>
                                     <p className="font-semibold mb-2">
-                                        {msg?.you ? 'You' : msg?.sender?.user?.fullName}
+                                        {msg?.you ? 'You' : msg?.sender?.fullName}
                                     </p>
                                     <div className="flex items-center gap-x-4 text-[14px]">
                                         <div className="flex flex-col gap-2 relative">
@@ -139,7 +140,7 @@ const NonUserChatMessages: React.FC<NonUserChatMessagesProps> = ({ messageData }
                                         </div>
 
                                         <p className="text-textGreyColor text-[12px]">
-                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                         </p>
                                     </div>
                                 </div>

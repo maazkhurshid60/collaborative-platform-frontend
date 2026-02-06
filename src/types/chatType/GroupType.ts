@@ -43,10 +43,6 @@ export interface GroupChat {
     id: string;
     name: string;
     members: GroupMember[];
-    providerAId: string;
-    providerBId: string;
-    providerA: Provider;
-    providerB: Provider;
     lastMessage?: LastMessage
     unreadCount?: number
     updatedAt?: string

@@ -158,8 +158,8 @@ const Settings = () => {
       fullName: getMeData?.user?.fullName ?? "",
       // Keep licenseNo type aligned with your schema; if schema expects number, pass number.
       // If it expects string, pass string. Here we preserve the original approach but safely.
-      licenseNo: (getMeData?.user?.licenseNo as any) ?? "",
-      email: getMeData?.email ?? "",
+      licenseNo: getMeData?.user?.licenseNo ? String(getMeData.user.licenseNo) : "",
+      email: getMeData?.user?.email ?? "",
       country: getMeData?.user?.country ?? "",
       state: getMeData?.user?.state ?? "",
       address: getMeData?.user?.address ?? "",
@@ -206,6 +206,9 @@ const Settings = () => {
   const updateMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       const response = await loginUserApiService.updateMeApi(formData);
+      if (!response) {
+        throw new Error("Failed to update account");
+      }
       dispatch(saveLoginUserDetailsReducer(response?.data));
       return response;
     },
@@ -290,7 +293,20 @@ const Settings = () => {
   const deleteMe = () => deleteMeMutation.mutate();
 
   // Edit icon click should enter edit mode
-  const enterEditMode = () => setIsEdit(true);
+  const enterEditMode = () => {
+    // Ensure form is populated with current data when entering edit mode
+    if (getMeData) {
+      reset({
+        fullName: getMeData?.user?.fullName ?? "",
+        licenseNo: getMeData?.user?.licenseNo ? String(getMeData.user.licenseNo) : "",
+        email: getMeData?.user?.email ?? "",
+        country: getMeData?.user?.country ?? "",
+        state: getMeData?.user?.state ?? "",
+        address: getMeData?.user?.address ?? "",
+      } as any);
+    }
+    setIsEdit(true);
+  };
 
   const exitEditMode = () => {
     // Optional: revert UI signature changes when leaving edit mode without saving
@@ -372,7 +388,7 @@ const Settings = () => {
               <InputField
                 required
                 label="License Number"
-                type="number"
+                type="text"
                 register={register("licenseNo")}
                 placeHolder="Enter license number."
                 error={errors.licenseNo?.message}
@@ -445,7 +461,7 @@ const Settings = () => {
             <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
             <LabelData
               label="Email ID"
-              data={getMeData?.email?.toLowerCase()}
+              data={getMeData?.user?.email?.toLowerCase()}
             />
             <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
             <LabelData

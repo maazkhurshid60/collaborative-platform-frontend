@@ -37,7 +37,20 @@ const SubscriptionPage = () => {
         "Action",
     ];
 
-    const mockData = [
+    interface SubscriptionRecord {
+        id: string;
+        fullName: string;
+        client?: { email: string };
+        provider?: { email: string };
+        licenseNo?: string;
+        plan: string;
+        status: string;
+        amount: string;
+        createdAt: string;
+        profileImage?: string | null;
+    }
+
+    const mockData: SubscriptionRecord[] = [
         {
             id: "1",
             fullName: "John Doe",

@@ -1,7 +1,64 @@
-import { createSlice } from "@reduxjs/toolkit";
-const initialState = {
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface User {
+    address: string | null;
+    age: string | null;
+    blockedMembers: string[];
+    licenseNo: string;
+    contactNo: string | null;
+    createdAt: string;
+    fullName: string;
+    gender: string | null;
+    id: string;
+    profileImage: string;
+    role: string;
+    status: string | null;
+    updatedAt: string;
+    isApprove: string;
+}
+
+export interface UserDetails {
+    createAt: string;
+    eSignature: any;
+    email: string;
+    id: string;
+    isAccountCreatedByOwnClient: boolean;
+    password: string;
+    updatedAt: string;
+    department: string;
+    clientList: any[];
+    providerList: any[];
+    userId: string;
+    user: User;
+}
+
+interface LicenseNoResult {
+    email: string;
+    licenseNo: string;
+    fullName: string;
+    clientId: string;
+    gender: string | null;
+    age: string | null;
+    contactNo: string | null;
+    address: string | null;
+    status: string | null;
+    isClientExist: boolean;
+    isAccountCreatedByOwnClient: boolean;
+    isApprove: string;
+    state: string;
+    country: string;
+}
+
+interface LoginUserDetailState {
+    searchByLicenseNo: string;
+    decryptedPrivateKey: Uint8Array | null;
+    userDetails: UserDetails;
+    licenseNoResult: LicenseNoResult;
+}
+
+const initialState: LoginUserDetailState = {
     searchByLicenseNo: "",
-    decryptedPrivateKey: null as Uint8Array | null,
+    decryptedPrivateKey: null,
     userDetails: {
         createAt: "",
         eSignature: null,
@@ -12,11 +69,12 @@ const initialState = {
         updatedAt: "",
         department: "",
         clientList: [],
+        providerList: [],
         userId: "",
         user: {
             address: null,
             age: null,
-            blockedMembers: [] as string[],
+            blockedMembers: [],
             licenseNo: "",
             contactNo: null,
             createdAt: "",
@@ -52,14 +110,14 @@ const LoginUserDetail = createSlice({
     name: "LoginUserDetail",
     initialState: initialState,
     reducers: {
-        saveLoginUserDetailsReducer: ((state, action) => {
+        saveLoginUserDetailsReducer: ((state, action: PayloadAction<UserDetails>) => {
             state.userDetails = action.payload
 
         }),
         updateBlockedMembers: (state, action) => {
             state.userDetails.user.blockedMembers = action.payload;
         },
-        saveLicenseNoResult: (state, action) => {
+        saveLicenseNoResult: (state, action: PayloadAction<LicenseNoResult>) => {
             state.licenseNoResult = action.payload;
         },
         searchByLicenseNoReducer: (state, action) => {
@@ -92,11 +150,12 @@ const LoginUserDetail = createSlice({
                 updatedAt: "",
                 department: "",
                 clientList: [],
+                providerList: [],
                 userId: "",
                 user: {
                     address: null,
                     age: null,
-                    blockedMembers: [] as string[],
+                    blockedMembers: [],
                     licenseNo: '',
                     contactNo: null,
                     createdAt: "",

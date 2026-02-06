@@ -18,7 +18,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
   activeId,
 }) => {
   const loginUserId = useSelector(
-    (state: RootState) => state.LoginUserDetail.userDetails.id
+    (state: RootState) => state.LoginUserDetail.userDetails.userId
   );
 
   // Helper function to get media display info
@@ -42,12 +42,14 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
   const otherUser =
     data?.providerA?.id === loginUserId
       ? {
-        fullName: data?.providerB?.user?.fullName,
-        profileImage: data?.providerB?.user?.profileImage,
+        // providerA is me (User ID match), so providerB is other
+        fullName: (data?.providerB as any)?.fullName,
+        profileImage: (data?.providerB as any)?.profileImage,
       }
       : {
-        fullName: data?.providerA?.user?.fullName,
-        profileImage: data?.providerA?.user?.profileImage,
+        // providerA is not me, so providerA is other
+        fullName: (data?.providerA as any)?.fullName,
+        profileImage: (data?.providerA as any)?.profileImage,
       };
 
   const unreadCount = Number(data?.totalUnread ?? 0);
@@ -59,7 +61,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
   //     data.id,
   //     "data.lastMessage?.message",
   //     data.lastMessage?.message,
-  //     data.updatedAt
+  //     data.x1
   //   );
   // }, [data.lastMessage?.message, data.updatedAt]);
   return (

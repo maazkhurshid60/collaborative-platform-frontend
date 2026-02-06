@@ -6,11 +6,11 @@ import { AppDispatch, RootState } from '../../../redux/store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import chatApiService from '../../../apiServices/chatApi/ChatApi';
 import messageApiService, { getAllMessagesOfSingleChat } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
-import { getSocket, initSocket } from '../../../socket/Socket'; 
+import { getSocket, initSocket } from '../../../socket/Socket';
 import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/ChatMessages';
 import ModalLayout from '../../../components/modals/modalLayout/ModalLayout';
 import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
-import { MdOutlineMail } from "react-icons/md"; 
+import { MdOutlineMail } from "react-icons/md";
 import SingleChatData from '../../../components/pagesComponent/chat/singleChatMessage/SingleChatData';
 import NewChatModal from '../../../components/modals/providerModal/chatModal/NewChatModal';
 import {
@@ -32,7 +32,8 @@ import { useLocation, useParams } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
 
 const Chat = () => {
-  const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+  const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
+  const loginUserUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId);
 
   const isNewChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewChatModal);
   const isNewGroupChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewGroupChatModal);
@@ -58,7 +59,7 @@ const Chat = () => {
   const { data: allChannels = [], isLoading: isChannelsLoading } = useQuery({
     queryKey: ['chatchannels'],
     queryFn: async () => {
-      const res = await chatApiService.getAllChatChannels(loginUserId);
+      const res = await chatApiService.getAllChatChannels(loginUserProviderId);
       const channels = res.data.findAllChatChannel || [];
 
       return channels.sort((a: GroupChat, b: GroupChat) => {
@@ -72,7 +73,7 @@ const Chat = () => {
   const { data: allGroups = [], isLoading: isGroupsLoading } = useQuery({
     queryKey: ['groupChatchannels'],
     queryFn: async () => {
-      const res = await chatApiService.getGroupChatChannels(loginUserId);
+      const res = await chatApiService.getGroupChatChannels(loginUserUserId);
       const groups = res?.data?.allgroups || [];
       return groups.sort((a: GroupChat, b: GroupChat) => {
         const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
@@ -93,6 +94,11 @@ const Chat = () => {
         setActiveChatObject(group);
         setActiveChatType("group");
         setActiveId(group.id);
+        // Correctly set groupCreatedBy for refresh/direct navigation
+        setGroupCreatedBy({
+          id: group?.provider?.id,
+          name: group?.provider?.user?.fullName
+        });
       }
     } else {
       const channel = allChannels.find((c: any) => c.id === id);
@@ -105,9 +111,9 @@ const Chat = () => {
   }, [id, isGroup, allChannels, allGroups]);
 
   useEffect(() => {
-    if (!loginUserId || (!allChannels?.length && !allGroups?.length)) return;
+    if (!loginUserProviderId || (!allChannels?.length && !allGroups?.length)) return;
 
-    const socket = initSocket(loginUserId, "");
+    const socket = initSocket(loginUserProviderId, "");
 
     const joinAllRooms = () => {
       allChannels?.forEach((channel: ChatChannelType) => {
@@ -129,7 +135,7 @@ const Chat = () => {
     return () => {
       socket.off('connect', joinAllRooms);
     };
-  }, [loginUserId, allChannels, allGroups]);
+  }, [loginUserProviderId, allChannels, allGroups]);
 
   const { data: allMessage = [] } = useQuery<Message[]>({
     queryKey: ['messages', activeChatObject?.id],
@@ -138,7 +144,7 @@ const Chat = () => {
         toast.error("Chat channel ID is missing.");
         return [];
       }
-      const dataSendToBack = { loginUserId, chatChannelId: activeChatObject?.id };
+      const dataSendToBack = { loginUserId: loginUserProviderId, chatChannelId: activeChatObject?.id };
       try {
         const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
         return response?.data?.messages;
@@ -156,7 +162,7 @@ const Chat = () => {
       if (!activeChatObject?.id) return [];
 
       const dataSendToBack: getAllMessagesOfSingleChat = {
-        loginUserId,
+        loginUserId: loginUserProviderId,
         page: 1,
         limit: 10,
         groupId: activeChatObject?.id,
@@ -174,10 +180,10 @@ const Chat = () => {
   });
 
   useEffect(() => {
-    if (loginUserId) {
-      initSocket(loginUserId, "");
+    if (loginUserProviderId) {
+      initSocket(loginUserProviderId, "");
     }
-  }, [loginUserId]);
+  }, [loginUserProviderId]);
 
   useEffect(() => {
     const socket = getSocket();
@@ -187,7 +193,7 @@ const Chat = () => {
       const isSameChatOpen =
         (activeChatType === 'individual' && newMessage.chatChannelId === activeChatObject?.id) ||
         (activeChatType === 'group' && newMessage.groupId === activeChatObject?.id);
-      const isFromSelf = newMessage.senderId === loginUserId;
+      const isFromSelf = newMessage.senderId === loginUserUserId;
 
       queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
         if (!oldData) return oldData;
@@ -229,7 +235,7 @@ const Chat = () => {
                 type: newMessage.type,
               },
               unreadCount:
-                newMessage.senderId === loginUserId
+                newMessage.senderId === loginUserUserId
                   ? group.unreadCount
                   : (Number(group.unreadCount) || 0) + 1,
               updatedAt: `${new Date().toISOString()}_${Math.random()}`,
@@ -253,6 +259,19 @@ const Chat = () => {
           if (old.some((m) => m.id === newMessage.id)) return old;
           return [...old, newMessage as NewMessage];
         });
+
+        // ✅ Mark as read on backend immediately if chat is open
+        if (activeChatType === 'individual') {
+          messageApiService.readMessageSingleConservation({
+            loginUserId: loginUserProviderId,
+            chatChannelId: activeChatObject?.id,
+          });
+        } else {
+          messageApiService.readMessageGroupConservation({
+            loginUserId: loginUserProviderId,
+            groupId: activeChatObject?.id,
+          });
+        }
       }
     };
 
@@ -265,7 +284,7 @@ const Chat = () => {
       socket.off('receive_group', handleNewMessage);
       socket.off('receive_direct', handleNewMessage);
     };
-  }, [loginUserId, activeChatObject?.id, activeChatType, queryClient]);
+  }, [loginUserProviderId, loginUserUserId, activeChatObject?.id, activeChatType, queryClient]);
 
   return (
     <OutletLayout isWhiteColor={false}>
@@ -341,7 +360,7 @@ const Chat = () => {
                       setActiveChatType('individual');
 
                       messageApiService.readMessageSingleConservation({
-                        loginUserId,
+                        loginUserId: loginUserProviderId,
                         chatChannelId: data.id,
                       }).then(() => {
                         queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
@@ -410,7 +429,7 @@ const Chat = () => {
                           }
 
                           messageApiService.readMessageGroupConservation({
-                            loginUserId,
+                            loginUserId: loginUserProviderId,
                             groupId: data?.id,
                           }).then(() => {
                             queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
