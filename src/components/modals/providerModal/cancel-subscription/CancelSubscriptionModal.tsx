@@ -4,6 +4,8 @@ import ModalLayout from '../../modalLayout/ModalLayout';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../redux/store';
 import { isCancelSubscriptionModalShowReducer } from '../../../../redux/slices/ModalSlice';
+import { subscriptionApiService } from '../../../../services/subscriptionApiService';
+import { toast } from 'react-toastify';
 
 const CancelSubscriptionModalBody = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -44,6 +46,27 @@ const CancelSubscriptionModalBody = () => {
                     Keep My Subscription
                 </button>
                 <button
+                    onClick={async () => {
+                        const selectElement = document.querySelector('select');
+                        const reason = selectElement?.value;
+
+                        if (!reason) {
+                            toast.warning("Please select a reason for cancellation");
+                            return;
+                        }
+
+                        try {
+                            const response = await subscriptionApiService.cancelSubscription(reason);
+                            toast.success(response.message || "Subscription canceled successfully");
+                            dispatch(isCancelSubscriptionModalShowReducer(false));
+                            // Refresh page to show updated status
+                            window.location.reload();
+                        } catch (error: any) {
+                            const message = error.response?.data?.message || "Cancellation failed";
+                            toast.error(message);
+                            console.error("Cancellation failed", error);
+                        }
+                    }}
                     className="flex-1 py-3 px-4 bg-[#2C9993] text-white rounded-[8px] font-semibold text-[16px] hover:bg-[#2C9993]/90 transition-colors font-[Poppins]"
                 >
                     Continue with Cancellation

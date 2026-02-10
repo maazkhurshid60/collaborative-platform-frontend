@@ -1,4 +1,5 @@
 import Table from '../../../table/Table';
+import { IoDocumentTextOutline } from 'react-icons/io5';
 import CustomPagination from '../../../customPagination/CustomPagination';
 import usePaginationHook from '../../../../hook/usePaginationHook';
 import { useState, useMemo } from 'react';
@@ -190,6 +191,12 @@ const ClientList = () => {
                         ) ? (
                           <>
                             <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
+                            {!(data?.createdByProviderId === loginUserId?.user?.id ||
+                              data?.createdByProviderId === loginUserId?.id) && (
+                                <div title="Share Documents" className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
+                                  <IoDocumentTextOutline />
+                                </div>
+                              )}
                             {(data?.createdByProviderId === loginUserId?.user?.id ||
                               data?.createdByProviderId === loginUserId?.id ||
                               loginUserId?.user?.role === "superAdmin") && (

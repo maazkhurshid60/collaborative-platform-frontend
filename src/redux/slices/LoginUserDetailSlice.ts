@@ -15,6 +15,16 @@ interface User {
     status: string | null;
     updatedAt: string;
     isApprove: string;
+    hasUsedFreeTrial?: boolean;
+    subscription?: {
+        id: string;
+        plan: 'STANDARD' | 'PRO';
+        status: 'TRIALING' | 'ACTIVE' | 'CANCELED' | 'PAST_DUE';
+        trialStart?: string;
+        trialEnd?: string;
+        currentPeriodEnd?: string;
+        cancelAtPeriodEnd: boolean;
+    };
 }
 
 export interface UserDetails {

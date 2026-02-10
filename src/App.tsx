@@ -14,6 +14,37 @@ function App() {
   const queryClient = new QueryClient();
   const userId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId)
 
+
+
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (token && userId && role) {
+  //       try {
+  //         console.log("🔄 App.tsx: Refreshing user data...", { userId, role });
+  //         const response = await authService.getMe(userId, role);
+  //         if (response?.data?.data) {
+  //           dispatch(saveLoginUserDetailsReducer(response.data.data));
+  //           console.log("✅ App.tsx: User data refreshed. Status:", response.data.data?.user?.subscription?.status);
+  //         } else if (response?.data) {
+  //           // Fallback if structure is different (e.g. direct object)
+  //           console.log("⚠️ App.tsx: response.data.data is missing, checking response.data", response.data);
+  //           if (response.data.user) {
+  //             dispatch(saveLoginUserDetailsReducer(response.data.user));
+  //           } else {
+  //             // If getMeApi returns { data: ... }, try that
+  //             dispatch(saveLoginUserDetailsReducer(response.data));
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("❌ App.tsx: Failed to refresh user data", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, [dispatch, userId, role]);
+
   useEffect(() => {
     if (userId) {
       const socket = initSocket("", userId);
@@ -44,8 +75,6 @@ function App() {
   }, [userId]);
 
   useEffect(() => {
-    console.log("46 app.tsx");
-
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission().then(permission => {
         console.log("Notification permission:", permission);

@@ -1,10 +1,232 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Search, ChevronDown, Check, ShieldCheck, Lock, HandCoins, Info } from "lucide-react";
 import logo from "../../../public/assets/logo.png";
 import profileImg from "../../../public/assets/profile-img.png";
+import { subscriptionApiService } from "../../services/subscriptionApiService";
+import { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import authService from "../../apiServices/authApi/AuthApi";
+import { useDispatch, useSelector } from "react-redux";
+import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
+import { emptyDataNewJoinUserReducer } from "../../redux/slices/JoinNowUserSlice";
+import CryptoJS from "crypto-js";
+import naclUtil from "tweetnacl-util";
+import { toast } from "react-toastify";
+import { RootState } from "../../redux/store";
+
+// Initialize Stripe outside of component to avoid recreating it
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
+
+const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, planType, billingCycle }: any) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage("");
+
+        try {
+            const { error, paymentIntent } = await stripe.confirmPayment({
+                elements,
+                redirect: "if_required",
+            });
+
+            if (error) {
+                setErrorMessage(error.message || "Payment failed");
+                toast.error(error.message || "Payment failed");
+                setIsLoading(false);
+                return;
+            }
+
+            if (paymentIntent && paymentIntent.status === "succeeded") {
+                await handleSuccessAndRedirect();
+            } else {
+                // If status is processing or requires action, we might still want to proceed or wait.
+                // For now, assuming success if no error was thrown.
+                await handleSuccessAndRedirect();
+            }
+
+        } catch (err: any) {
+            console.error("Payment error:", err);
+            setErrorMessage(err.message || "An unexpected error occurred");
+            toast.error(err.message || "An unexpected error occurred");
+            navigate("/payment-failure", { state: { error: err.message || "Payment failed" } });
+            setIsLoading(false);
+        }
+    };
+
+    const handleSuccessAndRedirect = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            if (token) {
+                // USER IS ALREADY LOGGED IN (Upgrade Flow)
+                // Just redirect to success page
+                toast.success("Subscription upgraded successfully!");
+                navigate("/payment-success");
+                return;
+            }
+
+            // NEW USER (Signup Flow)
+            const response = await authService.signup({
+                ...userData,
+                subscriptionId: subscriptionId,
+                stripeCustomerId: customerId
+            });
+            toast.success("Account created and subscription active!");
+
+            const signupToken = response?.data?.token;
+            const user = response?.data?.user;
+
+            if (signupToken && user) {
+                localStorage.setItem("token", signupToken);
+
+                const encryptedPrivateKey = user?.user?.privateKey;
+                if (encryptedPrivateKey) {
+                    try {
+                        const decryptedKeyString = CryptoJS.AES.decrypt(encryptedPrivateKey, userData.password).toString(CryptoJS.enc.Utf8);
+                        const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
+                        const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
+                        dispatch(saveDecryptedPrivateKey(base64Key));
+                    } catch (decryptError) {
+                        console.error("Failed to decrypt private key:", decryptError);
+                    }
+                }
+
+                const fixedUserData = {
+                    ...user,
+                    clientList: user?.clientList?.map((item: any) => item.client) || []
+                };
+                dispatch(saveLoginUserDetailsReducer(fixedUserData));
+            }
+
+            dispatch(emptyDataNewJoinUserReducer());
+
+            // Redirect to Payment Success Page
+            setTimeout(() => navigate("/payment-success"), 1500);
+
+        } catch (err: any) {
+            console.error("Signup/Upgrade failed after payment:", err);
+            // Handle specific "Email already exists" if it happens, although we shouldn't even be calling signup if logged in
+            if (err.response?.status === 409) {
+                toast.warning("Payment was successful, but your account already exists. Please try logging in.");
+                navigate("/");
+                return;
+            }
+            toast.error("Payment successful but account processing failed. Please contact support.");
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <form onSubmit={handleSubmit} className="w-full">
+            <div className="mb-6">
+                <PaymentElement />
+            </div>
+
+            {errorMessage && <div className="text-red-500 mb-4 text-sm">{errorMessage}</div>}
+
+            <button
+                disabled={!stripe || isLoading}
+                type="submit"
+                className="w-full bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isLoading ? "Processing..." : `Pay $${billingCycle === 'MONTHLY' ? '49' : '??'} & Subscribe`}
+            </button>
+            <div className="flex items-center gap-2 text-[#667085] text-[14px] justify-center mt-4">
+                <ShieldCheck size={18} className="text-[#2C9993]" />
+                <span>Your payment is processed securely</span>
+            </div>
+            <p className="text-[12px] text-[#98A2B3] text-center max-w-[450px] mx-auto mt-4">
+                By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+            </p>
+        </form>
+    );
+};
 
 export const PaymentCheckoutPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const { planType = 'PRO', billingCycle = 'MONTHLY', userData } = location.state || {};
+    const token = localStorage.getItem("token");
+
+    const [clientSecret, setClientSecret] = useState("");
+    const [subscriptionId, setSubscriptionId] = useState("");
+    const [customerId, setCustomerId] = useState("");
+    const [isInitializing, setIsInitializing] = useState(false);
+
+    // Get logged-in user details if available
+    const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
+    const loggedInUser = userDetails?.user;
+
+    const handleInitializePayment = async () => {
+        // If not logged in and no signup data, redirect back to signup
+        if (!token && (!userData || !userData.email)) {
+            toast.error("Please sign up first.");
+            navigate("/provider-signup");
+            return;
+        }
+
+        setIsInitializing(true);
+        try {
+            const data = {
+                email: token ? loggedInUser?.email : userData?.email,
+                name: token ? loggedInUser?.fullName : userData?.fullName,
+                planType,
+                period: billingCycle
+            };
+
+            console.log('💳 Initializing payment with data:', data);
+            if (!data.email || !data.planType || !data.period) {
+                console.error('❌ Missing required fields:', {
+                    email: data.email,
+                    planType: data.planType,
+                    period: data.period,
+                    name: data.name
+                });
+                toast.error(`Missing required fields: ${!data.email ? 'email ' : ''}${!data.planType ? 'plan ' : ''}${!data.period ? 'period' : ''}`);
+                setIsInitializing(false);
+                return;
+            }
+
+            const res = await subscriptionApiService.createSubscriptionIntent(data);
+            setClientSecret(res.clientSecret);
+            setSubscriptionId(res.subscriptionId);
+            setCustomerId(res.customerId);
+            toast.success("Payment initialized!");
+
+        } catch (error: any) {
+            console.error("Failed to init payment:", error);
+            const msg = error.response?.data?.message || "Failed to initialize payment.";
+            const debug = error.response?.data?.debug;
+            toast.error(msg);
+            if (debug) console.error("Debug info:", debug);
+        } finally {
+            setIsInitializing(false);
+        }
+    };
+
+    const options = {
+        clientSecret,
+        appearance: {
+            theme: 'stripe' as const,
+            variables: {
+                colorPrimary: '#2C9993',
+            },
+        },
+    };
 
     const features = [
         "Unlimited customers",
@@ -17,34 +239,8 @@ export const PaymentCheckoutPage = () => {
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
-            {/* Custom Header (Consistent across payment flow) */}
-            <header className="bg-white px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
-                <div className="flex items-center gap-2">
-                    <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
-                </div>
+            {/* Custom Header (Consistent across payment flow) - Hide if in dashboard (token exists) */}
 
-                <div className="flex-1 max-w-[600px] mx-10">
-                    <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by CNIC..."
-                            className="w-full bg-white border border-[#E2E8F0] rounded-full py-2.5 pl-12 pr-4 focus:outline-none focus:border-[#2C9993] focus:ring-1 focus:ring-[#2C9993] transition-all text-[#101828] placeholder-[#667085]"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 cursor-pointer group">
-                    <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] overflow-hidden">
-                        <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
-                        <span className="text-[12px] text-[#667085]">Physiotherapist</span>
-                    </div>
-                    <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
-                </div>
-            </header>
 
             {/* Main Content Area */}
             <main className="max-w-[1280px] mx-auto px-6 py-10 lg:py-16">
@@ -113,19 +309,37 @@ export const PaymentCheckoutPage = () => {
 
                         {/* Payment Actions */}
                         <div className="flex flex-col items-center gap-4">
-                            <button
-                                onClick={() => navigate("/payment-success")}
-                                className="w-full max-w-[340px] bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer"
-                            >
-                                Pay with Stripe
-                            </button>
-                            <div className="flex items-center gap-2 text-[#667085] text-[14px]">
-                                <ShieldCheck size={18} className="text-[#2C9993]" />
-                                <span>Your payment is processed securely</span>
-                            </div>
-                            <p className="text-[12px] text-[#98A2B3] text-center max-w-[450px]">
-                                By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
-                            </p>
+                            {!clientSecret ? (
+                                // Show "Pay with Stripe" button initially
+                                <div className="w-full flex flex-col items-center gap-4">
+                                    <button
+                                        onClick={handleInitializePayment}
+                                        disabled={isInitializing}
+                                        className="w-full max-w-[340px] bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isInitializing ? "Initializing..." : "Pay with Stripe"}
+                                    </button>
+                                    <div className="flex items-center gap-2 text-[#667085] text-[14px]">
+                                        <ShieldCheck size={18} className="text-[#2C9993]" />
+                                        <span>Your payment is processed securely</span>
+                                    </div>
+                                    <p className="text-[12px] text-[#98A2B3] text-center max-w-[450px]">
+                                        By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+                                    </p>
+                                </div>
+                            ) : (
+                                // Show Stripe Elements form after initialization
+                                <Elements stripe={stripePromise} options={options as any}>
+                                    <CheckoutForm
+                                        clientSecret={clientSecret}
+                                        subscriptionId={subscriptionId}
+                                        customerId={customerId}
+                                        userData={userData}
+                                        planType={planType}
+                                        billingCycle={billingCycle}
+                                    />
+                                </Elements>
+                            )}
                         </div>
                     </div>
 

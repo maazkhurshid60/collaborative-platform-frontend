@@ -2,9 +2,42 @@ import { useNavigate } from "react-router-dom";
 import { Check, Copy, FileText, LayoutDashboard, Search, ChevronDown } from "lucide-react";
 import logo from "../../../public/assets/logo.png";
 import profileImg from "../../../public/assets/profile-img.png";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import authService from "../../apiServices/authApi/AuthApi";
+import { saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
 
 const PaymentSuccessPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const token = localStorage.getItem("token");
+
+    // Get user details from Redux
+    const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
+    const loginUserId = userDetails?.id;
+    const role = userDetails?.user?.role;
+
+    // 🔄 Refresh user data after payment to get updated subscription
+    useEffect(() => {
+        const refreshUserData = async () => {
+            if (!token || !loginUserId || !role) return;
+
+            try {
+                console.log("🔄 Refreshing user data after payment...");
+                const response = await authService.getMe(loginUserId, role);
+
+                if (response?.data?.data) {
+                    dispatch(saveLoginUserDetailsReducer(response.data.data));
+                    console.log("✅ User data refreshed with subscription:", response.data.data.user?.subscription);
+                }
+            } catch (error) {
+                console.error("❌ Failed to refresh user data:", error);
+            }
+        };
+
+        refreshUserData();
+    }, [token, loginUserId, role, dispatch]);
 
     const features = [
         "Unlimited customers",
@@ -17,37 +50,39 @@ const PaymentSuccessPage = () => {
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
-            {/* Custom Header */}
-            <header className="bg-white px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
-                {/* Logo Section */}
-                <div className="flex items-center gap-2">
-                    <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
-                </div>
+            {/* Custom Header - Hide if in dashboard (token exists) */}
+            {!token && (
+                <header className="bg-white px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+                    {/* Logo Section */}
+                    <div className="flex items-center gap-2">
+                        <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
+                    </div>
 
-                {/* Search Bar */}
-                <div className="flex-1 max-w-[600px] mx-10">
-                    <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
-                        <input
-                            type="text"
-                            placeholder="Search by CNIC..."
-                            className="w-full bg-white border border-[#E2E8F0] rounded-full py-2.5 pl-12 pr-4 focus:outline-none focus:border-[#2C9993] focus:ring-1 focus:ring-[#2C9993] transition-all text-[#101828] placeholder-[#667085]"
-                        />
+                    {/* Search Bar */}
+                    <div className="flex-1 max-w-[600px] mx-10">
+                        <div className="relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
+                            <input
+                                type="text"
+                                placeholder="Search by CNIC..."
+                                className="w-full bg-white border border-[#E2E8F0] rounded-full py-2.5 pl-12 pr-4 focus:outline-none focus:border-[#2C9993] focus:ring-1 focus:ring-[#2C9993] transition-all text-[#101828] placeholder-[#667085]"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                {/* User Profile */}
-                <div className="flex items-center gap-3 cursor-pointer group">
-                    <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] overflow-hidden">
-                        <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
+                    {/* User Profile */}
+                    <div className="flex items-center gap-3 cursor-pointer group">
+                        <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] overflow-hidden">
+                            <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
+                            <span className="text-[12px] text-[#667085]">Physiotherapist</span>
+                        </div>
+                        <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
-                        <span className="text-[12px] text-[#667085]">Physiotherapist</span>
-                    </div>
-                    <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
-                </div>
-            </header>
+                </header>
+            )}
 
             {/* Main Content Area */}
             <main className="max-w-[1280px] mx-auto px-6 py-12">
@@ -124,7 +159,7 @@ const PaymentSuccessPage = () => {
                     {/* Information Grid */}
                     <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                         {/* Billing Info */}
-                        <div className="bg-[#F0F2F3] rounded-[12px] p-8 space-y-4">
+                        <div className="bg-inputBgColor rounded-[12px] p-8 space-y-4">
                             <h3 className="text-[18px] font-bold text-[#101828] mb-6">Billing Information</h3>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Amount Paid</span>
@@ -147,7 +182,7 @@ const PaymentSuccessPage = () => {
                         </div>
 
                         {/* Features List */}
-                        <div className="bg-[#F0F2F3] rounded-[12px] p-8">
+                        <div className="bg-inputBgColor rounded-[12px] p-8">
                             <ul className="grid grid-cols-1 gap-y-4">
                                 {features.map((feature, index) => (
                                     <li key={index} className="flex items-center gap-x-3">

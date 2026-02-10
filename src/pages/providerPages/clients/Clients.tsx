@@ -30,6 +30,7 @@ import { useMemo, useState } from "react";
 import { ClientType, Provider } from "../../../types/clientType/ClientType";
 import { ProviderType } from "../../../types/providerType/ProviderType";
 import { IoMdAdd } from "react-icons/io";
+import { IoDocumentTextOutline } from "react-icons/io5";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import SearchBar from "../../../components/searchBar/SearchBar";
@@ -190,8 +191,7 @@ const Clients = () => {
 
                     {/* Name */}
                     <td
-                      className="px-2 py-3 align-middle whitespace-nowrap cursor-pointer text-primaryColorDark hover:underline"
-                      onClick={() => navigate(`/clients/${data?.id}`)}
+                      className="px-2 py-3 align-middle whitespace-nowrap"
                     >
                       {data?.user?.fullName}
                     </td>
@@ -276,10 +276,17 @@ const Clients = () => {
 
                     {/* Action (fixed padding + equal icon boxes) */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-x-2">
-                        <div className="w-9 h-9 flex items-center justify-center">
+                      <div className="flex items-center justify-center">
+                        <div className="w-9 h-9 flex items-center justify-start">
                           <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
                         </div>
+                        {!canEditDelete && (
+                          <div className="w-9 h-9 flex items-center justify-center">
+                            <div title="Share Documents" className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
+                              <IoDocumentTextOutline />
+                            </div>
+                          </div>
+                        )}
                         {canEditDelete && (
                           <>
                             <div className="w-9 h-9 flex items-center justify-center">

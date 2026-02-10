@@ -5,7 +5,7 @@ import ProvidersIcon from "../components/icons/dashboardIcons/providersPortalIco
 import { RiUserLine } from "react-icons/ri";
 import DocumentIcon from "../components/icons/dashboardIcons/clientsPortalIcons/document/Document";
 import SettingIcon from "../components/icons/dashboardIcons/clientsPortalIcons/setting/Setting";
-import { FileText } from "lucide-react"
+import { Crown, FileText } from "lucide-react"
 
 export const ProviderSidebarData = [
     {
@@ -32,6 +32,11 @@ export const ProviderSidebarData = [
         name: "Providers",
         url: "/providers",
         icon: ProvidersIcon
+    },
+    {
+        name: "Subscription",
+        url: "/subscription",
+        icon: Crown
     },
     {
         name: "Billing",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import DeleteProviderModal from '../../../modals/DeleteProviderModal';
 
@@ -6,15 +6,15 @@ const TrialBanner: React.FC = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [showTrialEndModal, setShowTrialEndModal] = useState(false);
 
-    // PRODUCTION FIX: Read from Redux store
+    // TEMPORARY FIX: Read from Redux (make sure you set trailEnd in database first)
     const loginUserDetail = useSelector((state: any) => state?.LoginUserDetail);
     const subscription = loginUserDetail?.userDetails?.user?.subscription;
 
     // Calculate days remaining
     const getDaysRemaining = () => {
-        if (!subscription?.trialEnd) return null;
+        if (!subscription?.trailEnd) return null;
 
-        const endDate = new Date(subscription.trialEnd);
+        const endDate = new Date(subscription.trailEnd);
         const today = new Date();
         const diffTime = endDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -24,24 +24,11 @@ const TrialBanner: React.FC = () => {
 
     const daysRemaining = getDaysRemaining();
 
-    // Only show banner for STANDARD plan with active trial (7 days or less remaining)
+    // Show banner if days remaining <= 7 and > 0
     const shouldShowBanner = subscription?.plan === 'STANDARD' &&
-        subscription?.status === 'TRIALING' &&
-        subscription?.trialEnd &&
         daysRemaining !== null &&
         daysRemaining > 0 &&
         daysRemaining <= 7;
-
-    // Log for debugging (remove in production)
-    useEffect(() => {
-        console.log('Trial Banner Debug:', {
-            plan: subscription?.plan,
-            status: subscription?.status,
-            trialEnd: subscription?.trialEnd,
-            daysRemaining,
-            shouldShowBanner
-        });
-    }, [subscription, daysRemaining, shouldShowBanner]);
 
     if (!isVisible || !shouldShowBanner) return null;
 

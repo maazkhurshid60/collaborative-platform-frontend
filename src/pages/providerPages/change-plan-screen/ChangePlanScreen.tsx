@@ -1,13 +1,37 @@
 import { ArrowRight, Calendar, Check, Crown, DollarSign, RefreshCcw } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../../../redux/store";
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import { subscriptionApiService } from "../../../services/subscriptionApiService";
+import { toast } from "react-toastify";
 
 export default function ChangePlanScreen() {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+    const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    // Get user subscription data from Redux
+    const userSubscription = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.subscription);
+    const currentPlan = userSubscription?.plan || 'STANDARD';
+    const subscriptionStatus = userSubscription?.status || 'ACTIVE';
+    const isTrialing = subscriptionStatus === 'TRIALING';
+
+    // Format dates from subscription
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
 
     const plans = [
         {
-            name: "Basic",
+            name: "Standard",
             description: "Perfect for startups and small teams",
             monthlyPrice: 29,
             annualPrice: 23,
@@ -19,7 +43,7 @@ export default function ChangePlanScreen() {
                 "Basic analytics",
                 "Mobile app access"
             ],
-            isActive: true,
+            isActive: currentPlan === 'STANDARD', // Dynamic from backend
             isPopular: false,
             theme: 'basic'
         },
@@ -35,30 +59,55 @@ export default function ChangePlanScreen() {
                 "Multi-currency support",
                 "Advanced analytics & reports",
                 "API access & integrations",
-                "API access & integrations"
+                "Team collaboration tools"
             ],
-            isActive: false,
+            isActive: currentPlan === 'PRO', // Dynamic from backend
             isPopular: true,
             theme: 'pro'
         },
-        {
-            name: "Enterprise",
-            description: "For large-scale operations",
-            monthlyPrice: 199,
-            annualPrice: 159,
-            features: [
-                "Unlimited customers",
-                "Custom billing workflows",
-                "Dedicated account manager",
-                "White-label options",
-                "Custom integrations",
-                "Advanced security & compliance"
-            ],
-            isActive: false,
-            isPopular: false,
-            theme: 'enterprise'
-        }
+        // {
+        //     name: "Enterprise",
+        //     description: "For large-scale operations",
+        //     monthlyPrice: 199,
+        //     annualPrice: 159,
+        //     features: [
+        //         "Unlimited customers",
+        //         "Custom billing workflows",
+        //         "Dedicated account manager",
+        //         "White-label options",
+        //         "Custom integrations",
+        //         "Advanced security & compliance"
+        //     ],
+        //     isActive: false,
+        //     isPopular: false,
+        //     theme: 'enterprise'
+        // }
     ];
+
+    const handleConfirmUpgrade = async () => {
+        if (!selectedPlan) {
+            toast.error("Please select a plan first");
+            return;
+        }
+
+        if (selectedPlan === currentPlan) {
+            toast.error("You are already on this plan");
+            return;
+        }
+
+
+        navigate('/payment-checkout', {
+            state: {
+                planType: selectedPlan,
+                billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+                isUpgrade: true // Flag to indicate this is an upgrade
+            }
+        });
+    };
+
+    const handleCancel = () => {
+        navigate(-1);
+    };
 
     return (
         <div className="flex flex-col gap-6 pb-10">
@@ -71,11 +120,18 @@ export default function ChangePlanScreen() {
                         <div className="w-full flex flex-col items-start gap-2">
                             <div className="flex items-center gap-3">
                                 <p className="text-[24px] font-semibold text-[#101828] font-[Poppins]">Your Current Plan</p>
-                                <div className="px-4 py-1 bg-[#2ACF27] rounded-full flex items-center justify-center">
-                                    <p className="text-[14px] font-medium text-[#FFFFFF] font-[Poppins]">Active</p>
+                                <div className={`px-4 py-1 rounded-full flex items-center justify-center ${isTrialing ? 'bg-[#FFA500]' :
+                                    subscriptionStatus === 'ACTIVE' ? 'bg-[#2ACF27]' :
+                                        'bg-gray-400'
+                                    }`}>
+                                    <p className="text-[14px] font-medium text-[#FFFFFF] font-[Poppins]">
+                                        {isTrialing ? 'Trial' : subscriptionStatus}
+                                    </p>
                                 </div>
                             </div>
-                            <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">Full access to all premium features</p>
+                            <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">
+                                {currentPlan} Plan - {isTrialing ? 'Free Trial' : 'Full access to all premium features'}
+                            </p>
                         </div>
                         <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm">
                             <Crown className="w-[32px] h-[32px] text-[#2C9993]" />
@@ -88,8 +144,10 @@ export default function ChangePlanScreen() {
                                 <Calendar size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-[#666666] font-[Poppins]">Next Billing Date</p>
-                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">March 15, 2025</p>
+                                <p className="text-sm text-[#666666] font-[Poppins]">{isTrialing ? 'Trial End Date' : 'Next Billing Date'}</p>
+                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">
+                                    {formatDate(userSubscription?.currentPeriodEnd || userSubscription?.trialEnd)}
+                                </p>
                             </div>
                         </div>
 
@@ -99,7 +157,9 @@ export default function ChangePlanScreen() {
                             </div>
                             <div>
                                 <p className="text-sm text-[#666666] font-[Poppins]">Billing Cycle</p>
-                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">Monthly</p>
+                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">
+                                    {isTrialing ? 'Trial' : 'Monthly'}
+                                </p>
                             </div>
                         </div>
 
@@ -144,8 +204,8 @@ export default function ChangePlanScreen() {
                             key={plan.name}
                             className={`relative flex flex-col p-8 rounded-[20px] transition-all duration-300 ${plan.theme === 'pro'
                                 ? 'bg-[#2C9993] text-white shadow-xl scale-105 z-10'
-                                : 'bg-white border border-[#border] text-[#101828] shadow-md'
-                                } ${plan.isActive ? 'border-2 border-[#2ACF27]' : ''}`}
+                                : 'bg-white text-[#101828] shadow-md'
+                                } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}`}
                         >
                             {/* Badges */}
                             {plan.isActive && (
@@ -175,11 +235,13 @@ export default function ChangePlanScreen() {
 
                             {/* Action Button */}
                             {!plan.isActive && (
-                                <button className={`w-full py-3.5 rounded-[12px] font-semibold text-lg mb-10 transition-all cursor-pointer ${plan.theme === 'pro'
-                                    ? 'bg-transparent border-2 border-white text-white hover:bg-white/10'
-                                    : 'bg-white border-2 border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
-                                    }`}>
-                                    Get Started
+                                <button
+                                    onClick={() => setSelectedPlan(plan.name.toUpperCase())}
+                                    className={`w-full py-3.5 rounded-[12px] font-semibold text-lg mb-10 transition-all cursor-pointer ${plan.theme === 'pro'
+                                        ? 'bg-transparent border-2 border-white text-white hover:bg-white/10'
+                                        : 'bg-white border-2 border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
+                                        } ${selectedPlan === plan.name.toUpperCase() ? 'bg-opacity-90 scale-95' : ''}`}>
+                                    {selectedPlan === plan.name.toUpperCase() ? 'Selected' : 'Get Started'}
                                 </button>
                             )}
                             {plan.isActive && <div className="h-[60px] mb-10" />} {/* Spacer for active plan */}
@@ -204,15 +266,26 @@ export default function ChangePlanScreen() {
                 </div>
 
                 <div className="flex flex-row justify-end items-end gap-x-2 mt-20 w-full">
-                    <button className="w-[220px] h-[60px] border-[#2C9993]  border-2 flex items-center cursor-pointer justify-center rounded-[12px] text-[#2C9993] text-[18px] font-semibold">
+                    <button
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                        className="w-[220px] h-[60px] border-[#2C9993] border-2 flex items-center cursor-pointer justify-center rounded-[12px] text-[#2C9993] text-[18px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                         Cancel
                     </button>
-                    <button className="w-[220px] h-[60px] bg-[#2C9993] flex items-center cursor-pointer justify-center rounded-[12px] text-white text-[18px] font-semibold">
-                        Confirm
+                    <button
+                        onClick={handleConfirmUpgrade}
+                        disabled={isLoading || !selectedPlan || selectedPlan === currentPlan}
+                        className="w-[220px] h-[60px] bg-[#2C9993] flex items-center cursor-pointer justify-center rounded-[12px] text-white text-[18px] font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <RefreshCcw size={20} className="animate-spin" />
+                                Processing...
+                            </div>
+                        ) : 'Confirm'}
                     </button>
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 }

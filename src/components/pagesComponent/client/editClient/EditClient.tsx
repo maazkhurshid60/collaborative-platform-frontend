@@ -1,5 +1,5 @@
 import OutletLayout from '../../../../layouts/outletLayout/OutletLayout'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import EditClientetails from '../editClientDetail/EditClientDetail'
 import ShareClientDoc from '../shareClientDoc/ShareClientDoc'
@@ -11,31 +11,30 @@ import { RootState } from '../../../../redux/store'
 import { useSelector } from 'react-redux'
 import Loader from '../../../loader/Loader'
 
-
 const EditClient = () => {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation();
+
     const [activeTab, setActiveTab] = useState(0)
     const tabData = ["Details", "Documents"]
     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user.id)
+    const providerId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id)
 
     const [selectedClientData, setSelectedClientData] = useState<ClientType>()
+
     //FETCH ALL CLIENTS
     const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
         queryKey: ["clients"],
         queryFn: async () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId);
-
-                return response?.data?.clients; // Ensure it always returns an array
-
-
+                return response?.data?.clients || [];
             } catch (error) {
                 console.error("Error fetching client:", error);
                 return []; // Return an empty array in case of an error
             }
         }
-
     })
 
     useEffect(() => {
@@ -44,6 +43,17 @@ const EditClient = () => {
             setSelectedClientData(selected);
         }
     }, [clientData, id])
+
+    const isCreatorOrSuperAdmin = String(selectedClientData?.createdByProviderId) === String(providerId) ||
+        String(selectedClientData?.userId) === String(loginUserId);
+
+    useEffect(() => {
+        if (location.state?.view === 'documents') {
+            setActiveTab(1);
+        }
+    }, [location.state]);
+
+    const canEditDetails = isCreatorOrSuperAdmin;
 
     if (!id) {
         return <p>Invalid client ID</p>;
@@ -55,34 +65,39 @@ const EditClient = () => {
     if (isError) {
         return <p>somethingwent wrong</p>
     }
+
     return (
         <OutletLayout heading='Client Profile' backButton={<BackIcon onClick={() => navigate(-1)} />}>
 
-            <div className='flex items-center mt-4 md:w-[60%] lg:w-[50%] xl:w-[30%] mb-3'>
-                {tabData.map((tab, id) => (
-                    <p
-                        key={id}
-                        className={`w-1/2  cursor-pointer text-center transition-colors duration-300 ${activeTab === id ? 'bg-primaryColorDark text-white rounded-md px-6 py-2 font-medium' : 'font-normal'
-                            }`}
-                        onClick={() => setActiveTab(id)}
-                    >
-                        {tab}
-                    </p>
-                ))}
-            </div>
-            <div className='relative'>
-                {/* <div className='relative w-[15%] '>
-                    <hr className='text-textGreyColor/20 h-[2px] w-[100%] mt-2' />
-                    <hr
-                        className={`text-primaryColorDark h-[2px] w-1/2 mt-2 absolute -top-2 
-                        transition-all duration-300 ease-in-out 
-                        ${activeTab === 0 ? 'left-0' : 'left-1/2'}`}
-                    />
-                </div> */}
-                <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
-            </div>
+            {/* Only show tabs if user has permission to view details (isCreator) */}
+            {canEditDetails && (
+                <>
+                    <div className='flex items-center mt-4 md:w-[60%] lg:w-[50%] xl:w-[30%] mb-3'>
+                        {tabData.map((tab, id) => (
+                            <p
+                                key={id}
+                                className={`w-1/2  cursor-pointer text-center transition-colors duration-300 ${activeTab === id ? 'bg-primaryColorDark text-white rounded-md px-6 py-2 font-medium' : 'font-normal'
+                                    }`}
+                                onClick={() => setActiveTab(id)}
+                            >
+                                {tab}
+                            </p>
+                        ))}
+                    </div>
+                    <div className='relative'>
+                        <hr className='text-textGreyColor/30 h-[2px] w-[100%] mt-0 absolute -top-[0px]' />
+                    </div>
+                </>
+            )}
 
-            {activeTab === 0 ? <EditClientetails clientData={selectedClientData} /> : <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} clientEmail={selectedClientData?.user?.email} />}
+            {
+                // If canEditDetails is false, we ALWAYS show ShareClientDoc (effectively tab 1).
+                // If canEditDetails is true, we show based on activeTab.
+                (!canEditDetails || activeTab === 1) ?
+                    <ShareClientDoc clientId={id} recipientId={selectedClientData?.userId} clientEmail={selectedClientData?.user?.email} />
+                    :
+                    <EditClientetails clientData={selectedClientData} />
+            }
         </OutletLayout>
     )
 }

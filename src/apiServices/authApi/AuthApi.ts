@@ -89,6 +89,32 @@ class AuthService {
         }
     }
 
+    async checkEmail(email: string) {
+        try {
+            const response = await this.api.post("/check-email", { email });
+            return response.data;
+        } catch (error: unknown) {
+            throw error;
+        }
+    }
+
+    async getMe(loginUserId: string, role: string) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post("/get-me",
+                { loginUserId, role },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error getMe", error);
+            throw error || "Get user failed";
+        }
+    }
 
 }
 // Export a single instance

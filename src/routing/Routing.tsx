@@ -11,13 +11,17 @@ import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDeta
 import SubscriptionPage from "../pages/superadminPages/subscription/SubscriptionPage";
 import BilingPage from "../pages/providerPages/biling/BilingPage";
 import ChangePlanScreen from "../pages/providerPages/change-plan-screen/ChangePlanScreen";
-import SubscriptionSettingPage from "../pages/providerPages/subscription-setting/SubscriptionPage";
+import { SubscriptionSettingPage } from "../pages/providerPages/subscription-setting/SubscriptionPage";
 import RefundTransaction from "../pages/superadminPages/transaction-detail/RefundDetailByUserId";
 import PaymentSuccessPage from "../pages/payment-pages/PaymentSuccessPage";
 import { PaymentFailurePage } from "../pages/payment-pages/PaymentFailurePage";
 import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage";
 import ConfirmFreeAccount from "../pages/auth/confirmFreeAccount/ConfirmFreeAccount";
 import SelectPlan from "../pages/payment-pages/SelectPlan";
+import PlanExpiredOverlay from "../components/pagesComponent/dashboard/plan-expired/PlanExpiredOverlay";
+import TrialExpiredModal from "../components/modals/TrialExpiredModal";
+import { SubscriptionGuard } from "../components/subscriptionGuard/SubscriptionGuard";
+import UpgradePrompt from "../components/upgradePrompt/UpgradePrompt";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
@@ -46,6 +50,7 @@ const PendingUsers = lazy(() => import("../pages/superadminPages/allUsers/Pendin
 const VerifiedUsers = lazy(() => import("../pages/superadminPages/allUsers/VerifiedUsers"));
 const AllDocuments = lazy(() => import("../pages/superadminPages/AllDocuments"));
 const ClientProfile = lazy(() => import("../pages/providerPages/clients/clientProfile/ClientProfile"));
+const AdminInvoices = lazy(() => import("../pages/adminPages/invoices/AdminInvoices"));
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -53,14 +58,12 @@ const Routing = () => {
         <Routes>
 
             {/* Public Routes */}
-            <Route path="/payment-success" element={<WrappedRoute><PaymentSuccessPage /></WrappedRoute>} />
-            <Route path="/payment-failure" element={<WrappedRoute><PaymentFailurePage /></WrappedRoute>} />
-            <Route path="/payment-checkout" element={<WrappedRoute><PaymentCheckoutPage /></WrappedRoute>} />
-
             < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
             <Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
-            <Route path="/confirm-free-account" element={<WrappedRoute><ConfirmFreeAccount /></WrappedRoute>} />
-            <Route path="/select-plan" element={<WrappedRoute><SelectPlan /></WrappedRoute>} />
+
+
+
+
             {/* Implementation of payment module */}
             {/* <Route path="/free-trail-form" element={<WrappedRoute><FreeTrailForm /></WrappedRoute>} />
             <Route path="/pricing-plan" element={<WrappedRoute><PricingPlan /></WrappedRoute>} />
@@ -126,7 +129,9 @@ const Routing = () => {
                             path="/dashboard"
                             element={
                                 <WrappedRoute>
-                                    <Dashboard />
+                                    <SubscriptionGuard>
+                                        <Dashboard />
+                                    </SubscriptionGuard>
                                 </WrappedRoute>
                             }
                         />
@@ -157,6 +162,11 @@ const Routing = () => {
                         />
                     )
                 }
+                {
+                    loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+                        <Route path="/subscription" element={<WrappedRoute><SubscriptionSettingPage /></WrappedRoute>} />
+                    )
+                }
 
                 {
                     loginUserRole === "superAdmin" && (
@@ -166,6 +176,17 @@ const Routing = () => {
                 {
                     loginUserRole === "superAdmin" && (
                         <Route path="/provider/refund/:id" element={<WrappedRoute><RefundTransaction /></WrappedRoute>} />
+                    )
+                }
+                {
+                    loginUserRole === "superAdmin" && (
+                        <Route path="/invoices" element={<WrappedRoute><AdminInvoices /></WrappedRoute>} />
+                    )
+                }
+
+                {
+                    loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+                        <Route path="/billing" element={<WrappedRoute ><BilingPage /></WrappedRoute>} />
                     )
                 }
 
@@ -184,17 +205,27 @@ const Routing = () => {
                 <Route path="/clients" element={<WrappedRoute ><Clients /></WrappedRoute>} />
 
                 {/* Screens for subscription */}
-                <Route path="/billing" element={<WrappedRoute ><BilingPage /></WrappedRoute>} />
                 <Route path="/billing/change-plan" element={<WrappedRoute ><ChangePlanScreen /></WrappedRoute>} />
-                <Route path="/billing/settings" element={<WrappedRoute ><SubscriptionSettingPage /></WrappedRoute>} />
 
 
 
 
 
-                <Route path="/clients/add-client" element={<WrappedRoute ><AddClient /></WrappedRoute>} />
+                <Route path="/clients/add-client" element={
+                    <WrappedRoute>
+                        <SubscriptionGuard fallback={<UpgradePrompt message="Upgrade to add new clients" showFullScreen={true} />}>
+                            <AddClient />
+                        </SubscriptionGuard>
+                    </WrappedRoute>
+                } />
                 <Route path="/clients/:id" element={<WrappedRoute ><ClientProfile /></WrappedRoute>} />
-                <Route path="/clients/edit-client/:id" element={<WrappedRoute ><EditClient /></WrappedRoute>} />
+                <Route path="/clients/edit-client/:id" element={
+                    <WrappedRoute>
+                        <SubscriptionGuard fallback={<UpgradePrompt message="Upgrade to edit clients" showFullScreen={true} />}>
+                            <EditClient />
+                        </SubscriptionGuard>
+                    </WrappedRoute>
+                } />
                 <Route path="/user-profile" element={<WrappedRoute ><UserProfile /></WrappedRoute>} />
                 <Route path="/providers" element={<WrappedRoute ><Providers /></WrappedRoute>} />
                 <Route path="/providers/:id" element={<WrappedRoute ><ProviderProfile /></WrappedRoute>} />
@@ -203,8 +234,27 @@ const Routing = () => {
                 <Route path="/chat/group/:id" element={<Chat />} />
                 <Route path="/super-admin" element={<SuperAdminMePage />} />
 
+                {/* Test Expired UI within Dashboard */}
+                <Route
+                    path="/test-expired-ui"
+                    element={
+                        <WrappedRoute>
+                            <div className="min-h-screen pl-2 pr-2 pt-0 pb-0">
+                                <PlanExpiredOverlay />
+                                {/* <TrialExpiredModal /> */}
+                            </div>
+                        </WrappedRoute>
+                    }
+                />
 
+
+                <Route path="/select-plan" element={<WrappedRoute><SelectPlan /></WrappedRoute>} />
+                <Route path="/confirm-free-account" element={<WrappedRoute><ConfirmFreeAccount /></WrappedRoute>} />
+                <Route path="/payment-checkout" element={<WrappedRoute><PaymentCheckoutPage /></WrappedRoute>} />
+                <Route path="/payment-success" element={<WrappedRoute><PaymentSuccessPage /></WrappedRoute>} />
+                <Route path="/payment-failure" element={<WrappedRoute><PaymentFailurePage /></WrappedRoute>} />
             </Route>
+            <Route path="/super-admin" element={<SuperAdminMePage />} />
         </Routes >
     );
 };

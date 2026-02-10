@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProviderSignupSchema } from '../../../schema/authSchema/AuthSchema';
 import Button from '../../../components/button/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Dropdown from '../../../components/dropdown/Dropdown';
 import authService from '../../../apiServices/authApi/AuthApi';
 import { toast } from 'react-toastify';
@@ -21,17 +21,11 @@ import confirmFreeAccount from "../../../../public/assets/confirm-free-account.p
 import { RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
+import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
+import { subscriptionApiService } from '../../../services/subscriptionApiService';
 import { ArrowLeft, ArrowRight, Check, Info } from 'lucide-react';
 import StepIndicator from '../../../components/stepIndicator/StepIndicator';
-
-const departmentOptions = [
-    { value: "Nutritionist", label: "Nutritionist" },
-    { value: "Psychiatrist", label: "Psychiatrist" },
-    { value: "Therapist", label: "Therapist" },
-    { value: "Eye Specialist", label: "Eye Specialist" },
-    { value: "Heart Specialist", label: "Heart Specialist" },
-]
 
 const features = [
     "Up to 100 customers",
@@ -62,6 +56,7 @@ const ConfirmFreeAccount = () => {
     const { register, handleSubmit, formState: { errors }, setValue, control } = methods;
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const location = useLocation() as { state: any };
     //FUNCTIONS
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
@@ -213,8 +208,83 @@ const ConfirmFreeAccount = () => {
                             <ArrowLeft size={18} className={'text-inherit'} strokeWidth={3} />
                             Back
                         </button>
-                        <button className="bg-[#2C9993] text-white cursor-pointer hover:bg-[#2C9993]/90 px-4 py-2 rounded-lg">
-                            Start 14-Day Free Trial
+                        <button
+                            onClick={async () => {
+                                setIsLoading(true);
+                                try {
+                                    // Validation: Check if we have userData for new signups
+                                    if (!location.state?.userData) {
+                                        toast.error("Session expired. Please signup again.");
+                                        navigate('/provider-signup');
+                                        return;
+                                    }
+
+                                    const planType = location.state?.planType || 'FREE';
+
+                                    // Create account with plan in one call
+                                    const signupData = {
+                                        ...location.state.userData,
+                                        planType  // Include planType in signup request
+                                    };
+
+                                    const response = await authService.signup(signupData);
+                                    const token = response?.data?.token;
+                                    const user = response?.data?.user;
+
+                                    if (token && user) {
+                                        localStorage.setItem("token", token);
+
+                                        // Decrypt Private Key
+                                        const encryptedPrivateKey = user?.user?.privateKey;
+                                        if (encryptedPrivateKey) {
+                                            try {
+                                                const decryptedKeyString = CryptoJS.AES.decrypt(encryptedPrivateKey, location.state.userData.password).toString(CryptoJS.enc.Utf8);
+                                                const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
+                                                const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
+                                                dispatch(saveDecryptedPrivateKey(base64Key));
+                                            } catch (decryptError) {
+                                                console.error("Failed to decrypt private key:", decryptError);
+                                            }
+                                        }
+
+                                        const fixedUserData = {
+                                            ...user,
+                                            clientList: user?.clientList?.map((item: any) => item.client) || []
+                                        };
+                                        dispatch(saveLoginUserDetailsReducer(fixedUserData));
+                                    }
+
+                                    // Clear join user state if any
+                                    if (joinUser?.isNewJoin) {
+                                        const dataSendToBack = { groupId: joinUser?.groupId, memberEmail: joinUser?.memberEmail }
+                                        await messageApiService.updateGroupApi(dataSendToBack)
+                                        dispatch(emptyDataNewJoinUserReducer())
+                                    }
+
+                                    const successMessage = planType === 'STANDARD'
+                                        ? "14-day free trial activated!"
+                                        : "Free plan activated!";
+                                    toast.success(successMessage);
+                                    navigate('/dashboard');
+                                } catch (error: any) {
+                                    console.error(error);
+                                    const errorMessage = error.response?.data?.message || "Failed to create account.";
+
+                                    // Handle specific error cases
+                                    if (errorMessage.includes("already exists")) {
+                                        toast.error("Account already exists. Please login.");
+                                        navigate('/login');
+                                    } else {
+                                        toast.error(errorMessage);
+                                    }
+                                } finally {
+                                    setIsLoading(false);
+                                }
+                            }}
+                            className="bg-[#2C9993] text-white cursor-pointer hover:bg-[#2C9993]/90 px-4 py-2 rounded-lg disabled:opacity-50"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Processing...' : (location.state?.planType === 'STANDARD' ? 'Start 14-Day Free Trial' : 'Confirm Free Plan')}
                         </button>
                     </div>
                 </div>

@@ -85,7 +85,33 @@ const ProviderSignup = () => {
 
     // 2️⃣ Signup Function
     const signupFunction = async (data: FormFields) => {
-        setIsLoading(true)
+        setIsLoading(true);
+
+        try {
+            // Check if email already exists
+            const response = await authService.checkEmail(data.email);
+
+            // If email exists, stop the signup
+            if (response?.data?.exists) {
+                setIsLoading(false);
+                toast.error("Email is already registered");
+                return;
+            }
+        } catch (error: any) {
+            setIsLoading(false);
+
+            // Handle 409 Conflict (email exists)
+            if (error?.response?.status === 409) {
+                toast.error("Email is already registered");
+                return;
+            }
+
+            // Handle other errors
+            console.error("Email check error:", error);
+            toast.error("Failed to verify email. Please try again.");
+            return;
+        }
+
         const keyPair = nacl.box.keyPair();
         const publicKey = naclUtil.encodeBase64(keyPair.publicKey);
         const privateKey = naclUtil.encodeBase64(keyPair.secretKey);
@@ -107,54 +133,13 @@ const ProviderSignup = () => {
         };
 
 
-        try {
-            const response = await authService.signup(dataSendToBackend);
-            toast.success(response?.message);
+        // Simply navigate to select-plan with the user data in state
+        setIsLoading(false);
+        navigate("/select-plan", { state: { userData: dataSendToBackend } });
 
-            const token = response?.data?.token;
-            const userData = response?.data?.user;
-
-            if (token && userData) {
-                // Save token
-                localStorage.setItem("token", token);
-
-                // Decrypt and save private key (consistent with Login flow)
-                const encryptedPrivateKey = userData?.user?.privateKey;
-                if (encryptedPrivateKey) {
-                    try {
-                        const decryptedKeyString = CryptoJS.AES.decrypt(encryptedPrivateKey, data.password).toString(CryptoJS.enc.Utf8);
-                        const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
-                        const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
-                        dispatch(saveDecryptedPrivateKey(base64Key));
-                    } catch (decryptError) {
-                        console.error("Failed to decrypt private key during auto-login:", decryptError);
-                    }
-                }
-
-                // Prepare user data (handle potential clientList nesting)
-                const fixedUserData = {
-                    ...userData,
-                    clientList: userData?.clientList?.map((item: any) => item.client) || []
-                };
-
-                // Save user details to Redux
-                dispatch(saveLoginUserDetailsReducer(fixedUserData));
-            }
-
-            if (joinUser?.isNewJoin) {
-                const dataSendToBack = { groupId: joinUser?.groupId, memberEmail: joinUser?.memberEmail }
-                await updateGroupApi(dataSendToBack)
-                dispatch(emptyDataNewJoinUserReducer())
-            }
-            navigate("/dashboard")
-        } catch (error: unknown) {
-            const err = error as AxiosError<AuthErrorResponse>;
-
-            toast.error(`${err?.response?.data?.data?.error}`);
-        } finally {
-            setIsLoading(false)
-
-        }
+        /* 
+         * Original Signup Logic Deferred to Payment Confirmation
+         */
     }
 
 
