@@ -18,13 +18,18 @@ import { RootState } from "../../redux/store";
 // Initialize Stripe outside of component to avoid recreating it
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
-const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, planType, billingCycle }: any) => {
+const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, price }: any) => {
     const stripe = useStripe();
     const elements = useElements();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [isElementReady, setIsElementReady] = useState(false);
+
+    // Get logged in user for refresh logic
+    const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
+    const loggedInUser = userDetails?.user;
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -37,24 +42,46 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, plan
         setErrorMessage("");
 
         try {
-            const { error, paymentIntent } = await stripe.confirmPayment({
-                elements,
-                redirect: "if_required",
-            });
+            const isSetupIntent = clientSecret.startsWith("seti_");
 
-            if (error) {
-                setErrorMessage(error.message || "Payment failed");
-                toast.error(error.message || "Payment failed");
+            let result;
+            if (isSetupIntent) {
+                result = await stripe.confirmSetup({
+                    elements,
+                    redirect: "if_required",
+                });
+            } else {
+                result = await stripe.confirmPayment({
+                    elements,
+                    redirect: "if_required",
+                });
+            }
+
+            // Handle the error property which exists on both types
+            if (result.error) {
+                setErrorMessage(result.error.message || "Payment failed");
+                toast.error(result.error.message || "Payment failed");
                 setIsLoading(false);
                 return;
             }
 
-            if (paymentIntent && paymentIntent.status === "succeeded") {
-                await handleSuccessAndRedirect();
+            // Type-safe handling of different result types
+            if (isSetupIntent) {
+                // result is SetupIntentResult
+                const setupIntent = (result as any).setupIntent;
+                if (setupIntent && (setupIntent.status === "succeeded" || setupIntent.status === "processing")) {
+                    await handleSuccessAndRedirect();
+                } else {
+                    await handleSuccessAndRedirect();
+                }
             } else {
-                // If status is processing or requires action, we might still want to proceed or wait.
-                // For now, assuming success if no error was thrown.
-                await handleSuccessAndRedirect();
+                // result is PaymentIntentResult
+                const paymentIntent = (result as any).paymentIntent;
+                if (paymentIntent && paymentIntent.status === "succeeded") {
+                    await handleSuccessAndRedirect();
+                } else {
+                    await handleSuccessAndRedirect();
+                }
             }
 
         } catch (err: any) {
@@ -70,9 +97,35 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, plan
         try {
             const token = localStorage.getItem("token");
 
-            if (token) {
+            if (token && loggedInUser) {
                 // USER IS ALREADY LOGGED IN (Upgrade Flow)
-                // Just redirect to success page
+                // Refresh user details before redirecting
+                try {
+                    const role = loggedInUser.role || 'PROVIDER';
+
+                    // 1. Force Sync first
+                    await subscriptionApiService.syncSubscription().catch((syncErr: any) => {
+                        console.warn("⚠️ Checkout: Sync failed, proceeding to refresh", syncErr);
+                    });
+
+                    // 2. Refresh data
+                    const response = await authService.getMe(loggedInUser.id, role);
+
+                    // response.data is the ApiResponse, so response.data.data is the payload { data: getMeDetails }
+                    const getMeDetails = response?.data?.data;
+
+                    if (getMeDetails && getMeDetails.user) {
+                        const fixedUserData = {
+                            ...getMeDetails,
+                            clientList: getMeDetails.clientList?.map((item: any) => item.client) || []
+                        };
+                        dispatch(saveLoginUserDetailsReducer(fixedUserData));
+                        console.log("✅ Checkout: User data refreshed after upgrade");
+                    }
+                } catch (refreshError: any) {
+                    console.error("❌ Checkout: Failed to refresh user data:", refreshError);
+                }
+
                 toast.success("Subscription upgraded successfully!");
                 navigate("/payment-success");
                 return;
@@ -118,7 +171,6 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, plan
 
         } catch (err: any) {
             console.error("Signup/Upgrade failed after payment:", err);
-            // Handle specific "Email already exists" if it happens, although we shouldn't even be calling signup if logged in
             if (err.response?.status === 409) {
                 toast.warning("Payment was successful, but your account already exists. Please try logging in.");
                 navigate("/");
@@ -131,8 +183,27 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, plan
 
     return (
         <form onSubmit={handleSubmit} className="w-full">
-            <div className="mb-6">
-                <PaymentElement />
+            <div className="mb-6 min-h-[200px]">
+                {!isElementReady && (
+                    <div className="flex justify-center items-center h-[200px] border border-dashed border-gray-300 rounded mb-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2C9993]"></div>
+                        <span className="ml-2 text-gray-500">Loading Payment Form...</span>
+                    </div>
+                )}
+                {/* Keep PaymentElement mounted to ensure it loads, but hide it visually until ready */}
+                <div style={{
+                    opacity: isElementReady ? 1 : 0,
+                    position: isElementReady ? 'static' : 'absolute',
+                    zIndex: -1,
+                    visibility: isElementReady ? 'visible' : 'hidden',
+                }}>
+                    <PaymentElement
+                        onReady={() => {
+                            console.log("Payment Element Ready");
+                            setIsElementReady(true);
+                        }}
+                    />
+                </div>
             </div>
 
             {errorMessage && <div className="text-red-500 mb-4 text-sm">{errorMessage}</div>}
@@ -142,7 +213,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, plan
                 type="submit"
                 className="w-full bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {isLoading ? "Processing..." : `Pay $${billingCycle === 'MONTHLY' ? '49' : '??'} & Subscribe`}
+                {isLoading ? "Processing..." : `Pay $${price || '??'} & Subscribe`}
             </button>
             <div className="flex items-center gap-2 text-[#667085] text-[14px] justify-center mt-4">
                 <ShieldCheck size={18} className="text-[#2C9993]" />
@@ -159,7 +230,7 @@ export const PaymentCheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { planType = 'PRO', billingCycle = 'MONTHLY', userData } = location.state || {};
+    const { planType = 'STANDARD', billingCycle = 'MONTHLY', userData } = location.state || {}; // Default to STANDARD
     const token = localStorage.getItem("token");
 
     const [clientSecret, setClientSecret] = useState("");
@@ -170,6 +241,15 @@ export const PaymentCheckoutPage = () => {
     // Get logged-in user details if available
     const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
     const loggedInUser = userDetails?.user;
+
+    // Dynamic Pricing (Mock logic to match SelectPlan)
+    const getPrice = () => {
+        if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 63;
+        return billingCycle === 'MONTHLY' ? 29 : 29; // Standard
+    };
+    const price = getPrice();
+    const tax = price * 0.1;
+    const total = price + tax;
 
     const handleInitializePayment = async () => {
         // If not logged in and no signup data, redirect back to signup
@@ -229,12 +309,12 @@ export const PaymentCheckoutPage = () => {
     };
 
     const features = [
-        "Unlimited customers",
-        "Custom billing workflows",
-        "Dedicated account manager",
-        "White-label options",
-        "Custom integrations",
-        "Advanced security & compliance"
+        "Up to 100 customers",
+        "Basic invoicing & billing",
+        "Email support",
+        "Payment processing",
+        "Basic analytics",
+        "Mobile app access"
     ];
 
     return (
@@ -263,12 +343,12 @@ export const PaymentCheckoutPage = () => {
 
                             <div className="flex items-end justify-between mb-8">
                                 <div className="flex flex-col">
-                                    <h2 className="text-[20px] font-bold text-[#101828]">Professional Plan</h2>
-                                    <p className="text-[16px] text-[#667085]">Monthly billing</p>
+                                    <h2 className="text-[20px] font-bold text-[#101828]">{planType} Plan</h2>
+                                    <p className="text-[16px] text-[#667085]">{billingCycle === 'MONTHLY' ? 'Monthly' : 'Annual'} billing</p>
                                 </div>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-[32px] font-bold text-[#101828]">$49</span>
-                                    <span className="text-[16px] text-[#667085]">/month</span>
+                                    <span className="text-[32px] font-bold text-[#101828]">${price}</span>
+                                    <span className="text-[16px] text-[#667085]">/{billingCycle === 'MONTHLY' ? 'month' : 'year'}</span>
                                 </div>
                             </div>
                             <p className="text-[14px] font-bold text-[#101828] mb-4">What's included:</p>
@@ -291,17 +371,17 @@ export const PaymentCheckoutPage = () => {
                             <div className="space-y-4 mb-8">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[16px] text-[#667085]">Subtotal</span>
-                                    <span className="text-[16px] font-medium text-[#101828]">$49.00</span>
+                                    <span className="text-[16px] font-medium text-[#101828]">${price.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className="text-[16px] text-[#667085]">Tax (10%)</span>
-                                    <span className="text-[16px] font-medium text-[#101828]">$4.90</span>
+                                    <span className="text-[16px] font-medium text-[#101828]">${tax.toFixed(2)}</span>
                                 </div>
                             </div>
                             <div className="border-t border-[#E2E8F0] pt-6 mb-2">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[20px] font-bold text-[#101828]">Total</span>
-                                    <span className="text-[24px] font-bold text-[#101828]">$53.90</span>
+                                    <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)}</span>
                                 </div>
                                 <p className="text-[14px] text-[#667085] mt-1">Billed monthly, cancel anytime</p>
                             </div>
@@ -329,7 +409,7 @@ export const PaymentCheckoutPage = () => {
                                 </div>
                             ) : (
                                 // Show Stripe Elements form after initialization
-                                <Elements stripe={stripePromise} options={options as any}>
+                                <Elements key={clientSecret} stripe={stripePromise} options={options as any}>
                                     <CheckoutForm
                                         clientSecret={clientSecret}
                                         subscriptionId={subscriptionId}
@@ -337,6 +417,7 @@ export const PaymentCheckoutPage = () => {
                                         userData={userData}
                                         planType={planType}
                                         billingCycle={billingCycle}
+                                        price={total}
                                     />
                                 </Elements>
                             )}

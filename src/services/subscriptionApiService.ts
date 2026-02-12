@@ -33,5 +33,10 @@ export const subscriptionApiService = {
         const query = providerId ? `?providerId=${providerId}` : '';
         const response = await authenticatedAxiosInstance.get(`/subscription/admin/invoices${query}`);
         return response.data;
+    },
+
+    syncSubscription: async () => {
+        const response = await authenticatedAxiosInstance.post(`/subscription/sync`);
+        return response.data;
     }
 };

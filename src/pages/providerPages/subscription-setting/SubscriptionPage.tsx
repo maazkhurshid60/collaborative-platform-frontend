@@ -17,7 +17,7 @@ export const SubscriptionSettingPage = () => {
     // Get user and subscription data from Redux
     const user = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user);
     const userEmail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.email);
-    const userSubscription = user.subscription;
+    const userSubscription = user?.subscription;
 
     const currentPlanName = userSubscription?.plan || 'STANDARD';
     const subscriptionStatus = userSubscription?.status || 'ACTIVE';
@@ -77,9 +77,11 @@ export const SubscriptionSettingPage = () => {
     });
 
     const transformedHistory = billingHistory?.map((payment: any) => ({
-        date: formatDate(payment.createdAt),
-        plan: `${payment.plan} Plan`,
-        amount: `$${(payment.amount / 100).toFixed(2)}`
+        id: payment.id,
+        plan: payment.plan || "Standard",
+        amount: payment.rawAmount ? `$${payment.rawAmount.toFixed(2)}` : (payment.amount || "$0.00"),
+        date: formatDate(payment.createdAt || payment.date),
+        status: payment.status || "Paid"
     })) || [];
 
     const subscriptionPageData = {
@@ -116,7 +118,7 @@ export const SubscriptionSettingPage = () => {
         billingCycle: userSubscription?.currentPeriodEnd ? "Monthly" : "Trial",
         amountDue: `$${activePlan.monthlyPrice}/mo`,
         billingEmail: userEmail || "N/A",
-        billingAddress: user.address || "N/A",
+        billingAddress: user?.address || "N/A",
         billingHistory: transformedHistory
     };
 
@@ -128,7 +130,7 @@ export const SubscriptionSettingPage = () => {
         `}>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
                     <div className="flex flex-col items-start gap-y-1">
-                        <p className='headingMedium w-[150px] sm:w-[400px] '>{subscriptionPageData.title}</p>
+                        <p className='headingMedium w-[250  px] sm:w-[400px] '>{subscriptionPageData.title}</p>
                         <p className='text-textColor/50'>{subscriptionPageData.subtitle}</p>
 
                     </div>
@@ -149,20 +151,20 @@ export const SubscriptionSettingPage = () => {
                             <div className="flex items-center justify-between">
                                 <div className="w-full flex flex-col items-start gap-2">
                                     <div className="flex items-center gap-3">
-                                        <p className="text-[24px] font-semibold text-[#101828] font-[Poppins]">{subscriptionPageData.currentPlanSection.title}</p>
+                                        <p className="text-[14px] font-semibold text-[#101828] font-[Poppins]">{subscriptionPageData.currentPlanSection.title}</p>
                                         <div className={`px-4 py-1 rounded-full flex items-center justify-center ${isTrialing ? 'bg-[#FFA500]' : 'bg-[#2ACF27]'}`}>
                                             <p className="text-[14px] font-medium text-[#FFFFFF] font-[Poppins]">{subscriptionPageData.currentPlanSection.status}</p>
                                         </div>
                                     </div>
-                                    <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.currentPlanSection.description}</p>
+                                    <p className="text-[13px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.currentPlanSection.description}</p>
                                 </div>
                                 <div className="flex items-center gap-x-4">
                                     <button
-                                        disabled={userSubscription?.cancelAtPeriodEnd}
+                                        disabled={userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING'}
                                         onClick={() => dispatch(isCancelSubscriptionModalShowReducer(true))}
-                                        className={`w-[195px] h-[46px] border-2 rounded-[10px] cursor-pointer ${userSubscription?.cancelAtPeriodEnd ? 'opacity-50 cursor-not-allowed border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
+                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-not-allowed border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
                                     >
-                                        <p className={`text-[16px] font-medium font-[Poppins] ${userSubscription?.cancelAtPeriodEnd ? 'text-gray-400' : 'text-[#E21414]'}`}>{subscriptionPageData.currentPlanSection.cancelBtnText}</p>
+                                        <p className={`text-[14px] font-medium font-[Poppins] ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'text-gray-400' : 'text-[#E21414]'}`}>{subscriptionPageData.currentPlanSection.cancelBtnText}</p>
                                     </button>
                                     <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm">
                                         <Crown className="w-[32px] h-[32px] text-[#2C9993]" />

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PaymentOverDueModalProps {
     onClose?: () => void;
@@ -7,6 +8,17 @@ interface PaymentOverDueModalProps {
 
 const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose }) => {
     const [isVisible, setIsVisible] = useState(true);
+    const navigate = useNavigate();
+
+    const handleViewInvoice = () => {
+        navigate('/invoice');
+        onClose?.();
+    }
+
+    const handleUpdatePayment = () => {
+        navigate('/payment');
+        onClose?.();
+    }
 
     const handleClose = () => {
         setIsVisible(false);

@@ -47,24 +47,24 @@ export default function ChangePlanScreen() {
             isPopular: false,
             theme: 'basic'
         },
-        {
-            name: "Pro",
-            description: "Best for growing businesses",
-            monthlyPrice: 79,
-            annualPrice: 63,
-            features: [
-                "Up to 1,000 customers",
-                "Advanced invoicing & automation",
-                "Priority support 24/7",
-                "Multi-currency support",
-                "Advanced analytics & reports",
-                "API access & integrations",
-                "Team collaboration tools"
-            ],
-            isActive: currentPlan === 'PRO', // Dynamic from backend
-            isPopular: true,
-            theme: 'pro'
-        },
+        // {
+        //     name: "Pro",
+        //     description: "Best for growing businesses",
+        //     monthlyPrice: 79,
+        //     annualPrice: 63,
+        //     features: [
+        //         "Up to 1,000 customers",
+        //         "Advanced invoicing & automation",
+        //         "Priority support 24/7",
+        //         "Multi-currency support",
+        //         "Advanced analytics & reports",
+        //         "API access & integrations",
+        //         "Team collaboration tools"
+        //     ],
+        //     isActive: currentPlan === 'PRO', // Dynamic from backend
+        //     isPopular: true,
+        //     theme: 'pro'
+        // },
         // {
         //     name: "Enterprise",
         //     description: "For large-scale operations",
@@ -189,11 +189,12 @@ export default function ChangePlanScreen() {
                         Monthly
                     </button>
                     <button
-                        onClick={() => setBillingCycle('annually')}
-                        className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
+                        // onClick={() => setBillingCycle('annually')}
+                        disabled
+                        className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all opacity-50 cursor-not-allowed ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83]'}`}
                     >
                         Annually
-                        <span className={`px-2 py-0.5 text-[12px] rounded-md ${billingCycle === 'annually' ? 'bg-white/20 text-white' : 'bg-[#ECFDF5] text-[#2C9993]'}`}>Save 20%</span>
+                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-gray-200 text-gray-500`}>Coming Soon</span>
                     </button>
                 </div>
 
@@ -230,7 +231,7 @@ export default function ChangePlanScreen() {
                                 <span className={`text-[48px] font-bold relative ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
                                     ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                 </span>
-                                <span className={`ml-2 text-[18px] absolute top-38 left-28 ${plan.theme === "enterprise" ? "absolute top-38 left-35" : ""} -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/mo</span>
+                                <span className={`ml-2 text-[18px] absolute top-38 left-28 ${plan.theme === "enterprise" ? "absolute top-38 left-35" : ""} -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/month</span>
                             </div>
 
                             {/* Action Button */}

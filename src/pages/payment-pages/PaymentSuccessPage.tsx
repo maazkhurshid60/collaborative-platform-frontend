@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import authService from "../../apiServices/authApi/AuthApi";
 import { saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
+import { subscriptionApiService } from "../../services/subscriptionApiService";
 
 const PaymentSuccessPage = () => {
     const navigate = useNavigate();
@@ -18,13 +19,21 @@ const PaymentSuccessPage = () => {
     const loginUserId = userDetails?.id;
     const role = userDetails?.user?.role;
 
-    // 🔄 Refresh user data after payment to get updated subscription
+    // 🔄 Force Sync and Refresh user data after payment
     useEffect(() => {
-        const refreshUserData = async () => {
+        const syncAndRefresh = async () => {
             if (!token || !loginUserId || !role) return;
 
             try {
-                console.log("🔄 Refreshing user data after payment...");
+                console.log("🔄 Force syncing subscription status after payment...");
+
+                // 1. Force Backend to Sync with Stripe
+                await subscriptionApiService.syncSubscription().catch((err: any) => {
+                    console.warn("⚠️ Sync request failed (webhook might handle it), proceeding to refresh...", err);
+                });
+
+                // 2. Refresh local Redux data
+                console.log("🔄 Refreshing user data...");
                 const response = await authService.getMe(loginUserId, role);
 
                 if (response?.data?.data) {
@@ -32,12 +41,19 @@ const PaymentSuccessPage = () => {
                     console.log("✅ User data refreshed with subscription:", response.data.data.user?.subscription);
                 }
             } catch (error) {
-                console.error("❌ Failed to refresh user data:", error);
+                console.error("❌ Failed to sync/refresh user data:", error);
             }
         };
 
-        refreshUserData();
-    }, [token, loginUserId, role, dispatch]);
+        syncAndRefresh();
+
+        // Auto-redirect to dashboard after 3 seconds
+        const timer = setTimeout(() => {
+            navigate("/dashboard");
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [token, loginUserId, role, dispatch, navigate]);
 
     const features = [
         "Unlimited customers",

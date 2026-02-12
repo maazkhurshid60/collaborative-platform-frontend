@@ -22,20 +22,16 @@ const SelectPlan = () => {
 
     // Check if user already used their free trial (only relevant for logged-in users during upgrade)
     const hasUsedTrial = isUpgradeFlow ? (loggedInUser?.hasUsedFreeTrial || false) : false;
-
-
     const plans = [
         {
-            name: 'Standard',
-            monthlyPrice: '29',
-            annualPrice: '29',
-            description: 'Best for small businesses',
+            name: 'Free Trial',
+            monthlyPrice: '0',
+            annualPrice: '0',
+            description: '14-day free trial · No credit card required',
             // Only offer trial if user has NEVER had one
             // Show "Subscribe Now" if: upgrading OR already used trial before
             // Show "Start Trial" if: new signup AND never had trial
-            buttonText: (isUpgradeFlow || hasUsedTrial)
-                ? 'Subscribe Now'
-                : 'Start 14-Day Free Trial',
+            buttonText: 'Start 14-Day Free Trial',
             features: [
                 'Up to 100 customers',
                 'Basic invoicing & billing',
@@ -46,25 +42,45 @@ const SelectPlan = () => {
             ],
             theme: 'default',
         },
-        {
-            name: 'Pro',
-            monthlyPrice: '79',
-            annualPrice: '63', // Example: ~20% discount
-            description: 'Best for growing businesses',
-            buttonText: 'Get Started',
-            features: [
-                'Up to 1,000 customers',
-                'Advanced invoicing & automation',
-                'Priority support 24/7',
-                'Multi-currency support',
-                'Advanced analytics & reports',
-                'API access & integrations',
-            ],
-            theme: 'pro',
-            isPopular: true,
-        },
-    ];
+        // {
+        //     name: 'Pro',
+        //     monthlyPrice: '79',
+        //     annualPrice: '63', // Example: ~20% discount
+        //     description: 'Best for growing businesses',
+        //     buttonText: 'Get Started',
+        //     features: [
+        //         'Up to 1,000 customers',
+        //         'Advanced invoicing & automation',
+        //         'Priority support 24/7',
+        //         'Multi-currency support',
+        //         'Advanced analytics & reports',
+        //         'API access & integrations',
+        //     ],
+        //     theme: 'pro',
+        //     isPopular: true,
+        // },
 
+        {
+            name: 'Standard',
+            monthlyPrice: '29',
+            annualPrice: '29',
+            description: 'Best for small businesses',
+            // Only offer trial if user has NEVER had one
+            // Show "Subscribe Now" if: upgrading OR already used trial before
+            // Show "Start Trial" if: new signup AND never had trial
+            buttonText: 'Subscribe Now',
+            features: [
+                'Up to 100 customers',
+                'Basic invoicing & billing',
+                'Email support',
+                'Payment processing',
+                'Basic analytics',
+                'Mobile app access',
+            ],
+            theme: 'default',
+        },
+
+    ];
     return (
         <div className='w-full max-w-full min-h-screen bg-[#F9FAFB] flex flex-col'>
             {/* Only show step indicator during signup, not during upgrade */}
@@ -94,113 +110,109 @@ const SelectPlan = () => {
                                 Monthly
                             </button>
                             <button
-                                onClick={() => setBillingCycle('annually')}
-                                className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
+                                disabled
+                                className="flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-not-allowed opacity-50 text-[#7E7D83] bg-white border border-transparent"
                             >
                                 Annually
-                                <span className={`px-2 py-0.5 text-[12px] rounded-md ${billingCycle === 'annually' ? 'bg-white/20 text-white' : 'bg-[#ECFDF5] text-[#2C9993]'}`}>Save 20%</span>
+                                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#F3F4F6] text-[#9CA3AF]">Save 20%</span>
                             </button>
                         </div>
 
                         {/* Pricing Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[900px] mb-20 px-5">
-                            {plans.map((plan, index) => (
-                                <div
-                                    key={index}
-                                    className={`relative flex flex-col p-8 rounded-[24px] transition-all duration-300 w-full md:w-[394.66px] md:h-[500px] ${plan.theme === 'pro'
-                                        ? 'bg-[#2C9993] text-white shadow-md'
-                                        : 'bg-white border border-[#E5E7EB] text-[#101828] shadow-md hover:shadow-lg'
-                                        }`}
-                                >
-                                    {plan.isPopular && (
+                            {plans
+                                .filter(plan => !hasUsedTrial || plan.name !== 'Free Trial') // Hide Free Trial if used
+                                .map((plan, index) => (
+                                    <div
+                                        key={index}
+                                        className={`relative flex flex-col p-8 rounded-[24px] transition-all duration-300 w-full md:w-[394.66px] md:h-[500px] ${plan.theme === 'pro'
+                                            ? 'bg-[#2C9993] text-white shadow-md'
+                                            : 'bg-white border border-[#E5E7EB] text-[#101828] shadow-md hover:shadow-lg'
+                                            }`}
+                                    >
+                                        {/* {plan.isPopular && (
                                         <div className={`absolute -top-4 left-1/2 -translate-x-1/2 py-2 px-6 bg-white border-2 border-[#2C9993] rounded-full text-[#2C9993] text-sm font-bold shadow-sm whitespace-nowrap`}>
                                             Most Popular
                                         </div>
-                                    )}
+                                    )} */}
 
-                                    {/* Plan Info */}
-                                    <div className="mb-4">
-                                        <h3 className={`text-[24px] font-bold mb-0.5 ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
-                                            {plan.name}
-                                        </h3>
-                                        <p className={`text-[13px] leading-tight ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
-                                            {plan.description}
-                                        </p>
-                                    </div>
+                                        {/* Plan Info */}
+                                        <div className="mb-4">
+                                            <h3 className={`text-[24px] font-bold mb-0.5 ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
+                                                {plan.name}
+                                            </h3>
+                                            <p className={`text-[13px] leading-tight ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                                {plan.description}
+                                            </p>
+                                        </div>
 
-                                    {/* Price */}
-                                    <div className="mb-4 flex items-baseline relative">
-                                        <span className={`text-[42px] font-bold ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
-                                            ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
-                                        </span>
-                                        {plan.name !== 'Free' && (
-                                            <span className={`ml-1 text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
-                                                /mo
+                                        {/* Price */}
+                                        <div className="mb-4 flex items-baseline relative">
+                                            <span className={`text-[42px] font-bold ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
+                                                ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                             </span>
-                                        )}
-                                    </div>
+                                            {plan.name !== 'Free Trial' && (
+                                                <span className={`ml-1 absolute top-3 left-19 text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                                    /mo
+                                                </span>
+                                            )}
+                                        </div>
 
-                                    {/* Action Button */}
-                                    <button
-                                        onClick={() => {
-                                            if (plan.name === 'Free') {
-                                                navigate('/confirm-free-account', { state: { userData, planType: 'FREE' } });
-                                            } else if (plan.name === 'Standard') {
-                                                // Check if user already used their one free trial
-                                                if (isUpgradeFlow || hasUsedTrial) {
-                                                    // User is upgrading/renewing OR already had trial before
-                                                    // Charge them for Standard plan (no free trial)
+                                        {/* Action Button */}
+                                        <button
+
+                                            onClick={() => {
+                                                if (plan.name === 'Free Trial') {
+                                                    navigate('/confirm-free-account', { state: { userData, planType: 'FREE' } });
+                                                } else if (plan.name === 'Standard') {
                                                     navigate('/payment-checkout', {
                                                         state: {
                                                             planType: 'STANDARD',
                                                             billingCycle: billingCycle.toUpperCase(),
-                                                            isRenewal: true
+                                                            userData,
+                                                            isRenewal: hasUsedTrial
                                                         }
                                                     });
                                                 } else {
-                                                    // First time user, never had trial → Give free 14-day trial
-                                                    navigate('/confirm-free-account', { state: { userData, planType: 'STANDARD' } });
+                                                    // Pro plan = always requires payment
+                                                    navigate('/payment-checkout', {
+                                                        state: {
+                                                            planType: 'PRO',
+                                                            billingCycle: billingCycle.toUpperCase(),
+                                                            userData
+                                                        }
+                                                    });
                                                 }
-                                            } else {
-                                                // Pro plan = always requires payment
-                                                navigate('/payment-checkout', {
-                                                    state: {
-                                                        planType: 'PRO',
-                                                        billingCycle: billingCycle.toUpperCase(),
-                                                        userData
-                                                    }
-                                                });
-                                            }
-                                        }}
-                                        className={`w-full py-2.5 rounded-[10px] font-bold text-[16px] mb-6 transition-all cursor-pointer border-2 ${plan.theme === 'pro'
-                                            ? 'bg-transparent border-white text-white hover:bg-white/10'
-                                            : 'bg-white border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
-                                            }`}
-                                    >
-                                        {plan.buttonText}
-                                    </button>
+                                            }}
+                                            className={`w-full py-2.5 rounded-[10px] font-medium text-[16px] mb-6 transition-all cursor-pointer border-2 ${plan.theme === 'pro'
+                                                ? 'bg-transparent border-white text-white hover:bg-white/10'
+                                                : 'bg-white border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
+                                                }`}
+                                        >
+                                            {plan.buttonText}
+                                        </button>
 
-                                    {/* Features List */}
-                                    <div className={` mt-auto p-4 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-inputBgColor'}`}>
-                                        <ul className="space-y-2">
-                                            {plan.features.map((feature, i) => (
-                                                <li key={i} className="flex items-start gap-2">
-                                                    <div className="mt-1 shrink-0">
-                                                        <Check
-                                                            size={14}
-                                                            className={plan.theme === 'pro' ? 'text-[#34D399]' : 'text-[#059669]'}
-                                                            strokeWidth={3}
-                                                        />
-                                                    </div>
-                                                    <span className={`text-[12px] leading-snug ${plan.theme === 'pro' ? 'text-[#E5E7EB]' : 'text-[#101828]'}`}>
-                                                        {feature}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        {/* Features List */}
+                                        <div className={` mt-auto p-4 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-inputBgColor'}`}>
+                                            <ul className="space-y-2">
+                                                {plan.features.map((feature, i) => (
+                                                    <li key={i} className="flex items-start gap-2">
+                                                        <div className="mt-1 shrink-0">
+                                                            <Check
+                                                                size={14}
+                                                                className={plan.theme === 'pro' ? 'text-[#34D399]' : 'text-[#059669]'}
+                                                                strokeWidth={3}
+                                                            />
+                                                        </div>
+                                                        <span className={`text-[12px] leading-snug ${plan.theme === 'pro' ? 'text-[#E5E7EB]' : 'text-[#101828]'}`}>
+                                                            {feature}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
                         </div>
 
                         {/* Back Button Section */}

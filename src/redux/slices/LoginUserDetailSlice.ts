@@ -19,7 +19,7 @@ interface User {
     subscription?: {
         id: string;
         plan: 'STANDARD' | 'PRO';
-        status: 'TRIALING' | 'ACTIVE' | 'CANCELED' | 'PAST_DUE';
+        status: 'TRIALING' | 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'UNPAID';
         trialStart?: string;
         trialEnd?: string;
         currentPeriodEnd?: string;
@@ -64,6 +64,7 @@ interface LoginUserDetailState {
     decryptedPrivateKey: Uint8Array | null;
     userDetails: UserDetails;
     licenseNoResult: LicenseNoResult;
+    isRefreshing: boolean;
 }
 
 const initialState: LoginUserDetailState = {
@@ -113,7 +114,8 @@ const initialState: LoginUserDetailState = {
         isApprove: "",
         state: "",
         country: ""
-    }
+    },
+    isRefreshing: false
 }
 
 const LoginUserDetail = createSlice({
@@ -183,12 +185,15 @@ const LoginUserDetail = createSlice({
         },
         saveDecryptedPrivateKey: (state, action) => {
             state.decryptedPrivateKey = action.payload;
+        },
+        setIsRefreshing: (state, action: PayloadAction<boolean>) => {
+            state.isRefreshing = action.payload;
         }
     }
 
 
 })
 export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveLicenseNoResult, emptyResult, searchByLicenseNoReducer
-    , saveDecryptedPrivateKey
+    , saveDecryptedPrivateKey, setIsRefreshing
 } = LoginUserDetail.actions
 export default LoginUserDetail.reducer

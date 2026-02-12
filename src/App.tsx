@@ -5,54 +5,56 @@ import Routing from './routing/Routing'
 import { useSelector } from 'react-redux'
 import { RootState } from './redux/store'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useEffect } from 'react'
-import { initSocket } from './socket/Socket'
+import { useEffect, useState } from 'react'
+import { initSocket, socket } from './socket/Socket'
 import notification from "../src/assets/audio/notification.wav"
+import authService from './apiServices/authApi/AuthApi'
+import { saveLoginUserDetailsReducer, setIsRefreshing } from './redux/slices/LoginUserDetailSlice'
+import RenewalSuccessfullModal from './components/modals/RenowalSuccessfullModal'
+import { useDispatch } from 'react-redux'
 
 
 function App() {
   const queryClient = new QueryClient();
   const userId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId)
+  const role = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role)
+  const dispatch = useDispatch();
+  const [showRenwalModal, setShowRenwalModal] = useState(false);
 
+  const fetchUserData = async () => {
+    const token = localStorage.getItem("token");
+    if (token && userId && role) {
+      try {
+        console.log("🔄 App.tsx: Refreshing user data...", { userId, role });
+        dispatch(setIsRefreshing(true));
+        const response = await authService.getMe(userId, role);
+        if (response?.data?.data && response.data.data.user) {
+          dispatch(saveLoginUserDetailsReducer(response.data.data));
+          console.log("✅ App.tsx: User data refreshed. Status:", response.data.data?.user?.subscription?.status);
+        } else if (response?.data && response.data.user) {
+          // Fallback if structure is different (e.g. direct object)
+          dispatch(saveLoginUserDetailsReducer(response.data));
+        } else if (response?.user) {
+          dispatch(saveLoginUserDetailsReducer(response));
+        } else {
+          console.warn("⚠️ App.tsx: unexpected response structure, not dispatching", response);
+        }
+      } catch (error) {
+        console.error("❌ App.tsx: Failed to refresh user data", error);
+      } finally {
+        dispatch(setIsRefreshing(false));
+      }
+    }
+  };
 
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     const token = localStorage.getItem("token");
-  //     if (token && userId && role) {
-  //       try {
-  //         console.log("🔄 App.tsx: Refreshing user data...", { userId, role });
-  //         const response = await authService.getMe(userId, role);
-  //         if (response?.data?.data) {
-  //           dispatch(saveLoginUserDetailsReducer(response.data.data));
-  //           console.log("✅ App.tsx: User data refreshed. Status:", response.data.data?.user?.subscription?.status);
-  //         } else if (response?.data) {
-  //           // Fallback if structure is different (e.g. direct object)
-  //           console.log("⚠️ App.tsx: response.data.data is missing, checking response.data", response.data);
-  //           if (response.data.user) {
-  //             dispatch(saveLoginUserDetailsReducer(response.data.user));
-  //           } else {
-  //             // If getMeApi returns { data: ... }, try that
-  //             dispatch(saveLoginUserDetailsReducer(response.data));
-  //           }
-  //         }
-  //       } catch (error) {
-  //         console.error("❌ App.tsx: Failed to refresh user data", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchUserData();
-  // }, [dispatch, userId, role]);
+  useEffect(() => {
+    fetchUserData();
+  }, [dispatch, userId, role]);
 
   useEffect(() => {
     if (userId) {
       const socket = initSocket("", userId);
-      console.log("19 app.tsx");
-
       socket.on("new_notification", (data) => {
-        console.log("22 app.tsx");
-
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification(data.title, {
             body: data.message,
@@ -62,13 +64,26 @@ function App() {
 
           const audio = new Audio(notification);
           audio.play();
-        } else {
-          console.log("🔕 Notification blocked or unsupported");
         }
+      });
+
+      // Listen for subscription updates
+      socket.on("subscription_updated", () => {
+        console.log("🔔 App.tsx: Subscription update received, fetching new data...");
+        fetchUserData();
+      });
+
+      // Listen for subscription renewal success
+      socket.on("subscription_renewal", (data) => {
+        console.log("🔔 App.tsx: Subscription renewal received:", data);
+        setShowRenwalModal(true);
+        fetchUserData();
       });
 
       return () => {
         socket.off("new_notification");
+        socket.off("subscription_updated");
+        socket.off("subscription_renewal");
         // disconnectSocket();
       };
     }
@@ -100,6 +115,11 @@ function App() {
           pauseOnHover
           theme="light"
         />
+
+        {/* Renewal Success Modal */}
+        {showRenwalModal && (
+          <RenewalSuccessfullModal onClose={() => setShowRenwalModal(false)} />
+        )}
       </BrowserRouter>
     </QueryClientProvider>
 

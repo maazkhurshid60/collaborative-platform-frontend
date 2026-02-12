@@ -9,43 +9,39 @@ interface InvoiceModalProps {
     isOpen: boolean;
     onClose: () => void;
     invoiceId: string | null;
+    invoiceData?: any; // Add optional invoiceData prop
 }
 
-const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId }) => {
+const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
 
-    // Mock Data for specific invoice IDs or fallback
-    const getInvoiceData = (id: string | null) => {
-        // You can extend this with a real find based on ID
-        return {
-            invoiceNo: id ? `INV-2024-${id.padStart(4, '0')}` : "INV-2024-8472",
-            date: "February 15, 2024",
-            dueDate: "February 15, 2024",
-            billTo: {
-                name: "John Doe",
-                email: "john.doe@email.com",
-                address: "456 Customer Avenue",
-                city: "New York, NY 10001"
-            },
-            items: [
-                {
-                    description: "Professional Plan",
-                    subtext: "Monthly subscription",
-                    qty: "01",
-                    price: "$49.00",
-                    amount: "$49.00",
-                    status: "Paid"
-                }
-            ],
-            subtotal: "$49.00",
-            tax: "$0.00",
-            total: "$49.00",
-            notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025. If you have any questions about this invoice, please contact our support team."
-        };
+    // Use passed data or fallback to mock/fetch
+    const invoice = invoiceData || {
+        invoiceNo: invoiceId ? `INV-2024-${invoiceId.padStart(4, '0')}` : "INV-2024-8472",
+        date: "February 15, 2024",
+        dueDate: "February 15, 2024",
+        billTo: {
+            name: "John Doe",
+            email: "john.doe@email.com",
+            address: "456 Customer Avenue",
+            city: "New York, NY 10001"
+        },
+        items: [
+            {
+                description: "Professional Plan",
+                subtext: "Monthly subscription",
+                qty: "01",
+                price: "$49.00",
+                amount: "$49.00",
+                status: "Paid"
+            }
+        ],
+        subtotal: "$49.00",
+        tax: "$0.00",
+        total: "$49.00",
+        notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025."
     };
-
-    const invoice = getInvoiceData(invoiceId);
 
     const handleDownloadPdf = async () => {
         if (!invoiceRef.current) return;
@@ -135,8 +131,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId 
                                 <div className="col-span-2 text-right">Amount</div>
                                 <div className="col-span-1 text-right">Status</div>
                             </div>
-                            {invoice.items.map((item, idx) => (
-                                <div key={idx} className="grid grid-cols-12 gap-2 text-[10px] text-gray-600 items-center py-1">
+                            {invoice.items.map((item, id) => (
+                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] text-gray-600 items-center py-1">
                                     <div className="col-span-5">
                                         <p className="font-semibold text-gray-900">{item.description}</p>
                                         <p className="text-[9px] text-gray-500">{item.subtext}</p>

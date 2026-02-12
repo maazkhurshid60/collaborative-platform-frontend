@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionExpiredModalProps {
     onClose?: () => void;
@@ -7,6 +8,20 @@ interface SubscriptionExpiredModalProps {
 
 const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> = ({ onClose }) => {
     const [isVisible, setIsVisible] = useState(true);
+    const navigate = useNavigate();
+
+    const handleViewPlans = () => {
+        navigate('/select-plan');
+        onClose?.();
+    }
+
+    const handleRenew = () => {
+        navigate('/select-plan');
+        onClose?.();
+    }
+
+
+
 
     const handleClose = () => {
         setIsVisible(false);
