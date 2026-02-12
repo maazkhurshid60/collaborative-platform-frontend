@@ -41,7 +41,7 @@ const CancelSubscriptionModalBody = () => {
             <div className="flex flex-col sm:flex-row gap-4 w-full">
                 <button
                     onClick={() => dispatch(isCancelSubscriptionModalShowReducer(false))}
-                    className="flex-1 py-3 px-4 border border-[#2C9993] text-[#2C9993] rounded-[8px] font-semibold text-[16px] hover:bg-[#2C9993]/5 transition-colors font-[Poppins]"
+                    className="flex-1 py-3 px-4 border border-[#2C9993] text-[#2C9993]  rounded-[8px] font-semibold cursor-pointer text-[16px] hover:bg-[#2C9993]/5 transition-colors font-[Poppins]"
                 >
                     Keep My Subscription
                 </button>
@@ -61,13 +61,14 @@ const CancelSubscriptionModalBody = () => {
                             dispatch(isCancelSubscriptionModalShowReducer(false));
                             // Refresh page to show updated status
                             window.location.reload();
+
                         } catch (error: any) {
                             const message = error.response?.data?.message || "Cancellation failed";
                             toast.error(message);
                             console.error("Cancellation failed", error);
                         }
                     }}
-                    className="flex-1 py-3 px-4 bg-[#2C9993] text-white rounded-[8px] font-semibold text-[16px] hover:bg-[#2C9993]/90 transition-colors font-[Poppins]"
+                    className="flex-1 py-3 px-4 bg-[#2C9993] cursor-pointer text-white rounded-[8px] font-semibold text-[16px]  hover:bg-[#2C9993]/90 transition-colors font-[Poppins]"
                 >
                     Continue with Cancellation
                 </button>

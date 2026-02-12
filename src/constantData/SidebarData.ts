@@ -86,8 +86,8 @@ export const SuperAdminSidebarData = [
         icon: FileText
     },
     {
-        name: "Subscription",
-        url: "/subscription",
+        name: "Billing Management",
+        url: "/billing-management",
         icon: FileText
     }
 ]

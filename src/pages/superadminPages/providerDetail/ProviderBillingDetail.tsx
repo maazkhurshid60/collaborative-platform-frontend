@@ -5,14 +5,22 @@ import { GoDotFill } from "react-icons/go";
 
 import Table from "../../../components/table/Table";
 import InvoiceModal from "../../../components/modals/InvoiceModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DeleteProviderBilling from "../../../components/modals/superAdminModal/deleteProviderBilling/DeleteProviderBilling";
-const ProviderDetail = () => {
+import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi";
+import { toast } from "react-toastify";
+
+const ProviderBillingDetail = () => {
     const { id } = useParams()
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [contactInfo, setContactInfo] = useState<any>(null);
+    const [subscription, setSubscription] = useState<any>(null);
+    const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
     const navigate = useNavigate()
+
     const heading = [
         "Date",
         "Invoice",
@@ -22,136 +30,91 @@ const ProviderDetail = () => {
         "Action",
     ];
 
-    const paymentHistoryData = [
-        {
-            id: "1",
-            date: "Jan 15, 2024",
-            invoice: "INV-001",
-            description: "Professional Plan - Monthly",
-            amount: "$299.00",
-            status: "Success",
-        },
-        {
-            id: "2",
-            date: "Dec 15, 2023",
-            invoice: "INV-002",
-            description: "Professional Plan - Monthly",
-            amount: "$299.00",
-            status: "Success",
-        },
-        {
-            id: "3",
-            date: "Nov 15, 2023",
-            invoice: "INV-003",
-            description: "Professional Plan - Monthly",
-            amount: "$299.00",
-            status: "Pending",
-        },
-        {
-            id: "4",
-            date: "Oct 15, 2023",
-            invoice: "INV-004",
-            description: "Professional Plan - Monthly",
-            amount: "$299.00",
-            status: "Failed",
-        },
-        {
-            id: "5",
-            date: "Sep 15, 2023",
-            invoice: "INV-005",
-            description: "Professional Plan - Monthly",
-            amount: "$299.00",
-            status: "Refunded",
-        },
-    ];
+    const fetchAllData = async () => {
+        if (!id) return;
+        try {
+            setLoading(true);
+            const [contactRes, subscriptionRes, paymentRes] = await Promise.all([
+                superAdminApi.getProviderContactInfo(id),
+                superAdminApi.getProviderSubscriptionInfo(id),
+                superAdminApi.getProviderPaymentHistory(id)
+            ]);
+
+            setContactInfo(contactRes.data);
+            setSubscription(subscriptionRes.data);
+            setPaymentHistory(paymentRes.data || []);
+        } catch (error) {
+            console.error("Failed to fetch provider details", error);
+            toast.error("Failed to load provider details");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllData();
+    }, [id]);
 
     const getStatusColor = (status: string) => {
-        switch (status) {
-            case "Success": return "bg-green-100 text-green-700";
-            case "Pending": return "bg-yellow-100 text-yellow-700";
-            case "Failed": return "bg-red-100 text-red-700";
-            case "Refunded": return "bg-gray-100 text-gray-700";
+        const lower = status?.toLowerCase();
+        switch (lower) {
+            case "succeeded":
+            case "success": return "bg-green-100 text-green-700";
+            case "pending": return "bg-yellow-100 text-yellow-700";
+            case "failed": return "bg-red-100 text-red-700";
+            case "refunded": return "bg-gray-100 text-gray-700";
             default: return "bg-inputBgColor text-textColor";
         }
     };
-    interface ProviderTransaction {
-        id: string;
-        fullName: string;
-        client?: { email: string };
-        licenseNo?: string;
-        plan: string;
-        status: string;
-        amount: string;
-        createdAt: string;
-        providerName: string;
-        paymentStatus: string;
-        phone: string;
-        outstandingAmount?: string;
-        speciality?: string;
-        organization?: string;
-        paymentMethod?: string;
-    }
 
-    // Mock data shared with TransactionDetail (ideally this should be in a shared store/api)
-    const mockData: ProviderTransaction[] = [
-        {
-            id: "1",
-            fullName: "John Doe",
-            client: { email: "john.doe@example.com" },
-            licenseNo: "LIC-12345",
-            plan: "TXN-2024-001",
-            status: "Success",
-            amount: "$100.00",
-            createdAt: "2024-01-15T10:00:00",
-            providerName: "John Doe",
-            paymentStatus: "Success",
-            phone: "+1 (555) 234-5678",
-            outstandingAmount: "$0.00",
-            speciality: "Cardiology",
-            organization: "Metropolitan Heart Center",
-            paymentMethod: "Credit Card **** 1234"
-        },
-        {
-            id: "2",
-            fullName: "Jane Smith",
-            status: "Pending",
-            plan: "TXN-2024-001",
-            amount: "$100.00",
-            createdAt: "2024-01-16T11:30:00",
-            providerName: "Jane Smith",
-            paymentStatus: "Pending",
-            phone: "+1 (555) 987-6543"
-        },
-        {
-            id: "3",
-            fullName: "Alice Johnson",
-            amount: "$300.00",
-            client: { email: "alice.j@example.com" },
-            status: "Failed",
-            plan: "TXN-2024-001",
-            createdAt: "2024-01-14T09:15:00",
-            providerName: "Alice Provider",
-            paymentStatus: "Failed",
-            phone: "+1 (555) 111-2222"
-        },
-        {
-            id: "4",
-            plan: "TXN-2024-001",
-            fullName: "Bob Brown",
-            amount: "$400.00",
-            client: { email: "bob.b@example.com" },
-            status: "Refunded",
-            createdAt: "2024-01-18T14:20:00",
-            providerName: "Bob Provider",
-            paymentStatus: "Refunded",
-            phone: "+1 (555) 333-4444"
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount / 100);
+    };
+
+    const getPlanFeatures = (plan: string) => {
+        const lower = plan?.toLowerCase();
+        if (lower === 'pro') {
+            return [
+                "Enhanced Customer Limit",
+                "Advanced billing workflows",
+                "Priority Support",
+                "Partial white-labeling",
+                "Standard Integrations",
+                "GDPR & HIPAA Compliance"
+            ];
         }
-    ];
-    const transaction = mockData.find(t => t.id === id);
+        return [
+            "Unlimited Customers",
+            "Custom billing workflows",
+            "Dedicated Account Manager",
+            "White-label options",
+            "Custom Integrations",
+            "Advanced Security & Compliance"
+        ];
+    };
 
-    if (!transaction) {
-        return <div className="p-5">Transaction not found</div>;
+    if (loading) {
+        return <div className="p-10 text-center">Loading provider details...</div>;
     }
+
+    if (!contactInfo) {
+        return <div className="p-10 text-center">Provider not found</div>;
+    }
+
+    const totalRevenue = paymentHistory.reduce((sum, p) => p.status === 'SUCCEEDED' ? sum + p.amount : sum, 0);
+
     return (
         <div className="flex flex-col p-5 gap-y-5">
 
@@ -168,7 +131,6 @@ const ProviderDetail = () => {
                             navigate(`/provider/refund/${id}`)
                         }} className="w-[114px] h-[38px] bg-[#2C9993] cursor-pointer rounded-lg flex items-center justify-center gap-x-2">
                             <span className="text-[16px] font-medium text-white">Refund</span>
-
                         </button>
                     </div>
                 </div>
@@ -176,18 +138,18 @@ const ProviderDetail = () => {
                     <div
                         className="w-[139px] h-[139px] rounded-full border-[3px] border-[#FFC600] flex items-center justify-center"
                     >
-                        <img src={profileImage} className="w-full h-full object-cover rounded-full" alt="" />
+                        <img src={contactInfo.profileImage || profileImage} className="w-full h-full object-cover rounded-full" alt="" />
 
                     </div>
                     <div className="flex flex-col items-start gap-y-1">
-                        <p className="font-[Poppins] text-[20px] md:text-[24px] font-semibold">Sarah Johnson</p>
-                        <p className="font-[Poppins]  font-[14px] text-[#666666]">sarah.j@healthcare.com</p>
+                        <p className="font-[Poppins] text-[20px] md:text-[24px] font-semibold">{contactInfo.fullName}</p>
+                        <p className="font-[Poppins]  font-[14px] text-[#666666]">{contactInfo.email}</p>
                         <div className="flex flex-row items-start gap-x-2">
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-[#FAF5FF] flex items-center justify-center">
-                                <p className="font-[Poppins] text-[12px] font-medium text-[#9D27B0]">Enterprise</p>
+                                <p className="font-[Poppins] text-[12px] font-medium text-[#9D27B0] capitalize">{subscription?.plan || "Free"}</p>
                             </div>
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-primaryColorDark flex items-center justify-center">
-                                <p className="font-[Poppins] text-[12px] font-medium text-white">active</p>
+                                <p className="font-[Poppins] text-[12px] font-medium text-white capitalize">{subscription?.status || "inactive"}</p>
                             </div>
                         </div>
                     </div>
@@ -201,45 +163,45 @@ const ProviderDetail = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">License No </p>
-                            <p className="text-[14px] font-medium">{transaction.licenseNo || `TXN-2024-${transaction.id.padStart(6, '0')}`}</p>
+                            <p className="text-[14px] font-medium">{contactInfo.licenseNo || "N/A"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Provider Name</p>
-                            <p className="text-[14px] font-medium">{transaction.providerName || "N/A"}</p>
+                            <p className="text-[14px] font-medium">{contactInfo.fullName || "N/A"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Total Revenue</p>
-                            <p className="text-[18px] font-medium text-[var(--color-transaction-summary-ammont)]">{transaction.amount}</p>
+                            <p className="text-[18px] font-medium text-[var(--color-transaction-summary-ammont)]">{formatCurrency(totalRevenue)}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Full Name</p>
-                            <p className="text-[16px] font-medium">{transaction.fullName}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.fullName}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Phone Number</p>
-                            <p className="text-[16px] font-medium">{transaction.phone || "N/A"}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.contactNo || "N/A"}</p>
                         </div>
 
 
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Outstanding Amount</p>
-                            <p className="text-[16px] font-medium">{transaction.outstandingAmount || "$0.00"}</p>
+                            <p className="text-[16px] font-medium">$0.00</p>
                         </div>
 
 
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Speciality </p>
-                            <p className="text-[16px] font-medium">{transaction.speciality || "Cardiology"}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.provider?.department || "Cardiology"}</p>
                         </div>
 
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Oragnization</p>
-                            <p className="text-[16px] font-medium">{transaction.organization || "Metropolitan Heart Center"}</p>
+                            <p className="text-[16px] font-medium">Metropolitan Heart Center</p>
                         </div>
 
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Payment Method</p>
-                            <p className="text-[16px] font-medium">{transaction.paymentMethod || "Credit Card **** 1234"}</p>
+                            <p className="text-[16px] font-medium">{paymentHistory[0]?.paymentMethodLast4 ? `Credit Card **** ${paymentHistory[0].paymentMethodLast4}` : "N/A"}</p>
                         </div>
                     </div>
                 </div>
@@ -251,7 +213,7 @@ const ProviderDetail = () => {
                         </div>
                         <div className="flex flex-col items-start justify-center ">
                             <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Member Since</p>
-                            <p className="text-[12px] font-bold ">Mar 2023</p>
+                            <p className="text-[12px] font-bold ">{new Date(contactInfo.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
                         </div>
 
                     </div>
@@ -262,7 +224,7 @@ const ProviderDetail = () => {
                         </div>
                         <div className="flex flex-col items-start justify-center ">
                             <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Last Payment</p>
-                            <p className="text-[12px] font-bold ">Dec 15</p>
+                            <p className="text-[12px] font-bold ">{paymentHistory[0] ? formatDate(paymentHistory[0].createdAt) : "N/A"}</p>
                         </div>
 
                     </div>
@@ -273,7 +235,7 @@ const ProviderDetail = () => {
                         </div>
                         <div className="flex flex-col items-start justify-center ">
                             <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Total Invoices</p>
-                            <p className="text-[12px] font-bold ">24</p>
+                            <p className="text-[12px] font-bold ">{paymentHistory.length}</p>
                         </div>
 
                     </div>
@@ -334,31 +296,31 @@ const ProviderDetail = () => {
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Payment History</p>
                     <div className="w-full">
                         <Table heading={heading}>
-                            {paymentHistoryData.map((data, idx) => (
+                            {paymentHistory.map((data, idx) => (
                                 <tr
-                                    key={data.id}
+                                    key={data.id || idx}
                                     className="border-b border-b-solid border-b-lightGreyColor"
                                 >
                                     {/* Date */}
                                     <td className="px-2 py-3 align-middle">
                                         <div className="flex items-center gap-x-4">
-                                            {data.date}
+                                            {formatDate(data.createdAt)}
                                         </div>
                                     </td>
 
                                     {/* Invoice */}
                                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                        <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.invoice}</p>
+                                        <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "N/A"}</p>
                                     </td>
 
                                     {/* Description */}
                                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                        {data.description}
+                                        {data.plan || "Subscription Payment"}
                                     </td>
 
                                     {/* Amount */}
                                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                        {data.amount}
+                                        {formatCurrency(data.amount)}
                                     </td>
 
                                     {/* Status */}
@@ -407,4 +369,4 @@ const ProviderDetail = () => {
     )
 }
 
-export default ProviderDetail
+export default ProviderBillingDetail

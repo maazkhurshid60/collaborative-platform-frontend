@@ -2,12 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Check, Copy, FileText, LayoutDashboard, Search, ChevronDown } from "lucide-react";
 import logo from "../../../public/assets/logo.png";
 import profileImg from "../../../public/assets/profile-img.png";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import authService from "../../apiServices/authApi/AuthApi";
 import { saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
 import { subscriptionApiService } from "../../services/subscriptionApiService";
+import InvoiceModal from "../../components/modals/InvoiceModal";
 
 const PaymentSuccessPage = () => {
     const navigate = useNavigate();
@@ -19,12 +20,17 @@ const PaymentSuccessPage = () => {
     const loginUserId = userDetails?.id;
     const role = userDetails?.user?.role;
 
+    const [latestPayment, setLatestPayment] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+
     // 🔄 Force Sync and Refresh user data after payment
     useEffect(() => {
         const syncAndRefresh = async () => {
             if (!token || !loginUserId || !role) return;
 
             try {
+                setIsLoading(true);
                 console.log("🔄 Force syncing subscription status after payment...");
 
                 // 1. Force Backend to Sync with Stripe
@@ -32,7 +38,15 @@ const PaymentSuccessPage = () => {
                     console.warn("⚠️ Sync request failed (webhook might handle it), proceeding to refresh...", err);
                 });
 
-                // 2. Refresh local Redux data
+                // 2. Fetch Latest Payment
+                console.log("🔄 Fetching latest payment...");
+                const payments = await subscriptionApiService.getAllPayments();
+                if (payments && payments.length > 0) {
+                    setLatestPayment(payments[0]); // Most recent is first due to descend order on backend
+                    console.log("✅ Latest payment found:", payments[0]);
+                }
+
+                // 3. Refresh local Redux data
                 console.log("🔄 Refreshing user data...");
                 const response = await authService.getMe(loginUserId, role);
 
@@ -42,18 +56,13 @@ const PaymentSuccessPage = () => {
                 }
             } catch (error) {
                 console.error("❌ Failed to sync/refresh user data:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         syncAndRefresh();
-
-        // Auto-redirect to dashboard after 3 seconds
-        const timer = setTimeout(() => {
-            navigate("/dashboard");
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, [token, loginUserId, role, dispatch, navigate]);
+    }, [token, loginUserId, role, dispatch]);
 
     const features = [
         "Unlimited customers",
@@ -92,8 +101,8 @@ const PaymentSuccessPage = () => {
                             <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
-                            <span className="text-[12px] text-[#667085]">Physiotherapist</span>
+                            <span className="text-[14px] font-bold text-[#101828]">{userDetails?.user?.fullName || "User"}</span>
+                            <span className="text-[12px] text-[#667085]">{userDetails?.department || userDetails?.user?.role || "Provider"}</span>
                         </div>
                         <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
                     </div>
@@ -165,7 +174,7 @@ const PaymentSuccessPage = () => {
                     <div className="w-full flex items-center justify-between mb-8">
                         <div className="flex flex-col">
                             <span className="text-[14px] text-[#667085] mb-1">Selected Plan</span>
-                            <h2 className="text-[24px] font-bold text-[#101828]">Professional Plan</h2>
+                            <h2 className="text-[24px] font-bold text-[#101828]">{userDetails?.user?.subscription?.plan || "Standard"} Plan</h2>
                         </div>
                         <div className="bg-[#ECFDF5] text-[#059669] px-4 py-1 rounded-full text-[14px] font-medium border border-[#A7F3D0]">
                             Active
@@ -179,21 +188,25 @@ const PaymentSuccessPage = () => {
                             <h3 className="text-[18px] font-bold text-[#101828] mb-6">Billing Information</h3>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Amount Paid</span>
-                                <span className="text-[16px] font-bold text-[#101828]">$49.00</span>
+                                <span className="text-[16px] font-bold text-[#101828]">{latestPayment?.amount || "$0.00"}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Payment Method</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[14px] text-[#101828] font-medium">•••• 4242</span>
+                                    <span className="text-[14px] text-[#101828] font-medium">•••• {latestPayment?.last4 || "4242"}</span>
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Transaction ID</span>
-                                <span className="text-[14px] text-[#101828] font-medium">TXN-2024-8472</span>
+                                <span className="text-[14px] text-[#101828] font-medium">{latestPayment?.invoiceNo || latestPayment?.id || "N/A"}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] font-bold text-[#101828]">Next Billing Date</span>
-                                <span className="text-[16px] font-bold text-[#2C9993]">March 15, 2025</span>
+                                <span className="text-[16px] font-bold text-[#2C9993]">
+                                    {userDetails?.user?.subscription?.currentPeriodEnd
+                                        ? new Date(userDetails.user.subscription.currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                                        : "N/A"}
+                                </span>
                             </div>
                         </div>
 
@@ -216,7 +229,10 @@ const PaymentSuccessPage = () => {
 
                     {/* Action Buttons */}
                     <div className="w-full flex items-center justify-end gap-6">
-                        <button className="flex items-center gap-2 px-8 py-3 rounded-xl border border-[#E2E8F0] bg-[#F2F4F7] text-[#101828] font-bold text-[18px] hover:bg-[#E2E8F0] transition-all cursor-pointer">
+                        <button
+                            onClick={() => setShowInvoiceModal(true)}
+                            className="flex items-center gap-2 px-8 py-3 rounded-xl border border-[#E2E8F0] bg-[#F2F4F7] text-[#101828] font-bold text-[18px] hover:bg-[#E2E8F0] transition-all cursor-pointer"
+                        >
                             <FileText size={20} />
                             <span>View Invoice</span>
                         </button>
@@ -230,6 +246,14 @@ const PaymentSuccessPage = () => {
 
                 </div>
             </main>
+
+            {/* Invoice Modal */}
+            <InvoiceModal
+                isOpen={showInvoiceModal}
+                onClose={() => setShowInvoiceModal(false)}
+                invoiceId={latestPayment?.id}
+                invoiceData={latestPayment}
+            />
         </div>
     );
 };

@@ -6,12 +6,10 @@ import { GoDotFill } from "react-icons/go"
 import ViewIcon from "../../../components/icons/view/View"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice"
 import { useDispatch } from "react-redux"
 import { ChevronDown } from "lucide-react"
-import DownloadIcon from "../../../components/icons/download/Download"
 import InvoiceModal from "../../../components/modals/InvoiceModal"
-//import { makeRequest } from "../../../utils/api"
+import { subscriptionApiService } from "../../../services/subscriptionApiService"
 
 
 const BilingHistory = () => {
@@ -20,20 +18,20 @@ const BilingHistory = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
-    const [selectedUserForDelete, setSelectedUserForDelete] = useState("");
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
     const [payments, setPayments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const totalPages = 5; // To be updated with real pagination if API supports it
+    const totalPages = 5;
 
     // Fetch Payments
     useEffect(() => {
         const fetchPayments = async () => {
             try {
-                // const response = await makeRequest("GET", "/subscription/payments");
-                //   setPayments(response.data);
+                const response = await subscriptionApiService.getAllPayments();
+                setPayments(response || []);
+                console.log(response, "response");
             } catch (error) {
                 console.error("Failed to fetch payments", error);
             } finally {

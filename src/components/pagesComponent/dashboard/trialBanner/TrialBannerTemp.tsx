@@ -13,7 +13,6 @@ const TrialBanner: React.FC = () => {
     // Calculate days remaining
     const getDaysRemaining = () => {
         if (!subscription?.trailEnd) return null;
-
         const endDate = new Date(subscription.trailEnd);
         const today = new Date();
         const diffTime = endDate.getTime() - today.getTime();

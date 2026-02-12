@@ -2,26 +2,43 @@
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout"
 import Table from "../../../components/table/Table"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
-import UserIcon from "../../../components/icons/user/User"
 import { GoDotFill } from "react-icons/go"
 import ViewIcon from "../../../components/icons/view/View"
-import DeleteIcon from "../../../components/icons/delete/DeleteIcon"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { getCountryNameFromCode } from "../../../utils/GetCountryName"
-import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice"
-import { useDispatch } from "react-redux"
+import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi"
+import InvoiceModal from "../../../components/modals/InvoiceModal"
 
 
 const TransactionDetail = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
-    const [selectedUserForDelete, setSelectedUserForDelete] = useState("");
+    const [payments, setPayments] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+    const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
 
-    const totalPages = 5;
+    const recordsPerPage = 10;
+    const totalPages = Math.ceil(payments.length / recordsPerPage);
+
+    useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const response = await superAdminApi.getAllPayments();
+                setPayments(response.data || []);
+                console.log(response.data);
+            } catch (error) {
+                console.error("Failed to fetch payments", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPayments();
+    }, []);
 
     const onPageChange = (page: number) => {
         setCurrentPage(page);
@@ -36,77 +53,83 @@ const TransactionDetail = () => {
         "Action",
     ];
 
-    interface Transaction {
-        id: string;
-        fullName: string;
-        client?: { email: string };
-        provider?: { email: string };
-        licenseNo?: string;
-        plan: string;
-        status: string;
-        amount: string;
-        createdAt: string;
-        profileImage?: string | null;
-    }
+    const formatStatus = (status: string) => {
+        if (!status) return "N/A";
+        const lower = status.toLowerCase();
+        if (lower === "succeeded") return "Paid";
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+    };
 
-    const mockData: Transaction[] = [
-        {
-            id: "1",
-            fullName: "John Doe",
-            client: { email: "john.doe@example.com" },
-            licenseNo: "LIC-12345",
-            plan: "TXN-2024-001",
-            status: "Success",
-            amount: "$100",
-            createdAt: "2024-01-15T10:00:00"
-        },
-        {
-            id: "2",
-            profileImage: null,
-            fullName: "Jane Smith",
-            status: "Pending",
-            plan: "TXN-2024-001",
-            amount: "$100",
-            createdAt: "2024-01-16T11:30:00"
-        },
-        {
-            id: "3",
-            fullName: "Alice Johnson",
-            amount: "$300",
-            client: { email: "alice.j@example.com" },
-            status: "Failed", plan: "TXN-2024-001",
-            createdAt: "2024-01-14T09:15:00"
-        },
-        {
-            id: "4",
-            plan: "TXN-2024-001",
-            fullName: "Bob Brown",
-            amount: "$400",
-            client: { email: "bob.b@example.com" },
-            status: "Refunded",
-            createdAt: "2024-01-18T14:20:00"
-        }
-    ];
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
 
-    const filterOptions = ["All", "Success", "Pending", "Failed", "Refunded"];
+    const filterOptions = ["All", "Paid", "Pending", "Failed", "Refunded"];
 
-    const filteredRecords = mockData.filter((record) => {
-        const matchesSearch = record.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (record.client?.email || record.provider?.email)?.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredRecords = payments.filter((record) => {
+        const fullName = record.user?.fullName || "";
+        const email = record.user?.email || "";
+        const matchesSearch = fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            email.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesFilter = activeFilter === "All" || record.status === activeFilter;
+        const matchesFilter = activeFilter === "All" || formatStatus(record.status) === activeFilter;
 
         return matchesSearch && matchesFilter;
     });
 
+    const paginatedRecords = filteredRecords.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+    );
+
     const getStatusColor = (status: string) => {
-        switch (status) {
-            case "Success": return "bg-green-100 text-green-700";
-            case "Pending": return "bg-yellow-100 text-yellow-700";
-            case "Failed": return "bg-red-100 text-red-700";
-            case "Refunded": return "bg-gray-100 text-gray-700";
+        const lowerStatus = status.toLowerCase();
+        switch (lowerStatus) {
+            case "succeeded":
+            case "paid": return "bg-green-100 text-green-700";
+            case "pending": return "bg-yellow-100 text-yellow-700";
+            case "failed": return "bg-red-100 text-red-700";
+            case "refunded": return "bg-gray-100 text-gray-700";
             default: return "bg-inputBgColor text-textColor";
+
         }
+    };
+
+    const handleViewInvoice = (data: any) => {
+        const displayStatus = data.status === "succeeded" ? "Paid" :
+            data.status.charAt(0).toUpperCase() + data.status.slice(1);
+        const invoice = {
+            invoiceNo: data.stripeInvoiceId || `INV-${data.id.slice(0, 8)}`,
+            date: formatDate(data.createdAt),
+            dueDate: formatDate(data.createdAt),
+            billTo: {
+                name: data.user?.fullName || "N/A",
+                email: data.user?.email || "N/A",
+                address: data.user?.address || "N/A",
+                city: `${data.user?.state || ""}, ${data.user?.country || ""}`
+            },
+            items: [
+                {
+                    description: data.plan || "Subscription Plan",
+                    subtext: "Platform Access",
+                    qty: "01",
+                    price: `$${data.amount / 100}`,
+                    amount: `$${data.amount / 100}`,
+                    status: formatStatus(data.status)
+                }
+            ],
+            subtotal: `$${data.amount / 100}`,
+            tax: "$0.00",
+            total: `$${data.amount / 100}`,
+            notes: "Thank you for being a part of our platform."
+        };
+        setSelectedInvoiceData(invoice);
+        setShowInvoiceModal(true);
     };
 
     return (
@@ -135,10 +158,10 @@ const TransactionDetail = () => {
                             key={option}
                             onClick={() => setActiveFilter(option)}
                             className={`px-4 py-2 cursor-pointer rounded-md text-sm transition-colors border ${activeFilter === option
-                                ? "bg-primaryColorDark text-white border-primaryColorDark" // Assuming primaryColorDark is available, or fallback to custom style
+                                ? "bg-primaryColorDark text-white border-primaryColorDark"
                                 : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                                 }`}
-                            style={activeFilter === option ? { backgroundColor: '#0F766E', borderColor: '#0F766E' } : {}} // Inline style fallback to match teal/green from image if class fails
+                            style={activeFilter === option ? { backgroundColor: '#0F766E', borderColor: '#0F766E' } : {}}
                         >
                             {option}
                         </button>
@@ -147,70 +170,64 @@ const TransactionDetail = () => {
             </div>
 
             <Table heading={heading}>
-                {filteredRecords?.map((data: any, idx: number) => (
-                    <tr
-                        key={data?.id ?? idx}
-                        className="border-b-[1px] border-b-solid border-b-lightGreyColor"
-                    >
-                        {/* Name */}
-                        <td className="px-2 py-3 align-middle">
-                            <div className="flex items-center gap-x-4">
-                                {
-                                    data.createdAt.slice(0, 10)
-                                }
+                {loading ? (
+                    <tr><td colSpan={6} className="text-center py-4">Loading transitions...</td></tr>
+                ) : paginatedRecords.length === 0 ? (
+                    <tr><td colSpan={6} className="text-center py-4">No transactions found.</td></tr>
+                ) : (
+                    paginatedRecords.map((data: any, idx: number) => (
+                        <tr
+                            key={data?.id ?? idx}
+                            className="border-b-[1px] border-b-solid border-b-lightGreyColor"
+                        >
+                            <td className="px-2 py-3 align-middle">
+                                {formatDate(data.createdAt)}
+                            </td>
 
-                            </div>
-                        </td>
+                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <p className="capitalize leading-5 text-[15px] font-medium">{data?.user?.fullName}</p>
+                            </td>
 
-                        <td className="px-2 py-3 align-middle whitespace-nowrap">
-                            <p className="capitalize leading-5 text-[15px] font-medium">{data?.fullName}</p>
-                        </td>
+                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                {data.plan || "N/A"}
+                            </td>
 
-                        <td className="px-2 py-3 align-middle whitespace-nowrap">
-                            {getCountryNameFromCode(data.plan)}
-                        </td>
+                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                ${data.amount / 100}
+                            </td>
 
-                        <td className="px-2 py-3 align-middle whitespace-nowrap">
-                            {data.amount}
-                        </td>
+                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <span
+                                    className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
+                                >
+                                    <GoDotFill className="text-base" />
+                                    {formatStatus(data.status)}
+                                </span>
+                            </td>
 
-                        <td className="px-2 py-3 align-middle whitespace-nowrap">
-                            <span
-                                className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
-                            >
-                                <GoDotFill
-                                    className="text-base"
-                                />
-                                {data.status}
-                            </span>
-                        </td>
-
-
-                        <td className="px-2 py-3 align-middle whitespace-nowrap">
-                            <div className="flex items-center justify-start gap-x-2">
-                                <ViewIcon
-                                    onClick={() =>
-                                        navigate(
-                                            `/transaction-details/${data?.id}`
-                                        )
-                                    }
-                                />
-                                <DeleteIcon
-                                    onClick={() => {
-                                        setSelectedUserForDelete(data?.id ?? "");
-                                        dispatch(isModalDeleteReducer(true));
-                                    }}
-                                />
-                            </div>
-                        </td>
-                    </tr>
-                ))}
+                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <div className="flex items-center justify-start gap-x-2">
+                                    <ViewIcon
+                                        onClick={() => handleViewInvoice(data)}
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                    ))
+                )}
             </Table>
 
             <CustomPagination
                 totalPages={totalPages}
                 onPageChange={onPageChange}
                 hookCurrentPage={currentPage}
+            />
+
+            <InvoiceModal
+                isOpen={showInvoiceModal}
+                onClose={() => setShowInvoiceModal(false)}
+                invoiceId={null}
+                invoiceData={selectedInvoiceData}
             />
         </OutletLayout>
     )

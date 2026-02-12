@@ -124,7 +124,7 @@ const UserProfile = () => {
     queryFn: async () => {
       const dataSendToBackend = {
         role: loginUserDetail?.user?.role,
-        loginUserId: loginUserDetail?.id,
+        loginUserId: loginUserDetail?.user?.id || loginUserDetail?.id,
       };
       const response = await loginUserApiService.getMeApi(dataSendToBackend);
       return response?.data?.data;
@@ -240,8 +240,8 @@ const UserProfile = () => {
     formData.append("licenseNo", data?.licenseNo ?? "");
     formData.append("age", data?.age?.toString() ?? "0");
     formData.append("department", safeDepartment);
-    formData.append("loginUserId", getMeData?.user?.id ?? "");
-    formData.append("role", getMeData?.user?.role ?? "");
+    formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
+    formData.append("role", getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "");
     formData.append("state", safeState);
     formData.append("country", safeCountry);
     formData.append("contactNo", String(data?.contactNo ?? ""));
@@ -293,7 +293,6 @@ const UserProfile = () => {
   return (
     <OutletLayout
       heading="User profile"
-      isEdit={isEdit}
       backButton={isEdit ? <BackIcon onClick={handleCancelEdit} /> : null}
     >
       {isLoader && <Loader text="Updating..." />}

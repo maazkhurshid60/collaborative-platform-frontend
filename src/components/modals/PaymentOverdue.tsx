@@ -93,6 +93,7 @@ const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose }) =>
                         >
                             View Invoice                        </button>
                         <button
+                            onClick={handleUpdatePayment}
                             className="flex-1 h-[76px] bg-[#2C9993] text-white rounded-[20px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
                         >
                             Update Payment Method

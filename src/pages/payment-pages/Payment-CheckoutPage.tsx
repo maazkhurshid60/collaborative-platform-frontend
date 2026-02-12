@@ -262,10 +262,11 @@ export const PaymentCheckoutPage = () => {
         setIsInitializing(true);
         try {
             const data = {
-                email: token ? loggedInUser?.email : userData?.email,
-                name: token ? loggedInUser?.fullName : userData?.fullName,
+                email: token ? userDetails?.email : userData?.email,
+                name: token ? userDetails?.user?.fullName : userData?.fullName,
                 planType,
-                period: billingCycle
+                period: billingCycle,
+                licenseNo: userData?.licenseNo
             };
 
             console.log('💳 Initializing payment with data:', data);
@@ -279,6 +280,27 @@ export const PaymentCheckoutPage = () => {
                 toast.error(`Missing required fields: ${!data.email ? 'email ' : ''}${!data.planType ? 'plan ' : ''}${!data.period ? 'period' : ''}`);
                 setIsInitializing(false);
                 return;
+            }
+
+            // 🔍 CHECK FOR CONFLICTS BEFORE PAYING (Signup only)
+            if (!token) {
+                try {
+                    const conflictRes = await authService.checkEmail(data.email, data.licenseNo);
+                    if (conflictRes?.data?.exists) {
+                        const field = conflictRes.data.field || "Account details";
+                        toast.error(`${field} is already registered. Please login or use different details.`);
+                        setIsInitializing(false);
+                        return;
+                    }
+                } catch (conflictErr: any) {
+                    if (conflictErr?.response?.status === 409) {
+                        const field = conflictErr.response.data?.data?.field || "Account details";
+                        toast.error(`${field} is already registered. Please login or use different details.`);
+                        setIsInitializing(false);
+                        return;
+                    }
+                    console.warn("⚠️ Conflict check failed, but proceeding...", conflictErr);
+                }
             }
 
             const res = await subscriptionApiService.createSubscriptionIntent(data);

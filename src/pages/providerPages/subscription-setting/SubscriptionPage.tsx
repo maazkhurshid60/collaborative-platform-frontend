@@ -17,6 +17,7 @@ export const SubscriptionSettingPage = () => {
     // Get user and subscription data from Redux
     const user = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user);
     const userEmail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.email);
+    console.log(userEmail, "userEmail");
     const userSubscription = user?.subscription;
 
     const currentPlanName = userSubscription?.plan || 'STANDARD';
@@ -136,8 +137,9 @@ export const SubscriptionSettingPage = () => {
                     </div>
                     <div className='w-[170px]'>
                         <button
+                            disabled={userSubscription?.status === 'TRIALING'}
                             onClick={() => navigate('/billing/change-plan')}
-                            className=" text-white p-2 flex items-center gap-x-1.5 cursor-pointer hover:bg-[#2C9993]/10 justify-center rounded-[10px] border-2 border-[#2C9993]" >
+                            className={` ${userSubscription?.status === 'TRIALING' ? 'opacity-50  cursor-not-allowed hover:bg-none p-2   flex items-center gap-x-1.5 justify-center rounded-[10px] border-2 border-[#2C9993]' : ' text-white p-2   flex items-center gap-x-1.5 cursor-pointer hover:bg-[#2C9993]/10 justify-center rounded-[10px] border-2 border-[#2C9993]'}`} >
                             <Repeat className="w-[20px] h-[20px] text-[#2C9993]" />
                             <span className=" text-[15px] font-[Poppins] text-[#2C9993]">{subscriptionPageData.changePlanBtnText}</span>
                         </button>
@@ -162,7 +164,7 @@ export const SubscriptionSettingPage = () => {
                                     <button
                                         disabled={userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING'}
                                         onClick={() => dispatch(isCancelSubscriptionModalShowReducer(true))}
-                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-not-allowed border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
+                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer   ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-not-allowed  border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
                                     >
                                         <p className={`text-[14px] font-medium font-[Poppins] ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'text-gray-400' : 'text-[#E21414]'}`}>{subscriptionPageData.currentPlanSection.cancelBtnText}</p>
                                     </button>

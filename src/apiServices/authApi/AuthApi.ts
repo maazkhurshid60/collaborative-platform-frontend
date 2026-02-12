@@ -89,9 +89,9 @@ class AuthService {
         }
     }
 
-    async checkEmail(email: string) {
+    async checkEmail(email: string, licenseNo?: string) {
         try {
-            const response = await this.api.post("/check-email", { email });
+            const response = await this.api.post("/check-email", { email, licenseNo });
             return response.data;
         } catch (error: unknown) {
             throw error;

@@ -7,8 +7,8 @@ import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
-import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderDetail";
-import SubscriptionPage from "../pages/superadminPages/subscription/SubscriptionPage";
+import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderBillingDetail";
+import SubscriptionPage from "../pages/superadminPages/subscription/BillingMangement";
 import BilingPage from "../pages/providerPages/biling/BilingPage";
 import ChangePlanScreen from "../pages/providerPages/change-plan-screen/ChangePlanScreen";
 import { SubscriptionSettingPage } from "../pages/providerPages/subscription-setting/SubscriptionPage";
@@ -170,7 +170,7 @@ const Routing = () => {
 
                 {
                     loginUserRole === "superAdmin" && (
-                        <Route path="/subscription" element={<WrappedRoute><SubscriptionPage /></WrappedRoute>} />
+                        <Route path="/billing-management" element={<WrappedRoute><SubscriptionPage /></WrappedRoute>} />
                     )
                 }
                 {

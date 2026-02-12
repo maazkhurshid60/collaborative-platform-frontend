@@ -30,7 +30,6 @@ const departmentOptions = [
     { value: "Eye Specialist", label: "Eye Specialist" },
     { value: "Heart Specialist", label: "Heart Specialist" },
 ]
-
 type FormFields = z.infer<typeof ProviderSignupSchema>;
 
 export interface ISigninData {
@@ -88,8 +87,8 @@ const ProviderSignup = () => {
         setIsLoading(true);
 
         try {
-            // Check if email already exists
-            const response = await authService.checkEmail(data.email);
+            // Check if email or license number already exists
+            const response = await authService.checkEmail(data.email, data.licenseNo);
 
             // If email exists, stop the signup
             if (response?.data?.exists) {
@@ -108,7 +107,7 @@ const ProviderSignup = () => {
 
             // Handle other errors
             console.error("Email check error:", error);
-            toast.error("Failed to verify email. Please try again.");
+            toast.error("Please Enter Valid Email.");
             return;
         }
 

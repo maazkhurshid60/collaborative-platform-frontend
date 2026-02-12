@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { X, Download, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import logo from '../../../public/assets/kolabme-logo.svg';
 
 interface InvoiceModalProps {
@@ -10,9 +10,10 @@ interface InvoiceModalProps {
     onClose: () => void;
     invoiceId: string | null;
     invoiceData?: any; // Add optional invoiceData prop
+    autoDownload?: boolean; // Add autoDownload prop
 }
 
-const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData }) => {
+const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData, autoDownload }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
 
@@ -73,6 +74,16 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
         }
     };
 
+    React.useEffect(() => {
+        if (isOpen && autoDownload) {
+            // Small delay to ensure render is complete and animations finished
+            const timer = setTimeout(() => {
+                handleDownloadPdf();
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, autoDownload]);
+
     if (!isOpen) return null;
 
     return (
@@ -80,16 +91,26 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
             <div className="flex min-h-full justify-center p-4">
                 <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
                     {/* Modal Header */}
-                    <div className="flex items-center justify-between  p-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between p-4 border-b border-gray-100">
                         <div className='flex items-center gap-2 w-1/2 ml-12 justify-end'>
-                            <h2 className="text-[24px] font-[Poppins] font-semibold text-gray-800">Invoice</h2>
+                            <h2 className="text-[24px] font-[Poppins] font-semibold" style={{ color: '#1f2937' }}>Invoice</h2>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
-                        >
-                            <X size={24} className="text-gray-500" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleDownloadPdf}
+                                disabled={isDownloading}
+                                className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors disabled:opacity-50"
+                                title="Download PDF"
+                            >
+                                <Download size={20} className={isDownloading ? "animate-pulse" : ""} />
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
+                            >
+                                <X size={24} className="text-gray-500" />
+                            </button>
+                        </div>
                     </div>
                     {/* Invoice Content (Target for PDF) */}
                     <div className="p-5 bg-white" ref={invoiceRef}>
@@ -97,34 +118,34 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex flex-col gap-1">
                                 <img src={logo} alt="Kolabme" className="h-7 w-fit object-contain mb-1" />
-                                <div className="text-xs text-gray-500 font-normal font-[Poppins] space-y-0.5">
+                                <div className="text-xs font-normal font-[Poppins] space-y-0.5" style={{ color: '#6b7280' }}>
                                     <p>123 Business Street</p>
                                     <p>San Francisco, CA 94102</p>
                                     <p>support@example.com</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <h1 className="text-xl font-bold text-gray-900 mb-1">INVOICE</h1>
-                                <div className="text-[10px] text-gray-600 font-normal font-[Poppins] space-y-0.5">
-                                    <p><span className="font-medium text-gray-500">Invoice #:</span> {invoice.invoiceNo}</p>
-                                    <p><span className="font-medium text-gray-500">Date:</span> {invoice.date}</p>
-                                    <p><span className="font-medium text-gray-500">Due Date:</span> {invoice.dueDate}</p>
+                                <h1 className="text-xl font-bold mb-1" style={{ color: '#111827' }}>INVOICE</h1>
+                                <div className="text-[10px] font-normal font-[Poppins] space-y-0.5" style={{ color: '#4b5563' }}>
+                                    <p><span className="font-medium" style={{ color: '#6b7280' }}>Invoice #:</span> {invoice.invoiceNo}</p>
+                                    <p><span className="font-medium" style={{ color: '#6b7280' }}>Date:</span> {invoice.date}</p>
+                                    <p><span className="font-medium" style={{ color: '#6b7280' }}>Due Date:</span> {invoice.dueDate}</p>
                                 </div>
                             </div>
                         </div>
                         {/* Bill To */}
                         <div className="mb-4">
-                            <h3 className="text-sm font-bold font-[Poppins] text-gray-900 mb-0.5">Bill To:</h3>
-                            <div className="text-[11px] text-gray-600">
-                                <p className="font-medium font-[Poppins] text-gray-900">{invoice.billTo.name}</p>
+                            <h3 className="text-sm font-bold font-[Poppins] mb-0.5" style={{ color: '#111827' }}>Bill To:</h3>
+                            <div className="text-[11px]" style={{ color: '#4b5563' }}>
+                                <p className="font-medium font-[Poppins]" style={{ color: '#111827' }}>{invoice.billTo.name}</p>
                                 <p>{invoice.billTo.email}</p>
                                 <p>{invoice.billTo.address} {invoice.billTo.city}</p>
                             </div>
                         </div>
 
                         {/* Items Table */}
-                        <div className="bg-inputBgColor rounded-[8px] p-4 mb-4">
-                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold text-gray-900 mb-2 pb-2 border-b border-gray-200">
+                        <div className="bg-[#F9FAFB] rounded-[8px] p-4 mb-4">
+                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold mb-2 pb-2 border-b" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
                                 <div className="col-span-5">Description</div>
                                 <div className="col-span-2 text-center">Qty</div>
                                 <div className="col-span-2 text-right">Price</div>
@@ -132,16 +153,22 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                 <div className="col-span-1 text-right">Status</div>
                             </div>
                             {invoice.items.map((item, id) => (
-                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] text-gray-600 items-center py-1">
+                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-1" style={{ color: '#4b5563' }}>
                                     <div className="col-span-5">
-                                        <p className="font-semibold text-gray-900">{item.description}</p>
-                                        <p className="text-[9px] text-gray-500">{item.subtext}</p>
+                                        <p className="font-semibold" style={{ color: '#111827' }}>{item.description}</p>
+                                        <p className="text-[9px]" style={{ color: '#6b7280' }}>{item.subtext}</p>
                                     </div>
                                     <div className="col-span-2 text-center font-medium">{item.qty}</div>
                                     <div className="col-span-2 text-right">{item.price}</div>
-                                    <div className="col-span-2 text-right text-gray-900 font-medium">{item.amount}</div>
+                                    <div className="col-span-2 text-right font-medium" style={{ color: '#111827' }}>{item.amount}</div>
                                     <div className="col-span-1 text-right">
-                                        <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[9px] font-medium">
+                                        <span
+                                            style={{
+                                                backgroundColor: item.status.toLowerCase() === 'paid' ? '#dcfce7' : item.status.toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2',
+                                                color: item.status.toLowerCase() === 'paid' ? '#15803d' : item.status.toLowerCase() === 'pending' ? '#a16207' : '#b91c1c',
+                                            }}
+                                            className="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                                        >
                                             {item.status}
                                         </span>
                                     </div>
@@ -152,24 +179,24 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                         {/* Totals */}
                         <div className="flex flex-col items-start justify-between w-full mb-4">
                             <div className="w-full space-y-1.5">
-                                <div className="flex justify-between items-center text-[10px] text-gray-600">
+                                <div className="flex justify-between items-center text-[10px]" style={{ color: '#4b5563' }}>
                                     <span>Subtotal:</span>
                                     <span>{invoice.subtotal}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-[10px] text-gray-600">
+                                <div className="flex justify-between items-center text-[10px]" style={{ color: '#4b5563' }}>
                                     <span>Tax (0%):</span>
                                     <span>{invoice.tax}</span>
                                 </div>
-                                <div className="flex justify-between text-base font-bold pt-2 border-t border-gray-200">
-                                    <span>Total:</span>
-                                    <span className=' text-teal-600 font-normal font-[poppins]'>{invoice.total}</span>
+                                <div className="flex justify-between text-base font-bold pt-2 border-t" style={{ borderColor: '#e5e7eb' }}>
+                                    <span style={{ color: '#111827' }}>Total:</span>
+                                    <span style={{ color: '#0d9488' }} className='font-normal font-[poppins]'>{invoice.total}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Footer / Notes */}
-                        <div className="text-[10px] text-gray-600">
-                            <h4 className="font-bold text-gray-900 mb-1">Notes:</h4>
+                        <div className="text-[10px]" style={{ color: '#4b5563' }}>
+                            <h4 className="font-bold mb-1" style={{ color: '#111827' }}>Notes:</h4>
                             <p className="leading-tight">{invoice.notes}</p>
                         </div>
                     </div>

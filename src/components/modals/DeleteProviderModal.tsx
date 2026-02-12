@@ -1,20 +1,37 @@
 import React, { useState } from 'react';
-import { X, Check } from 'lucide-react';
+import { X } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { isModalDeleteReducer } from '../../redux/slices/ModalSlice';
+import superAdminApi from '../../apiServices/superAdminApi/SuperAdminApi';
+import { toast } from 'react-toastify';
 
 interface DeleteProviderModalProps {
-    onClose?: () => void;
+    subscriptionId: string;
+    onSuccess: () => Promise<void>;
 }
 
-const DeleteProviderModal: React.FC<DeleteProviderModalProps> = ({ onClose }) => {
-    const [isVisible, setIsVisible] = useState(true);
+const DeleteProviderModal: React.FC<DeleteProviderModalProps> = ({ subscriptionId, onSuccess }) => {
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
 
     const handleClose = () => {
-        setIsVisible(false);
-        onClose?.();
+        dispatch(isModalDeleteReducer(false));
     };
 
-    if (!isVisible) return null;
-
+    const handleDelete = async () => {
+        try {
+            setLoading(true);
+            await superAdminApi.deleteSubscription(subscriptionId);
+            toast.success("Subscription deleted successfully");
+            await onSuccess();
+            handleClose();
+        } catch (error) {
+            console.error("Failed to delete subscription", error);
+            toast.error("Failed to delete subscription");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div
@@ -75,15 +92,17 @@ const DeleteProviderModal: React.FC<DeleteProviderModalProps> = ({ onClose }) =>
                     <div className="flex flex-row gap-6 w-full mt-auto">
                         <button
                             onClick={handleClose}
-                            className="flex-1 h-[60px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all"
+                            disabled={loading}
+                            className="flex-1 h-[60px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button
-                            onClick={handleClose}
-                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
+                            onClick={handleDelete}
+                            disabled={loading}
+                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl disabled:opacity-50"
                         >
-                            Yes, Delete
+                            {loading ? "Deleting..." : "Yes, Delete"}
 
                         </button>
                     </div>
