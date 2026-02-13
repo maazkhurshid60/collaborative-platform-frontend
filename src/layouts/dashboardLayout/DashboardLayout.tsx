@@ -11,6 +11,7 @@ import { useSubscriptionModals } from '../../hooks/useSubscriptionModal'
 import PaymentOverDueModal from '../../components/modals/PaymentOverdue'
 import SubscriptionExpiredModal from '../../components/modals/SubscriptionExpiredModal'
 import TrialExpiredModal from '../../components/modals/TrialExpiredModal'
+import SubscriptionCanceledModal from '../../components/modals/SubscriptionCanceledModal'
 
 const DashboardLayout = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
@@ -26,6 +27,8 @@ const DashboardLayout = () => {
         showTrialExpired,
         setShowTrialExpired,
         showRenewalSuccess,
+        showSubscriptionCanceled,
+        setShowSubscriptionCanceled
     } = useSubscriptionModals();
 
     useEffect(() => {
@@ -113,11 +116,15 @@ const DashboardLayout = () => {
                     {showTrialExpired && (
                         <TrialExpiredModal onClose={() => setShowTrialExpired(false)} />
                     )}
+
+                    {showSubscriptionCanceled && (
+                        <SubscriptionCanceledModal onClose={() => setShowSubscriptionCanceled(false)} />
+                    )}
                 </>
             )}
         </div>
     );
-}
+};
 
 export default DashboardLayout
 

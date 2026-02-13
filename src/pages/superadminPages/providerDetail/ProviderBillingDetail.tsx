@@ -1,4 +1,4 @@
-import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, Trash, View, ViewIcon } from "lucide-react";
+import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, Trash, User, View, ViewIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom"
 import profileImage from "../../../../public/assets/profile-img.png"
 import { GoDotFill } from "react-icons/go";
@@ -14,6 +14,8 @@ const ProviderBillingDetail = () => {
     const { id } = useParams()
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+    const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
+    const [autoDownload, setAutoDownload] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [contactInfo, setContactInfo] = useState<any>(null);
@@ -41,8 +43,11 @@ const ProviderBillingDetail = () => {
             ]);
 
             setContactInfo(contactRes.data);
+            console.log(contactRes.data);
             setSubscription(subscriptionRes.data);
+            console.log(subscriptionRes.data);
             setPaymentHistory(paymentRes.data || []);
+            console.log(paymentRes.data);
         } catch (error) {
             console.error("Failed to fetch provider details", error);
             toast.error("Failed to load provider details");
@@ -105,6 +110,49 @@ const ProviderBillingDetail = () => {
         ];
     };
 
+    const mapPrismaPaymentToInvoice = (data: any) => {
+        if (!data) return null;
+
+        const amount = typeof data.amount === 'number' ? data.amount / 100 : 0;
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: data.currency || 'USD'
+        }).format(amount);
+
+        const dateObj = data.createdAt ? new Date(data.createdAt) : new Date();
+        const formattedDate = dateObj.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        return {
+            invoiceNo: data.stripeInvoiceId || (data.id ? `INV-2024-${data.id.slice(0, 8)}` : "N/A"),
+            date: formattedDate,
+            dueDate: formattedDate,
+            billTo: {
+                name: contactInfo?.fullName || "Valued Customer",
+                email: contactInfo?.email || "",
+                address: contactInfo?.address || "N/A",
+                city: `${contactInfo?.state || ""}, ${contactInfo?.country || ""}`
+            },
+            items: [
+                {
+                    description: data.plan || "Subscription Payment",
+                    subtext: "Monthly subscription",
+                    qty: "01",
+                    price: formattedAmount,
+                    amount: formattedAmount,
+                    status: data.status || "Paid"
+                }
+            ],
+            subtotal: formattedAmount,
+            tax: "$0.00",
+            total: formattedAmount,
+            notes: "Thank you for your business!"
+        };
+    };
+
     if (loading) {
         return <div className="p-10 text-center">Loading provider details...</div>;
     }
@@ -127,9 +175,11 @@ const ProviderBillingDetail = () => {
                             <span className="text-[16px] font-medium text-[#2C9993]">Delete</span>
                             <Trash className="w-[20px] h-[20px] text-[#2C9993] " />
                         </button>
-                        <button onClick={() => {
-                            navigate(`/provider/refund/${id}`)
-                        }} className="w-[114px] h-[38px] bg-[#2C9993] cursor-pointer rounded-lg flex items-center justify-center gap-x-2">
+                        <button
+                            disabled={subscription?.status === "inactive" || true}
+                            onClick={() => {
+                                navigate(`/provider/refund/${id}`)
+                            }} className="w-[114px] h-[38px] bg-[#2C9993] cursor-pointer rounded-lg flex items-center justify-center gap-x-2">
                             <span className="text-[16px] font-medium text-white">Refund</span>
                         </button>
                     </div>
@@ -138,7 +188,13 @@ const ProviderBillingDetail = () => {
                     <div
                         className="w-[139px] h-[139px] rounded-full border-[3px] border-[#FFC600] flex items-center justify-center"
                     >
-                        <img src={contactInfo.profileImage || profileImage} className="w-full h-full object-cover rounded-full" alt="" />
+                        {contactInfo.profileImage ? (
+                            <img src={contactInfo.profileImage} className="w-full h-full object-cover rounded-full" alt="" />
+                        ) : (
+                            <div className="w-full h-full rounded-full bg-black flex  items-center justify-center">
+                                <User className="w-[60px] h-[60px] text-gray-500  " />
+                            </div>
+                        )}
 
                     </div>
                     <div className="flex flex-col items-start gap-y-1">
@@ -148,8 +204,8 @@ const ProviderBillingDetail = () => {
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-[#FAF5FF] flex items-center justify-center">
                                 <p className="font-[Poppins] text-[12px] font-medium text-[#9D27B0] capitalize">{subscription?.plan || "Free"}</p>
                             </div>
-                            <div className="w-[80px] h-[26px] rounded-[4px] bg-primaryColorDark flex items-center justify-center">
-                                <p className="font-[Poppins] text-[12px] font-medium text-white capitalize">{subscription?.status || "inactive"}</p>
+                            <div className="w-[80px] h-[26px] rounded-[4px] bg-[#ECFDF5] flex items-center justify-center">
+                                <p className="font-[Poppins] text-[12px] font-medium text-primaryColorDark capitalize">{subscription?.status || "inactive"}</p>
                             </div>
                         </div>
                     </div>
@@ -194,14 +250,15 @@ const ProviderBillingDetail = () => {
                             <p className="text-[16px] font-medium">{contactInfo.provider?.department || "Cardiology"}</p>
                         </div>
 
-                        <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Oragnization</p>
-                            <p className="text-[16px] font-medium">Metropolitan Heart Center</p>
-                        </div>
+
 
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Payment Method</p>
-                            <p className="text-[16px] font-medium">{paymentHistory[0]?.paymentMethodLast4 ? `Credit Card **** ${paymentHistory[0].paymentMethodLast4}` : "N/A"}</p>
+                            <p className="text-[16px] font-medium">
+                                {paymentHistory.find(p => p.paymentMethodLast4)?.paymentMethodLast4
+                                    ? `Credit Card **** ${paymentHistory.find(p => p.paymentMethodLast4).paymentMethodLast4}`
+                                    : "4343"}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -251,39 +308,41 @@ const ProviderBillingDetail = () => {
                             <div className="flex items-start justify-between mt-2">
                                 <p className="text-[14px] text-white font-medium">Current Plan</p>
                                 <div className="w-[91px] h-[24px] rounded-[12px] bg-white/20 flex items-center justify-center">
-                                    <p className="text-[12px] text-white z-20 font-medium">Enterprise</p>
+                                    <p className="text-[12px] text-white z-20 font-medium capitalize">{subscription?.plan || "N/A"}</p>
                                 </div>
                             </div>
-                            <p className="text-[24px] font-bold text-white font-[Poppins]">Professional Plus</p>
-                            <p className="text-[36px] relative font-bold text-white font-[raleway]">$299 <span className="text-[14px] font-normal absolute top-[10px] right-[122px]  font-[poppins] text-white z-10 ">/monthly</span></p>
+                            <p className="text-[24px] font-bold text-white font-[Poppins] capitalize">{subscription?.plan === 'PRO' ? 'Professional Plus' : (subscription?.plan || 'Standard')}</p>
+                            <p className="text-[36px] relative font-bold text-white font-[raleway]">
+                                ${subscription?.plan === 'PRO' ? '79' : (subscription?.plan === 'STANDARD' ? '29' : '0')}
+                                <span className="text-[14px] font-normal absolute top-[10px] left-[60px]  font-[poppins] text-white z-10 ">/monthly</span>
+                            </p>
 
                             <div className="w-full h-px mt-5 bg-white/20 " />
                             <div className="flex flex-col items-start justify-evenly">
                                 <div className="flex flex-row w-full justify-between">
-                                    <p className="text-[14px] text-[#D1FAE5] font-normal ">Total Invoices</p>
-                                    <p className="text-[14px] text-white font-medium">Jan 1, 2024</p>
+                                    <p className="text-[14px] text-[#D1FAE5] font-normal ">Start Date</p>
+                                    <p className="text-[14px] text-white font-medium">{formatDate(subscription?.createdAt)}</p>
                                 </div>
                                 <div className="flex flex-row w-full justify-between">
                                     <p className="text-[14px] text-[#D1FAE5] font-normal ">Renewal Date</p>
-                                    <p className="text-[14px] text-white font-medium">Jan 1, 2024</p>
+                                    <p className="text-[14px] text-white font-medium">{formatDate(subscription?.currentPeriodEnd)}</p>
                                 </div>
                                 <div className="flex flex-row w-full justify-between">
                                     <p className="text-[14px] text-[#D1FAE5] font-normal ">Auto-Renewal</p>
-                                    <p className="text-[14px] text-white font-medium">Enabled</p>
+                                    <p className="text-[14px] text-white font-medium">{subscription?.cancelAtPeriodEnd ? "Disabled" : "Enabled"}</p>
                                 </div>
                             </div>
 
 
                         </div>
-                        <div className="flex flex-col gap-y-5 bg-inputBgColor w-full h-[293px] rounded-[12px] pt-4 pb-4 pl-4 pr-4">
+                        <div className="flex flex-col gap-y-5 bg-inputBgColor w-full h-[293px] rounded-[12px] pt-4 pb-4 pl-4 pr-4 overflow-y-auto">
                             <p className="text-[16px] font-medium mt-5" >Plan Features</p>
                             <ul className="flex flex-col gap-y-2" >
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> Unlimited Customers</li>
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> Custom biling workflows</li>
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> Dedicated Account Manager</li>
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> White-label options</li>
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> Custom Integrations</li>
-                                <li className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start"> <Check size={20} className="text-[#2C9993]" /> Advanced Security & Compliance</li>
+                                {getPlanFeatures(subscription?.plan).map((feature, idx) => (
+                                    <li key={idx} className="text-[14px] font-normal text-(--color-transaction-summary-text) flex flex-row gap-x-2 items-start">
+                                        <Check size={20} className="text-[#2C9993]" /> {feature}
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     </div>
@@ -335,17 +394,28 @@ const ProviderBillingDetail = () => {
                                         </span>
                                     </td>
 
-                                    {/* Action */}
                                     <td className="px-2 py-3 align-middle whitespace-nowrap">
                                         <div className="flex items-center justify-start gap-x-2">
-                                            <Download size={24} className="cursor-pointer" color="#808B97" />
+                                            <Download
+                                                size={24}
+                                                className="cursor-pointer"
+                                                color="#808B97"
+                                                onClick={() => {
+                                                    setSelectedInvoiceId(data.id);
+                                                    setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
+                                                    setShowInvoiceModal(true);
+                                                    setAutoDownload(true);
+                                                }}
+                                            />
                                             <Eye
                                                 size={24}
                                                 color="#808B97"
                                                 className="cursor-pointer"
                                                 onClick={() => {
                                                     setSelectedInvoiceId(data.id);
+                                                    setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
                                                     setShowInvoiceModal(true);
+                                                    setAutoDownload(false);
                                                 }}
                                             />
 
@@ -359,8 +429,13 @@ const ProviderBillingDetail = () => {
             </div>
             <InvoiceModal
                 isOpen={showInvoiceModal}
-                onClose={() => setShowInvoiceModal(false)}
+                onClose={() => {
+                    setShowInvoiceModal(false);
+                    setAutoDownload(false);
+                }}
                 invoiceId={selectedInvoiceId}
+                invoiceData={selectedInvoiceData}
+                autoDownload={autoDownload}
             />
             {showDeleteModal && (
                 <DeleteProviderBilling onClose={() => setShowDeleteModal(false)} />

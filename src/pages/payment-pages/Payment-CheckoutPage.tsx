@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Search, ChevronDown, Check, ShieldCheck, Lock, HandCoins, Info } from "lucide-react";
-import logo from "../../../public/assets/logo.png";
-import profileImg from "../../../public/assets/profile-img.png";
+import { Search, ChevronDown, Check, ShieldCheck, Lock, Info } from "lucide-react";
+
 import { subscriptionApiService } from "../../services/subscriptionApiService";
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
@@ -249,7 +248,7 @@ export const PaymentCheckoutPage = () => {
     };
     const price = getPrice();
     const tax = price * 0.1;
-    const total = price + tax;
+    const total = price;
 
     const handleInitializePayment = async () => {
         // If not logged in and no signup data, redirect back to signup
@@ -262,7 +261,7 @@ export const PaymentCheckoutPage = () => {
         setIsInitializing(true);
         try {
             const data = {
-                email: token ? userDetails?.email : userData?.email,
+                email: token ? userDetails?.user?.email : userData?.email,
                 name: token ? userDetails?.user?.fullName : userData?.fullName,
                 planType,
                 period: billingCycle,
@@ -396,8 +395,8 @@ export const PaymentCheckoutPage = () => {
                                     <span className="text-[16px] font-medium text-[#101828]">${price.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[16px] text-[#667085]">Tax (10%)</span>
-                                    <span className="text-[16px] font-medium text-[#101828]">${tax.toFixed(2)}</span>
+                                    <span className="text-[16px] text-[#667085]">Tax (0%)</span>
+                                    <span className="text-[16px] font-medium text-[#101828]">$0.00</span>
                                 </div>
                             </div>
                             <div className="border-t border-[#E2E8F0] pt-6 mb-2">

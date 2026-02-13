@@ -13,8 +13,6 @@ import { subscriptionApiService } from "../../../services/subscriptionApiService
 
 
 const BilingHistory = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeFilter, setActiveFilter] = useState("All");
@@ -31,7 +29,7 @@ const BilingHistory = () => {
             try {
                 const response = await subscriptionApiService.getAllPayments();
                 setPayments(response || []);
-                console.log(response, "response");
+                console.log(response, "Response of payments");
             } catch (error) {
                 console.error("Failed to fetch payments", error);
             } finally {

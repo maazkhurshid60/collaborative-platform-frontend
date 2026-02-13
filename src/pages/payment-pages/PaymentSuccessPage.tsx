@@ -9,6 +9,7 @@ import authService from "../../apiServices/authApi/AuthApi";
 import { saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
 import { subscriptionApiService } from "../../services/subscriptionApiService";
 import InvoiceModal from "../../components/modals/InvoiceModal";
+import { toast } from "react-toastify";
 
 const PaymentSuccessPage = () => {
     const navigate = useNavigate();
@@ -43,19 +44,15 @@ const PaymentSuccessPage = () => {
                 const payments = await subscriptionApiService.getAllPayments();
                 if (payments && payments.length > 0) {
                     setLatestPayment(payments[0]); // Most recent is first due to descend order on backend
-                    console.log("✅ Latest payment found:", payments[0]);
                 }
 
                 // 3. Refresh local Redux data
-                console.log("🔄 Refreshing user data...");
                 const response = await authService.getMe(loginUserId, role);
 
                 if (response?.data?.data) {
                     dispatch(saveLoginUserDetailsReducer(response.data.data));
-                    console.log("✅ User data refreshed with subscription:", response.data.data.user?.subscription);
                 }
             } catch (error) {
-                console.error("❌ Failed to sync/refresh user data:", error);
             } finally {
                 setIsLoading(false);
             }
@@ -72,6 +69,36 @@ const PaymentSuccessPage = () => {
         "Custom integrations",
         "Advanced security & compliance"
     ];
+
+    const handleCopyReceipt = () => {
+        if (!latestPayment && !userDetails) {
+            toast.error("Receipt data not ready yet");
+            return;
+        }
+
+        const date = userDetails?.user?.subscription?.currentPeriodEnd
+            ? new Date(userDetails.user.subscription.currentPeriodEnd).toLocaleDateString()
+            : new Date().toLocaleDateString();
+
+        const receiptText = `
+--------------------------
+    PAYMENT RECEIPT
+--------------------------
+Plan: ${userDetails?.user?.subscription?.plan || "Standard"} Plan
+Amount: ${latestPayment?.amount || "$0.00"}
+Date: ${new Date().toLocaleDateString()}
+Transaction ID: ${latestPayment?.invoiceNo || latestPayment?.id || "N/A"}
+Payment Method: •••• ${latestPayment?.last4 || "N/A"}
+Status: Paid
+Next Billing: ${date}
+--------------------------
+Thank you for your purchase!
+        `.trim();
+
+        navigator.clipboard.writeText(receiptText)
+            .then(() => toast.success("Receipt copied to clipboard!"))
+            .catch(() => toast.error("Failed to copy receipt"));
+    };
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
@@ -165,7 +192,10 @@ const PaymentSuccessPage = () => {
                     <h1 className="text-[40px] font-bold text-[#101828] mb-2">Payment Successful</h1>
                     <p className="text-[18px] text-[#667085] mb-6">Thank you for your purchase! Your subscription is now active.</p>
 
-                    <button className="flex items-center gap-2 text-[#2C9993] font-medium hover:underline cursor-pointer mb-12">
+                    <button
+                        onClick={handleCopyReceipt}
+                        className="flex items-center gap-2 text-[#2C9993] font-medium hover:underline cursor-pointer mb-12"
+                    >
                         <Copy size={18} />
                         <span>Copy Receipt</span>
                     </button>
@@ -193,7 +223,7 @@ const PaymentSuccessPage = () => {
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Payment Method</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[14px] text-[#101828] font-medium">•••• {latestPayment?.last4 || "4242"}</span>
+                                    <span className="text-[14px] text-[#101828] font-medium">•••• {latestPayment?.last4 || "N/A"}</span>
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">

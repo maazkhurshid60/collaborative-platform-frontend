@@ -2,7 +2,7 @@ import OutletLayout from "../../../layouts/outletLayout/OutletLayout"
 import Table from "../../../components/table/Table"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
 import { GoDotFill } from "react-icons/go"
-import { Download as DownloadIcon } from "lucide-react"
+import { Download as DownloadIcon, UserIcon } from "lucide-react"
 import ViewIcon from "../../../components/icons/view/View"
 import DeleteIcon, { EditIcon } from "../../../components/icons/delete/DeleteIcon"
 import { useState, useEffect } from "react"
@@ -258,14 +258,23 @@ const SubscriptionPage = () => {
                             >
                                 {/* Name */}
                                 <td className="px-2 py-3 align-middle">
-                                    <div className="flex items-center gap-x-4">
-                                        <img
-                                            src={record.user?.profileImage || getProfileImage}
-                                            alt="profile"
-                                            className="w-10 h-10 rounded-full object-cover"
-                                        />
-                                        <p className="capitalize font-medium">{record.user?.fullName}</p>
-                                    </div>
+                                    {record.user?.profileImage ? (
+                                        <div className="flex items-center gap-x-4">
+                                            <img
+                                                src={record.user?.profileImage}
+                                                alt="profile"
+                                                className="w-10 h-10 rounded-full object-cover"
+                                            />
+                                            <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-x-4">
+                                            <div className="w-10 h-10 bg-black flex items-center justify-center rounded-full object-cover">
+                                                <UserIcon className="w-5 h-5 text-white" />
+                                            </div>
+                                            <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                        </div>
+                                    )}
                                 </td>
 
                                 <td className="px-2 py-3 align-middle whitespace-nowrap">
@@ -296,9 +305,8 @@ const SubscriptionPage = () => {
 
                                 <td className="px-2 py-3 align-middle whitespace-nowrap">
                                     <div className="flex items-center justify-start gap-x-2">
-                                        <ViewIcon
-                                            onClick={() => handleViewInvoice(record)}
-                                        />
+                                        <ViewIcon onClick={() => navigate(`/transaction-details/${record.user?.id}`)} />
+
                                         <div className="relative group cursor-pointer" onClick={() => handleDownloadInvoice(record)}>
                                             <DownloadIcon size={20} color="#808B97" />
                                         </div>

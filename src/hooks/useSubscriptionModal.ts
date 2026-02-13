@@ -12,6 +12,7 @@ export const useSubscriptionModals = () => {
     const [showSubscriptionExpired, setShowSubscriptionExpired] = useState(false);
     const [showTrialExpired, setShowTrialExpired] = useState(false);
     const [showRenewalSuccess, setShowRenewalSuccess] = useState(false);
+    const [showSubscriptionCanceled, setShowSubscriptionCanceled] = useState(false);
 
 
     useEffect(() => {
@@ -24,9 +25,9 @@ export const useSubscriptionModals = () => {
             setShowPaymentOverdue(true);
         }
 
-        // Show Subscription Expired for CANCELED status (not pending cancellation)
+        // Show Subscription Canceled for CANCELED status (not pending cancellation)
         if (subscription.status === "CANCELED" && !subscription.cancelAtPeriodEnd) {
-            setShowSubscriptionExpired(true);
+            setShowSubscriptionCanceled(true);
         }
 
         // Show Trial Expired only when trial has ended
@@ -49,7 +50,7 @@ export const useSubscriptionModals = () => {
         setShowTrialExpired,
         showRenewalSuccess,
         setShowRenewalSuccess,
-
-
+        showSubscriptionCanceled,
+        setShowSubscriptionCanceled
     }
 }

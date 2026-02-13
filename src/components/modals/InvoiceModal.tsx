@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from 'react';
-import { X, Download, Share2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import logo from '../../../public/assets/kolabme-logo.svg';
@@ -15,38 +15,38 @@ interface InvoiceModalProps {
 
 const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData, autoDownload }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
-    const [isDownloading, setIsDownloading] = useState(false);
 
     // Use passed data or fallback to mock/fetch
-    const invoice = invoiceData || {
-        invoiceNo: invoiceId ? `INV-2024-${invoiceId.padStart(4, '0')}` : "INV-2024-8472",
-        date: "February 15, 2024",
-        dueDate: "February 15, 2024",
-        billTo: {
-            name: "John Doe",
-            email: "john.doe@email.com",
-            address: "456 Customer Avenue",
-            city: "New York, NY 10001"
-        },
-        items: [
-            {
-                description: "Professional Plan",
-                subtext: "Monthly subscription",
-                qty: "01",
-                price: "$49.00",
-                amount: "$49.00",
-                status: "Paid"
-            }
-        ],
-        subtotal: "$49.00",
-        tax: "$0.00",
-        total: "$49.00",
-        notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025."
-    };
+    const invoice = React.useMemo(() => {
+        return invoiceData || {
+            invoiceNo: invoiceId ? `INV-2024-${invoiceId.padStart(4, '0')}` : "INV-2024-8472",
+            date: "February 15, 2024",
+            dueDate: "February 15, 2024",
+            billTo: {
+                name: "John Doe",
+                email: "john.doe@email.com",
+                address: "456 Customer Avenue",
+                city: "New York, NY 10001"
+            },
+            items: [
+                {
+                    description: "Professional Plan",
+                    subtext: "Monthly subscription",
+                    qty: "01",
+                    price: "$49.00",
+                    amount: "$49.00",
+                    status: "Paid"
+                }
+            ],
+            subtotal: "$49.00",
+            tax: "$0.00",
+            total: "$49.00",
+            notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025."
+        };
+    }, [invoiceData, invoiceId]);
 
     const handleDownloadPdf = async () => {
         if (!invoiceRef.current) return;
-        setIsDownloading(true);
 
         try {
             const canvas = await html2canvas(invoiceRef.current, {
@@ -69,8 +69,6 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
             pdf.save(`invoice-${invoice.invoiceNo}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);
-        } finally {
-            setIsDownloading(false);
         }
     };
 
@@ -88,7 +86,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
 
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
-            <div className="flex min-h-full justify-center p-4">
+            <div className="flex min-h-screen items-center justify-center p-4">
                 <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
                     {/* Modal Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -96,14 +94,6 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                             <h2 className="text-[24px] font-[Poppins] font-semibold" style={{ color: '#1f2937' }}>Invoice</h2>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleDownloadPdf}
-                                disabled={isDownloading}
-                                className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors disabled:opacity-50"
-                                title="Download PDF"
-                            >
-                                <Download size={20} className={isDownloading ? "animate-pulse" : ""} />
-                            </button>
                             <button
                                 onClick={onClose}
                                 className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
@@ -152,7 +142,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                 <div className="col-span-2 text-right">Amount</div>
                                 <div className="col-span-1 text-right">Status</div>
                             </div>
-                            {invoice.items.map((item, id) => (
+                            {invoice.items.map((item: any, id: number) => (
                                 <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-1" style={{ color: '#4b5563' }}>
                                     <div className="col-span-5">
                                         <p className="font-semibold" style={{ color: '#111827' }}>{item.description}</p>

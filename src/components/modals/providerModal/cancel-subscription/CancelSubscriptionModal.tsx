@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Crown, ChevronDown } from 'lucide-react';
 import ModalLayout from '../../modalLayout/ModalLayout';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../redux/store';
 import { isCancelSubscriptionModalShowReducer } from '../../../../redux/slices/ModalSlice';
 import { subscriptionApiService } from '../../../../services/subscriptionApiService';
 import { toast } from 'react-toastify';
+import authService from '../../../../apiServices/authApi/AuthApi';
+import { saveLoginUserDetailsReducer } from '../../../../redux/slices/LoginUserDetailSlice';
 
-const CancelSubscriptionModalBody = () => {
+
+interface CancelSubscriptionModalProps {
+    onClose?: () => void;
+}
+
+const CancelSubscriptionModalBody: React.FC<CancelSubscriptionModalProps> = ({ onClose }) => {
     const dispatch = useDispatch<AppDispatch>();
+    const userDetails = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+    const [isLoading, setIsLoading] = useState(false);
 
     return (
         <div className="flex flex-col items-center text-center p-2">
@@ -40,7 +49,7 @@ const CancelSubscriptionModalBody = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 w-full">
                 <button
-                    onClick={() => dispatch(isCancelSubscriptionModalShowReducer(false))}
+                    onClick={() => onClose?.()}
                     className="flex-1 py-3 px-4 border border-[#2C9993] text-[#2C9993]  rounded-[8px] font-semibold cursor-pointer text-[16px] hover:bg-[#2C9993]/5 transition-colors font-[Poppins]"
                 >
                     Keep My Subscription
@@ -56,16 +65,30 @@ const CancelSubscriptionModalBody = () => {
                         }
 
                         try {
+                            setIsLoading(true);
                             const response = await subscriptionApiService.cancelSubscription(reason);
                             toast.success(response.message || "Subscription canceled successfully");
-                            dispatch(isCancelSubscriptionModalShowReducer(false));
-                            // Refresh page to show updated status
-                            window.location.reload();
+
+                            // Refresh page data smoothly instead of reload
+                            if (userDetails?.user?.id && userDetails?.user?.role) {
+                                const refreshedUser = await authService.getMe(userDetails.user.id, userDetails.user.role);
+
+                                // ✅ FIX: Ensure all fields are preserved when updating Redux
+                                const updatedDetails = {
+                                    ...userDetails,
+                                    user: refreshedUser.user
+                                };
+                                dispatch(saveLoginUserDetailsReducer(updatedDetails));
+                            }
+
+                            onClose?.();
 
                         } catch (error: any) {
                             const message = error.response?.data?.message || "Cancellation failed";
                             toast.error(message);
                             console.error("Cancellation failed", error);
+                        } finally {
+                            setIsLoading(false);
                         }
                     }}
                     className="flex-1 py-3 px-4 bg-[#2C9993] cursor-pointer text-white rounded-[8px] font-semibold text-[16px]  hover:bg-[#2C9993]/90 transition-colors font-[Poppins]"
@@ -77,11 +100,15 @@ const CancelSubscriptionModalBody = () => {
     );
 };
 
-const CancelSubscriptionModal: React.FC = () => {
+interface CancelSubscriptionModalMainProps {
+    onClose?: () => void;
+}
+
+const CancelSubscriptionModal: React.FC<CancelSubscriptionModalMainProps> = ({ onClose }) => {
     return (
         <ModalLayout
             heading=""
-            modalBodyContent={<CancelSubscriptionModalBody />}
+            modalBodyContent={<CancelSubscriptionModalBody onClose={onClose} />}
         />
     );
 };

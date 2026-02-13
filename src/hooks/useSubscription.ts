@@ -21,9 +21,6 @@ export const useSubscription = () => {
         };
     }
 
-    // DEBUG: Log role and subscription data
-    console.log(`🔍 [useSubscription] Role: ${role}, Subscription:`, subscription);
-
     const isTrialActive = () => {
         if (!subscription) return false;
         if (subscription.status !== 'TRIALING') return false;
