@@ -149,18 +149,7 @@ const Routing = () => {
                         />
                     )
                 }
-                {
-                    loginUserRole === "superAdmin" && (
-                        <Route
-                            path="/transaction-details/:id"
-                            element={
-                                <WrappedRoute>
-                                    <ProviderDetail />
-                                </WrappedRoute>
-                            }
-                        />
-                    )
-                }
+
                 {
                     loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
                         <Route path="/subscription" element={<WrappedRoute><SubscriptionSettingPage /></WrappedRoute>} />
@@ -170,6 +159,18 @@ const Routing = () => {
                 {
                     loginUserRole === "superAdmin" && (
                         <Route path="/billing-management" element={<WrappedRoute><SubscriptionPage /></WrappedRoute>} />
+                    )
+                }
+                {
+                    loginUserRole === "superAdmin" && (
+                        <Route
+                            path="/billing-management/:id"
+                            element={
+                                <WrappedRoute>
+                                    <ProviderDetail />
+                                </WrappedRoute>
+                            }
+                        />
                     )
                 }
                 {

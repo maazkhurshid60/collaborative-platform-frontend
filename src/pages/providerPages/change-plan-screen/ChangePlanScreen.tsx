@@ -189,12 +189,11 @@ export default function ChangePlanScreen() {
                         Monthly
                     </button>
                     <button
-                        // onClick={() => setBillingCycle('annually')}
-                        disabled
-                        className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all opacity-50 cursor-not-allowed ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83]'}`}
+                        onClick={() => setBillingCycle('annually')}
+                        className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                     >
                         Annually
-                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-gray-200 text-gray-500`}>Coming Soon</span>
+                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-[#F3F4F6] text-[#9CA3AF]`}>Save 20%</span>
                     </button>
                 </div>
 
@@ -248,7 +247,7 @@ export default function ChangePlanScreen() {
                             {plan.isActive && <div className="h-[60px] mb-10" />} {/* Spacer for active plan */}
 
                             {/* Features */}
-                            <div className={`mt-auto p-6 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-[#F0F2F3]'}`}>
+                            <div className={`mt-auto p-6 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-inputBgColor'}`}>
                                 <ul className="space-y-4">
                                     {plan.features.map((feature, i) => (
                                         <li key={i} className="flex items-start gap-3">

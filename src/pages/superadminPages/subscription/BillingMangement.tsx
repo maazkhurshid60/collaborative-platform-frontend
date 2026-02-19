@@ -305,7 +305,7 @@ const SubscriptionPage = () => {
 
                                 <td className="px-2 py-3 align-middle whitespace-nowrap">
                                     <div className="flex items-center justify-start gap-x-2">
-                                        <ViewIcon onClick={() => navigate(`/transaction-details/${record.user?.id}`)} />
+                                        <ViewIcon onClick={() => navigate(`/billing-management/${record.user?.id}`)} />
 
                                         <div className="relative group cursor-pointer" onClick={() => handleDownloadInvoice(record)}>
                                             <DownloadIcon size={20} color="#808B97" />

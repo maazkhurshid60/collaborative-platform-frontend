@@ -63,7 +63,7 @@ const SelectPlan = () => {
         {
             name: 'Standard',
             monthlyPrice: '29',
-            annualPrice: '29',
+            annualPrice: '313',
             description: 'Best for small businesses',
             // Only offer trial if user has NEVER had one
             // Show "Subscribe Now" if: upgrading OR already used trial before
@@ -110,11 +110,11 @@ const SelectPlan = () => {
                                 Monthly
                             </button>
                             <button
-                                disabled
-                                className="flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-not-allowed opacity-50 text-[#7E7D83] bg-white border border-transparent"
+                                onClick={() => setBillingCycle('annually')}
+                                className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                             >
                                 Annually
-                                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#F3F4F6] text-[#9CA3AF]">Save 20%</span>
+                                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#EDF8E8] text-[#306F11]">Save 10%</span>
                             </button>
                         </div>
 
@@ -152,8 +152,8 @@ const SelectPlan = () => {
                                                 ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                             </span>
                                             {plan.name !== 'Free Trial' && (
-                                                <span className={`ml-1 absolute top-3 left-19 text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
-                                                    /mo
+                                                <span className={`ml-1 absolute top-3 left-19 ${billingCycle === 'monthly' ? 'left-19' : 'left-24'} text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                                    {billingCycle === 'monthly' ? '/month' : '/yearly'}
                                                 </span>
                                             )}
                                         </div>
@@ -168,7 +168,7 @@ const SelectPlan = () => {
                                                     navigate('/payment-checkout', {
                                                         state: {
                                                             planType: 'STANDARD',
-                                                            billingCycle: billingCycle.toUpperCase(),
+                                                            billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
                                                             userData,
                                                             isRenewal: hasUsedTrial
                                                         }
@@ -178,7 +178,7 @@ const SelectPlan = () => {
                                                     navigate('/payment-checkout', {
                                                         state: {
                                                             planType: 'PRO',
-                                                            billingCycle: billingCycle.toUpperCase(),
+                                                            billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
                                                             userData
                                                         }
                                                     });

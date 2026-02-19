@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Search, ChevronDown, Check, ShieldCheck, Lock, Info } from "lucide-react";
+import { ChevronDown, Check, ShieldCheck, Lock, Info } from "lucide-react";
 
 import { subscriptionApiService } from "../../services/subscriptionApiService";
 import { useState } from "react";
@@ -244,11 +244,11 @@ export const PaymentCheckoutPage = () => {
 
     // Dynamic Pricing (Mock logic to match SelectPlan)
     const getPrice = () => {
-        if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 63;
-        return billingCycle === 'MONTHLY' ? 29 : 29; // Standard
+        if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 756; // 63 * 12 = 756
+        return billingCycle === 'MONTHLY' ? 29 : 313; // Standard Annual
     };
     const price = getPrice();
-    const tax = price * 0.1;
+    const tax = null; // Calculated by Stripe based on location
     const total = price;
 
     const handleInitializePayment = async () => {
@@ -365,7 +365,7 @@ export const PaymentCheckoutPage = () => {
                             <div className="flex items-end justify-between mb-8">
                                 <div className="flex flex-col">
                                     <h2 className="text-[20px] font-bold text-[#101828]">{planType} Plan</h2>
-                                    <p className="text-[16px] text-[#667085]">{billingCycle === 'MONTHLY' ? 'Monthly' : 'Annual'} billing</p>
+                                    <p className="text-[16px] text-[#667085]">{billingCycle === 'MONTHLY' ? 'Monthly' : 'Yearly'} billing</p>
                                 </div>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-[32px] font-bold text-[#101828]">${price}</span>
@@ -395,14 +395,14 @@ export const PaymentCheckoutPage = () => {
                                     <span className="text-[16px] font-medium text-[#101828]">${price.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[16px] text-[#667085]">Tax (0%)</span>
-                                    <span className="text-[16px] font-medium text-[#101828]">$0.00</span>
+                                    <span className="text-[16px] text-[#667085]">Tax</span>
+                                    <span className="text-[14px] font-medium text-[#667085] italic">Calculated at checkout</span>
                                 </div>
                             </div>
                             <div className="border-t border-[#E2E8F0] pt-6 mb-2">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[20px] font-bold text-[#101828]">Total</span>
-                                    <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)}</span>
+                                    <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)} <span className="text-sm font-normal text-gray-500">+ Tax</span></span>
                                 </div>
                                 <p className="text-[14px] text-[#667085] mt-1">Billed monthly, cancel anytime</p>
                             </div>

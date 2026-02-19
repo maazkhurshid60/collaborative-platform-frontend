@@ -143,7 +143,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                 <div className="col-span-1 text-right">Status</div>
                             </div>
                             {invoice.items.map((item: any, id: number) => (
-                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-1" style={{ color: '#4b5563' }}>
+                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] pr-3 items-center py-1" style={{ color: '#4b5563' }}>
                                     <div className="col-span-5">
                                         <p className="font-semibold" style={{ color: '#111827' }}>{item.description}</p>
                                         <p className="text-[9px]" style={{ color: '#6b7280' }}>{item.subtext}</p>
@@ -157,7 +157,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                                 backgroundColor: item.status.toLowerCase() === 'paid' ? '#dcfce7' : item.status.toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2',
                                                 color: item.status.toLowerCase() === 'paid' ? '#15803d' : item.status.toLowerCase() === 'pending' ? '#a16207' : '#b91c1c',
                                             }}
-                                            className="px-1.5 py-0.5 rounded text-[9px] font-medium"
+                                            className="px-1.5  py-0.5 rounded text-[9px] font-medium"
                                         >
                                             {item.status}
                                         </span>
