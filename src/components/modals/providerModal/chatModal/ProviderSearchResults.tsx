@@ -102,7 +102,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
 
                 <div className="space-y-1">
                     <p className="text-xs text-gray-600 truncate">
-                        <span className="font-medium">Email:</span> {provider?.user?.email || 'N/A'}
+                        <span className="font-medium">Email:</span> {provider?.user?.email || '-'}
                     </p>
 
                     {provider?.department && (

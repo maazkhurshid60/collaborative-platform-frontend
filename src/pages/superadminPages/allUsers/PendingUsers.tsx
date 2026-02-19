@@ -140,29 +140,29 @@ const PendingUsers = () => {
                             <Table heading={heading}>
                                 {(getCurrentRecords() as User[])?.map((data, id) => (
                                     <tr key={id} className="border-b border-b-lightGreyColor">
-                                        <td className="px-2 py-2">
+                                        <td className="px-4 py-3">
                                             <div className="flex gap-x-4 items-start">
                                                 {data?.profileImage && data.profileImage !== "null" ? (
                                                     <img className="w-10 h-10 rounded-full object-cover" src={data.profileImage} />
                                                 ) : <UserIcon size={30} />}
-                                                <div className="text-left=">
+                                                <div className="text-left">
                                                     <p className="capitalize">{data.fullName}</p>
                                                     <p>{data?.email}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-2 py-2">{data.licenseNo}</td>
-                                        <td className="px-2 py-2">{getCountryNameFromCode(data.country)}</td>
-                                        <td className="px-2 py-2">{data.state}</td>
-                                        <td className="px-2 py-2">
+                                        <td className="px-4 py-3">{data.licenseNo}</td>
+                                        <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td>
+                                        <td className="px-4 py-3">{data.state}</td>
+                                        <td className="px-4 py-3">
                                             <p className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove === "PENDING" ? "bg-primaryColorDark/20" : "bg-inputBgColor"}`}>
                                                 <GoDotFill className={`text-base ${data.isApprove === "PENDING" && "text-textColor"}`} />
                                                 {data.isApprove === "PENDING" && "Pending"}
                                             </p>
                                         </td>
-                                        <td className="px-2 py-2 capitalize">{data.role}</td>
-                                        <td className="px-2 py-2">{data?.createdAt?.split("T")[0]}</td>
-                                        <td className="py-2">
+                                        <td className="px-4 py-3 capitalize">{data.role}</td>
+                                        <td className="px-4 py-3">{data?.createdAt?.split("T")[0]}</td>
+                                        <td className="px-4 py-3">
                                             <div className="flex items-center gap-x-2">
                                                 <ApproveIcon onClick={() => {
                                                     setSelectedUserForApproval(data);

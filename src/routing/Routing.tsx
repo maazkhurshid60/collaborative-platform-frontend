@@ -19,7 +19,6 @@ import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage
 import ConfirmFreeAccount from "../pages/auth/confirmFreeAccount/ConfirmFreeAccount";
 import SelectPlan from "../pages/payment-pages/SelectPlan";
 import PlanExpiredOverlay from "../components/pagesComponent/dashboard/plan-expired/PlanExpiredOverlay";
-import TrialExpiredModal from "../components/modals/TrialExpiredModal";
 import { SubscriptionGuard } from "../components/subscriptionGuard/SubscriptionGuard";
 import UpgradePrompt from "../components/upgradePrompt/UpgradePrompt";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))

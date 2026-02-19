@@ -28,7 +28,7 @@ import { GroupChat, GroupCreatedBy } from '../../../types/chatType/GroupType';
 import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
 import ToolTip from '../../../components/toolTip/ToolTip';
 import SpinnerLoader from '../../../components/loader/SpinnerLoader';
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
 
 const Chat = () => {
@@ -54,6 +54,7 @@ const Chat = () => {
 
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const socket = getSocket();
 
   const { data: allChannels = [], isLoading: isChannelsLoading } = useQuery({
@@ -86,27 +87,33 @@ const Chat = () => {
   console.log(allChannels, "all channessssssssssslsss");
 
   useEffect(() => {
-    if (!id) return;
-
-    if (isGroup) {
-      const group = allGroups.find((g: any) => g.id === id);
-      if (group) {
-        setActiveChatObject(group);
-        setActiveChatType("group");
-        setActiveId(group.id);
-        // Correctly set groupCreatedBy for refresh/direct navigation
-        setGroupCreatedBy({
-          id: group?.provider?.id,
-          name: group?.provider?.user?.fullName
-        });
+    // If there's an ID in the URL, try to find and set the active chat
+    if (id) {
+      if (isGroup) {
+        const group = allGroups.find((g: any) => g.id === id);
+        if (group) {
+          setActiveChatObject(group);
+          setActiveChatType("group");
+          setActiveId(group.id);
+          setGroupCreatedBy({
+            id: group?.provider?.id,
+            name: group?.provider?.user?.fullName
+          });
+        }
+      } else {
+        const channel = allChannels.find((c: any) => c.id === id);
+        if (channel) {
+          setActiveChatObject(channel);
+          setActiveChatType("individual");
+          setActiveId(channel.id);
+        }
       }
     } else {
-      const channel = allChannels.find((c: any) => c.id === id);
-      if (channel) {
-        setActiveChatObject(channel);
-        setActiveChatType("individual");
-        setActiveId(channel.id);
-      }
+      // Only clear if we are explicitly at the base /chat route with no active selection
+      // This prevents the flicker when clicking sidebar items before navigation completes
+      setActiveChatObject(undefined);
+      setActiveChatType(undefined);
+      setActiveId(undefined);
     }
   }, [id, isGroup, allChannels, allGroups]);
 
@@ -313,7 +320,7 @@ const Chat = () => {
 
       <div className="flex items-start lg:justify-between relative h-[80vh]">
         <div
-          className={`w-[100%] border-r-[1px] h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? 'left-0' : '-left-[200%] lg:left-0'}`}
+          className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? 'left-0' : '-left-[200%] lg:left-0'}`}
         >
           <div className='flex items-center justify-between '>
             <p className="font-medium text-[14px] text-textGreyColor">Recent Chats</p>
@@ -353,6 +360,7 @@ const Chat = () => {
                     data={data}
                     activeId={activeId}
                     onClick={() => {
+                      navigate(`/chat/individual/${data.id}`);
                       setIsMessagesLoading(true);
                       setActiveChatObject(data);
                       setIsChatSideBarClose(false);
@@ -388,7 +396,7 @@ const Chat = () => {
             }
           </div>
 
-          <hr className="w-[100%] h-[1px] text-inputBgColor" />
+          <hr className="w-full h-px text-inputBgColor" />
 
           <div className='flex items-center justify-between mt-4'>
             <p className=" font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">Group Chats</p>
@@ -417,6 +425,7 @@ const Chat = () => {
                         data={data}
                         activeId={activeId}
                         onClick={() => {
+                          navigate(`/chat/group/${data.id}`);
                           setGroupCreatedBy({ id: data?.provider?.id, name: data?.provider?.user?.fullName })
                           setIsMessagesLoading(true);
                           setActiveChatObject(data);
@@ -458,7 +467,7 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="w-[100%] lg:w-[65%] xl:w-[74.5%] bg-white h-[80vh] rounded-[10px]">
+        <div className="w-full lg:w-[65%] xl:w-[74.5%] bg-white h-[80vh] rounded-[10px]">
           <IoIosArrowBack
             size={24}
             className="mb-2 text-textGreyColor lg:hidden"

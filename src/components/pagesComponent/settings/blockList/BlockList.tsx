@@ -26,11 +26,12 @@ const BlockList: React.FC<BlockListProps> = (props) => {
     );
 
     return (
-        <div className='absolute top-0 z-50 left-0 w-full h-[100vh] bg-textColor/70 flex items-center justify-end'
+        <div className='absolute top-0 z-50 left-0 w-full h-screen bg-textColor/70 flex items-center justify-end'
             onClick={() => dispatch(isBlockScreenShowReducer(false))}
         >
 
             <div
+                onClick={(e) => e.stopPropagation()}
                 className={` bg-white  p-4 relative  transform transition-transform duration-700 ease-in-out ${showSidebar ? 'translate-x-0' : 'translate-x-full hidden'}`}
             >
 

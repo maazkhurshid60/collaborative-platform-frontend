@@ -102,7 +102,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                     </div>
                     <div className="space-y-1">
                         <p className="text-xs text-gray-600 truncate">
-                            <span className="font-medium">Email:</span> {user?.user?.email || 'N/A'}
+                            <span className="font-medium">Email:</span> {user?.user?.email || '-'}
                         </p>
                         {user?.user?.licenseNo && (
                             <p className="text-xs text-gray-600 truncate">

@@ -184,12 +184,25 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Navigate to super admin page when clicking the profile area (only for superadmin)
-  const goToSuperAdmin = () => {
-    if (loginUserDetail?.user?.role === "superAdmin") {
-      navigate("/super-admin");
+  // // ✅ Navigate to super admin page when clicking the profile area (only for superadmin)
+  // const goToSuperAdmin = () => {
+  //   if (loginUserDetail?.user?.role === "superAdmin") {
+  //     navigate("/super-admin");
+  //   }
+  // };
+
+  // Navigate to client and provider as well 
+  const goToClientAndProviderAndSuperAdmin = () => {
+    if (loginUserDetail?.user?.role === "client") {
+      navigate("/client")
     }
-  };
+    if (loginUserDetail?.user?.role === "provider") {
+      navigate("/user-profile")
+    }
+    if (loginUserDetail?.user?.role === "superAdmin") {
+      navigate("/super-admin")
+    }
+  }
 
   const isSuperAdmin = loginUserDetail?.user?.role === "superAdmin";
   const isProvider = loginUserDetail?.user?.role === "provider";
@@ -243,13 +256,13 @@ const Navbar = () => {
 
         {(screenWidth >= 768 || (screenWidth < 768 && !isSearchbarClose)) && (
           <div
-            className={`flex items-center relative gap-x-2 bg-white ${isSuperAdmin ? "cursor-pointer" : ""}`}
+            className={`flex items-center relative gap-x-2 bg-white ${isSuperAdmin ? "cursor-pointer" : "cursor-pointer"}`}
             ref={dropdownRef}
             role={isSuperAdmin ? "button" : undefined}
             tabIndex={isSuperAdmin ? 0 : undefined}
-            onClick={goToSuperAdmin}
+            onClick={goToClientAndProviderAndSuperAdmin}
             onKeyDown={(e) => {
-              if (isSuperAdmin && e.key === "Enter") goToSuperAdmin();
+              if (isSuperAdmin && e.key === "Enter") goToClientAndProviderAndSuperAdmin();
             }}
           >
             {isProvider && (
@@ -308,17 +321,30 @@ const Navbar = () => {
 
 
             <ul
+              onClick={(e) => e.stopPropagation()}
               className={`bg-white shadow-[0_0_10px_0_rgba(0,0,0,0.1)] -z-10 p-1 mt-0.5 rounded-[10px] flex flex-col font-[Poppins] text-[12px] md:text-[14px] lg:text-[16px] absolute right-0 transition-all duration-700 ease-in-out 
               ${isDropDownOpen ? "opacity-100 translate-y-2 top-[45px] md:top-[50px] z-20" : "opacity-0 hidden z-0 -translate-y-3 pointer-events-none top-[-80px]"
                 }`}
             >
-              <Link className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass" to="/notification">
+              <Link
+                onClick={() => setIsDropDownOpen(false)}
+                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
+                to="/notification"
+              >
                 Notifications
               </Link>
-              <Link className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass" to="/setting">
+              <Link
+                onClick={() => setIsDropDownOpen(false)}
+                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
+                to="/setting"
+              >
                 Settings
               </Link>
-              <Link className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass" to="/help-and-support">
+              <Link
+                onClick={() => setIsDropDownOpen(false)}
+                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
+                to="/help-and-support"
+              >
                 Help & Support
               </Link>
             </ul>

@@ -79,7 +79,7 @@ const RefundTransaction = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Provider Name</p>
-                            <p className="text-[14px] font-medium">{transaction.providerName || "N/A"}</p>
+                            <p className="text-[14px] font-medium">{transaction.providerName || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Original Amount</p>
@@ -91,7 +91,7 @@ const RefundTransaction = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Phone Number</p>
-                            <p className="text-[16px] font-medium">{transaction.phone || "N/A"}</p>
+                            <p className="text-[16px] font-medium">{transaction.phone || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Payment Status</p>

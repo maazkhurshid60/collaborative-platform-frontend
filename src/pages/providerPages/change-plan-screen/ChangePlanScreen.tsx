@@ -21,7 +21,7 @@ export default function ChangePlanScreen() {
 
     // Format dates from subscription
     const formatDate = (dateString?: string) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -168,8 +168,8 @@ export default function ChangePlanScreen() {
                                 <DollarSign size={24} />
                             </div>
                             <div>
-                                <p className="text-sm text-[#666666] font-[Poppins]">Amount Due</p>
-                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">$100/month</p>
+                                <p className="text-sm text-[#666666] font-[Poppins]">Amount</p>
+                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">{userSubscription?.plan}</p>
                             </div>
                         </div>
                     </div>

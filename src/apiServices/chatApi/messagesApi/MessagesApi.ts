@@ -21,6 +21,17 @@ export interface getAllMessagesOfSingleChat {
 }
 
 
+export interface DeleteMessagePayload {
+    channelId: string;
+    messageId: string;
+    loginUserId: string;
+}
+
+export interface DeleteChatChannelPayload {
+    channelId: string;
+    loginUserId: string;
+}
+
 export interface ReadMessageSingleConservationPayload {
     loginUserId: string;
     chatChannelId?: string;
@@ -98,6 +109,26 @@ class MessageApiService {
 
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
+
+    async deleteMessageSingleConservation(data: DeleteMessagePayload) {
+        try {
+            const response = await this.api.delete("/chat/single-chat/delete-message", { data })
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to delete message";
+            toast.error(errMsg);
+        }
+    }
+
+    async deleteChatChannelForUser(data: DeleteChatChannelPayload) {
+        try {
+            const response = await this.api.delete("/chat/single-chat/delete-channel", { data })
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to delete chat";
             toast.error(errMsg);
         }
     }

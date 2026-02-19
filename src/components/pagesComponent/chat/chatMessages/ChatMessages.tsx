@@ -18,6 +18,7 @@ import SpinnerLoader from '../../../loader/SpinnerLoader';
 import { FaRegCircle } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
+import DeleteIcon from '../../../icons/delete/DeleteIcon';
 
 
 
@@ -287,6 +288,31 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         }
     };
 
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!activeChatObject || !loginUserProviderId) return;
+        if (!window.confirm("Are you sure you want to delete this message?")) return;
+
+        try {
+            await messageApiService.deleteMessageSingleConservation({
+                channelId: activeChatObject.id,
+                messageId,
+                loginUserId: loginUserProviderId
+            });
+
+            // Optimistically update
+            setMessages(prev => prev.filter(m => m.id !== messageId));
+
+            // Notify via socket
+            socket?.emit('delete_direct_message', {
+                chatChannelId: activeChatObject.id,
+                messageId
+            });
+
+        } catch (error) {
+            console.error("❌ Failed to delete message:", error);
+        }
+    };
+
 
 
     useEffect(() => {
@@ -411,11 +437,26 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         socket.on('receive_direct', handleNewMessage);
         socket.on('receive_group', handleNewMessage);
 
+        const handleMessageDeleted = ({ messageId }: { messageId: string }) => {
+            setMessages(prev => prev.filter(m => m.id !== messageId));
+        };
+
+        const handleChatChannelDeleted = ({ chatChannelId }: { chatChannelId: string }) => {
+            if (activeChatObject?.id === chatChannelId) {
+                queryClient.invalidateQueries({ queryKey: ['chatchannels'] });
+            }
+        };
+
+        socket.on('message_deleted', handleMessageDeleted);
+        socket.on('chat_channel_deleted', handleChatChannelDeleted);
+
         return () => {
             socket.off('receive_direct', handleNewMessage);
             socket.off('receive_group', handleNewMessage);
+            socket.off('message_deleted', handleMessageDeleted);
+            socket.off('chat_channel_deleted', handleChatChannelDeleted);
         };
-    }, [socket, loginUserUserId, queryClient]);
+    }, [socket, loginUserUserId, queryClient, activeChatObject?.id]);
 
 
     useEffect(() => {
@@ -461,11 +502,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 return 'Yesterday';
             } else {
                 return date.toLocaleDateString(undefined, {
-                    weekday: 'long',
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
-                }); // e.g., Monday, 6 May 2025
+                }); // e.g., 6 May 2025
             }
         };
 
@@ -507,9 +547,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                     )}
 
                     {Object.entries(groupMessagesByDate(messages)).map(([dateGroup, groupMsgs]) => (
-                        <div key={dateGroup}>
-                            <div className="sticky top-0 z-10 bg-white py-2 font-[Poppins] text-[16px] text-gray-500">
-                                {dateGroup}
+                        <div key={dateGroup} className="flex flex-col">
+                            <div className="flex justify-center my-4 sticky top-0 z-10">
+                                <span className="bg-[#EAF5F4] text-textGreyColor px-4 py-1 rounded-full text-xs font-medium shadow-sm">
+                                    {dateGroup}
+                                </span>
                             </div>
                             {groupMsgs.map((msg) => {
                                 const mediaFiles = msg.mediaUrl ? msg.mediaUrl.split(',') : [];
@@ -517,7 +559,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
                                 return (
-                                    <div key={msg.id} className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4`}>
+                                    <div key={msg.id} className={`flex items-start mb-6 ${msg.you ? 'justify-end' : ''} gap-x-4 group`}>
                                         {!msg.you && (
                                             <div className="relative cursor-pointer" onClick={() => markMessagesAsRead()}>
                                                 {(msg?.sender?.profileImage !== null && msg?.sender?.profileImage !== "null") ?
@@ -575,9 +617,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
                                                     {/* Decrypted Text Message */}
                                                     {msg.message && (
-                                                        <p className={`relative p-4 rounded-lg max-w-xs break-all ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
-                                                            {msg.message}
-                                                        </p>
+                                                        <div className={`relative flex items-center gap-x-2 ${msg.you ? 'flex-row-reverse' : ''}`}>
+                                                            <p className={`relative p-4 rounded-lg max-w-xs break-all ${msg.you ? 'bg-primaryColorDark text-white bubble-right' : 'bg-[#EAF5F4] text-textGreyColor bubble-left'}`}>
+                                                                {msg.message}
+                                                            </p>
+                                                            {msg.you && (
+                                                                <DeleteIcon
+                                                                    className="w-4 h-4 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                    onClick={() => handleDeleteMessage(msg.id)}
+                                                                />
+                                                            )}
+                                                        </div>
                                                     )}
                                                     <div className='absolute bottom-0.5 right-0.5'>
                                                         {msg.you && msg.status === 'sent' && <FaCircleCheck className='text-white' size={12} />}
@@ -634,9 +684,19 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     key={index}
                                     className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-xl shadow-sm relative max-w-[220px]"
                                 >
-                                    <div className="text-lg">{fileIcon}</div>
-                                    <span className="text-sm truncate max-w-[150px] text-gray-700">{file.name}</span>
-
+                                    <div className="w-10 h-10 shrink-0 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden border border-gray-100 italic">
+                                        {isImage ? (
+                                            <img
+                                                src={URL.createObjectURL(file)}
+                                                alt="preview"
+                                                className="w-full h-full object-cover"
+                                                onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
+                                            />
+                                        ) : (
+                                            <div className="text-lg">{fileIcon}</div>
+                                        )}
+                                    </div>
+                                    <span className="text-sm truncate max-w-[120px] text-gray-700">{file.name}</span>
 
                                     <CrossIcon onClick={() => {
                                         setSelectedFiles(prev => prev.filter((_, i) => i !== index));

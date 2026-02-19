@@ -545,11 +545,11 @@ const AllDocuments = () => {
             <Table heading={heading}>
               {getCurrentRecords()?.map((doc: any) => (
                 <tr key={doc?.id} className="border-b border-b-solid border-b-lightGreyColor pb-4">
-                  <td className="px-2 py-4 font-semibold">{doc?.name || "-"}</td>
-                  <td className="px-2 py-4">{doc?.type || "Questionnaire"}</td>
-                  <td className="px-2 py-4">{(doc?.createdAt || "").split("T")[0] || "-"}</td>
+                  <td className="px-4 py-3 font-semibold">{doc?.name || "-"}</td>
+                  <td className="px-4 py-3">{doc?.type || "Questionnaire"}</td>
+                  <td className="px-4 py-3">{(doc?.createdAt || "").split("T")[0] || "-"}</td>
 
-                  <td className="py-2 align-middle">
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-x-2">
                       <ViewIcon onClick={() => handlePreview(doc)} />
                       <DeleteIcon

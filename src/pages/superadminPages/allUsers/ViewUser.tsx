@@ -45,7 +45,16 @@ const ViewUser = () => {
   // ✅ Back should return to the list WITH the same query params
   // e.g. /verified-users?page=3&q=ali
   const handleBack = () => {
-    navigate(`/verified-users${location.search}`);
+    // Determine base path from current pathname
+    const pathParts = location.pathname.split('/');
+    const baseTab = pathParts[1]; // e.g., 'pending-users', 'verified-users', 'rejected-users'
+
+    if (baseTab) {
+      navigate(`/${baseTab}${location.search}`);
+    } else {
+      // Fallback if path doesn't match expected structure
+      navigate(`/verified-users${location.search}`);
+    }
   };
 
   // FETCH ALL USERS

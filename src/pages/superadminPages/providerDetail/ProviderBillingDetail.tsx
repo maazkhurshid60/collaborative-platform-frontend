@@ -73,7 +73,7 @@ const ProviderBillingDetail = () => {
     };
 
     const formatDate = (dateString: string) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return "-";
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -127,13 +127,13 @@ const ProviderBillingDetail = () => {
         });
 
         return {
-            invoiceNo: data.stripeInvoiceId || (data.id ? `INV-2024-${data.id.slice(0, 8)}` : "N/A"),
+            invoiceNo: data.stripeInvoiceId || (data.id ? `INV-2024-${data.id.slice(0, 8)}` : "-"),
             date: formattedDate,
             dueDate: formattedDate,
             billTo: {
                 name: contactInfo?.fullName || "Valued Customer",
                 email: contactInfo?.email || "",
-                address: contactInfo?.address || "N/A",
+                address: contactInfo?.address || "-",
                 city: `${contactInfo?.state || ""}, ${contactInfo?.country || ""}`
             },
             items: [
@@ -167,29 +167,30 @@ const ProviderBillingDetail = () => {
         <div className="flex flex-col p-5 gap-y-5">
 
             {/* User Details */}
-            <div className="bg-white relative w-full p-4 pt-5 rounded-lg space-y-7 font-[Poppins] text-textColor shadow-sm">
-                <div className="flex flex-row items-start justify-between w-full">
+            <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
+                <div className="flex flex-row items-start  justify-between w-full">
                     <p className='text-[24px] md:text-[32px] font-semibold mb-3'>Provider Billing Details</p>
                     <div className="flex flex-row items-center gap-x-2">
-                        <button onClick={() => setShowDeleteModal(true)} className="w-[114px] h-[38px] bg-white border-[1px] cursor-pointer border-[#2C9993] rounded-lg flex items-center justify-center gap-x-2">
+                        <button onClick={() => setShowDeleteModal(true)} className="w-[114px] h-[38px] bg-white border cursor-pointer border-[#2C9993] rounded-lg flex items-center justify-center gap-x-2">
                             <span className="text-[16px] font-medium text-[#2C9993]">Delete</span>
                             <Trash className="w-[20px] h-[20px] text-[#2C9993] " />
                         </button>
                         <button
-                            disabled={subscription?.status === "inactive" || true}
+                            //   disabled={subscription?.status === "inactive" || true}
+                            disabled={true}
                             onClick={() => {
                                 navigate(`/provider/refund/${id}`)
-                            }} className="w-[114px] h-[38px] bg-[#2C9993] cursor-pointer rounded-lg flex items-center justify-center gap-x-2">
+                            }} className={`w-[114px] h-[38px] bg-[#2C9993]  cursor-not-allowed rounded-lg flex items-center justify-center gap-x-2`}>
                             <span className="text-[16px] font-medium text-white">Refund</span>
                         </button>
                     </div>
                 </div>
                 <div className="flex flex-row items-center gap-x-3 w-full">
                     <div
-                        className="w-[139px] h-[139px] rounded-full border-[3px] border-[#FFC600] flex items-center justify-center"
+                        className="w-[139px] h-[139px] rounded-full  border-[3px] p-1 border-[#FFC600] flex items-center justify-center"
                     >
                         {contactInfo.profileImage ? (
-                            <img src={contactInfo.profileImage} className="w-full h-full object-cover rounded-full" alt="" />
+                            <img src={contactInfo.profileImage} className="w-full h-full  object-cover rounded-full" alt="" />
                         ) : (
                             <div className="w-full h-full rounded-full bg-black flex  items-center justify-center">
                                 <User className="w-[60px] h-[60px] text-gray-500  " />
@@ -213,17 +214,17 @@ const ProviderBillingDetail = () => {
             </div>
 
             {/* Contact Section */}
-            <div className="bg-white relative w-full p-4 pt-5 rounded-lg space-y-7 font-[Poppins] text-textColor shadow-sm">
+            <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
                 <div className="flex flex-col items-start justify-between w-full">
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Contact Information</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">License No </p>
-                            <p className="text-[14px] font-medium">{contactInfo.licenseNo || "N/A"}</p>
+                            <p className="text-[14px] font-medium">{contactInfo.licenseNo || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Provider Name</p>
-                            <p className="text-[14px] font-medium">{contactInfo.fullName || "N/A"}</p>
+                            <p className="text-[14px] font-medium">{contactInfo.fullName || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Total Revenue</p>
@@ -235,7 +236,7 @@ const ProviderBillingDetail = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Phone Number</p>
-                            <p className="text-[16px] font-medium">{contactInfo.contactNo || "N/A"}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.contactNo || "-"}</p>
                         </div>
 
 
@@ -281,7 +282,7 @@ const ProviderBillingDetail = () => {
                         </div>
                         <div className="flex flex-col items-start justify-center ">
                             <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Last Payment</p>
-                            <p className="text-[12px] font-bold ">{paymentHistory[0] ? formatDate(paymentHistory[0].createdAt) : "N/A"}</p>
+                            <p className="text-[12px] font-bold ">{paymentHistory[0] ? formatDate(paymentHistory[0].createdAt) : "-"}</p>
                         </div>
 
                     </div>
@@ -299,7 +300,7 @@ const ProviderBillingDetail = () => {
                 </div>
             </div>
             {/* Amount and reason input  */}
-            <div className="bg-white relative w-full p-4 pt-5  rounded-lg  font-[Poppins] text-textColor shadow-sm">
+            <div className="bg-white relative w-full p-4 pt-5  rounded-[20px]  font-[Poppins] text-textColor shadow-sm">
                 <div className="flex flex-col items-start justify-between w-full gap-y-3    ">
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Customer Plan Details</p>
                     <div className="flex flex-row w-full gap-x-4">
@@ -308,7 +309,7 @@ const ProviderBillingDetail = () => {
                             <div className="flex items-start justify-between mt-2">
                                 <p className="text-[14px] text-white font-medium">Current Plan</p>
                                 <div className="w-[91px] h-[24px] rounded-[12px] bg-white/20 flex items-center justify-center">
-                                    <p className="text-[12px] text-white z-20 font-medium capitalize">{subscription?.plan || "N/A"}</p>
+                                    <p className="text-[12px] text-white z-20 font-medium capitalize">{subscription?.plan || "-s"}</p>
                                 </div>
                             </div>
                             <p className="text-[24px] font-bold text-white font-[Poppins] capitalize">{subscription?.plan === 'PRO' ? 'Professional Plus' : (subscription?.plan || 'Standard')}</p>
@@ -350,7 +351,7 @@ const ProviderBillingDetail = () => {
             </div>
 
             {/* Payment history section */}
-            <div className="bg-white relative w-full p-4 pt-5 rounded-lg space-y-7 font-[Poppins] text-textColor shadow-sm">
+            <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
                 <div className="flex flex-col items-start justify-between w-full">
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Payment History</p>
                     <div className="w-full">
@@ -369,7 +370,7 @@ const ProviderBillingDetail = () => {
 
                                     {/* Invoice */}
                                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                        <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "N/A"}</p>
+                                        <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "-"}</p>
                                     </td>
 
                                     {/* Description */}

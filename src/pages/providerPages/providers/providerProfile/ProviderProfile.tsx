@@ -50,7 +50,7 @@ const ProviderProfile = () => {
         return <p>somethingwent wrong</p>
     }
     return (
-        <OutletLayout heading='Provider profile' backButton={<BackIcon onClick={() => navigate(-1)} />} isEdit>
+        <OutletLayout heading='Provider profile' backButton={<BackIcon onClick={() => navigate(-1)} />} >
 
             <div className='mt-6'>
                 <div>

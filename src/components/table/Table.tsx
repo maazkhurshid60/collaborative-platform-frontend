@@ -16,15 +16,15 @@ const Table: React.FC<TableProps> = ({
       <div className=" overflow-x-auto ">
         <div className=" px-4 sm:px-0 overflow-x-auto ">
 
-          <table className="min-w-full text-primaryColor  overflow-x-auto ">
-            <thead className=" bg-inputBgColor mb-2 capitalize tracking-wider font-normal text-[14px] font-[Poppins]  overflow-x-auto ">
-              <tr className=' overflow-x-auto '>
+          <table className="min-w-full text-primaryColor">
+            <thead className="bg-inputBgColor capitalize tracking-wider font-normal text-[14px] font-[Poppins]">
+              <tr>
                 {heading?.map((heading: string) => (
-                  <th className="px-2.5 py-3 text-left font-semibold" key={heading}>{heading}</th>
+                  <th className="px-4 py-3 text-left font-semibold" key={heading}>{heading}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className='text-textColor  text-[14px]  font-[400] text-left  w-[100%] lg:w-[100%] overflow-auto'>
+            <tbody className='text-textColor text-[14px] font-normal text-left w-full lg:w-full'>
               {children}
             </tbody>
           </table>

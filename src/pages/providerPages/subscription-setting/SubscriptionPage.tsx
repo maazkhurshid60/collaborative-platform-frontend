@@ -25,7 +25,7 @@ export const SubscriptionSettingPage = () => {
     const isTrialing = subscriptionStatus === 'TRIALING';
 
     const formatDate = (dateString?: string) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return "-";
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
@@ -118,8 +118,8 @@ export const SubscriptionSettingPage = () => {
         nextBillingDate: formatDate(userSubscription?.currentPeriodEnd || userSubscription?.trialEnd),
         billingCycle: userSubscription?.currentPeriodEnd ? "Monthly" : "Trial",
         amountDue: `$${activePlan.monthlyPrice}/mo`,
-        billingEmail: userEmail || "N/A",
-        billingAddress: user?.address || "N/A",
+        billingEmail: userEmail || "-",
+        billingAddress: user?.address || "-",
         billingHistory: transformedHistory
     };
 

@@ -44,53 +44,40 @@ const LicenseNo = () => {
         try {
             const response = await authService.findLicenseNo(licenseNo);
             toast.success(response?.message);
-            if (response.data.data !== null) {
-                const dataSendToRedux = {
-                    email: response?.data?.data?.email,
-                    licenseNo: response?.data?.data?.licenseNo,
-                    fullName: response?.data?.data?.fullName,
-                    clientId: response?.data?.data?.client?.id,
-                    isClientExist: true,
-                    gender: response?.data?.data?.gender,
-                    age: response?.data?.data?.age,
-                    contactNo: response?.data?.data?.contactNo,
-                    address: response?.data?.data?.address,
-                    status: response?.data?.data?.status,
-                    state: response?.data?.data?.state,
-                    country: response?.data?.data?.country,
-                    isApprove: response?.data?.data?.isApprove,
-                    isAccountCreatedByOwnClient: response?.data?.data?.client?.isAccountCreatedByOwnClient ?? false
-                }
-                dispatch(saveLicenseNoResult(dataSendToRedux))
 
-                navigate("/client-signup", { state: { fromLicense: true } })
-            } else {
-                const dataSendToRedux = {
-                    email: "",
-                    licenseNo: "",
-                    fullName: "",
-                    clientId: "",
-                    isClientExist: false,
-                    gender: null,
-                    age: null,
-                    contactNo: null,
-                    address: null,
-                    status: null,
-                    state: "",
-                    country: "",
-                    isApprove: "",
-                    isAccountCreatedByOwnClient: false
-                }
-                dispatch(saveLicenseNoResult(dataSendToRedux))
-                navigate("/client-signup", { state: { fromLicense: true } })
+            const userData = response.data?.data;
+            if (!userData) {
+                // This shouldn't happen if backend returns 404 for not found, but safe handling
+                toast.error("License record is empty");
+                return;
             }
+
+            const dataSendToRedux = {
+                email: userData.email,
+                licenseNo: userData.licenseNo,
+                fullName: userData.fullName,
+                clientId: userData.client?.id,
+                isClientExist: true,
+                gender: userData.gender,
+                age: userData.age,
+                contactNo: userData.contactNo,
+                address: userData.address,
+                status: userData.status,
+                state: userData.state,
+                country: userData.country,
+                isApprove: userData.isApprove,
+                isAccountCreatedByOwnClient: userData.client?.isAccountCreatedByOwnClient ?? false
+            };
+
+            dispatch(saveLicenseNoResult(dataSendToRedux));
+            navigate("/client-signup", { state: { fromLicense: true } });
+
         } catch (error) {
-
             const err = error as AxiosError<AuthErrorResponse>;
-            toast.error(`${err?.response?.data?.data?.error}`);
+            const errorMessage = err?.response?.data?.data?.error || "Something went wrong";
+            toast.error(errorMessage);
         } finally {
-            setIsLoading(false)
-
+            setIsLoading(false);
         }
     }
     return (<>

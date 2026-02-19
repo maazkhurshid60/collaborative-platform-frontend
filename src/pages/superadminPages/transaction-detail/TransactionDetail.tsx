@@ -54,14 +54,14 @@ const TransactionDetail = () => {
     ];
 
     const formatStatus = (status: string) => {
-        if (!status) return "N/A";
+        if (!status) return "-";
         const lower = status.toLowerCase();
         if (lower === "succeeded") return "Paid";
         return lower.charAt(0).toUpperCase() + lower.slice(1);
     };
 
     const formatDate = (dateString: string) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return "-";
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -108,9 +108,9 @@ const TransactionDetail = () => {
             date: formatDate(data.createdAt),
             dueDate: formatDate(data.createdAt),
             billTo: {
-                name: data.user?.fullName || "N/A",
-                email: data.user?.email || "N/A",
-                address: data.user?.address || "N/A",
+                name: data.user?.fullName || "-",
+                email: data.user?.email || "-",
+                address: data.user?.address || "-",
                 city: `${data.user?.state || ""}, ${data.user?.country || ""}`
             },
             items: [
@@ -189,7 +189,7 @@ const TransactionDetail = () => {
                             </td>
 
                             <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                {data.plan || "N/A"}
+                                {data.plan || "-"}
                             </td>
 
                             <td className="px-2 py-3 align-middle whitespace-nowrap">

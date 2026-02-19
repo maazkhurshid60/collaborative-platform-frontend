@@ -60,6 +60,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             if (result.error) {
                 setErrorMessage(result.error.message || "Payment failed");
                 toast.error(result.error.message || "Payment failed");
+                navigate("/payment-failure", { state: { error: result.error.message || "Payment failed" } });
                 setIsLoading(false);
                 return;
             }
@@ -229,7 +230,7 @@ export const PaymentCheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { planType = 'STANDARD', billingCycle = 'MONTHLY', userData } = location.state || {}; // Default to STANDARD
+    const { planType = 'STANDARD', billingCycle = 'MONTHLY', userData } = location.state || {};
     const token = localStorage.getItem("token");
 
     const [clientSecret, setClientSecret] = useState("");
@@ -342,13 +343,12 @@ export const PaymentCheckoutPage = () => {
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
             {/* Custom Header (Consistent across payment flow) - Hide if in dashboard (token exists) */}
 
-
             {/* Main Content Area */}
-            <main className="max-w-[1280px] mx-auto px-6 py-10 lg:py-16">
+            <main className="max-w-full mx-auto px-6 py-10 lg:py-16">
                 <div className="flex flex-col xl:flex-row gap-8">
 
                     {/* Left Column: Plan & Pricing */}
-                    <div className="flex-1 flex flex-col gap-8">
+                    <div className="w-full xl:w-[60%] flex flex-col gap-8">
 
                         {/* Plan Summary Card */}
                         <div className="bg-white rounded-[12px] p-8 shadow-sm">
@@ -408,55 +408,60 @@ export const PaymentCheckoutPage = () => {
                             </div>
                         </div>
 
-                        {/* Payment Actions */}
-                        <div className="flex flex-col items-center gap-4">
+
+
+                        {/* Payment Actions (Initial Button) - Left Column */}
+
+                        {/* Payment Actions - Left Column */}
+                        <div className="mt-8">
                             {!clientSecret ? (
-                                // Show "Pay with Stripe" button initially
-                                <div className="w-full flex flex-col items-center gap-4">
-                                    <button
-                                        onClick={handleInitializePayment}
-                                        disabled={isInitializing}
-                                        className="w-full max-w-[340px] bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isInitializing ? "Initializing..." : "Pay with Stripe"}
-                                    </button>
-                                    <div className="flex items-center gap-2 text-[#667085] text-[14px]">
-                                        <ShieldCheck size={18} className="text-[#2C9993]" />
-                                        <span>Your payment is processed securely</span>
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-full flex flex-col items-center gap-4">
+                                        <button
+                                            onClick={handleInitializePayment}
+                                            disabled={isInitializing}
+                                            className="w-[220px] bg-[#2C9993] text-white font-semibold text-[20px] py-4 rounded-xl hover:bg-[#237c76] transition-all shadow-lg shadow-[#2c9993]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isInitializing ? "Initializing..." : "Pay with Stripe"}
+                                        </button>
+                                        <div className="flex items-center gap-2 text-[#667085] text-[14px]">
+                                            <ShieldCheck size={18} className="text-[#2C9993]" />
+                                            <span>Your payment is processed securely</span>
+                                        </div>
+                                        <p className="text-[12px] text-[#98A2B3] text-center max-w-[450px]">
+                                            By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+                                        </p>
                                     </div>
-                                    <p className="text-[12px] text-[#98A2B3] text-center max-w-[450px]">
-                                        By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
-                                    </p>
                                 </div>
                             ) : (
-                                // Show Stripe Elements form after initialization
-                                <Elements key={clientSecret} stripe={stripePromise} options={options as any}>
-                                    <CheckoutForm
-                                        clientSecret={clientSecret}
-                                        subscriptionId={subscriptionId}
-                                        customerId={customerId}
-                                        userData={userData}
-                                        planType={planType}
-                                        billingCycle={billingCycle}
-                                        price={total}
-                                    />
-                                </Elements>
+                                <div className="bg-white rounded-[12px] p-6 shadow-sm border border-gray-100 flex flex-col items-center gap-4 transition-all duration-500 ease-in-out animate-fadeIn">
+                                    <Elements key={clientSecret} stripe={stripePromise} options={options as any}>
+                                        <CheckoutForm
+                                            clientSecret={clientSecret}
+                                            subscriptionId={subscriptionId}
+                                            customerId={customerId}
+                                            userData={userData}
+                                            planType={planType}
+                                            billingCycle={billingCycle}
+                                            price={total}
+                                        />
+                                    </Elements>
+                                </div>
                             )}
                         </div>
                     </div>
 
                     {/* Right Column: Trust Badges */}
-                    <div className="w-full xl:w-[440px]">
-                        <div className="bg-[#2C9993]/20 rounded-[12px] flex flex-col lg:flex-row xl:flex-col p-8 border border-[#CCFBEF]">
-                            <div className="flex flex-row flex-wrap">
+                    <div className="w-full xl:w-[40%] flex flex-col gap-6">
+                        {/* Trust Badges */}
+                        <div className="bg-[#2C9993]/20 rounded-[12px] p-8 border border-[#CCFBEF]">
 
-                                <div className="flex items-center gap-2 text-[#0D9488] mb-8">
-                                    <ShieldCheck size={24} />
-                                    <h2 className="text-[24px] font-bold">Trust Badges</h2>
-                                </div>
+                            <div className="flex items-center gap-2 text-[#0D9488] mb-8">
+                                <ShieldCheck size={24} />
+                                <h2 className="text-[24px] font-bold">Trust Badges</h2>
                             </div>
 
-                            <div className="flex flex-col lg:flex-row xl:flex-col gap-10 items-center justify-between">
+                            <div className="flex flex-col xl:flex-row gap-4 items-center justify-between">
                                 <div className="flex flex-col items-center text-center flex-1">
                                     <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm border border-[#CCFBEF]">
                                         <ShieldCheck size={28} className="text-[#2C9993]" />
@@ -484,13 +489,15 @@ export const PaymentCheckoutPage = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-12 ">
+                            <div className="mt-8 ">
                                 <div className="flex items-center gap-2 px-4 py-2 ">
                                     <Info size={16} className="text-[#2C9993]" />
                                     <p className="text-[12px] text-[#475467]">Your payment information is encrypted and secure. We never store your card details.</p>
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
 
                 </div>

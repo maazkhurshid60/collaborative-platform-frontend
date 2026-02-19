@@ -87,8 +87,8 @@ const PaymentSuccessPage = () => {
 Plan: ${userDetails?.user?.subscription?.plan || "Standard"} Plan
 Amount: ${latestPayment?.amount || "$0.00"}
 Date: ${new Date().toLocaleDateString()}
-Transaction ID: ${latestPayment?.invoiceNo || latestPayment?.id || "N/A"}
-Payment Method: •••• ${latestPayment?.last4 || "N/A"}
+Transaction ID: ${latestPayment?.invoiceNo || latestPayment?.id || "-"}
+Payment Method: •••• ${latestPayment?.last4 || "-"}
 Status: Paid
 Next Billing: ${date}
 --------------------------
@@ -223,19 +223,19 @@ Thank you for your purchase!
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Payment Method</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[14px] text-[#101828] font-medium">•••• {latestPayment?.last4 || "N/A"}</span>
+                                    <span className="text-[14px] text-[#101828] font-medium">•••• {latestPayment?.last4 || "-"}</span>
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] text-[#667085]">Transaction ID</span>
-                                <span className="text-[14px] text-[#101828] font-medium">{latestPayment?.invoiceNo || latestPayment?.id || "N/A"}</span>
+                                <span className="text-[14px] text-[#101828] font-medium">{latestPayment?.invoiceNo || latestPayment?.id || "-"}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-[14px] font-bold text-[#101828]">Next Billing Date</span>
                                 <span className="text-[16px] font-bold text-[#2C9993]">
                                     {userDetails?.user?.subscription?.currentPeriodEnd
                                         ? new Date(userDetails.user.subscription.currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-                                        : "N/A"}
+                                        : "-"}
                                 </span>
                             </div>
                         </div>

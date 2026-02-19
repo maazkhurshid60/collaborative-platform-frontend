@@ -75,7 +75,7 @@ export const ClientSignupSchema = z
 
 export const ProviderSignupSchema = z
   .object({
-    email: z.string().email(),
+    email: z.string().email("Email is required"),
     country: z.string().nonempty("Country is required"),
     state: z.string().nonempty("State is required"),
     fullName: fullNameValidator,      // ✅ now no error

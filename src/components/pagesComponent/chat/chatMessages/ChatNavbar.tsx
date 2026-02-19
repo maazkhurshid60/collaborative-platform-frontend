@@ -9,9 +9,12 @@ import { useState } from 'react';
 import { GroupCreatedBy, GroupDelete, GroupMember } from '../../../../types/chatType/GroupType';
 import DeleteIcon from '../../../icons/delete/DeleteIcon';
 import DeleteChannelModal from '../../../modals/providerModal/chatModal/DeleteChannelModal';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import chatApiService from '../../../../apiServices/chatApi/ChatApi';
 import { toast } from 'react-toastify';
+import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
+import { getSocket } from '../../../../socket/Socket';
 
 
 interface chatNavbarProps {
@@ -26,6 +29,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
 
     const dispatch = useDispatch<AppDispatch>()
+    const navigate = useNavigate()
     const isDeleteChannelModalShow = useSelector((state: RootState) => state.modalSlice.isDeleteChannelModalShow)
     const deleteConservation = () => {
         dispatch(isDeleteChannelModalShowReducer(true))
@@ -36,15 +40,23 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
     // 1️⃣ Define the delete mutation
     const deleteSingleChannelMutation = useMutation({
         mutationFn: async (channelId: string) => {
-            await chatApiService.deleteChatChannels(channelId);
+            if (!loginUserId) return;
+            await messageApiService.deleteChatChannelForUser({
+                channelId,
+                loginUserId
+            });
+            // Emit socket event to update other sessions of the same provider
+            const socket = getSocket();
+            socket?.emit('delete_chat_channel', { chatChannelId: channelId, providerId: loginUserId });
             return channelId;
         },
         onSuccess: () => {
-            toast.success("Chat Channel has deleted Successfully")
+            toast.success("Chat Channel has been hidden for you")
             queryClient.invalidateQueries({
-                queryKey: ['chatchannels', loginUserId]
+                queryKey: ['chatchannels']
             });
             dispatch(isDeleteChannelModalShowReducer(false))
+            navigate('/chat')
         },
         onError: (err) => {
             console.error('Delete failed', err);
@@ -64,7 +76,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                 queryKey: ['groupChatchannels', loginUserId]
             });
             dispatch(isDeleteChannelModalShowReducer(false))
-
+            navigate('/chat')
         },
         onError: (err) => {
             console.error('Delete failed', err);
@@ -83,8 +95,14 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
     return (
         <>
             {isDeleteChannelModalShow &&
-                <DeleteChannelModal text="Deleting this conversation will remove it permanently for both users and it cannot be recovered. Are you sure you want to delete this conversation?"
-                    heading="Deleteing Conservation" onDeleteConfirm={confirmDeleteChatChannel} />
+                <DeleteChannelModal
+                    text={props.groupMembers?.length > 0
+                        ? "Deleting this conversation will remove it permanently for both users and it cannot be recovered. Are you sure you want to delete this conversation?"
+                        : "This conversation will be hidden for you until a new message is received. The other participant will still see the chat history. Are you sure?"
+                    }
+                    heading={props.groupMembers?.length > 0 ? "Deleting Group Conversation" : "Hiding Conversation"}
+                    onDeleteConfirm={confirmDeleteChatChannel}
+                />
             }
 
             <div className='flex items-center justify-between '>
@@ -101,11 +119,11 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                 <div className='flex items-center gap-x-4'>
                     <div className='w-[100px]'>
                         {props?.groupMembers?.length !== undefined && (
-                            <div className="flex items-center relative w-[100%]  h-8">
+                            <div className="flex items-center relative w-full  h-8">
                                 {props?.groupMembers?.slice(0, 2).map((data, id: number) => (
                                     <div
                                         key={id}
-                                        className="border-solid border-textColor rounded-full border-[1px]  bg-white absolute z-20"
+                                        className="border-solid border-textColor rounded-full border  bg-white absolute z-20"
                                         style={{ right: `${id * 20}px` }}
                                     >
 
@@ -158,7 +176,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                             </div>
                         )}
                     </div>
-                    {loginUserId === props.groupCreatedBy?.id &&
+                    {(loginUserId === props.groupCreatedBy?.id || props.groupMembers?.length === 0) &&
                         <div>
                             <DeleteIcon onClick={deleteConservation} />
                         </div>
