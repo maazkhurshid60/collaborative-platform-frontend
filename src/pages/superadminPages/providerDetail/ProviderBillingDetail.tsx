@@ -1,6 +1,5 @@
 import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, Trash, User, View, ViewIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom"
-import profileImage from "../../../../public/assets/profile-img.png"
 import { GoDotFill } from "react-icons/go";
 
 import Table from "../../../components/table/Table";
@@ -32,6 +31,7 @@ const ProviderBillingDetail = () => {
         "Action",
     ];
 
+    console.log(subscription, "the subscription data is");
     const fetchAllData = async () => {
         if (!id) return;
         try {
@@ -219,42 +219,42 @@ const ProviderBillingDetail = () => {
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Contact Information</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">License No </p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">License No </p>
                             <p className="text-[14px] font-medium">{contactInfo.licenseNo || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Provider Name</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Provider Name</p>
                             <p className="text-[14px] font-medium">{contactInfo.fullName || "-"}</p>
                         </div>
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Total Revenue</p>
-                            <p className="text-[18px] font-medium text-[var(--color-transaction-summary-ammont)]">{formatCurrency(totalRevenue)}</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Total Revenue</p>
+                            <p className="text-[18px] font-medium text-(--color-transaction-summary-text)">{formatCurrency(totalRevenue)}</p>
                         </div>
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Full Name</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Full Name</p>
                             <p className="text-[16px] font-medium">{contactInfo.fullName}</p>
                         </div>
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Phone Number</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Phone Number</p>
                             <p className="text-[16px] font-medium">{contactInfo.contactNo || "-"}</p>
                         </div>
 
 
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Outstanding Amount</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Outstanding Amount</p>
                             <p className="text-[16px] font-medium">$0.00</p>
                         </div>
 
 
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Speciality </p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Speciality </p>
                             <p className="text-[16px] font-medium">{contactInfo.provider?.department || "Cardiology"}</p>
                         </div>
 
 
 
                         <div className="flex flex-col items-start">
-                            <p className="text-[14px] text-[var(--color-transaction-summary-text)]">Payment Method</p>
+                            <p className="text-[14px] text-(--color-transaction-summary-text)">Payment Method</p>
                             <p className="text-[16px] font-medium">
                                 {paymentHistory.find(p => p.paymentMethodLast4)?.paymentMethodLast4
                                     ? `Credit Card **** ${paymentHistory.find(p => p.paymentMethodLast4).paymentMethodLast4}`
@@ -270,7 +270,7 @@ const ProviderBillingDetail = () => {
                             <Calendar className="text-white" size={18} />
                         </div>
                         <div className="flex flex-col items-start justify-center ">
-                            <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Member Since</p>
+                            <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Member Since</p>
                             <p className="text-[12px] font-bold ">{new Date(contactInfo.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
                         </div>
 
@@ -281,7 +281,7 @@ const ProviderBillingDetail = () => {
                             <Clock className="text-white" size={18} />
                         </div>
                         <div className="flex flex-col items-start justify-center ">
-                            <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Last Payment</p>
+                            <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Last Payment</p>
                             <p className="text-[12px] font-bold ">{paymentHistory[0] ? formatDate(paymentHistory[0].createdAt) : "-"}</p>
                         </div>
 
@@ -292,7 +292,7 @@ const ProviderBillingDetail = () => {
                             <FileText className="text-white" size={18} />
                         </div>
                         <div className="flex flex-col items-start justify-center ">
-                            <p className="text-[10px] font-normal text-[var(--color-transaction-summary-text)]">Total Invoices</p>
+                            <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Total Invoices</p>
                             <p className="text-[12px] font-bold ">{paymentHistory.length}</p>
                         </div>
 
@@ -314,8 +314,13 @@ const ProviderBillingDetail = () => {
                             </div>
                             <p className="text-[24px] font-bold text-white font-[Poppins] capitalize">{subscription?.plan === 'PRO' ? 'Professional Plus' : (subscription?.plan || 'Standard')}</p>
                             <p className="text-[36px] relative font-bold text-white font-[raleway]">
-                                ${subscription?.plan === 'PRO' ? '79' : (subscription?.plan === 'STANDARD' ? '29' : '0')}
-                                <span className="text-[14px] font-normal absolute top-[10px] left-[60px]  font-[poppins] text-white z-10 ">/monthly</span>
+                                {subscription?.billingCycle === 'YEARLY'
+                                    ? (subscription?.plan === 'PRO' ? '$756' : '$313')
+                                    : (subscription?.plan === 'PRO' ? '$79' : '$29')
+                                }
+                                <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[75px]' : 'left-[60px]'} top-[10px]  font-[poppins] text-white z-10 `}>
+                                    {subscription?.billingCycle === 'YEARLY' ? '/yearly' : '/monthly'}
+                                </span>
                             </p>
 
                             <div className="w-full h-px mt-5 bg-white/20 " />

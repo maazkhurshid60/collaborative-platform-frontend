@@ -24,6 +24,7 @@ interface User {
         trialEnd?: string;
         currentPeriodEnd?: string;
         cancelAtPeriodEnd: boolean;
+        billingCycle?: string;
     };
 }
 

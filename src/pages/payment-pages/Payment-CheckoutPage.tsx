@@ -248,7 +248,7 @@ export const PaymentCheckoutPage = () => {
         return billingCycle === 'MONTHLY' ? 29 : 313; // Standard Annual
     };
     const price = getPrice();
-    const tax = null; // Calculated by Stripe based on location
+    const tax = 0;
     const total = price;
 
     const handleInitializePayment = async () => {
@@ -395,14 +395,14 @@ export const PaymentCheckoutPage = () => {
                                     <span className="text-[16px] font-medium text-[#101828]">${price.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[16px] text-[#667085]">Tax</span>
-                                    <span className="text-[14px] font-medium text-[#667085] italic">Calculated at checkout</span>
+                                    <span className="text-[16px] text-[#667085]">Tax (0%)</span>
+                                    <span className="text-[16px] font-medium text-[#101828]">$0.00</span>
                                 </div>
                             </div>
                             <div className="border-t border-[#E2E8F0] pt-6 mb-2">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[20px] font-bold text-[#101828]">Total</span>
-                                    <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)} <span className="text-sm font-normal text-gray-500">+ Tax</span></span>
+                                    <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)}</span>
                                 </div>
                                 <p className="text-[14px] text-[#667085] mt-1">Billed monthly, cancel anytime</p>
                             </div>

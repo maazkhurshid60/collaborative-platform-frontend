@@ -17,7 +17,7 @@ const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }
 
     return (
         <div
-            className="fixed inset-0 bg-textColor/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            className="fixed inset-0 bg-textColor/70 z-50 flex items-center justify-center p-4"
             onClick={handleClose}
         >
             <div

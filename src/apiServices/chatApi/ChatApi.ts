@@ -15,7 +15,7 @@ interface CreateGroupChannel {
     membersId?: string[]
 }
 
-class ChatApiService {
+class ChatApiService {    
     private api = axiosInstance
     //SINGLE CONSERVATION APIS
     async getAllChatChannels(loginUserId: string) {

@@ -226,8 +226,9 @@ const ProviderSignup = () => {
                         </div>
                         {/* 👇 Country & State Dropdown 👇 */}
                         <CountryStateSelect isCountryView={true} isStateView={false} />
+                        <div className='mb-1.5' />
                         <CountryStateSelect isCountryView={false} isStateView={true} />
-                        <div className='mb-1.5'>
+                        <div className='mt-1.5 mb-1.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
                         </div>
 

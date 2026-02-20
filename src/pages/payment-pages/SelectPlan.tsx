@@ -85,7 +85,7 @@ const SelectPlan = () => {
         <div className='w-full max-w-full min-h-screen bg-[#F9FAFB] flex flex-col'>
             {/* Only show step indicator during signup, not during upgrade */}
             {!isUpgradeFlow && (
-                <div className='w-full max-w-[50%] mt-12 flex items-start justify-start'>
+                <div className='w-full mt-12 flex items-center justify-center'>
                     <StepIndicator currentStep={2} totalSteps={2} />
                 </div>
             )}

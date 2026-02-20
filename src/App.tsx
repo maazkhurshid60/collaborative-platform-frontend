@@ -25,22 +25,18 @@ function App() {
     const token = localStorage.getItem("token");
     if (token && userId && role) {
       try {
-        console.log("🔄 App.tsx: Refreshing user data...", { userId, role });
         dispatch(setIsRefreshing(true));
         const response = await authService.getMe(userId, role);
         if (response?.data?.data && response.data.data.user) {
           dispatch(saveLoginUserDetailsReducer(response.data.data));
-          console.log("✅ App.tsx: User data refreshed. Status:", response.data.data?.user?.subscription?.status);
         } else if (response?.data && response.data.user) {
           // Fallback if structure is different (e.g. direct object)
           dispatch(saveLoginUserDetailsReducer(response.data));
         } else if (response?.user) {
           dispatch(saveLoginUserDetailsReducer(response));
         } else {
-          console.warn("⚠️ App.tsx: unexpected response structure, not dispatching", response);
         }
       } catch (error) {
-        console.error("❌ App.tsx: Failed to refresh user data", error);
       } finally {
         dispatch(setIsRefreshing(false));
       }

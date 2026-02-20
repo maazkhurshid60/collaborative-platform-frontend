@@ -93,7 +93,7 @@ const CountryStateSelect = ({
   return (
     <div className="w-full">
       {isCountryView && (
-        <div className="w-full">
+        <div className="w-full mb-1.5">
           <Dropdown<FormShape>
             name="country"
             label="Country"

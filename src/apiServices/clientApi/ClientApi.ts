@@ -61,24 +61,12 @@ class ClientApiService {
     }
 
     async addClientApi(data: FormData) {
-
-        try {
-            const response = await this.api.post(`${API_BASE_URL}/client/add-client`, data, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            });
-            return response.data;
-        } catch (error: unknown) {
-
-            if (isAxiosError(error) && error.response?.data?.message) {
-                toast.error(error.response.data.message);
-            } else {
-                toast.error("An unexpected error occurred");
+        const response = await this.api.post(`${API_BASE_URL}/client/add-client`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
             }
-
-            throw error || "Adding client has failed";
-        }
+        });
+        return response.data;
     }
     async addExistingClientToProvider(data: FormData) {
 

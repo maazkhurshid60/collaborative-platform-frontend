@@ -344,7 +344,17 @@ const Settings = () => {
           />
         )
       }
-      backButton={isEdit ? <BackIcon onClick={exitEditMode} /> : null}
+      backButton={
+        <BackIcon
+          onClick={() => {
+            if (isEdit) {
+              exitEditMode();
+            } else {
+              navigate(-1);
+            }
+          }}
+        />
+      }
     >
       {!isEdit && (
         <div className="relative">

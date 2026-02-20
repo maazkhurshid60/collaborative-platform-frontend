@@ -38,7 +38,7 @@ export const SubscriptionSettingPage = () => {
             name: "Standard",
             description: "Perfect for startups and small teams",
             monthlyPrice: 29,
-            annualPrice: 23,
+            annualPrice: 313,
             features: [
                 "Up to 100 customers",
                 "Basic invoicing & billing",
@@ -55,7 +55,7 @@ export const SubscriptionSettingPage = () => {
             name: "Pro",
             description: "Best for growing businesses",
             monthlyPrice: 79,
-            annualPrice: 63,
+            annualPrice: 756,
             features: [
                 "Up to 1,000 customers",
                 "Advanced invoicing & automation",
@@ -113,11 +113,13 @@ export const SubscriptionSettingPage = () => {
         amountDueLabel: "Current Rate"
     };
 
+    const isAnnual = userSubscription?.billingCycle === 'YEARLY';
+
     const subscriptionData = {
         activePlan: activePlan,
         nextBillingDate: formatDate(userSubscription?.currentPeriodEnd || userSubscription?.trialEnd),
-        billingCycle: userSubscription?.currentPeriodEnd ? "Monthly" : "Trial",
-        amountDue: `$${activePlan.monthlyPrice}/mo`,
+        billingCycle: isAnnual ? "Yearly" : (userSubscription?.currentPeriodEnd ? "Monthly" : "Trial"),
+        amountDue: isAnnual ? `$${activePlan.annualPrice}/yr` : `$${activePlan.monthlyPrice}/mo`,
         billingEmail: userEmail || "-",
         billingAddress: user?.address || "-",
         billingHistory: transformedHistory
@@ -148,7 +150,7 @@ export const SubscriptionSettingPage = () => {
                 </div>
                 {/* Current Plan Summary (Upper Section) */}
                 <div className="flex flex-row items-stretch justify-start gap-x-[24px]">
-                    <div className="flex flex-col items-start gap-y-[16px] w-1/2 " >
+                    <div className="flex flex-col items-start h-[610px] gap-y-[16px] w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#D1FAE5]/50 rounded-[16px]  p-[33px] mt-2">
                             <div className="flex items-center justify-between">
                                 <div className="w-full flex flex-col items-start gap-2">
@@ -225,7 +227,7 @@ export const SubscriptionSettingPage = () => {
 
                     </div>
                     {/* 2nd div biling options */}
-                    <div className="flex flex-col items-start gap-y-[16px] w-1/2 " >
+                    <div className="flex flex-col items-start h-[610px] gap-y-[16px] w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#E5E7EB]/50 rounded-[16px]  p-[33px] mt-2">
                             <div className="flex  justify-between">
                                 <div className="w-full flex flex-col items-start justify-between gap-2">
@@ -242,7 +244,7 @@ export const SubscriptionSettingPage = () => {
                             <p className="text-[16px] font-medium text-black font-[Poppins] mt-4">{subscriptionPageData.billingHistoryTitle}</p>
                             <div className="w-full flex flex-col gap-y-4 mt-5">
                                 {subscriptionData.billingHistory.length > 0 ? (
-                                    subscriptionData.billingHistory.map((history: any, index: number) => (
+                                    subscriptionData.billingHistory.slice(0, 3).map((history: any, index: number) => (
                                         <div key={index} className="w-full flex items-center justify-between bg-white rounded-[8px] p-[16px]">
                                             <div className="flex items-center justify-between gap-x-2">
                                                 <SquarePen color="#2C9993" size={24} />
@@ -286,7 +288,7 @@ export const SubscriptionSettingPage = () => {
                                 )}
                             </div>
                             {subscriptionData.billingHistory.length > 3 && (
-                                <button className="flex flex-row w-full items-center justify-center gap-x-2  cursor-pointer   mt-9">
+                                <button onClick={() => navigate('/billing')} className="flex flex-row w-full items-center justify-center gap-x-2  cursor-pointer   mt-9">
                                     <p className="font-[Poppins] text-[16px] font-medium text-[#2C9993]">View Billing History</p>
                                     <ArrowRight color="#2C9993" size={24} />
                                 </button>
