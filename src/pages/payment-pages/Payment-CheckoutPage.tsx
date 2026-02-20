@@ -245,7 +245,7 @@ export const PaymentCheckoutPage = () => {
     // Dynamic Pricing (Mock logic to match SelectPlan)
     const getPrice = () => {
         if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 756; // 63 * 12 = 756
-        return billingCycle === 'MONTHLY' ? 29 : 313; // Standard Annual
+        return billingCycle === 'MONTHLY' ? 29 : 278; // Standard Annual
     };
     const price = getPrice();
     const tax = 0;
@@ -404,7 +404,9 @@ export const PaymentCheckoutPage = () => {
                                     <span className="text-[20px] font-bold text-[#101828]">Total</span>
                                     <span className="text-[24px] font-bold text-[#101828]">${total.toFixed(2)}</span>
                                 </div>
-                                <p className="text-[14px] text-[#667085] mt-1">Billed monthly, cancel anytime</p>
+                                <p className="text-[14px] text-[#667085] mt-1">
+                                    Billed {billingCycle === 'MONTHLY' ? 'monthly' : 'yearly'}, cancel anytime
+                                </p>
                             </div>
                         </div>
 

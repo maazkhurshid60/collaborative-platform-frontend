@@ -38,7 +38,7 @@ export const SubscriptionSettingPage = () => {
             name: "Standard",
             description: "Perfect for startups and small teams",
             monthlyPrice: 29,
-            annualPrice: 313,
+            annualPrice: 278,
             features: [
                 "Up to 100 customers",
                 "Basic invoicing & billing",

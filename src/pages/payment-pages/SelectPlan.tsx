@@ -63,7 +63,7 @@ const SelectPlan = () => {
         {
             name: 'Standard',
             monthlyPrice: '29',
-            annualPrice: '313',
+            annualPrice: '278',
             description: 'Best for small businesses',
             // Only offer trial if user has NEVER had one
             // Show "Subscribe Now" if: upgrading OR already used trial before
@@ -85,7 +85,7 @@ const SelectPlan = () => {
         <div className='w-full max-w-full min-h-screen bg-[#F9FAFB] flex flex-col'>
             {/* Only show step indicator during signup, not during upgrade */}
             {!isUpgradeFlow && (
-                <div className='w-full mt-12 flex items-center justify-center'>
+                <div className='w-full mt-12 pl-50 pr-50 flex items-center justify-center'>
                     <StepIndicator currentStep={2} totalSteps={2} />
                 </div>
             )}
@@ -114,7 +114,7 @@ const SelectPlan = () => {
                                 className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                             >
                                 Annually
-                                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#EDF8E8] text-[#306F11]">Save 10%</span>
+                                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#EDF8E8] text-[#306F11]">Save 20%</span>
                             </button>
                         </div>
 

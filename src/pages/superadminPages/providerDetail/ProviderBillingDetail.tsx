@@ -315,7 +315,7 @@ const ProviderBillingDetail = () => {
                             <p className="text-[24px] font-bold text-white font-[Poppins] capitalize">{subscription?.plan === 'PRO' ? 'Professional Plus' : (subscription?.plan || 'Standard')}</p>
                             <p className="text-[36px] relative font-bold text-white font-[raleway]">
                                 {subscription?.billingCycle === 'YEARLY'
-                                    ? (subscription?.plan === 'PRO' ? '$756' : '$313')
+                                    ? (subscription?.plan === 'PRO' ? '$756' : '$278')
                                     : (subscription?.plan === 'PRO' ? '$79' : '$29')
                                 }
                                 <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[75px]' : 'left-[60px]'} top-[10px]  font-[poppins] text-white z-10 `}>
