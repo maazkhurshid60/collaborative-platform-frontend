@@ -89,5 +89,10 @@ export const SuperAdminSidebarData = [
         name: "Billing Management",
         url: "/billing-management",
         icon: FileText
+    },
+    {
+        name: "User Profile",
+        url: "/super-admin",
+        icon: RiUserLine
     }
 ]

@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "../config/api";
+import axiosInstance from "../axiosInstance/AxiosInstance";
 
 export type SuperAdminMeResponse = {
   id: string;
@@ -6,80 +6,23 @@ export type SuperAdminMeResponse = {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  user?: any; // replace with your real User type if you want
-};
-
-export type UpdateSuperAdminPayload = {
-  fullName?: string;
-  licenseNumber?: string;
-  age?: number;
-  address?: string;
-  country?: string;
-  state?: string;
-  email?: string;
+  user?: any;
 };
 
 export async function fetchSuperAdmin(): Promise<SuperAdminMeResponse> {
-  // Read the token from localStorage
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("No auth token found in localStorage");
-  }
-
-  const res = await fetch(
-    `${getApiBaseUrl()}/super-admin/first`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // Change this line if your backend expects a different header name/value
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!res.ok) {
-    // Optional: add better error handling/logging here
-    throw new Error(`Failed to fetch super admin: ${res.status}`);
-  }
-
-  const json = await res.json();
-  return json.data as SuperAdminMeResponse;
+  const res = await axiosInstance.get("/super-admin/first");
+  return res.data.data;
 }
-
-
 
 export async function updateSuperAdmin(
   id: string,
-  payload: UpdateSuperAdminPayload
+  payload: FormData
 ): Promise<SuperAdminMeResponse> {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("No auth token found in localStorage");
-  }
+  const res = await axiosInstance.patch(`/super-admin/${id}`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
-  const res = await fetch(
-    `${getApiBaseUrl()}/super-admin/${id}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    }
-  );
-
-  if (!res.ok) {
-    // Backend returns 400 for "No fields provided" and 404 for "not found"
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `Failed to update super admin: ${res.status} ${text || res.statusText
-        }`.trim()
-    );
-  }
-
-  const json = await res.json();
-  return json.data as SuperAdminMeResponse;
+  return res.data.data;
 }

@@ -232,7 +232,7 @@ const Routing = () => {
                 <Route path="/help-and-support" element={<WrappedRoute ><HelpAndSupport /></WrappedRoute>} />
                 <Route path="/chat/individual/:id" element={<Chat />} />
                 <Route path="/chat/group/:id" element={<Chat />} />
-                <Route path="/super-admin" element={<SuperAdminMePage />} />
+                <Route path="/super-admin" element={<WrappedRoute><SuperAdminMePage /></WrappedRoute>} />
 
                 {/* Test Expired UI within Dashboard */}
                 <Route

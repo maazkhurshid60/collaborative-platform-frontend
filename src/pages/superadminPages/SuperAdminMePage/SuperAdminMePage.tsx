@@ -1,356 +1,325 @@
 import { useEffect, useMemo, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { useDispatch } from "react-redux";
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import LabelData from "../../../components/labelText/LabelData";
+import Button from "../../../components/button/Button";
+import InputField from "../../../components/inputField/InputField";
+import Dropdown from "../../../components/dropdown/Dropdown";
+import Loader from "../../../components/loader/Loader";
+import BackIcon from "../../../components/icons/back/Back";
+import UserIcon from "../../../components/icons/user/User";
+import FileUploader from "../../../components/uploader/fileUploader/FileUploader";
+import CrossIcon from "../../../components/icons/cross/Cross";
+import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
+import { getCountryNameFromCode } from "../../../utils/GetCountryName";
+
 import {
   fetchSuperAdmin,
   updateSuperAdmin,
   SuperAdminMeResponse,
 } from "../../../apiServices/superAdmin/superAdmin";
+import { superAdminSchema } from "../../../schema/superAdminSchema/SuperAdminSchema";
+import { saveLoginUserDetailsReducer } from "../../../redux/slices/LoginUserDetailSlice";
 
-type InfoItemProps = { label: string; value?: string | number | null };
+type FormFields = z.infer<typeof superAdminSchema>;
 
-type FormState = {
-  fullName: string;
-  licenseNumber: string;
-  age: string;
-  email: string;
-  address: string;
-  country: string;
-  state: string;
-};
+const genderOptions = [
+  { value: "MALE", label: "Male" },
+  { value: "FEMALE", label: "Female" },
+];
 
 export default function SuperAdminMePage() {
-  const [data, setData] = useState<SuperAdminMeResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
+  const [isEdit, setIsEdit] = useState(false);
+  const [isLoader, setIsLoader] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageChanged, setImageChanged] = useState(false);
 
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
 
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string>("");
-  const [saveSuccess, setSaveSuccess] = useState<string>("");
-
-  const [form, setForm] = useState<FormState>({
-    fullName: "",
-    licenseNumber: "",
-    age: "",
-    email: "",
-    address: "",
-    country: "",
-    state: "",
+  const methods = useForm<FormFields>({
+    resolver: zodResolver(superAdminSchema),
+    mode: "onChange",
   });
 
-  useEffect(() => {
-    let mounted = true;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+    watch,
+  } = methods;
 
-    (async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const result = await fetchSuperAdmin();
+  const { data: adminData, isLoading, isError } = useQuery<SuperAdminMeResponse>({
+    queryKey: ["superAdminMe"],
+    queryFn: fetchSuperAdmin,
+  });
 
-        console.log("data", result)
-        if (mounted) setData(result);
-      } catch (e: any) {
-        if (mounted) setError(e?.message || "Something went wrong");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
+  const initialFormValues = useMemo(() => {
+    if (!adminData) return null;
+    const user = adminData.user ?? {};
 
-
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Sync form from fetched data (so Edit starts with current values)
-  useEffect(() => {
-    if (!data) return;
-    const user: any = data.user ?? {};
-
-    setForm({
-      fullName: user.fullName ?? user.name ?? "",
-      licenseNumber: user.licenseNumber ?? user.licenseNo ?? "",
-      age: user.age != null ? String(user.age) : "",
-      email: data.email ?? user.email ?? "",
-      address: user.address ?? user.streetAddress ?? "",
-      country: user.country ?? "",
-      state: user.state ?? user.province ?? "",
-    });
-  }, [data]);
-
-  function DefaultUserIcon({ className = "" }: { className?: string }) {
-    return (
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-        <path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" />
-      </svg>
-    );
-  }
-
-  const user = data?.user ?? {};
-
-  // Read-only mapping for display
-  const viewModel = useMemo(() => {
     return {
-      fullName: user?.fullName ?? user?.name ?? "—",
-      licenseNumber: user?.licenseNumber ?? user?.licenseNo ?? "—",
-      age: user?.age ?? "—",
-      email: data?.email ?? user?.email ?? "—",
-      address: user?.address ?? user?.streetAddress ?? "—",
-      country: user?.country ?? "—",
-      state: user?.state ?? user?.province ?? "—",
-      profileImage: user?.profileImage ?? user?.avatar ?? user?.imageUrl ?? null,
-    };
-  }, [data, user]);
+      fullName: user.fullName ?? "",
+      licenseNo: user.licenseNo ?? "",
+      age: Number(user.age ?? 0),
+      contactNo: user.contactNo ?? "",
+      email: user.email ?? "",
+      address: user.address ?? "",
+      country: user.country ?? "", // ISO2 code like "US"
+      state: user.state ?? "",
+      gender: user.gender ?? "MALE",
+    } as FormFields;
+  }, [adminData]);
 
-  async function onSave() {
-    if (!data) return;
-
-    try {
-      setSaving(true);
-      setSaveError("");
-      setSaveSuccess("");
-
-      const payload = {
-        fullName: form.fullName || undefined,
-        licenseNumber: form.licenseNumber || undefined,
-        age: form.age ? Number(form.age) : undefined,
-        address: form.address || undefined,
-        country: form.country || undefined,
-        state: form.state || undefined,
-        email: form.email || undefined,
-      };
-
-      const updated = await updateSuperAdmin(data.id, payload);
-
-      setData(updated);
-      setEditing(false);
-      setSaveSuccess("Profile updated successfully.");
-    } catch (e: any) {
-      setSaveError(e?.message || "Failed to update profile");
-    } finally {
-      setSaving(false);
+  useEffect(() => {
+    if (adminData && initialFormValues) {
+      reset(initialFormValues);
+      const img = adminData.user?.profileImage;
+      setPreviewUrl(img && img !== "null" ? img : null);
     }
-  }
+  }, [adminData, initialFormValues, reset]);
 
-  function onCancel() {
-    setEditing(false);
-    setSaveError("");
-    setSaveSuccess("");
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setShowUploader(false);
+    setImageChanged(true);
+  };
 
-    // Reset form back to data
-    if (!data) return;
-    const u: any = data.user ?? {};
-    setForm({
-      fullName: u.fullName ?? u.name ?? "",
-      licenseNumber: u.licenseNumber ?? u.licenseNo ?? "",
-      age: u.age != null ? String(u.age) : "",
-      email: data.email ?? u.email ?? "",
-      address: u.address ?? u.streetAddress ?? "",
-      country: u.country ?? "",
-      state: u.state ?? u.province ?? "",
-    });
-  }
+  const updateMutation = useMutation({
+    mutationFn: (data: FormData) => updateSuperAdmin(adminData!.id, data),
+    onMutate: () => setIsLoader(true),
+    onSuccess: (updatedData) => {
+      queryClient.invalidateQueries({ queryKey: ["superAdminMe"] });
+
+      // Update Redux so navbar and other components see the new data immediately
+      dispatch(saveLoginUserDetailsReducer(updatedData as any));
+
+      toast.success("Profile updated successfully");
+      setIsEdit(false);
+      setImageChanged(false);
+      setIsLoader(false);
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to update profile");
+      setIsLoader(false);
+    },
+  });
+
+  const onSubmit = (data: FormFields) => {
+    const formData = new FormData();
+    formData.append("fullName", data.fullName);
+    formData.append("licenseNumber", data.licenseNo); // Backend maps licenseNumber to licenseNo
+    formData.append("age", String(data.age));
+    formData.append("contactNo", data.contactNo);
+    formData.append("email", data.email);
+    formData.append("address", data.address);
+    formData.append("country", data.country);
+    formData.append("state", data.state);
+    formData.append("gender", data.gender);
+
+    if (imageChanged) {
+      if (selectedFile) {
+        formData.append("profileImage", selectedFile);
+      } else {
+        formData.append("profileImage", "null");
+      }
+    }
+
+    updateMutation.mutate(formData);
+  };
+
+  const handleEditClick = () => {
+    setIsEdit(true);
+    setShowUploader(false);
+    setImageChanged(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEdit(false);
+    setImageChanged(false);
+    setShowUploader(false);
+    setSelectedFile(null);
+    if (initialFormValues) reset(initialFormValues);
+    const img = adminData?.user?.profileImage;
+    setPreviewUrl(img && img !== "null" ? img : null);
+  };
+
+  if (isLoading) return <Loader text="Loading profile..." />;
+  if (isError) return <div className="p-10 text-center text-red-500">Failed to load profile.</div>;
 
   return (
-    <div className="w-full bg-white">
-      <div className="mx-auto w-full max-w-6xl px-6 py-8">
-        {/* Title + actions */}
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-semibold text-gray-900">User Profile</h1>
+    <OutletLayout
+      heading="User profile"
+      backButton={isEdit ? <BackIcon onClick={handleCancelEdit} /> : undefined}
+    >
+      {isLoader && <Loader text="Updating profile..." />}
 
-          {!loading && !error && data && (
-            <div className="flex items-center gap-3">
-              {saveError && <span className="text-xs text-red-600">{saveError}</span>}
-              {saveSuccess && <span className="text-xs text-green-600">{saveSuccess}</span>}
-
-              {!editing ? (
-                <button
-                  onClick={() => {
-                    setSaveError("");
-                    setSaveSuccess("");
-                    setEditing(true);
-                  }}
-                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-                >
-                  Edit
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={onCancel}
-                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    disabled={saving}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={onSave}
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={saving}
-                  >
-                    {saving ? "Saving…" : "Save"}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Loading / Error */}
-        {loading && (
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <div className="text-sm text-gray-600">Loading…</div>
-          </div>
-        )}
-
-        {!loading && error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-            <div className="text-sm font-medium text-red-800">Request failed</div>
-            <div className="mt-1 text-sm text-red-700">{error}</div>
-          </div>
-        )}
-
-        {/* Content */}
-        {!loading && !error && data && (
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[240px_1fr]">
-            {/* Left: Image */}
+      {isEdit ? (
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
             <div>
-              <div className="text-sm font-medium text-gray-900">User Image</div>
-
-              <div className="mt-4">
-                <div className="h-44 w-44 overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-sky-200 via-violet-200 to-indigo-200">
-                  {viewModel.profileImage ? (
+              <LabelData label="User Image" />
+              <div className="relative w-32 h-32">
+                {!showUploader ? (
+                  previewUrl ? (
                     <img
-                      src={viewModel.profileImage}
-                      alt="User"
-                      className="h-full w-full object-cover"
-                      referrerPolicy="no-referrer"
+                      src={previewUrl}
+                      alt="Profile"
+                      className="w-32 h-32 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-600">
-                      <DefaultUserIcon className="h-14 w-14 text-white/80" />
-                    </div>
-                  )}
-                </div>
+                    <UserIcon className="text-8xl text-textColor" />
+                  )
+                ) : (
+                  <FileUploader onFileSelect={handleFileSelect} />
+                )}
+
+                {!showUploader && (
+                  <CrossIcon
+                    onClick={() => {
+                      if (previewUrl) {
+                        setPreviewUrl(null);
+                        setSelectedFile(null);
+                        setImageChanged(true);
+                      } else {
+                        setShowUploader(true);
+                      }
+                    }}
+                  />
+                )}
               </div>
             </div>
 
-            {/* Right: Fields */}
-            <div className="space-y-10">
-              <div className="grid grid-cols-1 gap-y-8 gap-x-14 md:grid-cols-3">
-                {editing ? (
-                  <>
-                    <FormField
-                      label="Full Name"
-                      value={form.fullName}
-                      onChange={(v) => setForm((f) => ({ ...f, fullName: v }))}
-                    />
-                    <FormField
-                      label="License Number"
-                      value={form.licenseNumber}
-                      onChange={(v) => setForm((f) => ({ ...f, licenseNumber: v }))}
-                    />
-                    <FormField
-                      label="Age"
-                      value={form.age}
-                      type="number"
-                      onChange={(v) => setForm((f) => ({ ...f, age: v }))}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <InfoItem label="Full Name" value={viewModel.fullName} />
-                    <InfoItem label="License Number" value={viewModel.licenseNumber} />
-                    <InfoItem label="Age" value={viewModel.age} />
-                  </>
-                )}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
+              <InputField
+                required
+                label="Full Name"
+                register={register("fullName")}
+                placeHolder="Enter Full Name"
+                error={errors.fullName?.message}
+              />
 
-              <div className="grid grid-cols-1 gap-y-8 gap-x-14 md:grid-cols-3">
-                {editing ? (
-                  <>
-                    <FormField
-                      label="Email"
-                      value={form.email}
-                      type="email"
-                      onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-                    />
-                    <FormField
-                      label="Address"
-                      value={form.address}
-                      onChange={(v) => setForm((f) => ({ ...f, address: v }))}
-                    />
-                    <FormField
-                      label="Country"
-                      value={form.country}
-                      onChange={(v) => setForm((f) => ({ ...f, country: v }))}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <InfoItem label="Email" value={viewModel.email} />
-                    <InfoItem label="Address" value={viewModel.address} />
-                    <InfoItem label="Country" value={viewModel.country} />
-                  </>
-                )}
-              </div>
+              <InputField
+                required
+                label="License Number"
+                register={register("licenseNo")}
+                placeHolder="Enter License Number"
+                error={errors.licenseNo?.message}
+              />
 
-              <div className="grid grid-cols-1 gap-y-8 gap-x-14 md:grid-cols-3">
-                {editing ? (
-                  <FormField
-                    label="State"
-                    value={form.state}
-                    onChange={(v) => setForm((f) => ({ ...f, state: v }))}
-                  />
-                ) : (
-                  <InfoItem label="State" value={viewModel.state} />
-                )}
-              </div>
+              <InputField
+                required
+                label="Age"
+                type="number"
+                register={register("age")}
+                placeHolder="Enter Age"
+                error={errors.age?.message}
+              />
 
-              <div className="pt-2">
-                <div className="text-xs text-gray-500">SuperAdmin ID: {data.id}</div>
-                <div className="text-xs text-gray-500">User ID: {data.userId}</div>
+              <Dropdown<FormFields>
+                name="gender"
+                label="Gender"
+                control={control}
+                options={genderOptions}
+                placeholder="Select Gender"
+                error={errors.gender?.message}
+              />
+
+              <InputField
+                required
+                label="Email"
+                register={register("email")}
+                placeHolder="Enter Email"
+                error={errors.email?.message}
+              />
+
+              <InputField
+                required
+                label="Contact Number"
+                register={register("contactNo")}
+                placeHolder="Enter Contact Number"
+                error={errors.contactNo?.message}
+              />
+
+              <InputField
+                required
+                label="Address"
+                register={register("address")}
+                placeHolder="Enter Address"
+                error={errors.address?.message}
+              />
+
+              <CountryStateSelect
+                isCountryView={true}
+                isStateView={false}
+                defaultCountry={adminData?.user?.country}
+              />
+              <CountryStateSelect
+                isCountryView={false}
+                isStateView={true}
+                defaultState={adminData?.user?.state}
+              />
+            </div>
+
+            <div className="flex items-center justify-end">
+              <div className="w-[120px]">
+                <Button text={updateMutation.isPending ? "Updating..." : "Update"} sm />
               </div>
+            </div>
+          </form>
+        </FormProvider>
+      ) : (
+        <div className="mt-6 space-y-8">
+          <div>
+            <LabelData label="User Image" />
+            <div className="mt-3 relative w-32 h-32">
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-lg object-cover shadow-sm border border-gray-100"
+                />
+              ) : (
+                <UserIcon className="text-8xl text-textColor opacity-20" />
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
-function InfoItem({ label, value }: InfoItemProps) {
-  const display = value === null || value === undefined || value === "" ? "—" : String(value);
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 lg:grid-cols-3">
+            <LabelData label="Full Name" data={adminData?.user?.fullName} />
+            <LabelData label="License Number" data={adminData?.user?.licenseNo} />
+            <LabelData label="Age" data={adminData?.user?.age} />
+            <LabelData label="Gender" data={adminData?.user?.gender} />
+            <LabelData label="Email" data={adminData?.user?.email} />
+            <LabelData label="Contact Number" data={adminData?.user?.contactNo} />
+            <LabelData label="Address" data={adminData?.user?.address} />
+            <LabelData
+              label="Country"
+              data={getCountryNameFromCode(adminData?.user?.country ?? "")}
+            />
+            <LabelData label="State" data={adminData?.user?.state} />
+          </div>
 
-  return (
-    <div>
-      <div className="text-sm font-semibold text-gray-900">{label}</div>
-      <div className="mt-2 text-base text-gray-500">{display}</div>
-    </div>
-  );
-}
-
-function FormField({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-}) {
-  return (
-    <div>
-      <div className="text-sm font-semibold text-gray-900">{label}</div>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-      />
-    </div>
+          <div className="flex items-center justify-end pt-4">
+            <div className="w-[100px]">
+              <Button text="Edit" sm onclick={handleEditClick} />
+            </div>
+          </div>
+        </div>
+      )}
+    </OutletLayout>
   );
 }

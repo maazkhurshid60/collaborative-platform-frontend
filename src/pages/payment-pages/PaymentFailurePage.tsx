@@ -1,7 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronDown, CreditCard, X, Home, RefreshCcw } from "lucide-react";
-import logo from "../../../public/assets/logo.png";
-import profileImg from "../../../public/assets/profile-img.png";
 
 export const PaymentFailurePage = () => {
     const navigate = useNavigate();
@@ -11,38 +8,41 @@ export const PaymentFailurePage = () => {
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
             {/* Custom Header - Hide if in dashboard (token exists) */}
-            {!token && (
-                <header className="bg-white px-4 md:px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
-                    {/* Logo Section */}
-                    <div className="flex items-center gap-2">
-                        <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
-                    </div>
+            {
+                // !token && (
+                //     <header className="bg-white px-4 md:px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+                //         {/* Logo Section */}
+                //         <div className="flex items-center gap-2">
+                //             <img src={logo} alt="Kolabme" className="h-12 w-auto object-contain" />
+                //         </div>
 
-                    {/* Search Bar */}
-                    <div className="flex-1 max-w-[600px] mx-4 md:mx-10 hidden md:block">
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
-                            <input
-                                type="text"
-                                placeholder="Search by CNIC..."
-                                className="w-full bg-white border border-[#E2E8F0] rounded-full py-2.5 pl-12 pr-4 focus:outline-none focus:border-[#2C9993] focus:ring-1 focus:ring-[#2C9993] transition-all text-[#101828] placeholder-[#667085]"
-                            />
-                        </div>
-                    </div>
+                //         {/* Search Bar */}
+                //         <div className="flex-1 max-w-[600px] mx-4 md:mx-10 hidden md:block">
+                //             <div className="relative group">
+                //                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98A2B3] group-focus-within:text-[#2C9993] transition-colors" size={20} />
+                //                 <input
+                //                     type="text"
+                //                     placeholder="Search by CNIC..."
+                //                     className="w-full bg-white border border-[#E2E8F0] rounded-full py-2.5 pl-12 pr-4 focus:outline-none focus:border-[#2C9993] focus:ring-1 focus:ring-[#2C9993] transition-all text-[#101828] placeholder-[#667085]"
+                //                 />
+                //             </div>
+                //         </div>
 
-                    {/* User Profile */}
-                    <div className="flex items-center gap-3 cursor-pointer group">
-                        <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] overflow-hidden">
-                            <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
-                            <span className="text-[12px] text-[#667085]">Physiotherapist</span>
-                        </div>
-                        <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
-                    </div>
-                </header>
-            )}
+                //         {/* User Profile */}
+                //         <div className="flex items-center gap-3 cursor-pointer group">
+                //             <div className="w-10 h-10 rounded-full border-2 border-[#E2E8F0] overflow-hidden">
+                //                 <img src={profileImg} alt="John Doe" className="w-full h-full object-cover" />
+                //             </div>
+                //             <div className="flex flex-col">
+                //                 <span className="text-[14px] font-bold text-[#101828]">John Doe</span>
+                //                 <span className="text-[12px] text-[#667085]">Physiotherapist</span>
+                //             </div>
+                //             <ChevronDown size={18} className="text-[#667085] group-hover:text-[#101828] transition-colors" />
+                //         </div>
+                //     </header>
+                // )
+
+            }
 
             {/* Main Content Area */}
             <main className="w-full mx-auto px-4 md:px-6 py-12 lg:py-32 flex justify-center">
@@ -86,13 +86,13 @@ export const PaymentFailurePage = () => {
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
                         <button
-                            onClick={() => navigate("/dashboard")}
+                            onClick={() => navigate("/")}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white text-[#101828] font-medium text-[18px] md:text-[20px] hover:bg-[#F9FAFB] transition-all cursor-pointer"
                         >
                             <span>Go to Home</span>
                         </button>
                         <button
-                            onClick={() => navigate("/billing/change-plan")}
+                            onClick={() => navigate("/select-plan")}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl bg-[#2C9993] text-white font-medium text-[18px] md:text-[20px] hover:bg-[#237c76] shadow-lg shadow-[#2c9993]/20 transition-all cursor-pointer"
                         >
                             <span>Retry Payment</span>

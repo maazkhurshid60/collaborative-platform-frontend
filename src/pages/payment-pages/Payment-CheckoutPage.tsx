@@ -238,21 +238,19 @@ export const PaymentCheckoutPage = () => {
     const [customerId, setCustomerId] = useState("");
     const [isInitializing, setIsInitializing] = useState(false);
 
-    // Get logged-in user details if available
     const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
     const loggedInUser = userDetails?.user;
 
-    // Dynamic Pricing (Mock logic to match SelectPlan)
     const getPrice = () => {
-        if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 756; // 63 * 12 = 756
-        return billingCycle === 'MONTHLY' ? 29 : 278; // Standard Annual
+        if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 756;
+        return billingCycle === 'MONTHLY' ? 29 : 278;
     };
     const price = getPrice();
     const tax = 0;
     const total = price;
 
     const handleInitializePayment = async () => {
-        // If not logged in and no signup data, redirect back to signup
+
         if (!token && (!userData || !userData.email)) {
             toast.error("Please sign up first.");
             navigate("/provider-signup");
@@ -269,7 +267,6 @@ export const PaymentCheckoutPage = () => {
                 licenseNo: userData?.licenseNo
             };
 
-            console.log('💳 Initializing payment with data:', data);
             if (!data.email || !data.planType || !data.period) {
                 console.error('❌ Missing required fields:', {
                     email: data.email,
@@ -282,7 +279,6 @@ export const PaymentCheckoutPage = () => {
                 return;
             }
 
-            // 🔍 CHECK FOR CONFLICTS BEFORE PAYING (Signup only)
             if (!token) {
                 try {
                     const conflictRes = await authService.checkEmail(data.email, data.licenseNo);
@@ -299,7 +295,6 @@ export const PaymentCheckoutPage = () => {
                         setIsInitializing(false);
                         return;
                     }
-                    console.warn("⚠️ Conflict check failed, but proceeding...", conflictErr);
                 }
             }
 
@@ -341,16 +336,12 @@ export const PaymentCheckoutPage = () => {
 
     return (
         <div className="min-h-screen bg-[#F0F2F5] font-[Poppins]">
-            {/* Custom Header (Consistent across payment flow) - Hide if in dashboard (token exists) */}
 
-            {/* Main Content Area */}
             <main className="max-w-full mx-auto px-6 py-10 lg:py-16">
                 <div className="flex flex-col xl:flex-row gap-8">
 
-                    {/* Left Column: Plan & Pricing */}
                     <div className="w-full xl:w-[60%] flex flex-col gap-8">
 
-                        {/* Plan Summary Card */}
                         <div className="bg-white rounded-[12px] p-8 shadow-sm">
                             <div className="flex items-center justify-between mb-6">
                                 <h1 className="text-[32px] font-semibold text-[#101828]">Plan Summary</h1>

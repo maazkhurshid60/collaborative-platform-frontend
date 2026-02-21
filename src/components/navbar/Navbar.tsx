@@ -278,7 +278,7 @@ const Navbar = () => {
               </div>
             )}
             {previewUrl ? (
-              <img src={previewUrl} alt="User" crossOrigin="use-credentials" className="w-12 h-12 rounded-full object-cover" />
+              <img src={previewUrl} alt="User" className="w-12 h-12 rounded-full object-cover" />
             ) : (
               <UserIcon className="text-[32px] w-12 h-12 md:text-[40px] lg:text-[48px]" />
             )}
