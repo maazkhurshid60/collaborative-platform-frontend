@@ -251,7 +251,6 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                         <div className=' '>
                             <LabelData label='List of Providers' />
-                            <ul className='text-[14px] font-medium text-textGreyColor list-disc ' />
                             <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
                                 {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
                                     ? <p>No Providers Found</p>

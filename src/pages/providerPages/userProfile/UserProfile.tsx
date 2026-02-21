@@ -28,6 +28,7 @@ import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
 
 import { Country } from "country-state-city";
+import { useNavigate } from "react-router-dom";
 
 type FormFields = z.infer<typeof providerSchema>;
 
@@ -69,6 +70,7 @@ function getCountryIsoCode(val?: string | null) {
 
 const UserProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
+  const navigate = useNavigate();
 
   const isShowDeleteModal = useSelector(
     (state: RootState) => state.modalSlice.isModalDelete
@@ -293,7 +295,13 @@ const UserProfile = () => {
   return (
     <OutletLayout
       heading="User profile"
-      backButton={isEdit ? <BackIcon onClick={handleCancelEdit} /> : null}
+      backButton={
+        isEdit ? (
+          <BackIcon onClick={handleCancelEdit} />
+        ) : (
+          <BackIcon onClick={() => navigate(-1)} />
+        )
+      }
     >
       {isLoader && <Loader text="Updating..." />}
       {isShowDeleteModal && <DeleteClientModal />}

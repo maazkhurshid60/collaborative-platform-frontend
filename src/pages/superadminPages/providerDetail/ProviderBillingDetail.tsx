@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import DeleteProviderBilling from "../../../components/modals/superAdminModal/deleteProviderBilling/DeleteProviderBilling";
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi";
 import { toast } from "react-toastify";
+import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf";
 
 const ProviderBillingDetail = () => {
     const { id } = useParams()
@@ -60,14 +61,36 @@ const ProviderBillingDetail = () => {
         fetchAllData();
     }, [id]);
 
-    const getStatusColor = (status: string) => {
-        const lower = status?.toLowerCase();
+    const formatStatus = (status: string): string => {
+        if (!status) return "Unknown";
+        const lower = status.toLowerCase();
         switch (lower) {
-            case "succeeded":
-            case "success": return "bg-green-100 text-green-700";
-            case "pending": return "bg-yellow-100 text-yellow-700";
-            case "failed": return "bg-red-100 text-red-700";
-            case "refunded": return "bg-gray-100 text-gray-700";
+            case "succeeded": return "Paid";
+            case "active": return "Active";
+            case "trialing": return "Trial";
+            case "pending": return "Pending";
+            case "failed": return "Failed";
+            case "refunded": return "Refunded";
+            case "canceled":
+            case "cancelled": return "Canceled";
+            case "incomplete": return "Incomplete";
+            case "past_due": return "Past Due";
+            default: return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+        }
+    };
+
+    const getStatusColor = (status: string) => {
+        const label = formatStatus(status);
+        switch (label) {
+            case "Paid":
+            case "Active": return "bg-green-100 text-green-700";
+            case "Trial": return "bg-blue-100 text-blue-700";
+            case "Pending":
+            case "Incomplete": return "bg-yellow-100 text-yellow-700";
+            case "Failed":
+            case "Past Due": return "bg-red-100 text-red-700";
+            case "Refunded":
+            case "Canceled": return "bg-gray-100 text-gray-700";
             default: return "bg-inputBgColor text-textColor";
         }
     };
@@ -143,7 +166,7 @@ const ProviderBillingDetail = () => {
                     qty: "01",
                     price: formattedAmount,
                     amount: formattedAmount,
-                    status: data.status || "Paid"
+                    status: formatStatus(data.status) || "Paid"
                 }
             ],
             subtotal: formattedAmount,
@@ -228,7 +251,7 @@ const ProviderBillingDetail = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Total Revenue</p>
-                            <p className="text-[18px] font-medium text-(--color-transaction-summary-text)">{formatCurrency(totalRevenue)}</p>
+                            <p className="text-[18px] font-medium text-[#2C9993]">{formatCurrency(totalRevenue)}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Full Name</p>
@@ -367,52 +390,42 @@ const ProviderBillingDetail = () => {
                                     className="border-b border-b-solid border-b-lightGreyColor"
                                 >
                                     {/* Date */}
-                                    <td className="px-2 py-3 align-middle">
+                                    <td className="px-4 py-3 align-middle">
                                         <div className="flex items-center gap-x-4">
                                             {formatDate(data.createdAt)}
                                         </div>
                                     </td>
 
                                     {/* Invoice */}
-                                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                                         <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "-"}</p>
                                     </td>
 
                                     {/* Description */}
-                                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                                         {data.plan || "Subscription Payment"}
                                     </td>
 
                                     {/* Amount */}
-                                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                                         {formatCurrency(data.amount)}
                                     </td>
 
                                     {/* Status */}
-                                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                                         <span
                                             className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
                                         >
                                             <GoDotFill
                                                 className="text-base"
                                             />
-                                            {data.status}
+                                            {formatStatus(data.status)}
                                         </span>
                                     </td>
 
-                                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                                         <div className="flex items-center justify-start gap-x-2">
-                                            <Download
-                                                size={24}
-                                                className="cursor-pointer"
-                                                color="#808B97"
-                                                onClick={() => {
-                                                    setSelectedInvoiceId(data.id);
-                                                    setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
-                                                    setShowInvoiceModal(true);
-                                                    setAutoDownload(true);
-                                                }}
-                                            />
+
                                             <Eye
                                                 size={24}
                                                 color="#808B97"
@@ -424,7 +437,15 @@ const ProviderBillingDetail = () => {
                                                     setAutoDownload(false);
                                                 }}
                                             />
-
+                                            <Download
+                                                size={24}
+                                                className="cursor-pointer"
+                                                color="#808B97"
+                                                onClick={async () => {
+                                                    const invoice = mapPrismaPaymentToInvoice(data);
+                                                    if (invoice) await downloadInvoicePdf(invoice);
+                                                }}
+                                            />
                                         </div>
                                     </td>
                                 </tr>
@@ -444,7 +465,14 @@ const ProviderBillingDetail = () => {
                 autoDownload={autoDownload}
             />
             {showDeleteModal && (
-                <DeleteProviderBilling onClose={() => setShowDeleteModal(false)} />
+                <DeleteProviderBilling
+                    onClose={() => setShowDeleteModal(false)}
+                    onConfirm={async () => {
+                        if (!subscription?.id) throw new Error("No subscription ID found");
+                        await superAdminApi.deleteSubscription(subscription.id);
+                        navigate("/billing-management");
+                    }}
+                />
             )}
         </div>
     )

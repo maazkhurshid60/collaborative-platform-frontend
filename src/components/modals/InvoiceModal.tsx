@@ -41,7 +41,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
             subtotal: "$49.00",
             tax: "$0.00",
             total: "$49.00",
-            notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025."
+            notes: "Thank you for your business! Your subscription will automatically renew on March 15, 2025. If you have any questions about this invoice, please contact our support team."
         };
     }, [invoiceData, invoiceId]);
 

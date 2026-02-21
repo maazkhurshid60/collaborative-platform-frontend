@@ -1,11 +1,29 @@
 import React, { useState } from 'react';
-import { X, Check } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface RenewalSuccessfullModalProps {
+    /** Name of the plan that was renewed (e.g. "Standard", "Pro") */
+    planName?: string;
+    /** The formatted next billing date string (e.g. "March 15, 2026") */
+    nextBillingDate?: string;
+    /** Amount billed (e.g. "$29.00") */
+    amountBilled?: string;
+    /** Called when the modal is dismissed / closed */
     onClose?: () => void;
+    /** Called when "Manage Subscription" button is clicked */
+    onManageSubscription?: () => void;
+    /** Called when "View Receipt" button is clicked */
+    onViewReceipt?: () => void;
 }
 
-const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({ onClose }) => {
+const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({
+    planName = 'Standard',
+    nextBillingDate,
+    amountBilled,
+    onClose,
+    onManageSubscription,
+    onViewReceipt,
+}) => {
     const [isVisible, setIsVisible] = useState(true);
 
     const handleClose = () => {
@@ -13,12 +31,21 @@ const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({ onClo
         onClose?.();
     };
 
-    if (!isVisible) return null;
+    const handleManageSubscription = () => {
+        onManageSubscription?.();
+        handleClose();
+    };
 
+    const handleViewReceipt = () => {
+        onViewReceipt?.();
+        handleClose();
+    };
+
+    if (!isVisible) return null;
 
     return (
         <div
-            className="fixed inset-0 bg-textColor/70 z-50 overflow-y-auto p-4 "
+            className="fixed inset-0 bg-textColor/70 z-50 overflow-y-auto p-4"
             onClick={handleClose}
         >
             <div className="flex min-h-full items-center justify-center">
@@ -26,16 +53,15 @@ const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({ onClo
                     className="bg-white w-[766px] max-w-full rounded-[32px] p-10 relative shadow-2xl flex flex-col items-center"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className='flex flex-col items-center justify-end gap-y-2'>
-                        {/* Close Button */}
-                        <button
-                            onClick={handleClose}
-                            className="absolute top-8 right-8 text-[#101828] hover:opacity-70 cursor-pointer transition-all"
-                        >
-                            <X size={32} strokeWidth={2.5} />
-                        </button>
+                    {/* Close Button */}
+                    <button
+                        onClick={handleClose}
+                        className="absolute top-8 right-8 text-[#101828] hover:opacity-70 cursor-pointer transition-all"
+                        aria-label="Close renewal success modal"
+                    >
+                        <X size={32} strokeWidth={2.5} />
+                    </button>
 
-                    </div>
                     <div className="w-full border mt-8 border-[#E2E8F0]" />
 
                     {/* Header Icon */}
@@ -88,27 +114,47 @@ const RenewalSuccessfullModal: React.FC<RenewalSuccessfullModalProps> = ({ onClo
                         </svg>
                     </div>
 
-
+                    {/* Title */}
                     <h2 className="text-[24px] font-semibold text-[#101828] font-[Poppins] mb-1 text-center">
                         Renewal Successful
                     </h2>
-                    <p className="text-[16px] text-[#667085] font-normal font-[Poppins] mb-8 text-center">
-                        Your subscription has been successfully renewed. Thank you for continuing with us! Your next billing date is March 15, 2025.
+
+                    {/* Dynamic description */}
+                    <p className="text-[16px] text-[#667085] font-normal font-[Poppins] mb-2 text-center">
+                        Your{' '}
+                        <span className="font-semibold text-[#101828]">{planName} Plan</span>{' '}
+                        subscription has been successfully renewed. Thank you for continuing with us!
                     </p>
+
+                    {/* Info pills */}
+                    <div className="flex flex-wrap items-center justify-center gap-3 mb-8 mt-3">
+                        {nextBillingDate && (
+                            <div className="flex items-center gap-2 bg-[#F0FDF4] border border-[#D1FAE5] rounded-full px-4 py-1.5">
+                                <span className="text-[13px] text-[#667085] font-[Poppins]">Next billing date</span>
+                                <span className="text-[13px] font-semibold text-[#101828] font-[Poppins]">{nextBillingDate}</span>
+                            </div>
+                        )}
+                        {amountBilled && (
+                            <div className="flex items-center gap-2 bg-[#F0FDF4] border border-[#D1FAE5] rounded-full px-4 py-1.5">
+                                <span className="text-[13px] text-[#667085] font-[Poppins]">Amount charged</span>
+                                <span className="text-[13px] font-semibold text-[#101828] font-[Poppins]">{amountBilled}</span>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Footer Buttons */}
                     <div className="flex flex-row gap-6 w-full mt-auto">
                         <button
-                            onClick={handleClose}
+                            onClick={handleManageSubscription}
                             className="flex-1 h-[60px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all"
                         >
                             Manage Subscription
                         </button>
                         <button
-                            onClick={handleClose}
+                            onClick={handleViewReceipt}
                             className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
                         >
                             View Receipt
-
                         </button>
                     </div>
                 </div>

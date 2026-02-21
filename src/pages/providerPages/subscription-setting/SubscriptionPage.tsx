@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CancelSubscriptionModal from "../../../components/modals/providerModal/cancel-subscription/CancelSubscriptionModal";
+import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { isCancelSubscriptionModalShowReducer } from "../../../redux/slices/ModalSlice";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +18,6 @@ export const SubscriptionSettingPage = () => {
     // Get user and subscription data from Redux
     const user = useSelector((state: RootState) => state.LoginUserDetail.userDetails.user);
     const userEmail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.email);
-    console.log(userEmail, "userEmail");
     const userSubscription = user?.subscription;
 
     const currentPlanName = userSubscription?.plan || 'STANDARD';
@@ -77,13 +77,55 @@ export const SubscriptionSettingPage = () => {
         queryFn: subscriptionApiService.getAllPayments
     });
 
-    const transformedHistory = billingHistory?.map((payment: any) => ({
+    // Raw payment objects from API (contain billTo, items etc. for invoice)
+    const rawPayments: any[] = billingHistory || [];
+
+    const transformedHistory = rawPayments.map((payment: any) => ({
         id: payment.id,
         plan: payment.plan || "Standard",
         amount: payment.rawAmount ? `$${payment.rawAmount.toFixed(2)}` : (payment.amount || "$0.00"),
         date: formatDate(payment.createdAt || payment.date),
-        status: payment.status || "Paid"
+        status: payment.status || "Paid",
+        // keep full data for invoice
+        _raw: payment,
     })) || [];
+
+    // Resolve billing email: prefer Redux store, fall back to first payment's billTo.email
+    const emailFromPayment = rawPayments[0]?.billTo?.email;
+    const resolvedBillingEmail = (userEmail && userEmail !== "-" && userEmail !== "")
+        ? userEmail
+        : (emailFromPayment || "-");
+
+    const handleDownloadInvoice = async (payment: any) => {
+        const raw = payment._raw || payment;
+        const invoiceData = {
+            invoiceNo: raw.invoiceNo || `INV-${raw.id?.split('-')[0]?.toUpperCase() || '0000'}`,
+            date: raw.date || formatDate(raw.createdAt),
+            dueDate: raw.dueDate || raw.date || formatDate(raw.createdAt),
+            billTo: raw.billTo || {
+                name: user?.fullName || "-",
+                email: resolvedBillingEmail,
+                address: user?.address || "-",
+                city: "-",
+            },
+            items: raw.items || [
+                {
+                    description: `${raw.plan || "Standard"} Plan`,
+                    subtext: `Subscription`,
+                    qty: "01",
+                    price: raw.amount || "$0.00",
+                    amount: raw.amount || "$0.00",
+                    status: raw.status === "paid" ? "Paid" : "Pending",
+                }
+            ],
+            subtotal: raw.subtotal || raw.amount || "$0.00",
+            tax: raw.tax || "$0.00",
+            total: raw.total || raw.amount || "$0.00",
+            notes: raw.notes || "Thank you for your business!",
+        };
+        // Download directly — no modal
+        await downloadInvoicePdf(invoiceData);
+    };
 
     const subscriptionPageData = {
         title: "Subscription Overview",
@@ -120,12 +162,12 @@ export const SubscriptionSettingPage = () => {
         nextBillingDate: formatDate(userSubscription?.currentPeriodEnd || userSubscription?.trialEnd),
         billingCycle: isAnnual ? "Yearly" : (userSubscription?.currentPeriodEnd ? "Monthly" : "Trial"),
         amountDue: isAnnual ? `$${activePlan.annualPrice}/yr` : `$${activePlan.monthlyPrice}/mo`,
-        billingEmail: userEmail || "-",
+        billingEmail: resolvedBillingEmail,
         billingAddress: user?.address || "-",
         billingHistory: transformedHistory
     };
 
-    console.log(subscriptionData);
+
     return (
         <div className="flex flex-col gap-6 pb-10">
             <div className={` bg-white relative  w-full p-3  pt-5 rounded-lg space-y-7   
@@ -254,7 +296,12 @@ export const SubscriptionSettingPage = () => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-between gap-x-2">
-                                                <Download color="#2C9993" size={24} className="cursor-pointer" />
+                                                <Download
+                                                    color="#2C9993"
+                                                    size={24}
+                                                    className="cursor-pointer hover:opacity-70 transition-opacity"
+                                                    onClick={() => handleDownloadInvoice(history)}
+                                                />
                                                 <p className="font-[Releway] text-[20px] font-bold leading-1.5 text-black" >{history.amount}</p>
                                             </div>
                                         </div>

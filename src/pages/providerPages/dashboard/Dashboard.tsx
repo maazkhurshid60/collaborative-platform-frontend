@@ -38,19 +38,20 @@ const Dashboard = () => {
     });
 
     const { data: totalNoOfClient = 0, isLoading: isLoadingClients, isError: isErrorClients } = useQuery<number>({
-        queryKey: ['totalclients'],
+        queryKey: ['totalclients', loginUserId],
         queryFn: async () => {
             try {
                 const response = await clientApiService.getAllClient(loginUserId);
                 const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
                     client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId)
                 );
-                return matchedClient?.length; // Ensure it always returns an array
+                return matchedClient?.length ?? 0;
             } catch (error) {
-                console.error("Error fetching providers:", error);
-                return [];
+                console.error("Error fetching clients:", error);
+                return 0;
             }
-        }
+        },
+        enabled: Boolean(loginUserId),
     })
 
     useEffect(() => {

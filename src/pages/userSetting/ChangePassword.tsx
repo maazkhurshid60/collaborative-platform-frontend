@@ -47,31 +47,25 @@ const ChangePassword = () => {
     return (
         <>
             {isLoading && <Loader />}
-            <div className='relative'>
-                <div className='absolute top-0 left-0'>
+            <OutletLayout heading='Settings' backButton={<BackIcon onClick={() => navigate(-1)} />}>
+                <form
+                    onSubmit={handleSubmit(changePasswordFunc)}
+                    className='mt-6'
+                >
+                    <div className='grid lg:grid-cols-3 gap-y-3 gap-x-4'>
+                        <InputField label='Old Password' required type='password' register={register('oldPassword')} error={errors?.oldPassword?.message} placeHolder='Enter old password' />
+                        <InputField label='New Password' required type='password' register={register('newPassword')} error={errors?.newPassword?.message} placeHolder='Enter new password' />
+                        <InputField label='Confirm Password' required type='password' register={register('confirmPassword')} error={errors.confirmPassword?.message} placeHolder=' Enter confirm password' />
+                    </div>
 
-                    <BackIcon onClick={() => navigate(-1)} />
-                </div>
-                <OutletLayout heading='Settings'>
-                    <form
-                        onSubmit={handleSubmit(changePasswordFunc)}
-                        className='mt-6'
-                    >
-                        <div className='grid lg:grid-cols-3 gap-y-3 gap-x-4'>
-                            <InputField label='Old Password' required type='password' register={register('oldPassword')} error={errors?.oldPassword?.message} placeHolder='Enter old password' />
-                            <InputField label='New Password' required type='password' register={register('newPassword')} error={errors?.newPassword?.message} placeHolder='Enter new password' />
-                            <InputField label='Confirm Password' required type='password' register={register('confirmPassword')} error={errors.confirmPassword?.message} placeHolder=' Enter confirm password' />
+                    <div className='flex justify-end  w-full mt-6'>
+                        <div className='w-[100px]' >
+                            <Button text='Save' sm />
                         </div>
+                    </div>
 
-                        <div className='flex justify-end  w-full mt-6'>
-                            <div className='w-[100px]' >
-                                <Button text='Save' sm />
-                            </div>
-                        </div>
-
-                    </form>
-                </OutletLayout >
-            </div>
+                </form>
+            </OutletLayout>
         </>
     )
 }

@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 interface DeleteProviderBillingProps {
     onClose?: () => void;
+    onConfirm?: () => Promise<void>;
 }
 
-const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }) => {
-    const [isVisible, setIsVisible] = useState(true);
+const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose, onConfirm }) => {
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleClose = () => {
-        setIsVisible(false);
         onClose?.();
     };
 
-    if (!isVisible) return null;
+    const handleConfirm = async () => {
+        if (!onConfirm) return;
+        try {
+            setIsDeleting(true);
+            await onConfirm();
+            toast.success("Provider billing deleted successfully");
+            onClose?.();
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to delete. Please try again.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <div
@@ -21,7 +35,7 @@ const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }
             onClick={handleClose}
         >
             <div
-                className="bg-white w-full max-w-[500px] rounded-[24px] p-8 relative shadow-2xl"
+                className="bg-white w-full max-w-[650px] rounded-[24px] p-8 relative shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
@@ -32,8 +46,9 @@ const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }
                     <X size={24} />
                 </button>
 
+                <hr className="border-[#E5E7EB] mt-8" />
                 <div className="flex flex-col items-center pt-4">
-                    {/* Warning Icon with red gradient background */}
+                    {/* Warning Icon */}
                     <div className="relative mb-6">
                         <div className="w-[100px] h-[100px] rounded-full bg-red-100 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="116" height="116" viewBox="0 0 116 116" fill="none">
@@ -42,11 +57,11 @@ const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }
                                 <path d="M53 73C53.663 73 54.2989 72.7366 54.7678 72.2678C55.2366 71.7989 55.5 71.163 55.5 70.5V55.5C55.5 54.837 55.2366 54.2011 54.7678 53.7322C54.2989 53.2634 53.663 53 53 53C52.337 53 51.7011 53.2634 51.2322 53.7322C50.7634 54.2011 50.5 54.837 50.5 55.5V70.5C50.5 71.163 50.7634 71.7989 51.2322 72.2678C51.7011 72.7366 52.337 73 53 73Z" fill="white" />
                                 <path d="M63 73C63.663 73 64.2989 72.7366 64.7678 72.2678C65.2366 71.7989 65.5 71.163 65.5 70.5V55.5C65.5 54.837 65.2366 54.2011 64.7678 53.7322C64.2989 53.2634 63.663 53 63 53C62.337 53 61.7011 53.2634 61.2322 53.7322C60.7634 54.2011 60.5 54.837 60.5 55.5V70.5C60.5 71.163 60.7634 71.7989 61.2322 72.2678C61.7011 72.7366 62.337 73 63 73Z" fill="white" />
                                 <g filter="url(#filter0_d_2964_3275)">
-                                    <circle cx="58.1119" cy="58.3726" r="49.9367" stroke="white" stroke-opacity="0.7" stroke-width="1.46568" />
+                                    <circle cx="58.1119" cy="58.3726" r="49.9367" stroke="white" strokeOpacity="0.7" strokeWidth="1.46568" />
                                 </g>
                                 <defs>
-                                    <filter id="filter0_d_2964_3275" x="4.51101" y="6.97028" width="107.202" height="107.202" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <filter id="filter0_d_2964_3275" x="4.51101" y="6.97028" width="107.202" height="107.202" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                                        <feFlood floodOpacity="0" result="BackgroundImageFix" />
                                         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                                         <feOffset dy="2.19853" />
                                         <feGaussianBlur stdDeviation="1.46568" />
@@ -55,33 +70,35 @@ const DeleteProviderBilling: React.FC<DeleteProviderBillingProps> = ({ onClose }
                                         <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2964_3275" result="shape" />
                                     </filter>
                                     <linearGradient id="paint0_linear_2964_3275" x1="57.9499" y1="0" x2="57.9499" y2="115.9" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#EA6A6A" />
-                                        <stop offset="1" stop-color="#992C2C" />
+                                        <stop stopColor="#EA6A6A" />
+                                        <stop offset="1" stopColor="#992C2C" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                         </div>
                     </div>
 
-
                     <h2 className="text-[28px] font-bold text-[#101828] font-[Poppins] mb-3 text-center leading-tight">
                         Delete Provider Billing
                     </h2>
                     <p className="text-[16px] text-[#666666] font-[Poppins] mb-10 text-center max-w-[340px]">
-                        Are you sure you want to delete provider billing!
+                        Are you sure you want to delete this provider's billing record? This action cannot be undone.
                     </p>
 
                     <div className="flex flex-row gap-4 w-full">
                         <button
                             onClick={handleClose}
-                            className="flex-1 h-[60px] border-2 border-[#2C9993] text-[#2C9993] rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/5 transition-all"
+                            disabled={isDeleting}
+                            className="flex-1 h-[60px] border-2 border-[#2C9993] text-[#2C9993] rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/5 transition-all disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button
-                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-[0_4px_14px_0_rgba(44,153,147,0.39)]"
+                            onClick={handleConfirm}
+                            disabled={isDeleting}
+                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-md disabled:opacity-70"
                         >
-                            Yes, Delete
+                            {isDeleting ? "Deleting..." : "Yes, Delete"}
                         </button>
                     </div>
                 </div>

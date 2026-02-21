@@ -134,17 +134,17 @@ const Providers = () => {
                     className="border-b-[1px] border-b-solid border-b-lightGreyColor"
                   >
                     {/* S.No. */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                       {serialNo}
                     </td>
 
                     {/* Name */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                       {data?.user?.fullName}
                     </td>
 
                     {/* License */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                    <td className="px-4 py-3 align-middle whitespace-nowrap">
                       {data?.user?.licenseNo}
                     </td>
 
@@ -154,7 +154,7 @@ const Providers = () => {
                     </td>
 
                     {/* Email */}
-                    <td className="px-2 py-3 align-middle">
+                    <td className="px-4 py-3 align-middle">
                       <span className="block max-w-[260px] truncate lowercase" title={data?.email}>
                         {data?.user?.email}
                       </span>
@@ -166,7 +166,7 @@ const Providers = () => {
                     </td>
 
                     {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
-                    <td className="px-2 py-3 align-middle">
+                    <td className="px-4 py-3 align-middle">
                       {data?.clientList === undefined ||
                         data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
                           .length === 0 ? (
@@ -200,8 +200,8 @@ const Providers = () => {
                     </td>
 
                     {/* Action (fixed padding + centered icon) */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
-                      <div className="flex items-center justify-center">
+                    <td className="px-4 py-3 align-middle whitespace-nowrap">
+                      <div className="flex items-center justify-start">
                         <Link to={`/providers/${data?.id}`}>
                           <ViewIcon />
                         </Link>

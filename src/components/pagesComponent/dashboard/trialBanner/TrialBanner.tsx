@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import DeleteProviderModal from '../../../modals/DeleteProviderModal';
+import { useNavigate } from 'react-router-dom';
 
 const TrialBanner: React.FC = () => {
-    const [isVisible, setIsVisible] = useState(true);
-    const [showTrialEndModal, setShowTrialEndModal] = useState(false);
+    const navigate = useNavigate();
 
     // PRODUCTION FIX: Read from Redux store
     const loginUserDetail = useSelector((state: any) => state?.LoginUserDetail);
@@ -43,6 +42,8 @@ const TrialBanner: React.FC = () => {
         });
     }, [subscription, daysRemaining, shouldShowBanner]);
 
+    const [isVisible, setIsVisible] = React.useState(true);
+
     if (!isVisible || !shouldShowBanner) return null;
 
     return (
@@ -57,7 +58,7 @@ const TrialBanner: React.FC = () => {
                     </p>
                     <div className="flex gap-3">
                         <button
-                            onClick={() => setShowTrialEndModal(true)}
+                            onClick={() => navigate('/select-plan')}
                             className="bg-[#FFB020] text-white px-6 py-2 rounded-[8px] font-medium cursor-pointer text-[14px] font-[Poppins] hover:bg-[#FFB020]/90 transition-colors"
                         >
                             Upgrade now
@@ -182,9 +183,6 @@ const TrialBanner: React.FC = () => {
                     </svg>
                 </div>
             </div>
-            {showTrialEndModal && (
-                <DeleteProviderModal onClose={() => setShowTrialEndModal(false)} />
-            )}
         </>
     );
 };

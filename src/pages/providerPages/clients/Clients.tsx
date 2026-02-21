@@ -75,7 +75,7 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
-    queryKey: ["clients"],
+    queryKey: ["clients", loginUserId?.user?.id],
     queryFn: async () => {
       try {
         const response = await clientApiService.getAllClient(loginUserId?.user?.id);
@@ -85,6 +85,7 @@ const Clients = () => {
         return [];
       }
     },
+    enabled: Boolean(loginUserId?.user?.id),
   });
 
   const deleteMutation = useMutation({

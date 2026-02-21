@@ -1,7 +1,6 @@
 
 
 import React, { useMemo, useState } from "react";
-import { IoDocumentText } from "react-icons/io5";
 import { FaFilePdf } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 import { toast } from "react-toastify";
@@ -25,8 +24,6 @@ import { z } from "zod";
 
 const allowedTypes = [
   "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ] as const;
 
 const MAX_MB = 10;
@@ -51,7 +48,6 @@ function formatMB(bytes: number) {
 
 function getFriendlyFileType(mime: string) {
   if (mime === "application/pdf") return "PDF";
-  if (mime.includes("word")) return "Word";
   return mime || "File";
 }
 
@@ -87,7 +83,7 @@ const ModalBodyContent: React.FC = () => {
   });
 
   const helperText = useMemo(
-    () => `Allowed: PDF, DOC, DOCX • Max size: ${MAX_MB}MB`,
+    () => `Only PDF files are allowed • Max size: ${MAX_MB}MB`,
     []
   );
 
@@ -96,16 +92,11 @@ const ModalBodyContent: React.FC = () => {
   const handleFileSelect = (file: File) => {
     setStatusMsg("");
 
-    // Validate type
+    // Validate type — PDF only
     const isPDF = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-    const isWord = file.type.includes("word") ||
-      file.type === "application/msword" ||
-      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-      file.name.toLowerCase().endsWith(".doc") ||
-      file.name.toLowerCase().endsWith(".docx");
 
-    if (!isPDF && !isWord) {
-      const msg = "Only PDF or Word documents are allowed.";
+    if (!isPDF) {
+      const msg = "Only PDF files are allowed.";
       toast.error(msg);
       setStatusMsg(msg);
       return;
@@ -120,13 +111,9 @@ const ModalBodyContent: React.FC = () => {
     }
 
     setSelectedFile(file);
+    setFileIconComponent(() => FaFilePdf);
 
-    // Set icon
-    if (isPDF) setFileIconComponent(() => FaFilePdf);
-    else if (isWord) setFileIconComponent(() => IoDocumentText);
-    else setFileIconComponent(null);
-
-    const ok = "File selected and validated.";
+    const ok = "PDF selected and validated.";
     toast.success(ok);
     setStatusMsg(ok);
   };
@@ -147,9 +134,9 @@ const ModalBodyContent: React.FC = () => {
       return;
     }
 
-    // Safety: re-check size/type
+    // Safety: re-check type (PDF only)
     if (!allowedTypes.includes(selectedFile.type as (typeof allowedTypes)[number])) {
-      const msg = "Only PDF or Word documents are allowed.";
+      const msg = "Only PDF files are allowed.";
       toast.error(msg);
       setStatusMsg(msg);
       return;
@@ -248,7 +235,7 @@ const ModalBodyContent: React.FC = () => {
           <div className="mt-3">
             <FileUploader
               onFileSelect={handleFileSelect}
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              accept=".pdf,application/pdf"
             />
             {statusMsg ? <p className="text-xs mt-2 text-red-600">{statusMsg}</p> : null}
           </div>

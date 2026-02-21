@@ -158,7 +158,7 @@ export default function ChangePlanScreen() {
                             <div>
                                 <p className="text-sm text-[#666666] font-[Poppins]">Billing Cycle</p>
                                 <p className="text-lg font-semibold text-[#101828] font-[Poppins]">
-                                    {isTrialing ? 'Trial' : 'Monthly'}
+                                    {isTrialing ? 'Trial' : billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}
                                 </p>
                             </div>
                         </div>

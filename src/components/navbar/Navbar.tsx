@@ -211,7 +211,7 @@ const Navbar = () => {
     <div className="bg-white">
       {isLoader && <Loader text="Adding..." />}
 
-      <div className="flex w-full items-center justify-between xl:justify-end xl:gap-x-96 bg-white px-3 py-3">
+      <div className="flex w-full items-center justify-between xl:justify-between xl:gap-x-96 bg-white px-3 py-3">
 
         <div className="block md:hidden">
           {isSideBarClose === false && <IoMdMenu size={24} onClick={() => dispatch(isSideBarCloseReducser(true))} />}

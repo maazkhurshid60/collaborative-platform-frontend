@@ -4,15 +4,16 @@ import CustomPagination from "../../../components/customPagination/CustomPaginat
 import { GoDotFill } from "react-icons/go"
 import { Download as DownloadIcon, UserIcon } from "lucide-react"
 import ViewIcon from "../../../components/icons/view/View"
-import DeleteIcon, { EditIcon } from "../../../components/icons/delete/DeleteIcon"
+import DeleteIcon from "../../../components/icons/delete/DeleteIcon"
+import DownloadIconComponent from "../../../components/icons/download/Download"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice"
 import { useDispatch, useSelector } from "react-redux"
-import getProfileImage from "../../../../public/assets/profile-img.png"
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi"
 //import DeleteSubscriptionModal from "../../../components/modals/superAdminModal/deleteSubscriptionModal/DeleteSubscriptionModal"
 import InvoiceModal from "../../../components/modals/InvoiceModal"
+import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf"
 import { RootState } from "../../../redux/store"
 import { toast } from "react-toastify"
 import DeleteProviderModal from "../../../components/modals/DeleteProviderModal"
@@ -30,7 +31,6 @@ const SubscriptionPage = () => {
     const [loading, setLoading] = useState(true);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
-    const [autoDownload, setAutoDownload] = useState(false);
 
     const recordsPerPage = 10;
     const totalPages = Math.ceil(subscriptions.length / recordsPerPage);
@@ -119,18 +119,17 @@ const SubscriptionPage = () => {
             notes: "Thank you for being a part of our platform."
         };
         setSelectedInvoiceData(invoice);
-        setAutoDownload(false);
         setShowInvoiceModal(true);
     };
 
-    const handleDownloadInvoice = (record: any) => {
+    const handleDownloadInvoice = async (record: any) => {
         const lastPayment = record.user?.payments?.[0];
         if (!lastPayment) {
             toast.info("No payment record found for this subscription");
             return;
         }
 
-        const invoice = {
+        await downloadInvoicePdf({
             invoiceNo: lastPayment.stripeInvoiceId || `INV-${lastPayment.id.slice(0, 8)}`,
             date: formatDate(lastPayment.createdAt),
             dueDate: formatDate(lastPayment.createdAt),
@@ -140,24 +139,19 @@ const SubscriptionPage = () => {
                 address: record.user?.address || "N/A",
                 city: `${record.user?.state || ""}, ${record.user?.country || ""}`
             },
-            items: [
-                {
-                    description: formatPlan(record.plan),
-                    subtext: "Platform Access",
-                    qty: "01",
-                    price: `$${lastPayment.amount / 100}`,
-                    amount: `$${lastPayment.amount / 100}`,
-                    status: formatStatus(lastPayment.status)
-                }
-            ],
+            items: [{
+                description: formatPlan(record.plan),
+                subtext: "Platform Access",
+                qty: "01",
+                price: `$${lastPayment.amount / 100}`,
+                amount: `$${lastPayment.amount / 100}`,
+                status: formatStatus(lastPayment.status)
+            }],
             subtotal: `$${lastPayment.amount / 100}`,
             tax: "$0.00",
             total: `$${lastPayment.amount / 100}`,
             notes: "Thank you for being a part of our platform."
-        };
-        setSelectedInvoiceData(invoice);
-        setAutoDownload(true);
-        setShowInvoiceModal(true);
+        });
     };
 
     const filterOptions = ["All", "Paid", "Pending", "Failed", "Refunded", "Trial"];
@@ -257,7 +251,7 @@ const SubscriptionPage = () => {
                                 className="border-b border-b-solid border-b-lightGreyColor"
                             >
                                 {/* Name */}
-                                <td className="px-2 py-3 align-middle">
+                                <td className="px-4 py-3 align-middle">
                                     {record.user?.profileImage ? (
                                         <div className="flex items-center gap-x-4">
                                             <img
@@ -277,7 +271,7 @@ const SubscriptionPage = () => {
                                     )}
                                 </td>
 
-                                <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     <span
                                         className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getPlanColor(record.plan)}`}
                                     >
@@ -285,16 +279,16 @@ const SubscriptionPage = () => {
                                     </span>
                                 </td>
 
-                                <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     <span>
                                         {lastPayment ? formatDate(lastPayment.createdAt) : "No payment"}
                                     </span>
                                 </td>
-                                <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     {lastPayment ? `$${lastPayment.amount / 100}` : "$0.00"}
                                 </td>
 
-                                <td className="px-2 py-3 align-middle whitespace-nowrap">
+                                <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     <span
                                         className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(record.status)}`}
                                     >
@@ -303,15 +297,12 @@ const SubscriptionPage = () => {
                                     </span>
                                 </td>
 
-                                <td className="px-2 py-3 align-middle whitespace-nowrap">
-                                    <div className="flex items-center justify-start gap-x-2">
+                                <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                    <div className="flex items-center justify-start gap-x-3">
                                         <ViewIcon onClick={() => navigate(`/billing-management/${record.user?.id}`)} />
-
-                                        <div className="relative group cursor-pointer" onClick={() => handleDownloadInvoice(record)}>
-                                            <DownloadIcon size={20} color="#808B97" />
-                                        </div>
-                                        <EditIcon
-                                            onClick={() => navigate(`/edit-subscription/${record?.id}`)} />
+                                        <DownloadIconComponent
+                                            onClick={() => handleDownloadInvoice(record)}
+                                        />
                                         <DeleteIcon
                                             onClick={() => {
                                                 setSelectedSubscriptionForDelete(record?.id ?? "");
@@ -341,13 +332,9 @@ const SubscriptionPage = () => {
 
             <InvoiceModal
                 isOpen={showInvoiceModal}
-                onClose={() => {
-                    setShowInvoiceModal(false);
-                    setAutoDownload(false);
-                }}
+                onClose={() => setShowInvoiceModal(false)}
                 invoiceId={null}
                 invoiceData={selectedInvoiceData}
-                autoDownload={autoDownload}
             />
         </OutletLayout>
     )

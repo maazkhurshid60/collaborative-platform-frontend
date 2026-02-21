@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { NavLink } from 'react-router-dom';
 import { disconnectSocket } from '../../socket/Socket';
+import BackIcon from '../../components/icons/back/Back';
 const UserSetting = () => {
     const isBlockListScreen = useSelector((state: RootState) => state.blockListUserSlice.isBlockScreenShow)
     const dispatch = useDispatch<AppDispatch>()
@@ -86,7 +87,7 @@ const UserSetting = () => {
 
 
     return (
-        <OutletLayout heading='Settings'>
+        <OutletLayout heading='Settings' backButton={<BackIcon onClick={() => navigate(-1)} />}>
             {isBlockListScreen && <BlockList blockListData={filteredData} />}
             {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}

@@ -4,7 +4,7 @@ import Table from "../../../components/table/Table"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
 import { GoDotFill } from "react-icons/go"
 import ViewIcon from "../../../components/icons/view/View"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { getCountryNameFromCode } from "../../../utils/GetCountryName"
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi"
@@ -22,7 +22,6 @@ const TransactionDetail = () => {
     const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
 
     const recordsPerPage = 10;
-    const totalPages = Math.ceil(payments.length / recordsPerPage);
 
     useEffect(() => {
         const fetchPayments = async () => {
@@ -71,20 +70,28 @@ const TransactionDetail = () => {
 
     const filterOptions = ["All", "Paid", "Pending", "Failed", "Refunded"];
 
-    const filteredRecords = payments.filter((record) => {
+    const filteredRecords = useMemo(() => payments.filter((record) => {
         const fullName = record.user?.fullName || "";
         const email = record.user?.email || "";
         const matchesSearch = fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             email.toLowerCase().includes(searchTerm.toLowerCase());
-
         const matchesFilter = activeFilter === "All" || formatStatus(record.status) === activeFilter;
-
         return matchesSearch && matchesFilter;
-    });
+    }), [payments, searchTerm, activeFilter]);
 
-    const paginatedRecords = filteredRecords.slice(
+    // Reset to page 1 whenever search or filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeFilter]);
+
+    const paginatedRecords = useMemo(() => filteredRecords.slice(
         (currentPage - 1) * recordsPerPage,
         currentPage * recordsPerPage
+    ), [filteredRecords, currentPage]);
+
+    const totalPages = useMemo(
+        () => Math.max(1, Math.ceil(filteredRecords.length / recordsPerPage)),
+        [filteredRecords]
     );
 
     const getStatusColor = (status: string) => {
@@ -148,7 +155,6 @@ const TransactionDetail = () => {
                             placeholder="Search Transactions"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            autoFocus
                         />
                     </div>
                 </div>
@@ -180,23 +186,23 @@ const TransactionDetail = () => {
                             key={data?.id ?? idx}
                             className="border-b-[1px] border-b-solid border-b-lightGreyColor"
                         >
-                            <td className="px-2 py-3 align-middle">
+                            <td className="px-4 py-3 align-middle">
                                 {formatDate(data.createdAt)}
                             </td>
 
-                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                            <td className="px-4 py-3 align-middle whitespace-nowrap">
                                 <p className="capitalize leading-5 text-[15px] font-medium">{data?.user?.fullName}</p>
                             </td>
 
-                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                            <td className="px-4 py-3 align-middle whitespace-nowrap">
                                 {data.plan || "-"}
                             </td>
 
-                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                            <td className="px-4 py-3 align-middle whitespace-nowrap">
                                 ${data.amount / 100}
                             </td>
 
-                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                            <td className="px-4 py-3 align-middle whitespace-nowrap">
                                 <span
                                     className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
                                 >
@@ -205,7 +211,7 @@ const TransactionDetail = () => {
                                 </span>
                             </td>
 
-                            <td className="px-2 py-3 align-middle whitespace-nowrap">
+                            <td className="px-4 py-3 align-middle whitespace-nowrap">
                                 <div className="flex items-center justify-start gap-x-2">
                                     <ViewIcon
                                         onClick={() => handleViewInvoice(data)}
