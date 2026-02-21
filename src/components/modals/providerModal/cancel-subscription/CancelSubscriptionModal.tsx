@@ -7,7 +7,7 @@ import { isCancelSubscriptionModalShowReducer } from '../../../../redux/slices/M
 import { subscriptionApiService } from '../../../../services/subscriptionApiService';
 import { toast } from 'react-toastify';
 import authService from '../../../../apiServices/authApi/AuthApi';
-import { saveLoginUserDetailsReducer } from '../../../../redux/slices/LoginUserDetailSlice';
+import { saveLoginUserDetailsReducer, setIsRefreshing } from '../../../../redux/slices/LoginUserDetailSlice';
 
 
 interface CancelSubscriptionModalProps {
@@ -89,16 +89,30 @@ const CancelSubscriptionModalBody: React.FC<CancelSubscriptionModalProps> = ({ o
                             const response = await subscriptionApiService.cancelSubscription(reason);
                             toast.success(response.message || "Subscription canceled successfully");
 
-                            // Refresh page data smoothly instead of reload
+                            // Immediately refresh user data so the restricted UI shows at once
                             if (userDetails?.user?.id && userDetails?.user?.role) {
-                                const refreshedUser = await authService.getMe(userDetails.user.id, userDetails.user.role);
+                                dispatch(setIsRefreshing(true));
+                                try {
+                                    const refreshedUser = await authService.getMe(userDetails.user.id, userDetails.user.role);
 
-                                // ✅ FIX: Ensure all fields are preserved when updating Redux
-                                const updatedDetails = {
-                                    ...userDetails,
-                                    user: refreshedUser.user
-                                };
-                                dispatch(saveLoginUserDetailsReducer(updatedDetails));
+                                    // Match the same resilient pattern used in App.tsx for extracting user data
+                                    let updatedDetails: any = null;
+                                    if (refreshedUser?.data?.data && refreshedUser.data.data.user) {
+                                        updatedDetails = refreshedUser.data.data;
+                                    } else if (refreshedUser?.data && refreshedUser.data.user) {
+                                        updatedDetails = refreshedUser.data;
+                                    } else if (refreshedUser?.user) {
+                                        updatedDetails = refreshedUser;
+                                    }
+
+                                    if (updatedDetails) {
+                                        dispatch(saveLoginUserDetailsReducer(updatedDetails));
+                                    }
+                                } catch (refreshError) {
+                                    console.error("Failed to refresh user data after cancellation:", refreshError);
+                                } finally {
+                                    dispatch(setIsRefreshing(false));
+                                }
                             }
 
                             onClose?.();

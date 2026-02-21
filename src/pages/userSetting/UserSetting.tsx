@@ -100,7 +100,7 @@ const UserSetting = () => {
 
             <div className='flex items-center justify-between mt-6'>
                 <div>
-                    <p className='text-[16px] font-medium'>Password</p>
+                    <p className='text-[16px] font-medium'>Change Password</p>
                     <p className='text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%]  sm:w-[80%] md:w-[100%]'>Change password to secure your account</p>
                 </div>
                 <NavLink to="/setting/change-password">
