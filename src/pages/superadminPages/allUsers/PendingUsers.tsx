@@ -27,7 +27,7 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 import SearchBar from "../../../components/searchBar/SearchBar"
 
 const PendingUsers = () => {
-    const heading = ["Name", "License Number", "Country", "State", "status", "Role", "date", "action"];
+    const heading = ["Sr. No", "Name", "License Number", "Country", "State", "status", "Role", "date", "action"];
     const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow);
     const showRejectModal = useSelector((state: RootState) => state.modalSlice.isShowRejectModal);
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
@@ -140,14 +140,19 @@ const PendingUsers = () => {
                             <Table heading={heading}>
                                 {(getCurrentRecords() as User[])?.map((data, id) => (
                                     <tr key={id} className="border-b border-b-lightGreyColor">
+                                        <td className="px-4 py-3">{(currentPage - 1) * 7 + (id + 1)}</td>
                                         <td className="px-4 py-3">
-                                            <div className="flex gap-x-4 items-start">
-                                                {data?.profileImage && data.profileImage !== "null" ? (
-                                                    <img className="w-10 h-10 rounded-full object-cover" src={data.profileImage} />
-                                                ) : <UserIcon size={30} />}
-                                                <div className="text-left">
-                                                    <p className="capitalize">{data.fullName}</p>
-                                                    <p>{data?.email}</p>
+                                            <div className="flex gap-x-4 items-center">
+                                                <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                                                    {data?.profileImage && data.profileImage !== "null" ? (
+                                                        <img className="w-10 h-10 object-cover" src={data.profileImage} alt="User" />
+                                                    ) : (
+                                                        <UserIcon size={30} />
+                                                    )}
+                                                </div>
+                                                <div className="text-left flex flex-col gap-y-0.5 items-start justify-center">
+                                                    <p className="capitalize leading-5">{data.fullName}</p>
+                                                    <p className="text-gray-500">{data?.email}</p>
                                                 </div>
                                             </div>
                                         </td>

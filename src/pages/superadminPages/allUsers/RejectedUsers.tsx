@@ -27,7 +27,7 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 
 
 const RejectedUsers = () => {
-    const heading = ["Name", "License Number", "Country", "State", "status", "Role", "date", "action"]
+    const heading = ["Sr. No", "Name", "License Number", "Country", "State", "status", "Role", "date", "action"]
     const showRestoreModal = useSelector((state: RootState) => state.modalSlice.isShowRestoreModal)
     const [isDocLoading, setIsDocLoading] = useState(false);
     const navigate = useNavigate()
@@ -113,54 +113,55 @@ const RejectedUsers = () => {
                     />                </div>
             </div>
             {/* } */}
-            <div className='mt-10 w-[100%]'>
+            <div className='mt-10 w-full'>
                 {getCurrentRecords()?.length === 0 ? <NoRecordFound />
                     : <>
 
                         <Table heading={heading} >
                             {getCurrentRecords()?.map((data: User, id: number) => (
 
-                                <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4`}>
-                                    <td className="px-2 py-2 m-auto">
-                                        <div className="flex items-start gap-x-4">
-
-
-                                            {(data?.profileImage !== null && data?.profileImage !== "null") ?
-                                                <img className='w-10 h-10 rounded-full object-cover' src={data?.profileImage ? data?.profileImage : undefined} />
-                                                : <UserIcon size={30} />}
-                                            <div className="text-left">
-                                                <p className="capitalize">{data?.fullName}</p>
-                                                <p>{data?.email?.toLowerCase()}</p>
+                                <tr key={id} className={`border-b border-b-solid border-b-lightGreyColor pb-4`}>
+                                    <td className="px-4 py-3">{(currentPage - 1) * 7 + (id + 1)}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-x-4">
+                                            <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                                                {data?.profileImage !== null && data?.profileImage !== "null" ? (
+                                                    <img className="w-10 h-10 object-cover" src={data?.profileImage ? data?.profileImage : undefined} alt="User" />
+                                                ) : (
+                                                    <UserIcon size={30} />
+                                                )}
+                                            </div>
+                                            <div className="text-left flex flex-col gap-y-0.5">
+                                                <p className="capitalize leading-5">{data?.fullName}</p>
+                                                <p className="text-gray-500">{data?.email?.toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-2 py-2 m-auto">
+                                    <td className="px-4 py-3">
                                         {data?.licenseNo}
                                     </td>
-                                    <td className="px-2 py-2">{getCountryNameFromCode(data.country)}</td>
-                                    <td className="px-2 py-2">{data.state}</td>
-                                    <td className="px-2 py-2 ">
+                                    <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td>
+                                    <td className="px-4 py-3">{data.state}</td>
+                                    <td className="px-4 py-3">
                                         <p
                                             className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm 
     ${data.isApprove ? "bg-redColor/20" : "bg-inputBgColor"}`}
                                         >
-                                            <span>
-                                                <GoDotFill
-                                                    className={`text-base ${data.isApprove === "REJECTED" && "text-textColor"}`}
-                                                />
-                                            </span>
+                                            <GoDotFill
+                                                className={`text-base ${data.isApprove === "REJECTED" && "text-textColor"}`}
+                                            />
                                             {data.isApprove === "REJECTED" && "Rejected"}
                                         </p>
 
                                     </td>
-                                    <td className="px-2 py-2 capitalize">{data?.role}</td>
+                                    <td className="px-4 py-3 capitalize">{data?.role}</td>
 
-                                    <td className="px-2 py-2">{data?.createdAt?.split("T")[0]}</td>
-
-
+                                    <td className="px-4 py-3">{data?.createdAt?.split("T")[0]}</td>
 
 
-                                    <td className="py-2 h-full align-middle">
+
+
+                                    <td className="px-4 py-3 h-full align-middle">
                                         <div className="flex items-center justify-start gap-x-2 h-full">
                                             <RestoreIcon onClick={() => {
                                                 setSelectedUserForRestore(data);

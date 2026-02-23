@@ -19,7 +19,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
     // Use passed data or fallback to mock/fetch
     const invoice = React.useMemo(() => {
         return invoiceData || {
-            invoiceNo: invoiceId ? `INV-2024-${invoiceId.padStart(4, '0')}` : "INV-2024-8472",
+            invoiceNo: invoiceId ? `${invoiceId.padStart(4, '0')}` : "INV-2024-8472",
             date: "February 15, 2024",
             dueDate: "February 15, 2024",
             billTo: {

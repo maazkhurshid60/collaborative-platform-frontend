@@ -179,16 +179,7 @@ const UserProfile = () => {
   // Live values (re-render on change so canSubmitUpdate updates)
   const live = watch();
 
-  // Define “required missing” robustly (handles 0/empty)
-  const requiredMissing =
-    !String(live?.fullName ?? "").trim() ||
-    !String(live?.licenseNo ?? "").trim() ||
-    !String(live?.email ?? "").trim() ||
-    !String(live?.department ?? "").trim() ||
-    Number(live?.age ?? 0) <= 0 ||
-    !String(live?.contactNo ?? "").trim() ||
-    !String(live?.country ?? "").trim() ||
-    !String(live?.state ?? "").trim();
+  // No longer using custom requiredMissing, relying on isValid from useForm
 
   const updateMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -210,7 +201,7 @@ const UserProfile = () => {
     },
   });
 
-  const canSubmitUpdate = !requiredMissing && !updateMutation.isPending;
+  const canSubmitUpdate = isValid && !updateMutation.isPending;
 
   const updateFunction = (data: FormFields) => {
     // Extra safety: do not submit if incomplete
@@ -440,10 +431,7 @@ const UserProfile = () => {
             {/* ✅ Update is disabled until required fields are valid/filled */}
             <div className="flex items-center justify-end -mt-8">
               <div
-                className={[
-                  "w-[120px]",
-                  !canSubmitUpdate ? "opacity-60 pointer-events-none" : "",
-                ].join(" ")}
+                className="w-[120px]"
                 title={
                   !canSubmitUpdate
                     ? "Fill all required fields to enable Update"

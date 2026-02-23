@@ -38,6 +38,7 @@ import { filterUsers } from "../../../utils/FilteredUsers";
 
 const VerifiedUsers = () => {
   const heading = [
+    "Sr. No",
     "Name",
     "License Number",
     "Country",
@@ -198,8 +199,9 @@ const VerifiedUsers = () => {
                   key={data?.id ?? idx}
                   className="border-b border-b-solid border-b-lightGreyColor"
                 >
+                  <td className="px-4 py-3 align-middle">{(currentPage - 1) * 7 + (idx + 1)}</td>
                   {/* Name */}
-                  <td className="px-2 py-3 align-middle">
+                  <td className="px-4 py-3 align-middle">
                     <div className="flex items-center gap-x-4">
                       <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
                         {data?.profileImage !== null && data?.profileImage !== "null" ? (
@@ -222,19 +224,19 @@ const VerifiedUsers = () => {
                     </div>
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {data?.licenseNo}
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {getCountryNameFromCode(data.country)}
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {data.state}
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     <span
                       className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove ? "bg-primaryColorDark/20" : "bg-inputBgColor"
                         }`}
@@ -246,15 +248,15 @@ const VerifiedUsers = () => {
                     </span>
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap capitalize">
                     {data?.role}
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {data?.createdAt?.split("T")[0]}
                   </td>
 
-                  <td className="px-2 py-3 align-middle whitespace-nowrap">
+                  <td className="px-4 py-3 align-middle whitespace-nowrap">
                     <div className="flex items-center justify-start gap-x-2">
                       <ViewIcon
                         onClick={() =>

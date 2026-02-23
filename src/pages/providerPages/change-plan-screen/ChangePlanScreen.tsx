@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../../redux/store";
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
-import { subscriptionApiService } from "../../../services/subscriptionApiService";
 import { toast } from "react-toastify";
 
 export default function ChangePlanScreen() {
@@ -34,7 +33,7 @@ export default function ChangePlanScreen() {
             name: "Standard",
             description: "Perfect for startups and small teams",
             monthlyPrice: 29,
-            annualPrice: 23,
+            annualPrice: 278,
             features: [
                 "Up to 100 customers",
                 "Basic invoicing & billing",
@@ -84,14 +83,23 @@ export default function ChangePlanScreen() {
         // }
     ];
 
+    // Get the active plan's price based on plan name and billing cycle
+    const getActivePlanPrice = () => {
+        const plan = plans.find(p => p.name.toUpperCase() === currentPlan);
+        if (!plan) return '-';
+        return userSubscription?.billingCycle === 'YEARLY' ? plan.annualPrice : plan.monthlyPrice;
+    };
+
     const handleConfirmUpgrade = async () => {
         if (!selectedPlan) {
             toast.error("Please select a plan first");
             return;
         }
 
-        if (selectedPlan === currentPlan) {
-            toast.error("You are already on this plan");
+        const currentBillingCycle = userSubscription?.billingCycle || 'MONTHLY';
+        const newBillingCycle = billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY';
+        if (selectedPlan === currentPlan && newBillingCycle === currentBillingCycle) {
+            toast.error("You are already on this plan and billing cycle");
             return;
         }
 
@@ -158,7 +166,7 @@ export default function ChangePlanScreen() {
                             <div>
                                 <p className="text-sm text-[#666666] font-[Poppins]">Billing Cycle</p>
                                 <p className="text-lg font-semibold text-[#101828] font-[Poppins]">
-                                    {isTrialing ? 'Trial' : billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}
+                                    {isTrialing ? 'Trial' : userSubscription?.billingCycle === 'YEARLY' ? 'Yearly' : 'Monthly'}
                                 </p>
                             </div>
                         </div>
@@ -169,7 +177,9 @@ export default function ChangePlanScreen() {
                             </div>
                             <div>
                                 <p className="text-sm text-[#666666] font-[Poppins]">Amount</p>
-                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">{userSubscription?.plan}</p>
+                                <p className="text-lg font-semibold text-[#101828] font-[Poppins]">
+                                    {isTrialing ? 'Free' : `$${getActivePlanPrice()}/${userSubscription?.billingCycle === 'YEARLY' ? 'year' : 'month'}`}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -184,7 +194,7 @@ export default function ChangePlanScreen() {
                 <div className="flex items-center gap-1 p-1 bg-white border border-[#E2E2E2] rounded-[8px] mb-12">
                     <button
                         onClick={() => setBillingCycle('monthly')}
-                        className={`px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all ${billingCycle === 'monthly' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
+                        className={`px-8 py-2.5 rounded-[6px] text-sm font-medium cursor-pointer transition-all ${billingCycle === 'monthly' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                     >
                         Monthly
                     </button>
@@ -193,7 +203,7 @@ export default function ChangePlanScreen() {
                         className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                     >
                         Annually
-                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-[#F3F4F6] text-[#9CA3AF]`}>Save 20%</span>
+                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-[#b5e19f]/40 text-[#306F11]`}>Save 20%</span>
                     </button>
                 </div>
 
@@ -230,7 +240,10 @@ export default function ChangePlanScreen() {
                                 <span className={`text-[48px] font-bold relative ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
                                     ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                 </span>
-                                <span className={`ml-2 text-[18px] absolute top-38 left-28 ${plan.theme === "enterprise" ? "absolute top-38 left-35" : ""} -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/month</span>
+                                {
+                                    plan.annualPrice ? <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/ {billingCycle === 'monthly' ? 'monthly' : 'yearly'}</span> : <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/ {billingCycle === 'monthly' ? 'monthly' : 'yearly'}</span>
+                                }
+
                             </div>
 
                             {/* Action Button */}
@@ -274,7 +287,7 @@ export default function ChangePlanScreen() {
                     </button>
                     <button
                         onClick={handleConfirmUpgrade}
-                        disabled={isLoading || !selectedPlan || selectedPlan === currentPlan}
+                        disabled={isLoading || !selectedPlan || (selectedPlan === currentPlan && (billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY') === (userSubscription?.billingCycle || 'MONTHLY'))}
                         className="w-[220px] h-[60px] bg-[#2C9993] flex items-center cursor-pointer justify-center rounded-[12px] text-white text-[18px] font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
                         {isLoading ? (
                             <div className="flex items-center gap-2">

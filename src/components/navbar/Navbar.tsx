@@ -194,7 +194,7 @@ const Navbar = () => {
   // Navigate to client and provider as well 
   const goToClientAndProviderAndSuperAdmin = () => {
     if (loginUserDetail?.user?.role === "client") {
-      navigate("/client")
+      navigate("/settings")
     }
     if (loginUserDetail?.user?.role === "provider") {
       navigate("/user-profile")
@@ -206,6 +206,7 @@ const Navbar = () => {
 
   const isSuperAdmin = loginUserDetail?.user?.role === "superAdmin";
   const isProvider = loginUserDetail?.user?.role === "provider";
+  const isClient = loginUserDetail?.user?.role === "client";
 
   return (
     <div className="bg-white">

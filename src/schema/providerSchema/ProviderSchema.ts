@@ -5,7 +5,7 @@ export const providerSchema = z.object({
     licenseNo: z.string().min(1, "License string is required"),
     age: z.coerce.number().min(1, "age is required"),
     contactNo: z.string().min(1, "Contact No is required"),
-    address: z.string().min(10, "Address No is required and should not less then 10characters"),
+    address: z.string().min(3, "Address is required and should be at least 3 characters"),
     department: z.string().min(1, "Department No is required"),
     email: z.string().email(),
     country: z.string().min(1, "Country is required"),
