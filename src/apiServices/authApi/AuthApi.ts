@@ -116,6 +116,21 @@ class AuthService {
         }
     }
 
+    async logout() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post("/logout", {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error logout", error);
+            // Even if backend fails, we should still clear local storage (handled in Sidebar)
+        }
+    }
+
 }
 // Export a single instance
 const authService = new AuthService();

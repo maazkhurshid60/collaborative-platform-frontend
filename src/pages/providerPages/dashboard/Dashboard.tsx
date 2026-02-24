@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import ClientsIcon from '../../../components/icons/dashboardIcons/providersPortalIcons/clients/Clients';
 import ProvidersIcon from '../../../components/icons/dashboardIcons/providersPortalIcons/providers/Providers';
+import SubscriptionHistoryCard from '../../../components/pagesComponent/dashboard/subscriptionHistory/SubscriptionHistoryCard';
 
 
 const Dashboard = () => {
@@ -119,15 +120,20 @@ const Dashboard = () => {
                         })}
                     </div>
                     <div className='flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap'>
-                        <div className=' flex flex-col gap-2 flex-wrap w-[100%] lg:w-[68%] '>
-                            <div className=' w-[100%]  max-h-screen lg:w-[98%] overflow-x-auto rounded-md'>
+                        <div className=' flex flex-col gap-2 flex-wrap w-full lg:w-[68%] '>
+                            <div className=' w-full  max-h-screen lg:w-[98%] overflow-x-auto rounded-md'>
                                 <CardDashboardLayout heading='Clients List'>
                                     <ClientList />
                                 </CardDashboardLayout>
                             </div>
-                            <div className='w-[100%] lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
+                            <div className='w-full lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
                                 <CardDashboardLayout heading='Providers List'>
                                     <ProviderList />
+                                </CardDashboardLayout>
+                            </div>
+                            <div className='w-full lg:w-[98%] max-h-screen overflow-x-auto rounded-md'>
+                                <CardDashboardLayout heading='Subscription History'>
+                                    <SubscriptionHistoryCard />
                                 </CardDashboardLayout>
                             </div>
                         </div>

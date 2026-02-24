@@ -82,13 +82,8 @@ const ConfirmFreeAccount = () => {
             publicKey: publicKey,
             privateKey: encryptedPrivateKey,
         };
-
-
         console.log("log", dataSendToBackend);
-
-
         // const dataSendToBackend = { email: data?.email, isApprove: "pending", password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, department: data?.department, role: "provider", country: data?.country, state: data?.state };
-
         try {
             const response = await authService.signup(dataSendToBackend);
             toast.success(response?.message);

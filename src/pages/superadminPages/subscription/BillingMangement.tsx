@@ -95,12 +95,12 @@ const SubscriptionPage = () => {
 
         const invoice = {
             invoiceNo: lastPayment.stripeInvoiceId || `INV-${lastPayment.id.slice(0, 8)}`,
-            date: formatDate(lastPayment.createdAt),
-            dueDate: formatDate(lastPayment.createdAt),
+            date: formatDate(lastPayment.periodStart || lastPayment.createdAt),
+            dueDate: formatDate(lastPayment.periodEnd || lastPayment.createdAt),
             billTo: {
-                name: record.user?.fullName || "N/A",
-                email: record.user?.email || "N/A",
-                address: record.user?.address || "N/A",
+                name: record.user?.fullName || "-",
+                email: record.user?.email || "-",
+                address: record.user?.address || "-",
                 city: `${record.user?.state || ""}, ${record.user?.country || ""}`
             },
             items: [
@@ -131,12 +131,12 @@ const SubscriptionPage = () => {
 
         await downloadInvoicePdf({
             invoiceNo: lastPayment.stripeInvoiceId || `INV-${lastPayment.id.slice(0, 8)}`,
-            date: formatDate(lastPayment.createdAt),
-            dueDate: formatDate(lastPayment.createdAt),
+            date: formatDate(lastPayment.periodStart || lastPayment.createdAt),
+            dueDate: formatDate(lastPayment.periodEnd || lastPayment.createdAt),
             billTo: {
-                name: record.user?.fullName || "N/A",
-                email: record.user?.email || "N/A",
-                address: record.user?.address || "N/A",
+                name: record.user?.fullName || "-",
+                email: record.user?.email || "-",
+                address: record.user?.address || "-",
                 city: `${record.user?.state || ""}, ${record.user?.country || ""}`
             },
             items: [{
@@ -154,7 +154,7 @@ const SubscriptionPage = () => {
         });
     };
 
-    const filterOptions = ["All", "Paid", "Pending", "Failed", "Refunded", "Trial"];
+    const filterOptions = ["All", "Paid", "Failed", "Canceled"];
 
     const filteredRecords = subscriptions.filter((record) => {
         const fullName = record.user?.fullName || "";

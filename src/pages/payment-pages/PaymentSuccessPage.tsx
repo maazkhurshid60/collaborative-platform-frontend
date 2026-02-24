@@ -39,11 +39,18 @@ const PaymentSuccessPage = () => {
                     console.warn("⚠️ Sync request failed (webhook might handle it), proceeding to refresh...", err);
                 });
 
-                // 2. Fetch Latest Payment
+                // 2. Fetch Latest Payment (Filter for Successful ones only)
                 console.log("🔄 Fetching latest payment...");
                 const payments = await subscriptionApiService.getAllPayments();
                 if (payments && payments.length > 0) {
-                    setLatestPayment(payments[0]); // Most recent is first due to descend order on backend
+                    // Find the most recent 'paid' (SUCCEEDED) record
+                    const successfulPayment = payments.find((p: any) => p.status === 'paid' || p.status === 'succeeded');
+                    if (successfulPayment) {
+                        setLatestPayment(successfulPayment);
+                    } else {
+                        // Fallback to first if none found with 'paid' status
+                        setLatestPayment(payments[0]);
+                    }
                 }
 
                 // 3. Refresh local Redux data

@@ -142,17 +142,10 @@ const ProviderBillingDetail = () => {
             currency: data.currency || 'USD'
         }).format(amount);
 
-        const dateObj = data.createdAt ? new Date(data.createdAt) : new Date();
-        const formattedDate = dateObj.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
-
         return {
             invoiceNo: data.stripeInvoiceId || (data.id ? `INV-2024-${data.id.slice(0, 8)}` : "-"),
-            date: formattedDate,
-            dueDate: formattedDate,
+            date: formatDate(data.periodStart || data.createdAt),
+            dueDate: formatDate(data.periodEnd || data.createdAt),
             billTo: {
                 name: contactInfo?.fullName || "Valued Customer",
                 email: contactInfo?.email || "",
@@ -162,7 +155,7 @@ const ProviderBillingDetail = () => {
             items: [
                 {
                     description: data.plan || "Subscription Payment",
-                    subtext: "Monthly subscription",
+                    subtext: "Platform Access",
                     qty: "01",
                     price: formattedAmount,
                     amount: formattedAmount,

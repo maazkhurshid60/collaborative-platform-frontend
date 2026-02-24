@@ -203,7 +203,7 @@ const BilingHistory = () => {
                                                     qty: '01',
                                                     price: data.amount || '$0.00',
                                                     amount: data.amount || '$0.00',
-                                                    status: data.status === 'paid' ? 'Paid' : 'Pending',
+                                                    status: data.status === 'paid' ? 'Paid' : (data.status === 'canceled' ? 'Canceled' : (data.status === 'overdue' ? 'Overdue' : 'Pending')),
                                                 }],
                                                 subtotal: data.subtotal || data.amount || '$0.00',
                                                 tax: data.tax || '$0.00',

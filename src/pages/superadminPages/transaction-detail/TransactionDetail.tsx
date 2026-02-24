@@ -28,7 +28,6 @@ const TransactionDetail = () => {
             try {
                 const response = await superAdminApi.getAllPayments();
                 setPayments(response.data || []);
-                console.log(response.data);
             } catch (error) {
                 console.error("Failed to fetch payments", error);
             } finally {
@@ -68,7 +67,7 @@ const TransactionDetail = () => {
         return `${day}-${month}-${year}`;
     };
 
-    const filterOptions = ["All", "Paid", "Pending", "Failed", "Refunded"];
+    const filterOptions = ["All", "Paid", "Failed", "Canceled"];
 
     const filteredRecords = useMemo(() => payments.filter((record) => {
         const fullName = record.user?.fullName || "";
@@ -101,19 +100,17 @@ const TransactionDetail = () => {
             case "paid": return "bg-green-100 text-green-700";
             case "pending": return "bg-yellow-100 text-yellow-700";
             case "failed": return "bg-red-100 text-red-700";
-            case "refunded": return "bg-gray-100 text-gray-700";
+            case "canceled": return "bg-gray-100 text-gray-700";
             default: return "bg-inputBgColor text-textColor";
-
         }
     };
 
     const handleViewInvoice = (data: any) => {
-        const displayStatus = data.status === "succeeded" ? "Paid" :
-            data.status.charAt(0).toUpperCase() + data.status.slice(1);
+        const displayStatus = formatStatus(data.status);
         const invoice = {
             invoiceNo: data.stripeInvoiceId || `INV-${data.id.slice(0, 8)}`,
-            date: formatDate(data.createdAt),
-            dueDate: formatDate(data.createdAt),
+            date: formatDate(data.periodStart || data.createdAt),
+            dueDate: formatDate(data.periodEnd || data.createdAt),
             billTo: {
                 name: data.user?.fullName || "-",
                 email: data.user?.email || "-",
@@ -127,7 +124,7 @@ const TransactionDetail = () => {
                     qty: "01",
                     price: `$${data.amount / 100}`,
                     amount: `$${data.amount / 100}`,
-                    status: formatStatus(data.status)
+                    status: displayStatus
                 }
             ],
             subtotal: `$${data.amount / 100}`,
@@ -138,6 +135,8 @@ const TransactionDetail = () => {
         setSelectedInvoiceData(invoice);
         setShowInvoiceModal(true);
     };
+
+    console.log(payments, "Payments Data for Transaction Detail");
 
     return (
         <OutletLayout heading="Transaction Lists">
@@ -177,14 +176,14 @@ const TransactionDetail = () => {
 
             <Table heading={heading}>
                 {loading ? (
-                    <tr><td colSpan={6} className="text-center py-4">Loading transitions...</td></tr>
+                    <tr><td colSpan={6} className="text-center py-4">Loading transactions...</td></tr>
                 ) : paginatedRecords.length === 0 ? (
                     <tr><td colSpan={6} className="text-center py-4">No transactions found.</td></tr>
                 ) : (
                     paginatedRecords.map((data: any, idx: number) => (
                         <tr
                             key={data?.id ?? idx}
-                            className="border-b-[1px] border-b-solid border-b-lightGreyColor"
+                            className="border-b border-b-solid border-b-lightGreyColor"
                         >
                             <td className="px-4 py-3 align-middle">
                                 {formatDate(data.createdAt)}

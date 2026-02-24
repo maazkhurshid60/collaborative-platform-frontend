@@ -8,6 +8,7 @@ import { AppDispatch, RootState } from "../../redux/store";
 import { SVGProps, useEffect, useState } from "react";
 import { disconnectSocket } from "../../socket/Socket";
 import ToolTip from "../toolTip/ToolTip";
+import authService from "../../apiServices/authApi/AuthApi";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
 import Logout from "../icons/logout/Logout";
 
@@ -22,17 +23,20 @@ const Sidebar = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
     const [sideBarData, setSideBarData] = useState<sideBarDataType[]>()
-    // const logoutFunction = () => {
-    //     disconnectSocket();
-    //     localStorage.removeItem("token")
-    //     dispatch(emptyResult())
 
-    //     navigate("/")
-    // }
+    const logoutFunction = async () => {
+        try {
+            // Call backend to clear cookies
+            await authService.logout();
+        } catch (error) {
+            console.error("Backend logout failed", error);
+        }
 
-    const logoutFunction = () => {
         disconnectSocket();
-        localStorage.removeItem("token");
+
+        // Comprehensive cleanup
+        localStorage.clear();
+        sessionStorage.clear();
 
         const clearCaches = 'caches' in window
             ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
@@ -62,7 +66,7 @@ const Sidebar = () => {
         dispatch(isSideBarCloseReducser(false));
     }, [loginUserRole])
     return (
-        <div className="p-6 border-r flex justify-between flex-col border-[#D9D9D9] w-[100vw] md:w-[260px] h-[100vh] overflow-y-hidden">
+        <div className="p-6 border-r flex justify-between flex-col border-[#D9D9D9] w-screen md:w-[260px] h-screen overflow-y-hidden">
             <div className="flex items-center ml-10 justify-between">
                 <img src={logo} alt="logo" className="w-[200px]   md:w-[120px] " />
                 <div className="md:hidden">

@@ -78,7 +78,7 @@ export const SubscriptionSettingPage = () => {
     });
 
     // Raw payment objects from API (contain billTo, items etc. for invoice)
-    const rawPayments: any[] = billingHistory || [];
+    const rawPayments: any[] = (billingHistory || []).filter((p: any) => p.status === 'paid');
 
     const transformedHistory = rawPayments.map((payment: any) => ({
         id: payment.id,
@@ -208,7 +208,7 @@ export const SubscriptionSettingPage = () => {
                                     <button
                                         disabled={userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING'}
                                         onClick={() => setIsCancelModalOpen(true)}
-                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer   ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-not-allowed  border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
+                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer   ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-none  border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
                                     >
                                         <p className={`text-[14px] font-medium font-[Poppins] ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'text-gray-400' : 'text-[#E21414]'}`}>{subscriptionPageData.currentPlanSection.cancelBtnText}</p>
                                     </button>
@@ -318,7 +318,7 @@ export const SubscriptionSettingPage = () => {
                                             </div>
 
                                             {/* Floating Elements (GIF-like animations) */}
-                                            <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center animate-bounce duration-[3000ms]">
+                                            <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center animate-bounce duration-3000">
                                                 <Search className="w-5 h-5 text-[#2C9993]" />
                                             </div>
                                             <div className="absolute top-1/2 -left-4 w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center animate-pulse">

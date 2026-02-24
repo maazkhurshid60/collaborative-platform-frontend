@@ -87,10 +87,8 @@ const ProviderSignup = () => {
         setIsLoading(true);
 
         try {
-            // Check if email or license number already exists
             const response = await authService.checkEmail(data.email, data.licenseNo);
 
-            // If email exists, stop the signup
             if (response?.data?.exists) {
                 setIsLoading(false);
                 toast.error("Email is already registered");
@@ -132,25 +130,29 @@ const ProviderSignup = () => {
         };
 
 
-        // Simply navigate to select-plan with the user data in state
+        // If invited (has token), skip plan selection and go to confirm free trial
+        if (token) {
+            setIsLoading(false);
+            navigate("/confirm-free-account", {
+                state: {
+                    userData: dataSendToBackend,
+                    planType: 'STANDARD' // Pre-select standard for invited users
+                }
+            });
+            return;
+        }
+
+        // Normal flow: navigate to select-plan
         setIsLoading(false);
         navigate("/select-plan", { state: { userData: dataSendToBackend } });
-
-        /* 
-         * Original Signup Logic Deferred to Payment Confirmation
-         */
     }
 
 
     const updateGroupApi = async (dataSendToBack: updateGroupApiType) => {
         try {
             const response = await messageApiService.updateGroupApi(dataSendToBack)
-
-            console.log(response);
             toast.success('You have joined the group. Please login to continue.')
-
         } catch (err) {
-            console.error("❌:", err);
 
             let errorMessage = "Error loading messages.";
 
@@ -187,8 +189,8 @@ const ProviderSignup = () => {
                         <div className='mb-1.5'>
                             <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} disabled={isVerified} />
                         </div>
-
-                        {/* <div className='mb-1.5'>
+                        {/* 
+                        <div className='mb-1.5'>
                             <InputField required
                                 type='text'
                                 label='License Number'
