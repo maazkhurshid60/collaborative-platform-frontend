@@ -136,7 +136,7 @@ const ProviderSignup = () => {
             navigate("/confirm-free-account", {
                 state: {
                     userData: dataSendToBackend,
-                    planType: 'STANDARD' // Pre-select standard for invited users
+                    planType: 'FREE' // Free triggers the 14-day Stripe trial backend logic
                 }
             });
             return;

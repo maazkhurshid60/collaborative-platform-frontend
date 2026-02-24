@@ -256,7 +256,7 @@ const ConfirmFreeAccount = () => {
                                         dispatch(emptyDataNewJoinUserReducer())
                                     }
 
-                                    const successMessage = planType === 'STANDARD'
+                                    const successMessage = planType === 'FREE'
                                         ? "14-day free trial activated!"
                                         : "Free plan activated!";
                                     toast.success(successMessage);
@@ -279,7 +279,7 @@ const ConfirmFreeAccount = () => {
                             className="bg-[#2C9993] text-white cursor-pointer hover:bg-[#2C9993]/90 px-4 py-2 rounded-lg disabled:opacity-50"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Processing...' : (location.state?.planType === 'STANDARD' ? 'Start 14-Day Free Trial' : 'Confirm Free Plan')}
+                            {isLoading ? 'Processing...' : (location.state?.planType === 'FREE' ? 'Start 14-Day Free Trial' : 'Confirm Free Plan')}
                         </button>
                     </div>
                 </div>

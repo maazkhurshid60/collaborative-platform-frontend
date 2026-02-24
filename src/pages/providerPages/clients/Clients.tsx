@@ -277,12 +277,12 @@ const Clients = () => {
 
                     {/* Action (fixed padding + equal icon boxes) */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap">
-                      <div className="flex items-center justify-center">
-                        <div className="w-9 h-9 flex items-center justify-start">
+                      <div className="flex items-center justify-center gap-x-1.5">
+                        <div className="w-5 h-5 flex items-center justify-start">
                           <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
                         </div>
                         {!canEditDelete && (
-                          <div className="w-9 h-9 flex items-center justify-center">
+                          <div className="w-5 h-5 flex items-center justify-center">
                             <div title="Share Documents" className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
                               <IoDocumentTextOutline />
                             </div>
@@ -290,10 +290,10 @@ const Clients = () => {
                         )}
                         {canEditDelete && (
                           <>
-                            <div className="w-9 h-9 flex items-center justify-center">
+                            <div className="w-5 h-5 flex items-center justify-center">
                               <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
                             </div>
-                            <div className="w-9 h-9 flex items-center justify-center">
+                            <div className="w-5 h-5 flex items-center justify-center">
                               <DeleteIcon
                                 onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)}
                               />
