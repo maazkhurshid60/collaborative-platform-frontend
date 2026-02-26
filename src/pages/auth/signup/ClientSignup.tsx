@@ -48,7 +48,6 @@ const ClientSignup = () => {
             email: data.email,
             password: data.password,
             fullName: data.fullName,
-            licenseNo: data.licenseNo,
             country: data.country,
             state: data.state,
             role: "client",
@@ -82,7 +81,6 @@ const ClientSignup = () => {
 
     useEffect(() => {
         setValue("fullName", licenseNoData?.fullName, { shouldValidate: true });
-        setValue("licenseNo", String(licenseNoData?.licenseNo ?? ""), { shouldValidate: true });
         setValue("email", licenseNoData?.email, { shouldValidate: true });
         if (licenseNoData?.country) {
             setValue("country", licenseNoData.country, { shouldValidate: true });
@@ -105,9 +103,7 @@ const ClientSignup = () => {
                         <div className='mb-3.5'>
                             <InputField disabled={isLicenseFound} required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
                         </div>
-                        <div className='mb-3.5'>
-                            <InputField disabled={isLicenseFound} required label='License Number' type='text' register={register("licenseNo")} placeHolder='Enter License Number' error={errors?.licenseNo?.message} />
-                        </div>
+                        {/* License Number input removed */}
                         <CountryStateSelect disable={isLicenseFound} isCountryView={true} isStateView={false} defaultCountry={licenseNoData?.country} />
                         <CountryStateSelect disable={isLicenseFound} isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />
                         <div className='mb-3.5'>
@@ -129,7 +125,7 @@ const ClientSignup = () => {
                                 Sign in
                             </span>
                             or
-                            <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/signup-with-license"); dispatch(emptyResult()) }}> Enter license number</span>
+                            <span className='capitalize text-greenColor underline font-bold cursor-pointer ml-1' onClick={() => { navigate("/signup-with-license"); dispatch(emptyResult()) }}> Enter Client ID</span>
                         </p>
                     </form>
                 </FormProvider>

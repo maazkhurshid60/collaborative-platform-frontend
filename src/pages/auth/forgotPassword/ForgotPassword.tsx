@@ -43,7 +43,7 @@ const ForgotPassword = () => {
 
             const userData = response?.data?.user;
 
-            if (userData?.status !== "active") {
+            if (userData?.status?.toLowerCase() !== "active") {
                 toast.error("Oops! Your account has been disabled. Contact with super admin.");
                 navigate("/");
                 return;

@@ -78,7 +78,7 @@ const ClientProfile = () => {
                         <LabelData label='Full Name' data={selectedClientData?.user?.fullName} />
                     </div>
                     <div>
-                        <LabelData label='License Number' data={selectedClientData?.user?.licenseNo} />
+                        <LabelData label='Client ID' data={selectedClientData?.clientId ?? '-'} />
                     </div>
                     <div>
                         <LabelData label='Age' data={selectedClientData?.user?.age ?? "-"} />

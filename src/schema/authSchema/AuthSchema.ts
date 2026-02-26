@@ -54,15 +54,15 @@ export const ResetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
-export const LicenseNoSchema = z.object({
-  licenseNo: licenseNoValidator,
+export const ClientIdSchema = z.object({
+  clientId: z.string().min(1, "Client ID is required"),
 });
 
 export const ClientSignupSchema = z
   .object({
     email: z.string().email(),
     fullName: fullNameValidator,      // ✅ use here too (optional but recommended)
-    licenseNo: licenseNoValidator,
+    // licenseNo is not needed for clients
     country: z.string().nonempty("Country is required"),
     state: z.string().nonempty("State is required"),
     password: strongPassword,
@@ -72,6 +72,11 @@ export const ClientSignupSchema = z
     message: "Passwords must match",
     path: ["confirmPassword"],
   });
+
+interface ClientIdData {
+  clientId?: string;
+  licenseNo?: string;
+}
 
 export const ProviderSignupSchema = z
   .object({

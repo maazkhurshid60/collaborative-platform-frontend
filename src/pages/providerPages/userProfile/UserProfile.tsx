@@ -140,7 +140,8 @@ const UserProfile = () => {
 
     return {
       fullName: getMeData?.user?.fullName ?? "",
-      licenseNo: getMeData?.user?.licenseNo ?? "",
+      licenseNo: getMeData?.user?.role === "provider" ? (getMeData?.user?.licenseNo ?? "") : "",
+      clientId: getMeData?.user?.role === "client" ? (getMeData?.client?.clientId ?? getMeData?.user?.licenseNo) : "",
       age: Number(getMeData?.user?.age ?? 0) || 0,
       contactNo: getMeData?.user?.contactNo ?? "",
       email: getMeData?.user?.email ?? "",
@@ -230,7 +231,9 @@ const UserProfile = () => {
     formData.append("address", data?.address ?? "");
     formData.append("fullName", data?.fullName ?? "");
     formData.append("email", (data?.email ?? "").toLowerCase());
-    formData.append("licenseNo", data?.licenseNo ?? "");
+    if (getMeData?.user?.role === "provider") {
+      formData.append("licenseNo", data?.licenseNo ?? "");
+    }
     formData.append("age", data?.age?.toString() ?? "0");
     formData.append("department", safeDepartment);
     formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
@@ -347,14 +350,18 @@ const UserProfile = () => {
                 error={errors.fullName?.message}
               />
 
-              <InputField
-                required
-                label="License Number"
-                type="text"
-                register={register("licenseNo")}
-                placeHolder="Enter license number."
-                error={errors.licenseNo?.message}
-              />
+              {getMeData?.user?.role === "provider" ? (
+                <InputField
+                  required
+                  label="License Number"
+                  type="text"
+                  register={register("licenseNo")}
+                  placeHolder="Enter license number."
+                  error={errors.licenseNo?.message}
+                />
+              ) : (
+                <InputField disabled label="Client ID" value={getMeData?.client?.clientId || getMeData?.user?.licenseNo || "-"} />
+              )}
 
               <InputField
                 required
@@ -466,14 +473,21 @@ const UserProfile = () => {
                     className="w-32 h-32 rounded-lg object-cover"
                   />
                 ) : (
-                  <UserIcon className="text-8xl text-textColor" />
+                  <UserIcon
+                    className="text-8xl text-textColor"
+                    profileImg={getMeData?.user?.profileImage}
+                  />
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
               <LabelData label="Full Name" data={getMeData?.user?.fullName} />
-              <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
+              {getMeData?.user?.role === "provider" ? (
+                <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
+              ) : (
+                <LabelData label="Client ID" data={getMeData?.client?.clientId || getMeData?.user?.licenseNo} />
+              )}
               <LabelData label="Age" data={getMeData?.user?.age ?? ""} />
               <LabelData label="Department" data={getMeData?.department} />
               <LabelData label="Email" data={getMeData?.user?.email} />

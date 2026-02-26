@@ -52,7 +52,7 @@ const Login = () => {
                 return;
             }
             if (userData?.user?.isApprove === "REJECTED") {
-                toast.error("Your account has been reject by the super admin yet. Please contact with super admin.");
+                toast.error("Your account has been rejected by the super admin. Please contact with super admin.");
                 navigate("/");
                 return;
             }
@@ -62,47 +62,31 @@ const Login = () => {
                 return;
             }
 
-
-            // DEBUG: Log the response structure
-            console.log('🔍 [Frontend Login] Response data:', response?.data);
-            console.log('🔍 [Frontend Login] userData (Provider object):', userData);
-            console.log('🔍 [Frontend Login] userData.user:', userData?.user);
-            console.log('🔍 [Frontend Login] userData.user.subscription:', userData?.user?.subscription);
-
             const fixedUserData = {
                 ...userData,
                 clientList: userData?.clientList?.map((item: Client) => item.client) || []
             };
 
-            console.log('🔍 [Frontend Login] fixedUserData after spread:', fixedUserData);
-            console.log('🔍 [Frontend Login] fixedUserData.user:', fixedUserData?.user);
-            console.log('🔍 [Frontend Login] fixedUserData.user.subscription:', fixedUserData?.user?.subscription);
 
-            // Save token
             localStorage.setItem("token", response?.data?.token);
             const encryptedPrivateKey = userData?.user?.privateKey;
-            console.log("encryptedPrivateKey", encryptedPrivateKey);
 
             if (encryptedPrivateKey) {
                 const decryptedKeyString = CryptoJS.AES.decrypt(encryptedPrivateKey, data.password).toString(CryptoJS.enc.Utf8);
                 const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
                 console.log("decryptedPrivateKeyUint8", decryptedPrivateKeyUint8);
 
-                // dispatch(saveDecryptedPrivateKey(decryptedPrivateKeyUint8));
 
                 const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8); // Convert to string
                 dispatch(saveDecryptedPrivateKey(base64Key));
             }
 
 
-            // Login user detail data
-            console.log('🔍 [Frontend Login] Dispatching to Redux:', fixedUserData);
             dispatch(saveLoginUserDetailsReducer(fixedUserData));
 
             toast.success(response?.message);
 
 
-            // Navigate based on role
             navigateToRoleDashboard(userData)
 
 
@@ -126,7 +110,6 @@ const Login = () => {
         if (role === "superAdmin") return navigate("/pending-users");
 
         if (role === "provider") {
-            // Always redirect to dashboard as requested
             return navigate("/dashboard");
         }
 

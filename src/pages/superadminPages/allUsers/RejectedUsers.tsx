@@ -27,7 +27,7 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 
 
 const RejectedUsers = () => {
-    const heading = ["Sr. No", "Name", "License Number", "Country", "State", "status", "Role", "date", "action"]
+    const heading = ["Sr. No", "Name", "License No/Client ID", "Country", "State", "status", "Role", "date", "action"]
     const showRestoreModal = useSelector((state: RootState) => state.modalSlice.isShowRestoreModal)
     const [isDocLoading, setIsDocLoading] = useState(false);
     const navigate = useNavigate()
@@ -138,7 +138,7 @@ const RejectedUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
-                                        {data?.licenseNo}
+                                        {data?.licenseNo || data?.client?.clientId}
                                     </td>
                                     <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td>
                                     <td className="px-4 py-3">{data.state}</td>

@@ -6,7 +6,8 @@ interface LoginData {
     password: string;
 }
 
-interface LicenseNoData {
+interface ClientIdData {
+    clientId?: string;
     licenseNo?: string;
 }
 
@@ -55,7 +56,7 @@ class AuthService {
             throw error || "Reset password failed";
         }
     }
-    async findLicenseNo(data: LicenseNoData) {
+    async findLicenseNo(data: ClientIdData) {
 
 
         try {

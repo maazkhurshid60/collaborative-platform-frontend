@@ -89,7 +89,7 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
 // Optional: map backend field names to your RHF fields
 const FIELD_MAP: Record<string, keyof FormFields> = {
   fullName: "fullName",
-  licenseNo: "licenseNo",
+  // licenseNo removed
   age: "age",
   email: "email",
   contactNo: "contactNo",
@@ -142,7 +142,7 @@ const AddClient = () => {
 
       // Normalize values before sending
       formData.append("fullName", data.fullName);
-      formData.append("licenseNo", String(data.licenseNo));
+      // licenseNo is removed
       formData.append("age", data.age ? String(data.age) : "");
       formData.append("email", data.email);
       formData.append("contactNo", String(data.contactNo));
@@ -256,14 +256,7 @@ const AddClient = () => {
               error={errors.age?.message}
             />
 
-            <InputField
-              required
-              type="text"
-              label="License Number"
-              register={register("licenseNo")}
-              placeHolder="Enter license number."
-              error={errors.licenseNo?.message}
-            />
+            {/* License Number input removed */}
 
             <InputField
               required

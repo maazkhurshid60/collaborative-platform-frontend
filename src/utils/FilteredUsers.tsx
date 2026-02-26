@@ -19,6 +19,7 @@ export const filterUsers = (users: User[], searchTerm: string): User[] => {
             user.role?.toLowerCase().includes(lowerSearch) ||
             user.isApprove?.toLowerCase().includes(lowerSearch) ||
             user.licenseNo?.toLowerCase().includes(lowerSearch) ||
+            user.client?.clientId?.toLowerCase().includes(lowerSearch) ||
             user.createdAt?.split("T")[0]?.includes(lowerSearch)
         );
     });
@@ -65,7 +66,7 @@ export const filterClients = (users: ClientType[], searchTerm: string): ClientTy
             country.toLowerCase().includes(lowerSearch) ||
             user?.user?.role?.toLowerCase().includes(lowerSearch) ||
             user?.user?.isApprove?.toLowerCase().includes(lowerSearch) ||
-            user?.user?.licenseNo?.toLowerCase().includes(lowerSearch) ||
+            user?.clientId?.toLowerCase().includes(lowerSearch) ||
             user.createdAt?.split("T")[0]?.includes(lowerSearch)
         );
     });

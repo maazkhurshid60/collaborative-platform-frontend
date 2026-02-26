@@ -40,7 +40,7 @@ const VerifiedUsers = () => {
   const heading = [
     "Sr. No",
     "Name",
-    "License Number",
+    "License No/Client ID",
     "Country",
     "State",
     "Status",
@@ -225,7 +225,7 @@ const VerifiedUsers = () => {
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">
-                    {data?.licenseNo}
+                    {data?.licenseNo || data?.client?.clientId}
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">

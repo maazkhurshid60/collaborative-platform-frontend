@@ -18,6 +18,7 @@ export interface ProviderType {
 }
 export interface Client {
     id?: string
+    clientId?: string
     client?: { clientShowToOthers: boolean, user?: { fullName?: string } }
     email?: string
 }

@@ -21,7 +21,7 @@ import ViewIcon from '../../../icons/view/View';
 
 const ClientList = () => {
   // 1) Add S.No. as first heading
-  const heading = ["S.No.", "name", "license No", "gender", "email", "status", "providers", "action"];
+  const heading = ["S.No.", "name", "Client ID", "gender", "email", "status", "providers", "action"];
 
   const [isLoader, setIsLoader] = useState(false);
   const queryClient = useQueryClient();
@@ -138,19 +138,19 @@ const ClientList = () => {
                     className="border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s"
                   >
                     {/* S.No. column */}
-                    <td className="px-2 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
+                    <td className="px-4 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
 
-                    <td className="px-2 py-4">{data?.user?.fullName}</td>
-                    <td className="px-2 py-4">{data?.user?.licenseNo}</td>
-                    <td className="px-2 py-4 capitalize">{data?.user?.gender}</td>
-                    <td className="px-2 py-4 lowercase">{data?.user?.email}</td>
-                    <td className="px-2 py-4">
+                    <td className="px-4 py-4">{data?.user?.fullName}</td>
+                    <td className="px-4 py-4">{data?.clientId}</td>
+                    <td className="px-4 py-4 capitalize">{data?.user?.gender}</td>
+                    <td className="px-4 py-4 lowercase">{data?.user?.email}</td>
+                    <td className="px-4 py-4">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'bg-red-100 text-red-800'}`}>
                         {data?.user?.status?.toLowerCase()}
                       </span>
                     </td>
 
-                    <td className="px-2 py-2 w-[100px]">
+                    <td className="px-4 py-2 w-[100px]">
                       {data?.providerList?.length === 0 || data?.providerList === undefined ? (
                         <p>No Providers Found</p>
                       ) : (
@@ -181,8 +181,8 @@ const ClientList = () => {
                       )}
                     </td>
 
-                    <td className="py-4 h-full align-middle">
-                      <div className="flex items-center justify-center gap-x-2 h-full">
+                    <td className="px-4 py-4 h-full align-middle">
+                      <div className="flex items-center justify-start gap-x-2 h-full">
                         {(
                           (data?.providerList?.length ?? 0) !== 0 &&
                           data?.providerList?.some(

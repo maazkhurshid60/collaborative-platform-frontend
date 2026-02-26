@@ -65,18 +65,7 @@ const CountryStateSelect = ({
     }
   }, [defaultCountry, dirtyFields.country, getValues, setValue]);
 
-  // When country changes, clear state if it's not valid for the new country
-  useEffect(() => {
-    const currentState = getValues("state");
-    if (!selectedCountry) {
-      if (currentState) setValue("state", "", { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-
-    if (currentState && !stateOptions.some((s) => s.value === currentState)) {
-      setValue("state", "", { shouldDirty: true, shouldValidate: true });
-    }
-  }, [getValues, selectedCountry, setValue, stateOptions]);
+  // State clearing is handled gracefully by the Dropdown onChange to avoid race conditions on mount when both fields are prepopulated
 
   // Apply defaultState only if it exists for selected country AND user hasn't touched state
   useEffect(() => {

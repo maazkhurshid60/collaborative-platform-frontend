@@ -86,11 +86,9 @@ export const SubscriptionSettingPage = () => {
         amount: payment.rawAmount ? `$${payment.rawAmount.toFixed(2)}` : (payment.amount || "$0.00"),
         date: formatDate(payment.createdAt || payment.date),
         status: payment.status || "Paid",
-        // keep full data for invoice
         _raw: payment,
     })) || [];
 
-    // Resolve billing email: prefer Redux store, fall back to first payment's billTo.email
     const emailFromPayment = rawPayments[0]?.billTo?.email;
     const resolvedBillingEmail = (userEmail && userEmail !== "-" && userEmail !== "")
         ? userEmail
@@ -274,7 +272,9 @@ export const SubscriptionSettingPage = () => {
                             <div className="flex  justify-between">
                                 <div className="w-full flex flex-col items-start justify-between gap-2">
                                     <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.billingInfoSection.emailTitle}</p>
-                                    <p className="text-[16px] font-medium text-black font-[Poppins]">{subscriptionData.billingEmail}</p>
+                                    <p className="text-[16px] font-medium text-black font-[Poppins] truncate max-w-[150px] sm:max-w-[200px]" title={subscriptionData.billingEmail}>
+                                        {subscriptionData.billingEmail.length > 20 ? `${subscriptionData.billingEmail.slice(0, 20)}...` : subscriptionData.billingEmail}
+                                    </p>
                                 </div>
                                 {/* 2nd div biling address */}
                                 <div className="w-full flex flex-col items-start justify-between gap-2">

@@ -13,6 +13,7 @@ interface InputFieldProps {
     variant?: "default" | "signup"
     groupName?: boolean;
     disabled?: boolean;
+    value?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -25,6 +26,7 @@ const InputField: React.FC<InputFieldProps> = ({
     required = false,
     variant = "default",
     disabled = false,
+    value,
 }) => {
     const [isHidden, setIsHidden] = useState(true);
 
@@ -39,7 +41,8 @@ const InputField: React.FC<InputFieldProps> = ({
             <div className="relative">
                 <input
                     {...register}
-                    className={` bg-inputBgColor rounded-[8px] w-[100%] pt-2 pb-2 pl-2.5 outline-0  placeholder:text-[16px] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0
+                    value={value}
+                    className={` bg-inputBgColor rounded-[8px] w-full pt-2 pb-2 pl-2.5 outline-0  placeholder:text-[16px] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0
                         placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
                         `}
                     type={

@@ -64,18 +64,14 @@ type ESignatureAction = "keep" | "replace" | "remove";
 const Settings = () => {
   const [isEdit, setIsEdit] = useState(false);
 
-  // signPreviewUrl is what you show in <img src="..."> (either server url or object url)
   const [signPreviewUrl, setSignPreviewUrl] = useState<string | null>(null);
 
-  // keep a reference to the existing signature from server (string url/path), separate from preview
   const [existingSignature, setExistingSignature] = useState<string | null>(null);
 
-  // actual file selected by user (if any)
   const [selectedSignatureFile, setSelectedSignatureFile] = useState<File | null>(
     null
   );
 
-  // tracks explicit intent for signature
   const [eSignatureAction, setESignatureAction] =
     useState<ESignatureAction>("keep");
 
@@ -119,6 +115,7 @@ const Settings = () => {
         role: loginUserId?.user?.role,
         loginUserId: loginUserId?.id,
       });
+      console.log("response of client", response);
       return response?.data?.data;
     },
     enabled: Boolean(loginUserId?.id),
@@ -133,35 +130,29 @@ const Settings = () => {
     return String(raw);
   }, [getMeData?.eSignature]);
 
-  // Populate form + local signature state whenever getMeData changes
   useEffect(() => {
     if (!getMeData) return;
 
     setGetMeDetail(getMeData);
 
-    // Reset RHF values from server
     reset({
       fullName: getMeData?.user?.fullName ?? "",
-      // Keep licenseNo type aligned with your schema; if schema expects number, pass number.
-      // If it expects string, pass string. Here we preserve the original approach but safely.
-      licenseNo: getMeData?.user?.licenseNo ? String(getMeData.user.licenseNo) : "",
+      licenseNo: getMeData?.user?.role === "client"
+        ? (getMeData?.clientId ?? "")
+        : (getMeData?.user?.licenseNo ?? ""),
       email: getMeData?.user?.email ?? "",
       country: getMeData?.user?.country ?? "",
       state: getMeData?.user?.state ?? "",
       address: getMeData?.user?.address ?? "",
-      // password omitted intentionally
     } as any);
 
-    // Signature state: existing from server
     setExistingSignature(normalizedServerSignature);
     setSignPreviewUrl(normalizedServerSignature);
 
-    // When data refreshes, treat as no pending change
     setSelectedSignatureFile(null);
     setESignatureAction("keep");
   }, [getMeData, normalizedServerSignature, reset]);
 
-  // Clean up object URLs to avoid memory leaks
   useEffect(() => {
     return () => {
       if (signPreviewUrl && signPreviewUrl.startsWith("blob:")) {
@@ -284,7 +275,9 @@ const Settings = () => {
     if (getMeData) {
       reset({
         fullName: getMeData?.user?.fullName ?? "",
-        licenseNo: getMeData?.user?.licenseNo ? String(getMeData.user.licenseNo) : "",
+        licenseNo: getMeData?.user?.role === "client"
+          ? (getMeData?.clientId ?? "")
+          : (getMeData?.user?.licenseNo ?? ""),
         email: getMeData?.user?.email ?? "",
         country: getMeData?.user?.country ?? "",
         state: getMeData?.user?.state ?? "",
@@ -382,12 +375,13 @@ const Settings = () => {
               />
 
               <InputField
+                disabled
                 required
-                label="License Number"
+                label={getMeData?.user?.role === "client" ? "Client ID" : "License Number"}
                 type="text"
-                register={register("licenseNo")}
-                placeHolder="Enter license number."
-                error={errors.licenseNo?.message}
+                register={register("licenseNo" as any)} // Still using licenseNo field in form but with clientId value for clients
+                placeHolder={getMeData?.user?.role === "client" ? "Client ID" : "Enter license number."}
+                error={(errors as any).licenseNo?.message}
               />
 
               <InputField
@@ -454,7 +448,10 @@ const Settings = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
             <LabelData label="Full Name" data={getMeData?.user?.fullName} />
-            <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
+            <LabelData
+              label={getMeData?.user?.role === "client" ? "Client ID" : "License Number"}
+              data={getMeData?.user?.role === "client" ? getMeData?.clientId : getMeData?.user?.licenseNo}
+            />
             <LabelData
               label="Email ID"
               data={getMeData?.user?.email?.toLowerCase()}

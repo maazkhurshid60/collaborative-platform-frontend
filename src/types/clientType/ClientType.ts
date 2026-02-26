@@ -2,6 +2,7 @@ import { ProviderType } from "../providerType/ProviderType"
 
 export interface ClientType {
     id?: string
+    clientId?: string  // Auto-generated unique identifier (e.g. CLT-20260224-001234)
     email?: string
     password?: string
     userId?: string
@@ -58,6 +59,7 @@ export interface User {
 
 
 export interface GetMeType {
+    clientId: string;
     createdAt: string;
     eSignature: string | null | undefined;
     email: string;

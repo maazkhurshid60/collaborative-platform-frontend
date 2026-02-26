@@ -62,7 +62,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     useEffect(() => {
 
         if (clientData) {
-            setValue("licenseNo", clientData?.user?.licenseNo ?? "")
+            // licenseNo is replaced by clientId and is not a form field
             setValue("email", clientData?.user?.email ?? "")
             setValue("fullName", clientData?.user?.fullName ?? "")
             setValue("status", (clientData?.user?.status ?? "").toLowerCase())
@@ -117,7 +117,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('clientId', clientData?.id || '')
         formData.append('fullName', data.fullName)
         formData.append('email', data.email)
-        formData.append('licenseNo', data.licenseNo)
+        // licenseNo is no longer sent or updated for clients
         formData.append('age', data?.age?.toString() || '');
         formData.append('status', data.status ?? 'active')
         formData.append('gender', data.gender ?? 'Male')
@@ -201,7 +201,8 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField disabled={!canEdit} required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
-                        <InputField disabled={!canEdit} required label='license Number' type='text' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+
+                        <InputField disabled label="Client ID" value={clientData?.clientId ?? '-'} />
 
                         <InputField disabled={!canEdit} label='Age' type='number' register={register("age")} placeHolder='Enter Age.' error={errors.age?.message} />
                         <InputField disabled={!canEdit} required label='Email' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} />
@@ -239,27 +240,29 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         />
                         <InputField disabled={!canEdit} label='Address' register={register("address")} placeHolder='Enter Address.' error={errors.address?.message} />
 
-                        <Dropdown<FormFields>
-                            name="status"
-                            label="Status"
-                            control={control}
-                            options={statusOption}
-                            placeholder="Choose an option"
-                            error={errors.status?.message}
-                            disable={!canEdit}
-                        />
+                        <div className="flex flex-col gap-y-5">
+                            <Dropdown<FormFields>
+                                name="status"
+                                label="Status"
+                                control={control}
+                                options={statusOption}
+                                placeholder="Choose an option"
+                                error={errors.status?.message}
+                                disable={!canEdit}
+                            />
 
-                        <div className=' '>
-                            <LabelData label='List of Providers' />
-                            <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
-                                {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
-                                    ? <p>No Providers Found</p>
-                                    : clientData?.providerList.map((provider: Provider, index) => (
-                                        <li className='flex items-center gap-x-1 capitalize' key={index}>
-                                            <GoDotFill size={10} /> {provider?.provider?.user?.fullName}
-                                        </li>
-                                    ))}
-                            </ul>
+                            <div>
+                                <LabelData label='List of Providers' />
+                                <ul className='text-[14px] font-medium text-textGreyColor list-disc '>
+                                    {clientData?.providerList?.length === 0 || clientData?.providerList === undefined
+                                        ? <p>No Providers Found</p>
+                                        : clientData?.providerList.map((provider: Provider, index) => (
+                                            <li className='flex items-center gap-x-1 capitalize' key={index}>
+                                                <GoDotFill size={10} /> {provider?.provider?.user?.fullName}
+                                            </li>
+                                        ))}
+                                </ul>
+                            </div>
                         </div>
                         <div className='mt-8'
                         >
