@@ -69,6 +69,10 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
             pdf.save(`invoice-${invoice.invoiceNo}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);
+        } finally {
+            if (autoDownload) {
+                onClose();
+            }
         }
     };
 
@@ -77,7 +81,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
             // Small delay to ensure render is complete and animations finished
             const timer = setTimeout(() => {
                 handleDownloadPdf();
-            }, 1000);
+            }, 100);
             return () => clearTimeout(timer);
         }
     }, [isOpen, autoDownload]);
@@ -85,7 +89,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50">
+        <div className={`fixed inset-0 z-50 overflow-y-auto ${autoDownload ? 'opacity-0 pointer-events-none' : 'bg-black/50'}`}>
             <div className="flex min-h-screen items-center justify-center p-4">
                 <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
                     {/* Modal Header */}
@@ -135,29 +139,30 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
 
                         {/* Items Table */}
                         <div className="bg-[#F9FAFB] rounded-[8px] p-4 mb-4">
-                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold mb-2 pb-2 border-b" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
-                                <div className="col-span-5">Description</div>
+                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold mb-2 pb-2 border-b pl-2 pr-2" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
+                                <div className="col-span-4">Description</div>
                                 <div className="col-span-2 text-center">Qty</div>
                                 <div className="col-span-2 text-right">Price</div>
                                 <div className="col-span-2 text-right">Amount</div>
-                                <div className="col-span-1 text-right">Status</div>
+                                <div className="col-span-2 text-right pr-2">Status</div>
                             </div>
                             {invoice.items.map((item: any, id: number) => (
-                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] pr-3 items-center py-1" style={{ color: '#4b5563' }}>
-                                    <div className="col-span-5">
-                                        <p className="font-semibold" style={{ color: '#111827' }}>{item.description}</p>
-                                        <p className="text-[9px]" style={{ color: '#6b7280' }}>{item.subtext}</p>
+                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-2 pl-2 pr-2" style={{ color: '#4b5563' }}>
+                                    <div className="col-span-4 pr-2">
+                                        <p className="font-semibold truncate" style={{ color: '#111827' }}>{item.description}</p>
+                                        <p className="text-[9px] truncate" style={{ color: '#6b7280' }}>{item.subtext}</p>
                                     </div>
                                     <div className="col-span-2 text-center font-medium">{item.qty}</div>
                                     <div className="col-span-2 text-right">{item.price}</div>
                                     <div className="col-span-2 text-right font-medium" style={{ color: '#111827' }}>{item.amount}</div>
-                                    <div className="col-span-1 text-right">
+                                    <div className="col-span-2 flex justify-end  pr-2">
                                         <span
                                             style={{
                                                 backgroundColor: item.status.toLowerCase() === 'paid' ? '#dcfce7' : item.status.toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2',
                                                 color: item.status.toLowerCase() === 'paid' ? '#15803d' : item.status.toLowerCase() === 'pending' ? '#a16207' : '#b91c1c',
+
                                             }}
-                                            className="px-1.5  py-0.5 rounded text-[9px] font-medium"
+                                            className="px-1.5 py-0.5 rounded text-[9px] font-medium whitespace-nowrap"
                                         >
                                             {item.status}
                                         </span>

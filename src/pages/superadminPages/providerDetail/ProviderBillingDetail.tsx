@@ -9,6 +9,7 @@ import DeleteProviderBilling from "../../../components/modals/superAdminModal/de
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi";
 import { toast } from "react-toastify";
 import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf";
+import Loader from "../../../components/loader/Loader";
 
 const ProviderBillingDetail = () => {
     const { id } = useParams()
@@ -32,7 +33,6 @@ const ProviderBillingDetail = () => {
         "Action",
     ];
 
-    console.log(subscription, "the subscription data is");
     const fetchAllData = async () => {
         if (!id) return;
         try {
@@ -170,7 +170,9 @@ const ProviderBillingDetail = () => {
     };
 
     if (loading) {
-        return <div className="p-10 text-center">Loading provider details...</div>;
+        return <div className="flex flex-col items-center justify-center h-screen">
+            <Loader />
+        </div>;
     }
 
     if (!contactInfo) {
@@ -180,14 +182,14 @@ const ProviderBillingDetail = () => {
     const totalRevenue = paymentHistory.reduce((sum, p) => p.status === 'SUCCEEDED' ? sum + p.amount : sum, 0);
 
     return (
-        <div className="flex flex-col p-5 gap-y-5">
+        <div className="flex flex-col p-2 gap-y-5">
 
             {/* User Details */}
             <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
                 <div className="flex flex-row items-start  justify-between w-full">
                     <p className='text-[24px] md:text-[32px] font-semibold mb-3'>Provider Billing Details</p>
                     <div className="flex flex-row items-center gap-x-2">
-                        <button onClick={() => setShowDeleteModal(true)} className="w-[114px] h-[38px] bg-white border cursor-pointer border-[#2C9993] rounded-lg flex items-center justify-center gap-x-2">
+                        <button onClick={() => setShowDeleteModal(true)} className="w-[114px] h-[38px] bg-white border cursor-pointer hover:bg-[#2C9993]/10 border-[#2C9993] rounded-lg flex items-center justify-center gap-x-2">
                             <span className="text-[16px] font-medium text-[#2C9993]">Delete</span>
                             <Trash className="w-[20px] h-[20px] text-[#2C9993] " />
                         </button>

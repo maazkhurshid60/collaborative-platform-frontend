@@ -99,6 +99,9 @@ const ClientSignup = () => {
                     <form onSubmit={handleSubmit(signupFunction)}>
                         <div className='mb-3.5'>
                             <InputField disabled={isLicenseFound} required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name' error={errors?.fullName?.message} />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Letters, spaces, hyphens and apostrophes only.
+                            </p>
                         </div>
                         <div className='mb-3.5'>
                             <InputField disabled={isLicenseFound} required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
@@ -108,6 +111,9 @@ const ClientSignup = () => {
                         <CountryStateSelect disable={isLicenseFound} isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />
                         <div className='mb-3.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password' error={errors?.password?.message} />
+                            <p className="text-xs text-gray-500 mt-1 leading-tight">
+                                Min 10 chars, including 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+                            </p>
                         </div>
                         <div className='mb-3.5'>
                             <InputField required label='Confirm Password' type='password' register={register("confirmPassword")} placeHolder='Enter Confirm Password' error={errors?.confirmPassword?.message} />

@@ -300,9 +300,7 @@ const SubscriptionPage = () => {
                                 <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     <div className="flex items-center justify-start gap-x-3">
                                         <ViewIcon onClick={() => navigate(`/billing-management/${record.user?.id}`)} />
-                                        <DownloadIconComponent
-                                            onClick={() => handleDownloadInvoice(record)}
-                                        />
+
                                         <DeleteIcon
                                             onClick={() => {
                                                 setSelectedSubscriptionForDelete(record?.id ?? "");

@@ -21,7 +21,7 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ userId }) => {
         onSuccess: () => {
             toast.success("Account deleted successfully");
             dispatch(isModalDeleteReducer(false));
-            queryClient.invalidateQueries({ queryKey: ['user'] }); // 🔁 Refetch user data
+            queryClient.invalidateQueries({ queryKey: ['user'] });
         },
         onError: () => {
             toast.error("Failed to delete account");

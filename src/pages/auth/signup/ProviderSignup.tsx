@@ -185,6 +185,9 @@ const ProviderSignup = () => {
                         )}
                         <div className='mb-1.5'>
                             <InputField required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Letters, spaces, hyphens and apostrophes only.
+                            </p>
                         </div>
                         <div className='mb-1.5'>
                             <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} disabled={isVerified} />
@@ -211,7 +214,7 @@ const ProviderSignup = () => {
                             />
 
                             <p className="text-xs text-gray-500 mt-1">
-                                Must include at least 1 letter, 1 number, and 1 special character (min 6 chars).
+                                Min 6 chars. Must include 1 letter, 1 number, and 1 special char.
                             </p>
                         </div>
 
@@ -232,6 +235,9 @@ const ProviderSignup = () => {
                         <CountryStateSelect isCountryView={false} isStateView={true} />
                         <div className='mt-1.5 mb-1.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
+                            <p className="text-xs text-gray-500 mt-1 leading-tight">
+                                Min 10 chars, including 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+                            </p>
                         </div>
 
                         <div className='mb-1.5'>

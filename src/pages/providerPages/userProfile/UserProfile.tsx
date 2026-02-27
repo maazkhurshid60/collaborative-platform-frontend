@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import { RiArrowLeftSLine } from "react-icons/ri";
 import LabelData from "../../../components/labelText/LabelData";
 import Button from "../../../components/button/Button";
 import { useEffect, useMemo, useState } from "react";
@@ -28,7 +29,7 @@ import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
 
 import { Country } from "country-state-city";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 type FormFields = z.infer<typeof providerSchema>;
 
@@ -519,12 +520,28 @@ const UserProfile = () => {
                 </ul>
               </div>
             </div>
-
-            <div className="flex items-center justify-end w-full -mt-8">
+            <div className="flex items-center justify-end w-full mt-8">
               <div className="w-[100px]">
                 <Button text="Edit" sm onclick={handleEditClick} />
               </div>
             </div>
+
+            {getMeData?.user?.role === "admin" && (
+              <>
+                <div className='flex items-center justify-between mt-10'>
+                  <div>
+                    <p className='text-[16px] font-medium'>Change Password</p>
+                    <p className='text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%] sm:w-[80%] md:w-[100%]'>Change password to secure your account</p>
+                  </div>
+                  <NavLink to="/setting/change-password">
+                    <RiArrowLeftSLine className='rotate-[180deg] text-textGreyColor cursor-pointer text-4xl md:text-2xl' />
+                  </NavLink>
+                </div>
+                <hr className='h-[1px] text-textGreyColor mt-4' />
+              </>
+            )}
+
+
           </div>
         </>
       )}

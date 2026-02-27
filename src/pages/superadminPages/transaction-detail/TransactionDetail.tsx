@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom"
 import { getCountryNameFromCode } from "../../../utils/GetCountryName"
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi"
 import InvoiceModal from "../../../components/modals/InvoiceModal"
-
+import DownloadIcon from "../../../components/icons/download/Download"
 
 const TransactionDetail = () => {
     const navigate = useNavigate();
@@ -20,6 +20,7 @@ const TransactionDetail = () => {
     const [loading, setLoading] = useState(true);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
+    const [isAutoDownload, setIsAutoDownload] = useState(false);
 
     const recordsPerPage = 10;
 
@@ -105,9 +106,9 @@ const TransactionDetail = () => {
         }
     };
 
-    const handleViewInvoice = (data: any) => {
+    const prepareInvoiceData = (data: any) => {
         const displayStatus = formatStatus(data.status);
-        const invoice = {
+        return {
             invoiceNo: data.stripeInvoiceId || `INV-${data.id.slice(0, 8)}`,
             date: formatDate(data.periodStart || data.createdAt),
             dueDate: formatDate(data.periodEnd || data.createdAt),
@@ -132,6 +133,18 @@ const TransactionDetail = () => {
             total: `$${data.amount / 100}`,
             notes: "Thank you for being a part of our platform."
         };
+    };
+
+    const handleViewInvoice = (data: any) => {
+        setIsAutoDownload(false);
+        const invoice = prepareInvoiceData(data);
+        setSelectedInvoiceData(invoice);
+        setShowInvoiceModal(true);
+    };
+
+    const handleDownloadInvoice = (data: any) => {
+        setIsAutoDownload(true);
+        const invoice = prepareInvoiceData(data);
         setSelectedInvoiceData(invoice);
         setShowInvoiceModal(true);
     };
@@ -211,10 +224,13 @@ const TransactionDetail = () => {
                             </td>
 
                             <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                <div className="flex items-center justify-start gap-x-2">
-                                    <ViewIcon
-                                        onClick={() => handleViewInvoice(data)}
-                                    />
+                                <div className="flex items-center justify-start gap-x-3">
+                                    <button onClick={() => handleViewInvoice(data)} title="View Invoice" className="hover:scale-110 transition-transform">
+                                        <ViewIcon />
+                                    </button>
+                                    <button onClick={() => handleDownloadInvoice(data)} title="Download Invoice" className="hover:scale-110 transition-transform cursor-pointer">
+                                        <DownloadIcon className="w-[18px] h-[18px] object-cover" />
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -233,6 +249,7 @@ const TransactionDetail = () => {
                 onClose={() => setShowInvoiceModal(false)}
                 invoiceId={null}
                 invoiceData={selectedInvoiceData}
+                autoDownload={isAutoDownload}
             />
         </OutletLayout>
     )

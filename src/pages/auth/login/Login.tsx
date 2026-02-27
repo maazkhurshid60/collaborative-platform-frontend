@@ -91,12 +91,9 @@ const Login = () => {
 
 
 
-        } catch (error) {
-            if (isAxiosErrorWithAuthData(error)) {
-                toast.error(error?.response?.data.data.error);
-            } else {
-                toast.error("Unexpected error occurred.");
-            }
+        } catch (error: any) {
+            const errorMessage = error?.response?.data?.message || error?.response?.data?.data?.error || "Unexpected error occurred.";
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false)
         }

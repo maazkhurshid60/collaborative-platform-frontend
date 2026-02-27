@@ -10,11 +10,13 @@ import Loader from "../../../loader/Loader";
 import NoRecordFound from "../../../noRecordFound/NoRecordFound";
 import { useState } from "react";
 import InvoiceModal from "../../../modals/InvoiceModal";
+import DownloadIcon from "../../../icons/download/Download";
 
 const SubscriptionHistoryCard = () => {
     const heading = ["Name", "Plan", "Price", "Next Billing", "Status", "Actions"];
     const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAutoDownload, setIsAutoDownload] = useState(false);
 
     const { data: billingHistory, isLoading } = useQuery({
         queryKey: ['payments'],
@@ -35,6 +37,13 @@ const SubscriptionHistoryCard = () => {
     const currentRecords = getCurrentRecords() ?? [];
 
     const handleViewInvoice = (payment: any) => {
+        setIsAutoDownload(false);
+        setSelectedInvoice(payment);
+        setIsModalOpen(true);
+    };
+
+    const handleDownloadInvoice = (payment: any) => {
+        setIsAutoDownload(true);
         setSelectedInvoice(payment);
         setIsModalOpen(true);
     };
@@ -50,23 +59,32 @@ const SubscriptionHistoryCard = () => {
                     <Table heading={heading}>
                         {currentRecords.map((data: any) => (
                             <tr key={data.id} className="border-b border-b-solid border-b-lightGreyColor whitespace-nowrap">
-                                <td className="px-2 py-4">{data.billTo?.name || "-"}</td>
-                                <td className="px-2 py-4 capitalize">{data.plan || "Standard"}</td>
-                                <td className="px-2 py-4 ">{data.amount}</td>
-                                <td className="px-2 py-4">{data.dueDate}</td>
-                                <td className="px-2 py-4">
+                                <td className="px-4 py-3">{data.billTo?.name || "-"}</td>
+                                <td className="px-4 py-3 capitalize">{data.plan || "Standard"}</td>
+                                <td className="px-4 py-3 ">{data.amount}</td>
+                                <td className="px-4 py-3">{data.dueDate}</td>
+                                <td className="px-4 py-3">
                                     <span className="px-3 py-1  text-black rounded-full text-xs  uppercase">
                                         {data.status}
                                     </span>
                                 </td>
-                                <td className="px-2 py-4">
-                                    <button
-                                        onClick={() => handleViewInvoice(data)}
-                                        className="hover:scale-110 transition-transform text-primaryColorDark"
-                                        title="View Invoice"
-                                    >
-                                        <ViewIcon />
-                                    </button>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => handleViewInvoice(data)}
+                                            className=" text-primaryColorDark"
+                                            title="View Invoice"
+                                        >
+                                            <ViewIcon />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDownloadInvoice(data)}
+                                            className=" text-primaryColorDark cursor-pointer"
+                                            title="Download Invoice"
+                                        >
+                                            <DownloadIcon className="w-[18px] h-[18px] object-cover" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -84,6 +102,7 @@ const SubscriptionHistoryCard = () => {
                             onClose={() => setIsModalOpen(false)}
                             invoiceId={selectedInvoice.id}
                             invoiceData={selectedInvoice}
+                            autoDownload={isAutoDownload}
                         />
                     )}
                 </>
@@ -93,3 +112,4 @@ const SubscriptionHistoryCard = () => {
 };
 
 export default SubscriptionHistoryCard;
+

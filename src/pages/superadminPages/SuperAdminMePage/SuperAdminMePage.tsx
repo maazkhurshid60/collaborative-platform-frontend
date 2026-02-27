@@ -3,10 +3,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useDispatch } from "react-redux";
+import { RiArrowLeftSLine } from "react-icons/ri";
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import LabelData from "../../../components/labelText/LabelData";
 import Button from "../../../components/button/Button";
@@ -313,7 +314,18 @@ export default function SuperAdminMePage() {
             <LabelData label="State" data={adminData?.user?.state} />
           </div>
 
-          <div className="flex items-center justify-end pt-4">
+          <div className='flex items-center justify-between mt-10'>
+            <div>
+              <p className='text-[16px] font-medium'>Change Password</p>
+              <p className='text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%] sm:w-[80%] md:w-[100%]'>Change password to secure your account</p>
+            </div>
+            <NavLink to="/setting/change-password">
+              <RiArrowLeftSLine className='rotate-[180deg] text-textGreyColor cursor-pointer text-4xl md:text-2xl' />
+            </NavLink>
+          </div>
+          <hr className='h-[1px] text-textGreyColor mt-4' />
+
+          <div className="flex items-center justify-end pt-4 mt-4">
             <div className="w-[100px]">
               <Button text="Edit" sm onclick={handleEditClick} />
             </div>
