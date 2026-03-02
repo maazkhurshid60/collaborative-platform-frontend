@@ -9,7 +9,7 @@ export default function PdfViewer({ url, maxPages }: PdfViewerProps) {
   const [page, setPage] = useState(1);
 
   const prev = () => setPage((p) => Math.max(1, p - 1));
-  
+
 
   const src = useMemo(() => {
     const gview = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
@@ -52,7 +52,7 @@ export default function PdfViewer({ url, maxPages }: PdfViewerProps) {
         </div>
       </div> */}
 
-      <div className="h-[75vh] w-full overflow-hidden rounded-xl border bg-gray-50 shadow-sm">
+      <div className="h-[55vh] w-full overflow-hidden rounded-xl border bg-gray-50 shadow-sm">
         <iframe key={page} className="h-full w-full border-0" src={src} title="PDF" />
       </div>
     </div>

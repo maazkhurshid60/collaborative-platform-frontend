@@ -41,7 +41,7 @@ const LicenseNo = () => {
             const response = await authService.findLicenseNo({ clientId: identifiers.clientId });
             toast.success(response?.message);
 
-            const userData = response.data?.data;
+            const userData = response.data;
             if (!userData) {
                 // This shouldn't happen if backend returns 404 for not found, but safe handling
                 toast.error("License record is empty");

@@ -32,25 +32,38 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
     const contentRef = useRef<HTMLDivElement>(null);
     console.log("COMPLETED DOCUMENT", completedDoc);
 
-    useEffect(() => {
-        const loadDocx = async () => {
-            if (!completedDoc?.document?.url) return;
-            try {
-                const response = await fetch(completedDoc?.document.url, {
-                    credentials: 'include' // Send cookies to the backend
-                });
-                if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
+    const [previewKind, setPreviewKind] = useState<'html' | 'pdf' | 'image' | undefined>(undefined);
 
-                const arrayBuffer = await response.arrayBuffer();
-                const { value } = await mammoth.convertToHtml({ arrayBuffer });
-                setDocContent(value || '<p>No content found in document.</p>');
-            } catch (err) {
-                console.error('Error reading docx file:', err);
-                setDocContent('<p style="color:red;">Unable to load document content.</p>');
+    useEffect(() => {
+        const loadDoc = async () => {
+            if (!completedDoc?.document?.url) return;
+
+            const fileUrl = completedDoc.document.url;
+            const extension = fileUrl.split('.').pop()?.toLowerCase();
+
+            if (extension === 'pdf') {
+                setPreviewKind('pdf');
+            } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+                setPreviewKind('image');
+            } else if (['docx', 'doc'].includes(extension || '')) {
+                try {
+                    const response = await fetch(fileUrl, { credentials: 'include' });
+                    if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const { value } = await mammoth.convertToHtml({ arrayBuffer });
+                    setDocContent(value || '<p>No content found in document.</p>');
+                    setPreviewKind('html');
+                } catch (err) {
+                    console.error('Error reading docx file:', err);
+                    setDocContent('<p style="color:red;">Unable to load document content.</p>');
+                    setPreviewKind('html');
+                }
+            } else {
+                setPreviewKind('pdf'); // Fallback to Google Viewer
             }
         };
 
-        loadDocx();
+        loadDoc();
     }, [completedDoc]);
 
 
@@ -125,13 +138,23 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                         className="max-h-[500px] overflow-y-auto  rounded p-4 bg-white "
                         ref={contentRef}
                     >
-                        {/* DOCX Content */}
+                        {/* Document Content */}
                         <div>
                             <p className="font-semibold text-[14px] mb-2">Document Content:</p>
-                            <div
-                                className="prose max-w-none text-[14px]"
-                                dangerouslySetInnerHTML={{ __html: docContent }}
-                            />
+                            {previewKind === 'pdf' ? (
+                                <div className="h-[450px] w-full border rounded overflow-hidden">
+                                    <iframe src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(completedDoc?.document?.url || '')}`} className="w-full h-full border-0" title="PDF Preview" />
+                                </div>
+                            ) : previewKind === 'image' ? (
+                                <div className="flex justify-center border rounded p-2">
+                                    <img src={completedDoc?.document?.url} alt="Document" className="max-w-full h-auto object-contain" />
+                                </div>
+                            ) : (
+                                <div
+                                    className="prose max-w-none text-[14px]"
+                                    dangerouslySetInnerHTML={{ __html: docContent }}
+                                />
+                            )}
                         </div>
                         <div className='mt-4 mb-4'>
                             <div className='flex items-center gap-x-2.5'>

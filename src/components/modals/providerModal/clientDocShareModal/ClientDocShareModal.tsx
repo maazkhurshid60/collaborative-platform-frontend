@@ -67,7 +67,12 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         <InputFieldOnlyRead placeHolder='user@gmail.com' value={clientEmail} />
         <p className='font-semibold text-[14px] mt-4 mb-4'>Selected Documents</p>
         <div className='grid grid-cols-1 gap-3 mb-4'>
-            {docs?.map(data => <div className=' flex items-center gap-x-3 font-medium text-[14px] '> <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data}</div>)}
+            {docs?.map(data => (
+                <div key={data} className='flex items-center gap-x-3 font-medium text-[14px] min-w-0'>
+                    <IoDocumentTextOutline className='text-primaryColorDark text-2xl flex-shrink-0' />
+                    <span className='truncate'>{data}</span>
+                </div>
+            ))}
         </div>
         <Button text='Send' sm onclick={docShareFunction} />
     </div>

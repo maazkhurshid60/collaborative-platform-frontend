@@ -1,4 +1,5 @@
 import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, Trash, User, View, ViewIcon } from "lucide-react";
+import BackIcon from "../../../components/icons/back/Back";
 import { useNavigate, useParams } from "react-router-dom"
 import { GoDotFill } from "react-icons/go";
 
@@ -44,11 +45,8 @@ const ProviderBillingDetail = () => {
             ]);
 
             setContactInfo(contactRes.data);
-            console.log(contactRes.data);
             setSubscription(subscriptionRes.data);
-            console.log(subscriptionRes.data);
             setPaymentHistory(paymentRes.data || []);
-            console.log(paymentRes.data);
         } catch (error) {
             console.error("Failed to fetch provider details", error);
             toast.error("Failed to load provider details");
@@ -183,42 +181,71 @@ const ProviderBillingDetail = () => {
 
     return (
         <div className="flex flex-col p-2 gap-y-5">
-
             {/* User Details */}
-            <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
-                <div className="flex flex-row items-start  justify-between w-full">
-                    <p className='text-[24px] md:text-[32px] font-semibold mb-3'>Provider Billing Details</p>
+            <div className="bg-white relative w-full p-4  rounded-[20px] space-y-7 font-[Poppins] text-textColor shadow-sm">
+                <div onClick={() => navigate(-1)} className="absolute top-1 left-0 cursor-pointer">
+                    <div className="relative group cursor-pointer">
+
+
+
+                        <svg width="24" height="24" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g filter="url(#filter0_d_1042_11092)">
+                                <circle cx="20.5" cy="16.5" r="16.5" fill="white" />
+                                <path d="M24.0017 25.5726C24.2251 25.7757 24.5704 25.7554 24.7736 25.532C24.9767 25.3086 24.9564 24.9632 24.7329 24.7601L16.872 17.6507C16.6689 17.4679 16.6689 17.2039 16.872 17.0211L24.7329 10.1554C24.9564 9.9523 24.9767 9.60699 24.7939 9.38355C24.5907 9.16012 24.2454 9.1398 24.022 9.32262L16.161 16.2086C15.4704 16.8179 15.4501 17.8336 16.1407 18.4632L24.0017 25.5726Z" fill="#434459" />
+                            </g>
+                            <defs>
+                                <filter id="filter0_d_1042_11092" x="0" y="0" width="41" height="41" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                                    <feOffset dy="4" />
+                                    <feGaussianBlur stdDeviation="2" />
+                                    <feComposite in2="hardAlpha" operator="out" />
+                                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1042_11092" />
+                                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1042_11092" result="shape" />
+                                </filter>
+                            </defs>
+                        </svg>
+
+
+                    </div>
+
+
+                </div>
+                <div className="flex flex-row items-start mt-1.5 justify-between w-full">
+                    <div className="flex flex-row items-center gap-x-4">
+
+                        <p className='text-[24px] md:text-[32px] font-semibold '>Provider Billing Details</p>
+                    </div>
                     <div className="flex flex-row items-center gap-x-2">
                         <button onClick={() => setShowDeleteModal(true)} className="w-[114px] h-[38px] bg-white border cursor-pointer hover:bg-[#2C9993]/10 border-[#2C9993] rounded-lg flex items-center justify-center gap-x-2">
                             <span className="text-[16px] font-medium text-[#2C9993]">Delete</span>
                             <Trash className="w-[20px] h-[20px] text-[#2C9993] " />
                         </button>
                         <button
-                            //   disabled={subscription?.status === "inactive" || true}
                             disabled={true}
                             onClick={() => {
                                 navigate(`/provider/refund/${id}`)
-                            }} className={`w-[114px] h-[38px] bg-[#2C9993]  cursor-not-allowed rounded-lg flex items-center justify-center gap-x-2`}>
+                            }} className={`w-[114px] h-[38px] bg-[#2C9993] cursor-not-allowed rounded-lg flex items-center justify-center gap-x-2`}>
                             <span className="text-[16px] font-medium text-white">Refund</span>
                         </button>
                     </div>
                 </div>
                 <div className="flex flex-row items-center gap-x-3 w-full">
                     <div
-                        className="w-[139px] h-[139px] rounded-full  border-[3px] p-1 border-[#FFC600] flex items-center justify-center"
+                        className="w-[139px] h-[139px] rounded-full border-[3px] p-1 border-[#FFC600] flex items-center justify-center"
                     >
                         {contactInfo.profileImage ? (
-                            <img src={contactInfo.profileImage} className="w-full h-full  object-cover rounded-full" alt="" />
+                            <img src={contactInfo.profileImage} className="w-full h-full object-cover rounded-full" alt="" />
                         ) : (
-                            <div className="w-full h-full rounded-full bg-black flex  items-center justify-center">
-                                <User className="w-[60px] h-[60px] text-gray-500  " />
+                            <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                                <User className="w-[60px] h-[60px] text-gray-500" />
                             </div>
                         )}
-
                     </div>
                     <div className="flex flex-col items-start gap-y-1">
                         <p className="font-[Poppins] text-[20px] md:text-[24px] font-semibold">{contactInfo.fullName}</p>
-                        <p className="font-[Poppins]  font-[14px] text-[#666666]">{contactInfo.email}</p>
+                        <p className="font-[Poppins] font-[14px] text-[#666666]">{contactInfo.email}</p>
                         <div className="flex flex-row items-start gap-x-2">
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-[#FAF5FF] flex items-center justify-center">
                                 <p className="font-[Poppins] text-[12px] font-medium text-[#9D27B0] capitalize">{subscription?.plan || "Free"}</p>
@@ -256,21 +283,14 @@ const ProviderBillingDetail = () => {
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Phone Number</p>
                             <p className="text-[16px] font-medium">{contactInfo.contactNo || "-"}</p>
                         </div>
-
-
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Outstanding Amount</p>
                             <p className="text-[16px] font-medium">$0.00</p>
                         </div>
-
-
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Speciality </p>
                             <p className="text-[16px] font-medium">{contactInfo.provider?.department || "Cardiology"}</p>
                         </div>
-
-
-
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Payment Method</p>
                             <p className="text-[16px] font-medium">
@@ -281,7 +301,7 @@ const ProviderBillingDetail = () => {
                         </div>
                     </div>
                 </div>
-                <div className="w-full h-[1px] bg-[#E2E8F0]" />
+                <div className="w-full h-px bg-[#E2E8F0]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="w-full h-[72px] bg-linear-to-b from-[#ECFDF5] to-[#F0FDF4] rounded-[12px] p-4 flex items-center gap-x-2.5">
                         <div className="w-[40px] h-[40px] rounded-xl bg-[#059669] flex items-center justify-center">
@@ -291,9 +311,7 @@ const ProviderBillingDetail = () => {
                             <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Member Since</p>
                             <p className="text-[12px] font-bold ">{new Date(contactInfo.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
                         </div>
-
                     </div>
-
                     <div className="w-full h-[72px] bg-linear-to-b from-[#EFF6FF] to-[#EEF2FF] rounded-[12px] p-4 flex items-center gap-x-2.5">
                         <div className="w-[40px] h-[40px] rounded-xl bg-[#4F46E5] flex items-center justify-center">
                             <Clock className="text-white" size={18} />
@@ -302,9 +320,7 @@ const ProviderBillingDetail = () => {
                             <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Last Payment</p>
                             <p className="text-[12px] font-bold ">{paymentHistory[0] ? formatDate(paymentHistory[0].createdAt) : "-"}</p>
                         </div>
-
                     </div>
-
                     <div className="w-full h-[72px] bg-linear-to-b from-[#FFFBEB] to-[#FFF7ED] rounded-[12px] p-4 flex items-center gap-x-2.5">
                         <div className="w-[40px] h-[40px] rounded-xl bg-[#D97706] flex items-center justify-center">
                             <FileText className="text-white" size={18} />
@@ -313,16 +329,15 @@ const ProviderBillingDetail = () => {
                             <p className="text-[10px] font-normal text-(--color-transaction-summary-text)">Total Invoices</p>
                             <p className="text-[12px] font-bold ">{paymentHistory.length}</p>
                         </div>
-
                     </div>
                 </div>
             </div>
-            {/* Amount and reason input  */}
-            <div className="bg-white relative w-full p-4 pt-5  rounded-[20px]  font-[Poppins] text-textColor shadow-sm">
-                <div className="flex flex-col items-start justify-between w-full gap-y-3    ">
+
+            {/* Customer Plan Details */}
+            <div className="bg-white relative w-full p-4 pt-5 rounded-[20px] font-[Poppins] text-textColor shadow-sm">
+                <div className="flex flex-col items-start justify-between w-full gap-y-3">
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Customer Plan Details</p>
                     <div className="flex flex-row w-full gap-x-4">
-
                         <div className="flex flex-col w-1/3 h-[293px] rounded-[12px] gap-y-3 pt-4 pb-4 pl-4 pr-4 bg-[#2C9993]">
                             <div className="flex items-start justify-between mt-2">
                                 <p className="text-[14px] text-white font-medium">Current Plan</p>
@@ -336,11 +351,10 @@ const ProviderBillingDetail = () => {
                                     ? (subscription?.plan === 'PRO' ? '$756' : '$278')
                                     : (subscription?.plan === 'PRO' ? '$79' : '$29')
                                 }
-                                <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[75px]' : 'left-[60px]'} top-[10px]  font-[poppins] text-white z-10 `}>
+                                <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[75px]' : 'left-[60px]'} top-[10px] font-[poppins] text-white z-10 `}>
                                     {subscription?.billingCycle === 'YEARLY' ? '/yearly' : '/monthly'}
                                 </span>
                             </p>
-
                             <div className="w-full h-px mt-5 bg-white/20 " />
                             <div className="flex flex-col items-start justify-evenly">
                                 <div className="flex flex-row w-full justify-between">
@@ -356,8 +370,6 @@ const ProviderBillingDetail = () => {
                                     <p className="text-[14px] text-white font-medium">{subscription?.cancelAtPeriodEnd ? "Disabled" : "Enabled"}</p>
                                 </div>
                             </div>
-
-
                         </div>
                         <div className="flex flex-col gap-y-5 bg-inputBgColor w-full h-[293px] rounded-[12px] pt-4 pb-4 pl-4 pr-4 overflow-y-auto">
                             <p className="text-[16px] font-medium mt-5" >Plan Features</p>
@@ -379,76 +391,77 @@ const ProviderBillingDetail = () => {
                     <p className="text-[20px] md:text-[24px] font-semibold pb-4">Payment History</p>
                     <div className="w-full">
                         <Table heading={heading}>
-                            {paymentHistory.map((data, idx) => (
-                                <tr
-                                    key={data.id || idx}
-                                    className="border-b border-b-solid border-b-lightGreyColor"
-                                >
-                                    {/* Date */}
-                                    <td className="px-4 py-3 align-middle">
-                                        <div className="flex items-center gap-x-4">
-                                            {formatDate(data.createdAt)}
-                                        </div>
-                                    </td>
-
-                                    {/* Invoice */}
-                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                        <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "-"}</p>
-                                    </td>
-
-                                    {/* Description */}
-                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                        {data.plan || "Subscription Payment"}
-                                    </td>
-
-                                    {/* Amount */}
-                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                        {formatCurrency(data.amount)}
-                                    </td>
-
-                                    {/* Status */}
-                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
+                            {
+                                paymentHistory.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-4 py-3 h-[40px] align-middle text-center">
+                                            No payment history found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paymentHistory.map((data, idx) => (
+                                        <tr
+                                            key={data.id || idx}
+                                            className="border-b border-b-solid border-b-lightGreyColor"
                                         >
-                                            <GoDotFill
-                                                className="text-base"
-                                            />
-                                            {formatStatus(data.status)}
-                                        </span>
-                                    </td>
-
-                                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                        <div className="flex items-center justify-start gap-x-2">
-
-                                            <Eye
-                                                size={24}
-                                                color="#808B97"
-                                                className="cursor-pointer"
-                                                onClick={() => {
-                                                    setSelectedInvoiceId(data.id);
-                                                    setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
-                                                    setShowInvoiceModal(true);
-                                                    setAutoDownload(false);
-                                                }}
-                                            />
-                                            <Download
-                                                size={24}
-                                                className="cursor-pointer"
-                                                color="#808B97"
-                                                onClick={async () => {
-                                                    const invoice = mapPrismaPaymentToInvoice(data);
-                                                    if (invoice) await downloadInvoicePdf(invoice);
-                                                }}
-                                            />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                            <td className="px-4 py-3 align-middle">
+                                                <div className="flex items-center gap-x-4">
+                                                    {formatDate(data.createdAt)}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                                <p className="uppercase leading-5 text-[15px] text-[#2C9993] font-medium">{data.stripeInvoiceId || "-"}</p>
+                                            </td>
+                                            <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                                {data.plan || "Subscription Payment"}
+                                            </td>
+                                            <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                                {formatCurrency(data.amount)}
+                                            </td>
+                                            <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                                <span
+                                                    className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${getStatusColor(data.status)}`}
+                                                >
+                                                    <GoDotFill
+                                                        className="text-base"
+                                                    />
+                                                    {formatStatus(data.status)}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 align-middle whitespace-nowrap">
+                                                <div className="flex items-center justify-start gap-x-2">
+                                                    <Eye
+                                                        size={24}
+                                                        color="#808B97"
+                                                        className="cursor-pointer"
+                                                        onClick={() => {
+                                                            setSelectedInvoiceId(data.id);
+                                                            setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
+                                                            setShowInvoiceModal(true);
+                                                            setAutoDownload(false);
+                                                        }}
+                                                    />
+                                                    <Download
+                                                        size={24}
+                                                        className="cursor-pointer"
+                                                        color="#808B97"
+                                                        onClick={async () => {
+                                                            const invoice = mapPrismaPaymentToInvoice(data);
+                                                            if (invoice) await downloadInvoicePdf(invoice);
+                                                        }}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                    )
+                                )
+                            }
                         </Table>
                     </div>
                 </div>
             </div>
+
             <InvoiceModal
                 isOpen={showInvoiceModal}
                 onClose={() => {
@@ -470,7 +483,7 @@ const ProviderBillingDetail = () => {
                 />
             )}
         </div>
-    )
-}
+    );
+};
 
-export default ProviderBillingDetail
+export default ProviderBillingDetail;

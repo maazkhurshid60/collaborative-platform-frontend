@@ -186,10 +186,10 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../../loader/Loader";
 import PdfViewer from "../../../pdfViewer/PdfViewer";
 
-type PreviewKind = "html" | "pdf";
+type PreviewKind = "html" | "pdf" | "image";
 
 interface ViewDocModalProps {
-  sharedDocs?: string; // HTML for docx/image
+  sharedDocs?: string; // HTML for docx/others
   data: documentSignByClientType;
   isOnlyRead?: boolean;
 
@@ -268,16 +268,20 @@ const ModalBodyContent: React.FC<{
         {/* CONTENT AREA */}
         {previewKind === "pdf" && pdfUrl ? (
           <PdfViewer url={pdfUrl} />
+        ) : previewKind === "image" && pdfUrl ? (
+          <div className="max-h-[500px] overflow-auto flex justify-center border rounded p-2">
+            <img src={pdfUrl} alt="Document Preview" className="max-w-full h-auto object-contain" />
+          </div>
         ) : (
-          <div className="h-[300px] overflow-auto">
-            <div className="p-4 text-textColor" dangerouslySetInnerHTML={{ __html: docs }} />
+          <div className="max-h-[400px] overflow-auto border rounded">
+            <div className="p-4 text-textColor prose max-w-none" dangerouslySetInnerHTML={{ __html: docs }} />
           </div>
         )}
 
         {/* SIGNING AREA */}
         {!isOnlyRead && (
           <>
-            <div className="mt-4 mb-4">
+            <div className="mt-4 mb-4 ">
               <div className="flex items-center gap-x-2.5">
                 <Checkbox
                   text="I agree to the terms and condition mentioned above."

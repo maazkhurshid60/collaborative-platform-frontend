@@ -4,6 +4,7 @@ import mammoth from 'mammoth';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Button from '../../../button/Button';
+import PdfViewer from '../../../pdfViewer/PdfViewer';
 import { MdOutlineFileDownload } from 'react-icons/md';
 
 interface Document {
@@ -29,25 +30,40 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
     const [docContent, setDocContent] = useState<string>('');
     const contentRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const loadDocx = async () => {
-            if (!completedDoc?.url) return;
-            try {
-                const response = await fetch(completedDoc.url, {
-                    credentials: 'include'
-                });
-                if (!response.ok) throw new Error(`Failed to fetch docx file: ${response.status}`);
+    const [previewKind, setPreviewKind] = useState<'pdf' | 'image' | 'docx'>('docx');
 
-                const arrayBuffer = await response.arrayBuffer();
-                const { value } = await mammoth.convertToHtml({ arrayBuffer });
-                setDocContent(value || '<p>No content found in document.</p>');
-            } catch (err) {
-                console.error('Error reading docx file:', err);
-                setDocContent('<p style="color:red;">Unable to load document content.</p>');
+    useEffect(() => {
+        const loadDoc = async () => {
+            if (!completedDoc?.url) return;
+            const url = completedDoc.url;
+            const extension = url.split('.').pop()?.toLowerCase();
+
+            if (extension === 'pdf') {
+                setPreviewKind('pdf');
+            } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+                setPreviewKind('image');
+            } else if (['docx', 'doc'].includes(extension || '')) {
+                setPreviewKind('docx');
+                try {
+                    const response = await fetch(url, {
+                        credentials: 'include'
+                    });
+                    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const { value } = await mammoth.convertToHtml({ arrayBuffer });
+                    setDocContent(value || '<p>No content found in document.</p>');
+                } catch (err) {
+                    console.error('Error reading docx file:', err);
+                    setDocContent('<p style="color:red;">Unable to load document content.</p>');
+                }
+            } else {
+                // Fallback to Google Viewer for unknown types
+                setPreviewKind('pdf');
             }
         };
 
-        loadDocx();
+        loadDoc();
     }, [completedDoc]);
 
     const filteredRecords =
@@ -105,7 +121,7 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         <ModalLayout
             heading="Share the documents with clients"
             modalBodyContent={
-                <div className="mt-4 ">
+                <div className="mt-10 ">
                     {showDownloadButton &&
                         <div className="text-right flex items-center justify-end">
 
@@ -120,43 +136,48 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
 
                     {/* Scrollable content in modal */}
                     <div
-                        className="max-h-[500px] overflow-y-auto  rounded p-4 bg-white "
+                        className="max-h-[500px] overflow-y-auto rounded p-2 bg-white"
                         ref={contentRef}
                     >
-                        {/* DOCX Content */}
-                        <div>
-                            <p className="font-semibold text-[14px] mb-2">Document Content:</p>
+                        {/* CONTENT AREA */}
+                        <p className="font-semibold text-[14px] mb-2">Document Content:</p>
+                        {previewKind === "pdf" && completedDoc?.url ? (
+                            <PdfViewer url={completedDoc.url} />
+                        ) : previewKind === "image" && completedDoc?.url ? (
+                            <div className="flex justify-center border rounded p-2">
+                                <img src={completedDoc.url} alt="Document Preview" className="max-w-full h-auto object-contain" />
+                            </div>
+                        ) : (
                             <div
-                                className="prose max-w-none text-[14px]"
+                                className="prose max-w-none text-[14px] p-2"
                                 dangerouslySetInnerHTML={{ __html: docContent }}
                             />
-                        </div>
-
-                        {/* eSignatures */}
-                        {filteredRecords.length > 0 && (
-                            <div>
-                                <p className="font-semibold text-[14px] mb-2">Esignatures:</p>
-                                <div className="flex flex-wrap gap-4">
-                                    {filteredRecords.map((record) =>
-                                        record.eSignature ? (
-                                            <img
-                                                key={record.id}
-                                                src={record.eSignature}
-                                                alt="eSignature"
-                                                crossOrigin="use-credentials"
-                                                className="w-[400px] h-[200px] border rounded shadow mt-4"
-                                                onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                                            />
-                                        ) : (
-                                            <p key={record.id} className="text-sm text-gray-500">
-                                                No eSignature available
-                                            </p>
-                                        )
-                                    )}
-                                </div>
-                            </div>
                         )}
                     </div>
+                    {/* eSignatures */}
+                    {filteredRecords.length > 0 && (
+                        <div>
+                            <p className="font-semibold text-[14px] mb-2">Esignatures:</p>
+                            <div className="flex flex-wrap gap-4">
+                                {filteredRecords.map((record) =>
+                                    record.eSignature ? (
+                                        <img
+                                            key={record.id}
+                                            src={record.eSignature}
+                                            alt="eSignature"
+                                            crossOrigin="use-credentials"
+                                            className="w-[400px] h-[200px] border rounded shadow mt-4"
+                                            onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                                        />
+                                    ) : (
+                                        <p key={record.id} className="text-sm text-gray-500">
+                                            No eSignature available
+                                        </p>
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             }
         />

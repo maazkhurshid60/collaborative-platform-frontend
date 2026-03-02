@@ -77,16 +77,20 @@ const Dropdown = <T extends FieldValues>({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => {
+        render={({ field, fieldState }) => {
           const selectedLabel =
             field.value
               ? sortedOptions.find((opt) => opt.value === field.value)?.label
               : "";
 
+          // Source of truth for error: RHF fieldState.error, fallback to manual error prop
+          const errorMessage = fieldState.error?.message || (error ? error.toString() : "");
+
           return (
             <div>
               <div
-                className="bg-inputBgColor rounded-md p-2 cursor-pointer flex justify-between items-center"
+                className={`bg-inputBgColor rounded-md p-2 cursor-pointer flex justify-between items-center ${errorMessage ? "border border-red-500" : ""
+                  }`}
                 onClick={toggleDropdown}
               >
                 <span className="text-gray-700" data-testid={datatestid}>
@@ -94,9 +98,8 @@ const Dropdown = <T extends FieldValues>({
                 </span>
 
                 <svg
-                  className={`w-5 h-5 transform transition-transform duration-300 ${
-                    isOpen ? "rotate-180" : "rotate-0"
-                  }`}
+                  className={`w-5 h-5 transform transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
+                    }`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -107,9 +110,8 @@ const Dropdown = <T extends FieldValues>({
               </div>
 
               <div
-                className={`absolute bg-white border border-gray-300 rounded-md mt-1 w-full shadow-md z-10 transition-all duration-300 ease-in-out overflow-hidden ${
-                  isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`absolute bg-white border border-gray-300 rounded-md mt-1 w-full shadow-md z-10 transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                  }`}
               >
                 <input
                   type="text"
@@ -144,12 +146,11 @@ const Dropdown = <T extends FieldValues>({
                   )}
                 </ul>
               </div>
+              {errorMessage && <p className="errorText text-left mt-1">{errorMessage}</p>}
             </div>
           );
         }}
       />
-
-      {error && <p className="errorText text-left mt-1">{error.toString()}</p>}
     </div>
   );
 };

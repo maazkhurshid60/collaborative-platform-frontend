@@ -139,23 +139,23 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
 
                         {/* Items Table */}
                         <div className="bg-[#F9FAFB] rounded-[8px] p-4 mb-4">
-                            <div className="grid grid-cols-12 gap-2 text-[10px] font-bold mb-2 pb-2 border-b pl-2 pr-2" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
+                            <div className="grid grid-cols-12 gap-2 text-[10px] items-center font-bold mb-2 pb-2 border-b px-2" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
                                 <div className="col-span-4">Description</div>
                                 <div className="col-span-2 text-center">Qty</div>
-                                <div className="col-span-2 text-right">Price</div>
-                                <div className="col-span-2 text-right">Amount</div>
-                                <div className="col-span-2 text-right pr-2">Status</div>
+                                <div className="col-span-2 text-center">Price</div>
+                                <div className="col-span-2 text-center">Amount</div>
+                                <div className="col-span-2 text-center">Status</div>
                             </div>
                             {invoice.items.map((item: any, id: number) => (
-                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-2 pl-2 pr-2" style={{ color: '#4b5563' }}>
-                                    <div className="col-span-4 pr-2">
+                                <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-2 px-2" style={{ color: '#4b5563' }}>
+                                    <div className="col-span-4">
                                         <p className="font-semibold truncate" style={{ color: '#111827' }}>{item.description}</p>
                                         <p className="text-[9px] truncate" style={{ color: '#6b7280' }}>{item.subtext}</p>
                                     </div>
                                     <div className="col-span-2 text-center font-medium">{item.qty}</div>
-                                    <div className="col-span-2 text-right">{item.price}</div>
-                                    <div className="col-span-2 text-right font-medium" style={{ color: '#111827' }}>{item.amount}</div>
-                                    <div className="col-span-2 flex justify-end  pr-2">
+                                    <div className="col-span-2 text-center">{item.price}</div>
+                                    <div className="col-span-2 text-center font-medium" style={{ color: '#111827' }}>{item.amount}</div>
+                                    <div className="col-span-2 flex justify-center">
                                         <span
                                             style={{
                                                 backgroundColor: item.status.toLowerCase() === 'paid' ? '#dcfce7' : item.status.toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2',

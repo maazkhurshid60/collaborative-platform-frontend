@@ -35,9 +35,16 @@ function isObject(v: unknown): v is Record<string, unknown> {
 }
 
 function normalizeBackendErrors(payload: unknown): Array<{ field?: string; message: string }> {
-  // Tries to normalize common NestJS/class-validator responses.
-  // Return a list of { field, message }.
   if (!payload) return [];
+
+  // Case: { statusCode: 400, data: { error: [{ message: "...", path: ["fullName"] }] }, ... }
+  if (isObject(payload) && isObject((payload as any).data) && Array.isArray((payload as any).data?.error)) {
+    const errors = (payload as any).data.error;
+    return errors.map((e: any) => ({
+      field: Array.isArray(e.path) ? e.path[0] : e.field || e.property,
+      message: e.message
+    })).filter((e: any) => e.message);
+  }
 
   // Case: { message: ["email must be an email", ...], error: "Bad Request", statusCode: 400 }
   if (isObject(payload) && Array.isArray(payload.message)) {
@@ -63,9 +70,6 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
         .filter(Boolean) as Array<{ field?: string; message: string }>;
     }
   }
-
-
-
 
   // Case: { error: { email: "Invalid email", age: "Required" } }
   if (isObject(payload) && isObject((payload as any).error)) {
@@ -245,7 +249,6 @@ const AddClient = () => {
                 { value: "female", label: "Female" },
               ]}
               placeholder="Choose an option"
-              error={errors.gender?.message}
             />
 
             <InputField
@@ -295,7 +298,6 @@ const AddClient = () => {
               control={control}
               options={statusOption}
               placeholder="Choose an option"
-              error={errors.status?.message}
             />
           </div>
 

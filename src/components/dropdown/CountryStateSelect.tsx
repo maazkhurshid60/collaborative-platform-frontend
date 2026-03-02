@@ -89,12 +89,11 @@ const CountryStateSelect = ({
             control={control}
             options={countryOptions}
             placeholder="Select a country"
-            error={errors?.country?.message as unknown as FieldError}
             required={required}
             disable={disable}
             // Side effect only: clear state when user selects a country
             onChange={() => {
-              setValue("state", "", { shouldDirty: true, shouldValidate: true });
+              setValue("state", "", { shouldDirty: true });
             }}
           />
         </div>
@@ -108,7 +107,6 @@ const CountryStateSelect = ({
             control={control}
             options={stateOptions}
             placeholder={selectedCountry ? "Select a state" : "Select country first"}
-            error={errors?.state?.message as unknown as FieldError}
             required={required}
             disable={disable || !selectedCountry}
           />

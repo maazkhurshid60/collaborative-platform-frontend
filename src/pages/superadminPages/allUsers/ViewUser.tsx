@@ -195,7 +195,7 @@ const ViewUser = () => {
               className="w-20 h-20 rounded-lg object-cover"
             />
           ) : (
-            <UserIcon className="text-6xl mt-2" />
+            <UserIcon className="text-6xl mt-2 text-black" />
           )}
         </div>
 

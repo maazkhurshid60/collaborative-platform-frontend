@@ -130,7 +130,7 @@ const UserProfile = () => {
         loginUserId: loginUserDetail?.user?.id || loginUserDetail?.id,
       };
       const response = await loginUserApiService.getMeApi(dataSendToBackend);
-      return response?.data?.data;
+      return response?.data;
     },
     enabled: Boolean(loginUserDetail?.id),
   });

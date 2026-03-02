@@ -294,7 +294,7 @@ export default function SuperAdminMePage() {
                   className="w-32 h-32 rounded-lg object-cover shadow-sm border border-gray-100"
                 />
               ) : (
-                <UserIcon className="text-8xl text-textColor opacity-20" />
+                <UserIcon className="text-8xl text-black " />
               )}
             </div>
           </div>

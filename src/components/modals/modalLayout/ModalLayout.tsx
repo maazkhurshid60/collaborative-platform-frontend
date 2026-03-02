@@ -120,13 +120,13 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
   };
 
   return (
-    <div className="fixed left-0 top-0 bg-[#171717]/70 w-[100vw] h-[100vh] z-50 flex items-center justify-center">
-      <div className="w-[90%] md:w-[40%]">
-        <div className="bg-white w-[100%] p-5 pb-10 rounded-[20px]">
+    <div className="fixed left-0 top-0 bg-textColor/70 w-screen h-screen z-50 flex items-center justify-center">
+      <div className="w-[90%] md:w-[60%] lg:w-[45%] max-h-[95vh] flex flex-col">
+        <div className="bg-white w-full p-5 pb-15  rounded-[20px] overflow-y-auto">
           {/* HEADER */}
-          <div className={`flex items-center ${props.heading ? 'pb-4 border-b-[1px] border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>
+          <div className={`flex items-center pt-5   ${props.heading ? 'pb-4 border-b border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>
             {props.heading && (
-              <div className="w-[100%] text-center">
+              <div className="w-full text-center">
                 <p className="text-center font-semibold text-[18px]">{props.heading}</p>
               </div>
             )}

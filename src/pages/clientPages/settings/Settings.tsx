@@ -115,8 +115,7 @@ const Settings = () => {
         role: loginUserId?.user?.role,
         loginUserId: loginUserId?.id,
       });
-      console.log("response of client", response);
-      return response?.data?.data;
+      return response?.data;
     },
     enabled: Boolean(loginUserId?.id),
   });
@@ -183,9 +182,6 @@ const Settings = () => {
   const updateMutation = useMutation({
     mutationFn: async (formData: FormData) => {
       const response = await loginUserApiService.updateMeApi(formData);
-      if (!response) {
-        throw new Error("Failed to update account");
-      }
       dispatch(saveLoginUserDetailsReducer(response?.data));
       return response;
     },
@@ -411,7 +407,7 @@ const Settings = () => {
               />
             </div>
 
-            <hr className="w-full h-[1px] text-greyColor mt-10" />
+            <hr className="w-full h-px text-greyColor mt-10" />
 
             <div className="w-[300px] mt-10">
               <div className="flex items-start gap-x-2.5">
@@ -464,7 +460,7 @@ const Settings = () => {
             <LabelData label="State" data={getMeData?.user?.state} />
           </div>
 
-          <hr className="w-full h-[1px] text-greyColor mt-10" />
+          <hr className="w-full h-px text-greyColor mt-10" />
 
           <div className="w-[300px] mt-10">
             <p className="font-semibold mb-2">E-Signature</p>

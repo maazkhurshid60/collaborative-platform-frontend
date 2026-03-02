@@ -88,12 +88,16 @@ const Document = () => {
     };
 
     const [selectedDoc, setSelectedDoc] = useState("")
+    const [previewKind, setPreviewKind] = useState<"html" | "pdf" | "image" | undefined>(undefined)
+    const [pdfUrl, setPdfUrl] = useState<string | undefined>(undefined)
     const [dataSendToSignedDocModal, setDataSendToSignedDocModal] = useState<DocumentType | undefined>(undefined)
     const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({ clientId: "", providerId: "", documentId: "", sharedDocumentId: "", eSignature: "", isAgree: false, recipientId: "" })
 
     useEffect(() => {
         if (!showModal) {
             setSelectedDoc("");
+            setPreviewKind(undefined);
+            setPdfUrl(undefined);
             setDataSendToViewDocModal({
                 clientId: "",
                 providerId: "",
@@ -105,39 +109,54 @@ const Document = () => {
             });
         }
     }, [showModal]);
+
     const callFun = async (value: DocumentType) => {
         if (value.isAgree) {
-
-            console.log("getCurrentRecords()?.find(data => data?.id === data?.id)", value.id);
             setDataSendToSignedDocModal(getCurrentRecords()?.find(data => data?.id === value?.id))
             dispatch(isshowSignedDocumentModalClientPortalReducer(true));
             return;
-        }
-        else {
+        } else {
             try {
                 const fileUrl = value?.document?.url && value?.document?.url.startsWith("http") && value?.document?.url;
 
                 if (fileUrl) {
-                    const response = await fetch(fileUrl, {
-                        credentials: 'include'
+                    const extension = fileUrl.split('.').pop()?.toLowerCase();
+
+                    setDataSendToViewDocModal({
+                        clientId: value?.clientId,
+                        providerId: value?.providerId,
+                        documentId: value?.id,
+                        recipientId: value?.provider?.userId
                     });
-                    if (!response.ok) throw new Error("File not found");
 
-                    const arrayBuffer = await response.arrayBuffer();
-
-                    const result = await mammoth.convertToHtml({ arrayBuffer });
-                    const htmlContent = result.value; // this is safe HTML
-
-                    setSelectedDoc(htmlContent);
-                    setDataSendToViewDocModal({ clientId: value?.clientId, providerId: value?.providerId, documentId: value?.id, recipientId: value?.provider?.userId })
-                    dispatch(isModalShowReducser(true));
+                    if (extension === 'pdf') {
+                        setPdfUrl(fileUrl);
+                        setPreviewKind('pdf');
+                        dispatch(isModalShowReducser(true));
+                    } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '')) {
+                        setPdfUrl(fileUrl);
+                        setPreviewKind('image');
+                        dispatch(isModalShowReducser(true));
+                    } else if (['docx', 'doc'].includes(extension || '')) {
+                        const response = await fetch(fileUrl, { credentials: 'include' });
+                        if (!response.ok) throw new Error("File not found");
+                        const arrayBuffer = await response.arrayBuffer();
+                        const result = await mammoth.convertToHtml({ arrayBuffer });
+                        setSelectedDoc(result.value);
+                        setPreviewKind('html');
+                        dispatch(isModalShowReducser(true));
+                    } else {
+                        // Fallback to Google Viewer via PDF viewer for other types
+                        setPdfUrl(fileUrl);
+                        setPreviewKind('pdf');
+                        dispatch(isModalShowReducser(true));
+                    }
                 }
             } catch (err) {
                 toast.error("Unable to preview document.");
                 console.error(err);
             }
         }
-
     }
 
     console.log(getCurrentRecords());
@@ -157,6 +176,8 @@ const Document = () => {
                 <ViewDocModal
                     sharedDocs={selectedDoc}
                     data={dataSendToViewDocModal as documentSignByClientType}
+                    previewKind={previewKind as any}
+                    pdfUrl={pdfUrl}
                 />
             )}
             <div className="flex items-center justify-end mt-4">
