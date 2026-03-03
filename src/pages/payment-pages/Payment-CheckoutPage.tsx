@@ -260,6 +260,7 @@ export const PaymentCheckoutPage = () => {
         setIsInitializing(true);
         try {
             const data = {
+                // @ts-ignore
                 email: token ? userDetails?.user?.email : userData?.email,
                 name: token ? userDetails?.user?.fullName : userData?.fullName,
                 planType,
