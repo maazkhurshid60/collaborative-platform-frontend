@@ -18,6 +18,57 @@ const CancelSubscriptionModalBody: React.FC<CancelSubscriptionModalProps> = ({ o
     const dispatch = useDispatch<AppDispatch>();
     const userDetails = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
     const [isLoading, setIsLoading] = useState(false);
+    const [reason, setReason] = useState("");
+
+    const handleCancel = async () => {
+        if (isLoading) return;
+
+        if (!reason) {
+            toast.warning("Please select a reason for cancellation");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const response = await subscriptionApiService.cancelSubscription(reason);
+            toast.success(response.message || "Subscription canceled successfully");
+
+            // Immediately refresh user data so the restricted UI shows at once
+            if (userDetails?.user?.id && userDetails?.user?.role) {
+                dispatch(setIsRefreshing(true));
+                try {
+                    const refreshedUser = await authService.getMe(userDetails.user.id, userDetails.user.role);
+
+                    // Match the same resilient pattern used in App.tsx for extracting user data
+                    let updatedDetails: any = null;
+                    if (refreshedUser?.data?.data && refreshedUser.data.data.user) {
+                        updatedDetails = refreshedUser.data.data;
+                    } else if (refreshedUser?.data && refreshedUser.data.user) {
+                        updatedDetails = refreshedUser.data;
+                    } else if (refreshedUser?.user) {
+                        updatedDetails = refreshedUser;
+                    }
+
+                    if (updatedDetails) {
+                        dispatch(saveLoginUserDetailsReducer(updatedDetails));
+                    }
+                } catch (refreshError) {
+                    console.error("Failed to refresh user data after cancellation:", refreshError);
+                } finally {
+                    dispatch(setIsRefreshing(false));
+                }
+            }
+
+            onClose?.();
+
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Cancellation failed";
+            toast.error(message);
+            console.error("Cancellation failed", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="flex flex-col items-center text-center p-2">
@@ -55,7 +106,12 @@ const CancelSubscriptionModalBody: React.FC<CancelSubscriptionModalProps> = ({ o
             <div className="w-full text-left mb-8">
                 <label className="block text-[14px] font-medium text-[#101828] mb-2 font-[Poppins]">Select a Reason</label>
                 <div className="relative">
-                    <select className="w-full bg-[#F2F4F7] border-none rounded-[8px] p-4 pr-10 text-[16px] text-[#666666] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2C9993]/20 font-[Poppins] cursor-pointer">
+                    <select
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        disabled={isLoading}
+                        className="w-full bg-[#F2F4F7] border-none rounded-[8px] p-4 pr-10 text-[16px] text-[#666666] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2C9993]/20 font-[Poppins] cursor-pointer"
+                    >
                         <option value="">Select</option>
                         <option value="too-expensive">Too expensive</option>
                         <option value="missing-features">Missing features</option>
@@ -76,56 +132,7 @@ const CancelSubscriptionModalBody: React.FC<CancelSubscriptionModalProps> = ({ o
                     Keep My Subscription
                 </button>
                 <button
-                    onClick={async () => {
-                        const selectElement = document.querySelector('select');
-                        const reason = selectElement?.value;
-
-                        if (!reason) {
-                            toast.warning("Please select a reason for cancellation");
-                            return;
-                        }
-
-                        try {
-                            setIsLoading(true);
-                            const response = await subscriptionApiService.cancelSubscription(reason);
-                            toast.success(response.message || "Subscription canceled successfully");
-
-                            // Immediately refresh user data so the restricted UI shows at once
-                            if (userDetails?.user?.id && userDetails?.user?.role) {
-                                dispatch(setIsRefreshing(true));
-                                try {
-                                    const refreshedUser = await authService.getMe(userDetails.user.id, userDetails.user.role);
-
-                                    // Match the same resilient pattern used in App.tsx for extracting user data
-                                    let updatedDetails: any = null;
-                                    if (refreshedUser?.data?.data && refreshedUser.data.data.user) {
-                                        updatedDetails = refreshedUser.data.data;
-                                    } else if (refreshedUser?.data && refreshedUser.data.user) {
-                                        updatedDetails = refreshedUser.data;
-                                    } else if (refreshedUser?.user) {
-                                        updatedDetails = refreshedUser;
-                                    }
-
-                                    if (updatedDetails) {
-                                        dispatch(saveLoginUserDetailsReducer(updatedDetails));
-                                    }
-                                } catch (refreshError) {
-                                    console.error("Failed to refresh user data after cancellation:", refreshError);
-                                } finally {
-                                    dispatch(setIsRefreshing(false));
-                                }
-                            }
-
-                            onClose?.();
-
-                        } catch (error: any) {
-                            const message = error.response?.data?.message || "Cancellation failed";
-                            toast.error(message);
-                            console.error("Cancellation failed", error);
-                        } finally {
-                            setIsLoading(false);
-                        }
-                    }}
+                    onClick={handleCancel}
                     disabled={isLoading}
                     className={`flex-1 py-3 px-4 bg-[#2C9993] text-white rounded-[8px] font-semibold text-[16px] transition-colors font-[Poppins] flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:bg-[#2C9993]/90'}`}
                 >
