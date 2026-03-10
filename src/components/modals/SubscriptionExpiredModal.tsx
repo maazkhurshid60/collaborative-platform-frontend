@@ -97,7 +97,8 @@ const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> = ({ onC
                             onClick={handleClose}
                             className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
                         >
-                            Renew Subscription                        </button>
+                            Renew Subscription
+                        </button>
                     </div>
                 </div>
             </div>

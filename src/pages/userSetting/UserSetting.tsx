@@ -89,7 +89,7 @@ const UserSetting = () => {
     return (
         <OutletLayout heading='Settings' backButton={<BackIcon onClick={() => navigate(-1)} />}>
             {isBlockListScreen && <BlockList blockListData={filteredData} />}
-            {isShowDeleteModal && <DeleteClientModal onDeleteConfirm={deleteMe} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
+            {isShowDeleteModal && <DeleteClientModal heading='Delete Account' onDeleteConfirm={deleteMe} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
             />}
             <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} profile={loginUserDetail?.user?.profileImage} />
             <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>

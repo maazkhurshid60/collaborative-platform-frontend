@@ -17,7 +17,6 @@ const ProviderBillingDetail = () => {
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
     const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
-    const [autoDownload, setAutoDownload] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [contactInfo, setContactInfo] = useState<any>(null);
@@ -296,7 +295,7 @@ const ProviderBillingDetail = () => {
                             <p className="text-[16px] font-medium">
                                 {paymentHistory.find(p => p.paymentMethodLast4)?.paymentMethodLast4
                                     ? `Credit Card **** ${paymentHistory.find(p => p.paymentMethodLast4).paymentMethodLast4}`
-                                    : "4343"}
+                                    : "-"}
                             </p>
                         </div>
                     </div>
@@ -348,10 +347,10 @@ const ProviderBillingDetail = () => {
                             <p className="text-[24px] font-bold text-white font-[Poppins] capitalize">{subscription?.plan === 'PRO' ? 'Professional Plus' : (subscription?.plan || 'Standard')}</p>
                             <p className="text-[36px] relative font-bold text-white font-[raleway]">
                                 {subscription?.billingCycle === 'YEARLY'
-                                    ? (subscription?.plan === 'PRO' ? '$756' : '$278')
-                                    : (subscription?.plan === 'PRO' ? '$79' : '$29')
+                                    ? (subscription?.plan === 'STANDARD' ? '$95.90' : '$119.88')
+                                    : (subscription?.plan === 'PRO' ? '$79' : '$9.99')
                                 }
-                                <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[75px]' : 'left-[60px]'} top-[10px] font-[poppins] text-white z-10 `}>
+                                <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[104px]' : 'left-[85px]'} top-[10px] font-[poppins] text-white z-10 `}>
                                     {subscription?.billingCycle === 'YEARLY' ? '/yearly' : '/monthly'}
                                 </span>
                             </p>
@@ -363,7 +362,11 @@ const ProviderBillingDetail = () => {
                                 </div>
                                 <div className="flex flex-row w-full justify-between">
                                     <p className="text-[14px] text-[#D1FAE5] font-normal ">Renewal Date</p>
-                                    <p className="text-[14px] text-white font-medium">{formatDate(subscription?.currentPeriodEnd)}</p>
+                                    <p className="text-[14px] text-white font-medium">
+                                        {subscription?.status === 'TRIALING'
+                                            ? formatDate(subscription?.trialEnd)
+                                            : formatDate(subscription?.currentPeriodEnd)}
+                                    </p>
                                 </div>
                                 <div className="flex flex-row w-full justify-between">
                                     <p className="text-[14px] text-[#D1FAE5] font-normal ">Auto-Renewal</p>
@@ -438,7 +441,6 @@ const ProviderBillingDetail = () => {
                                                             setSelectedInvoiceId(data.id);
                                                             setSelectedInvoiceData(mapPrismaPaymentToInvoice(data));
                                                             setShowInvoiceModal(true);
-                                                            setAutoDownload(false);
                                                         }}
                                                     />
                                                     <Download
@@ -466,11 +468,9 @@ const ProviderBillingDetail = () => {
                 isOpen={showInvoiceModal}
                 onClose={() => {
                     setShowInvoiceModal(false);
-                    setAutoDownload(false);
                 }}
                 invoiceId={selectedInvoiceId}
                 invoiceData={selectedInvoiceData}
-                autoDownload={autoDownload}
             />
             {showDeleteModal && (
                 <DeleteProviderBilling

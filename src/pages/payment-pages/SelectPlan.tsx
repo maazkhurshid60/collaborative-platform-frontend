@@ -62,8 +62,8 @@ const SelectPlan = () => {
 
         {
             name: 'Standard',
-            monthlyPrice: '29',
-            annualPrice: '278',
+            monthlyPrice: '9.99',
+            annualPrice: '95.90',
             description: 'Best for small businesses',
             // Only offer trial if user has NEVER had one
             // Show "Subscribe Now" if: upgrading OR already used trial before
@@ -152,7 +152,7 @@ const SelectPlan = () => {
                                                 ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                             </span>
                                             {plan.name !== 'Free Trial' && (
-                                                <span className={`ml-1 absolute top-3 left-19 ${billingCycle === 'monthly' ? 'left-19' : 'left-24'} text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                                <span className={`ml-1 absolute top-3  ${billingCycle === 'monthly' ? 'left-29' : 'left-36'} text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
                                                     {billingCycle === 'monthly' ? '/month' : '/yearly'}
                                                 </span>
                                             )}
@@ -229,7 +229,7 @@ const SelectPlan = () => {
                         {/* Footer Auth Link - Only show if not upgrading */}
                         {!isUpgradeFlow && (
                             <p className="text-[#64748B] text-[16px] mb-8">
-                                Already have an account{' '}
+                                Already have an account
                                 <span
                                     onClick={() => navigate('/')}
                                     className="text-[#2C9993] font-bold underline cursor-pointer hover:text-[#238a84] transition-colors"

@@ -32,8 +32,8 @@ export default function ChangePlanScreen() {
         {
             name: "Standard",
             description: "Perfect for startups and small teams",
-            monthlyPrice: 29,
-            annualPrice: 278,
+            monthlyPrice: 9.99,
+            annualPrice: 95.90,
             features: [
                 "Up to 100 customers",
                 "Basic invoicing & billing",
@@ -46,41 +46,41 @@ export default function ChangePlanScreen() {
             isPopular: false,
             theme: 'basic'
         },
-        // {
-        //     name: "Pro",
-        //     description: "Best for growing businesses",
-        //     monthlyPrice: 79,
-        //     annualPrice: 63,
-        //     features: [
-        //         "Up to 1,000 customers",
-        //         "Advanced invoicing & automation",
-        //         "Priority support 24/7",
-        //         "Multi-currency support",
-        //         "Advanced analytics & reports",
-        //         "API access & integrations",
-        //         "Team collaboration tools"
-        //     ],
-        //     isActive: currentPlan === 'PRO', // Dynamic from backend
-        //     isPopular: true,
-        //     theme: 'pro'
-        // },
-        // {
-        //     name: "Enterprise",
-        //     description: "For large-scale operations",
-        //     monthlyPrice: 199,
-        //     annualPrice: 159,
-        //     features: [
-        //         "Unlimited customers",
-        //         "Custom billing workflows",
-        //         "Dedicated account manager",
-        //         "White-label options",
-        //         "Custom integrations",
-        //         "Advanced security & compliance"
-        //     ],
-        //     isActive: false,
-        //     isPopular: false,
-        //     theme: 'enterprise'
-        // }
+        {
+            name: "Pro",
+            description: "Best for growing businesses",
+            monthlyPrice: 79,
+            annualPrice: 63,
+            features: [
+                "Up to 1,000 customers",
+                "Advanced invoicing & automation",
+                "Priority support 24/7",
+                "Multi-currency support",
+                "Advanced analytics & reports",
+                "API access & integrations",
+                "Team collaboration tools"
+            ],
+            isActive: currentPlan === 'PRO', // Dynamic from backend
+            isPopular: true,
+            theme: 'pro'
+        },
+        {
+            name: "Enterprise",
+            description: "For large-scale operations",
+            monthlyPrice: 199,
+            annualPrice: 159,
+            features: [
+                "Unlimited customers",
+                "Custom billing workflows",
+                "Dedicated account manager",
+                "White-label options",
+                "Custom integrations",
+                "Advanced security & compliance"
+            ],
+            isActive: false,
+            isPopular: false,
+            theme: 'enterprise'
+        }
     ];
 
     // Get the active plan's price based on plan name and billing cycle
@@ -203,19 +203,21 @@ export default function ChangePlanScreen() {
                         className={`flex items-center gap-2 px-8 py-2.5 rounded-[6px] text-sm font-medium transition-all cursor-pointer ${billingCycle === 'annually' ? 'bg-[#2C9993] text-white shadow-sm' : 'text-[#7E7D83] hover:text-[#101828]'}`}
                     >
                         Annually
-                        <span className={`px-2 py-0.5 text-[12px] rounded-md bg-[#b5e19f]/40 text-[#306F11]`}>Save 20%</span>
+                        <span className={`px-2 py-0.5 text-[12px] text-[#306F11] rounded-md bg-green-200 `}>Save 20%</span>
                     </button>
                 </div>
 
                 {/* Plans Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full} `}>
                     {plans.map((plan) => (
                         <div
                             key={plan.name}
                             className={`relative flex flex-col p-8 rounded-[20px] transition-all duration-300 ${plan.theme === 'pro'
                                 ? 'bg-[#2C9993] text-white shadow-xl scale-105 z-10'
                                 : 'bg-white text-[#101828] shadow-md'
-                                } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}`}
+                                } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}
+                                ${plan.name == 'Standard' ? "h-[550px] mt-40" : ""}
+                                `}
                         >
                             {/* Badges */}
                             {plan.isActive && (
@@ -249,19 +251,20 @@ export default function ChangePlanScreen() {
                             {/* Action Button */}
                             {!plan.isActive && (
                                 <button
+                                    disabled={true}
                                     onClick={() => setSelectedPlan(plan.name.toUpperCase())}
-                                    className={`w-full py-3.5 rounded-[12px] font-semibold text-lg mb-10 transition-all cursor-pointer ${plan.theme === 'pro'
+                                    className={`w-full py-3.5 rounded-[12px] font-semibold text-lg mb-10 transition-all cursor-not-allowed ${plan.theme === 'pro'
                                         ? 'bg-transparent border-2 border-white text-white hover:bg-white/10'
                                         : 'bg-white border-2 border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
                                         } ${selectedPlan === plan.name.toUpperCase() ? 'bg-opacity-90 scale-95' : ''}`}>
-                                    {selectedPlan === plan.name.toUpperCase() ? 'Selected' : 'Get Started'}
+                                    {selectedPlan === plan.name.toUpperCase() ? 'Selected' : "Comming Soon"}
                                 </button>
                             )}
                             {plan.isActive && <div className="h-[60px] mb-10" />} {/* Spacer for active plan */}
 
                             {/* Features */}
                             <div className={`mt-auto p-6 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-inputBgColor'}`}>
-                                <ul className="space-y-4">
+                                <ul className={` space-y-4`}>
                                     {plan.features.map((feature, i) => (
                                         <li key={i} className="flex items-start gap-3">
                                             <div className="mt-1 shrink-0">
@@ -281,7 +284,7 @@ export default function ChangePlanScreen() {
                 <div className="flex flex-row justify-end items-end gap-x-2 mt-20 w-full">
                     <button
                         onClick={handleCancel}
-                        disabled={isLoading}
+                        disabled={isLoading || true}
                         className="w-[220px] h-[60px] border-[#2C9993] border-2 flex items-center cursor-pointer justify-center rounded-[12px] text-[#2C9993] text-[18px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                         Cancel
                     </button>

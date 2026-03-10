@@ -39,16 +39,16 @@ export async function downloadInvoicePdf(invoiceData: {
     const itemRows = invoiceData.items.map(item => {
         const sc = statusColor(item.status);
         return `
-            <tr style="font-size:11px; color:#4b5563; border-bottom:1px solid #f3f4f6;">
-                <td style="padding:8px 4px; width:40%;">
-                    <p style="font-weight:600; color:#111827; margin:0;">${item.description}</p>
-                    <p style="font-size:9px; color:#6b7280; margin:2px 0 0;">${item.subtext}</p>
+            <tr style="font-size:11px; color:#4b5563;  solid #f3f4f6;">
+                <td style="padding:12px 6px; width:40%;">
+                    <p style="font-weight:600; color:#111827; margin:0 0 4px 0;">${item.description}</p>
+                    <p style="font-size:9px; color:#6b7280; margin:0; line-height:1.4;">${item.subtext}</p>
                 </td>
-                <td style="padding:8px 4px; text-align:center; font-weight:500;">${item.qty}</td>
-                <td style="padding:8px 4px; text-align:right;">${item.price}</td>
-                <td style="padding:8px 4px; text-align:right; font-weight:600; color:#111827;">${item.amount}</td>
-                <td style="padding:8px 4px; text-align:right;">
-                    <span style="background:${sc.bg}; color:${sc.color}; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:600;">${item.status}</span>
+                <td style="padding:12px 6px; text-align:center; font-weight:500;">${item.qty}</td>
+                <td style="padding:12px 6px; text-align:center;">${item.price}</td>
+                <td style="padding:12px 6px; text-align:center; font-weight:600; color:#111827;">${item.amount}</td>
+                <td style="padding:12px 6px; text-align:center;">
+                    <span style="color:${sc.color}; padding:4px 8px; font-size:9px; font-weight:600; display:inline-block;">${item.status}</span>
                 </td>
             </tr>`;
     }).join('');
@@ -58,7 +58,7 @@ export async function downloadInvoicePdf(invoiceData: {
             <!-- Header -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;">
                 <div>
-                    <img src="/assets/kolabme-logo.svg" alt="KolabMe" style="height:40px; width:auto; object-fit:contain; margin-bottom:4px;" />
+                    <img src="/assets/logo.png" alt="KolabMe" style="height:40px; width:auto; object-fit:contain; margin-bottom:4px;" />
                     <p style="font-size:10px; color:#6b7280; margin:2px 0;">123 Business Street</p>
                     <p style="font-size:10px; color:#6b7280; margin:2px 0;">San Francisco, CA 94102</p>
                     <p style="font-size:10px; color:#6b7280; margin:2px 0;">support@kolabme.com</p>
@@ -71,8 +71,6 @@ export async function downloadInvoicePdf(invoiceData: {
                 </div>
             </div>
 
-            <!-- Divider -->
-            <hr style="border:none; border-top:1px solid #e5e7eb; margin:0 0 20px;" />
 
             <!-- Bill To -->
             <div style="margin-bottom:20px;">
@@ -87,11 +85,11 @@ export async function downloadInvoicePdf(invoiceData: {
                 <table style="width:100%; border-collapse:collapse;">
                     <thead>
                         <tr style="font-size:10px; font-weight:700; color:#111827; border-bottom:2px solid #e5e7eb;">
-                            <th style="padding:4px 4px 8px; text-align:left; width:40%;">Description</th>
-                            <th style="padding:4px 4px 8px; text-align:center;">Qty</th>
-                            <th style="padding:4px 4px 8px; text-align:right;">Price</th>
-                            <th style="padding:4px 4px 8px; text-align:right;">Amount</th>
-                            <th style="padding:4px 4px 8px; text-align:right;">Status</th>
+                            <th style="padding:12px 6px; text-align:left; width:40%;">Description</th>
+                            <th style="padding:12px 6px; text-align:center;">Qty</th>
+                            <th style="padding:12px 6px; text-align:center;">Price</th>
+                            <th style="padding:12px 6px; text-align:center;">Amount</th>
+                            <th style="padding:12px 6px; text-align:center;">Status</th>
                         </tr>
                     </thead>
                     <tbody>${itemRows}</tbody>
@@ -103,12 +101,9 @@ export async function downloadInvoicePdf(invoiceData: {
                 <div style="display:flex; justify-content:space-between; font-size:10px; color:#4b5563; margin:4px 0;">
                     <span>Subtotal:</span><span>${invoiceData.subtotal}</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; font-size:10px; color:#4b5563; margin:4px 0;">
-                    <span>Tax (0%):</span><span>${invoiceData.tax}</span>
-                </div>
                 <hr style="border:none; border-top:1px solid #e5e7eb; margin:8px 0;" />
-                <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:700; margin:4px 0;">
-                    <span style="color:#111827;">Total:</span>
+                <div style="display:flex; justify-content:space-between; font-size:14px;  margin:4px 0;">
+                    <span style="color:#111827; font-weight:700;">Total:</span>
                     <span style="color:#0d9488;">${invoiceData.total}</span>
                 </div>
             </div>
@@ -155,3 +150,9 @@ export async function downloadInvoicePdf(invoiceData: {
         document.body.removeChild(container);
     }
 }
+
+
+
+// <div style="display:flex; justify-content:space-between; font-size:10px; color:#4b5563; margin:4px 0;">
+//                     <span>Tax (0%):</span><span>${invoiceData.tax}</span>
+//                 </div>

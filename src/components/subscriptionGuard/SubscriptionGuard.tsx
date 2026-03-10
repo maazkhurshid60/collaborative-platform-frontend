@@ -5,7 +5,7 @@ import UpgradePrompt from '../upgradePrompt/UpgradePrompt';
 interface SubscriptionGuardProps {
     children: React.ReactNode;
     fallback?: React.ReactNode;
-    allowedPlans?: ('STANDARD')[]; // ('STANDARD' | 'PRO')[] - Pro plan disabled
+    allowedPlans?: ('STANDARD')[];    // ('STANDARD' | 'PRO')[] - Pro plan disabled
 }
 
 export const SubscriptionGuard: React.FC<SubscriptionGuardProps> = ({

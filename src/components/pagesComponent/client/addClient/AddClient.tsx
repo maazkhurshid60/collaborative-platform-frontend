@@ -211,6 +211,7 @@ const AddClient = () => {
 
       // Fallback
       const fallbackMsg =
+        payload?.data?.error ||
         payload?.error ||
         payload?.message ||
         axiosErr?.message ||

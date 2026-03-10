@@ -1,19 +1,17 @@
 
 import React, { useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import logo from '../../../public/assets/kolabme-logo.svg';
+
+import logo from '../../../public/assets/logo.png';
 
 interface InvoiceModalProps {
     isOpen: boolean;
     onClose: () => void;
     invoiceId: string | null;
     invoiceData?: any; // Add optional invoiceData prop
-    autoDownload?: boolean; // Add autoDownload prop
 }
 
-const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData, autoDownload }) => {
+const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId, invoiceData }) => {
     const invoiceRef = useRef<HTMLDivElement>(null);
 
     // Use passed data or fallback to mock/fetch
@@ -45,59 +43,24 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
         };
     }, [invoiceData, invoiceId]);
 
-    const handleDownloadPdf = async () => {
-        if (!invoiceRef.current) return;
-
-        try {
-            const canvas = await html2canvas(invoiceRef.current, {
-                scale: 2, // Higher scale for better quality
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgWidth = 210; // A4 width in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            pdf.save(`invoice-${invoice.invoiceNo}.pdf`);
-        } catch (error) {
-            console.error("Error generating PDF:", error);
-        } finally {
-            if (autoDownload) {
-                onClose();
-            }
-        }
-    };
-
-    React.useEffect(() => {
-        if (isOpen && autoDownload) {
-            // Small delay to ensure render is complete and animations finished
-            const timer = setTimeout(() => {
-                handleDownloadPdf();
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [isOpen, autoDownload]);
-
     if (!isOpen) return null;
 
     return (
-        <div className={`fixed inset-0 z-50 overflow-y-auto ${autoDownload ? 'opacity-0 pointer-events-none' : 'bg-black/50'}`}>
+        <div className={`fixed inset-0 z-50 overflow-y-auto bg-black/50`}>
             <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto">
+                <div
+                    ref={invoiceRef}
+                    className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 relative my-auto"
+                >
+
+
                     {/* Modal Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100">
                         <div className='flex items-center gap-2 w-1/2 ml-12 justify-end'>
                             <h2 className="text-[24px] font-[Poppins] font-semibold" style={{ color: '#1f2937' }}>Invoice</h2>
                         </div>
-                        <div className="flex items-center gap-2">
+                        {/* data-html2canvas-ignore hides the close button in the PDF */}
+                        <div className="flex items-center gap-2" data-html2canvas-ignore="true">
                             <button
                                 onClick={onClose}
                                 className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
@@ -106,8 +69,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                             </button>
                         </div>
                     </div>
-                    {/* Invoice Content (Target for PDF) */}
-                    <div className="p-5 bg-white" ref={invoiceRef}>
+                    {/* Invoice Content */}
+                    <div className="p-5 bg-white">
                         {/* Header Section */}
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex flex-col gap-1">
@@ -141,10 +104,10 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                         <div className="bg-[#F9FAFB] rounded-[8px] p-4 mb-4">
                             <div className="grid grid-cols-12 gap-2 text-[10px] items-center font-bold mb-2 pb-2 border-b px-2" style={{ color: '#111827', borderColor: '#e5e7eb' }}>
                                 <div className="col-span-4">Description</div>
-                                <div className="col-span-2 text-center">Qty</div>
-                                <div className="col-span-2 text-center">Price</div>
-                                <div className="col-span-2 text-center">Amount</div>
-                                <div className="col-span-2 text-center">Status</div>
+                                <div className="col-span-2 flex justify-center">Qty</div>
+                                <div className="col-span-2 flex justify-center">Price</div>
+                                <div className="col-span-2 flex justify-center">Amount</div>
+                                <div className="col-span-2 flex justify-center">Status</div>
                             </div>
                             {invoice.items.map((item: any, id: number) => (
                                 <div key={id} className="grid grid-cols-12 gap-2 text-[10px] items-center py-2 px-2" style={{ color: '#4b5563' }}>
@@ -152,17 +115,17 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                         <p className="font-semibold truncate" style={{ color: '#111827' }}>{item.description}</p>
                                         <p className="text-[9px] truncate" style={{ color: '#6b7280' }}>{item.subtext}</p>
                                     </div>
-                                    <div className="col-span-2 text-center font-medium">{item.qty}</div>
-                                    <div className="col-span-2 text-center">{item.price}</div>
-                                    <div className="col-span-2 text-center font-medium" style={{ color: '#111827' }}>{item.amount}</div>
-                                    <div className="col-span-2 flex justify-center">
+                                    <div className="col-span-2 flex justify-center font-medium">{item.qty}</div>
+                                    <div className="col-span-2 flex justify-center">{item.price}</div>
+                                    <div className="col-span-2 flex justify-center font-medium" style={{ color: '#111827' }}>{item.amount}</div>
+                                    <div className="col-span-2 flex justify-center status-container">
                                         <span
                                             style={{
-                                                backgroundColor: item.status.toLowerCase() === 'paid' ? '#dcfce7' : item.status.toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2',
-                                                color: item.status.toLowerCase() === 'paid' ? '#15803d' : item.status.toLowerCase() === 'pending' ? '#a16207' : '#b91c1c',
+                                                backgroundColor: ((item?.status || '').toLowerCase() === 'paid' ? '#dcfce7' : (item?.status || '').toLowerCase() === 'pending' ? '#fef9c3' : '#fee2e2'),
+                                                color: (item?.status || '').toLowerCase() === 'paid' ? '#15803d' : (item?.status || '').toLowerCase() === 'pending' ? '#a16207' : '#b91c1c',
 
                                             }}
-                                            className="px-1.5 py-0.5 rounded text-[9px] font-medium whitespace-nowrap"
+                                            className="status-badge inline-block px-1.5 py-0.5 rounded text-[9px] font-medium whitespace-nowrap"
                                         >
                                             {item.status}
                                         </span>
@@ -177,10 +140,6 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                                 <div className="flex justify-between items-center text-[10px]" style={{ color: '#4b5563' }}>
                                     <span>Subtotal:</span>
                                     <span>{invoice.subtotal}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[10px]" style={{ color: '#4b5563' }}>
-                                    <span>Tax (0%):</span>
-                                    <span>{invoice.tax}</span>
                                 </div>
                                 <div className="flex justify-between text-base font-bold pt-2 border-t" style={{ borderColor: '#e5e7eb' }}>
                                     <span style={{ color: '#111827' }}>Total:</span>

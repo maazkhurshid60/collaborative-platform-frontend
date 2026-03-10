@@ -202,7 +202,17 @@ const ViewUser = () => {
         {/* DETAILS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
           <LabelData label="Full Name" data={selectedUserData?.fullName} />
-          <LabelData label="License Number" data={selectedUserData?.licenseNo} />
+          {selectedUserData?.role === "client" ? (
+            <LabelData
+              label="Client ID"
+              data={selectedUserData?.client?.clientId ?? "-"}
+            />
+          ) : (
+            <LabelData
+              label="License Number"
+              data={selectedUserData?.licenseNo}
+            />
+          )}
           <LabelData label="Age" data={selectedUserData?.age ?? "-"} />
 
           <LabelData
@@ -253,7 +263,7 @@ const ViewUser = () => {
         <div className="flex items-end justify-end mt-8">
           {selectedUserData?.isApprove === "PENDING" ? (
             <div className="flex items-center gap-x-4 w-[200px]">
-              <div className="w-[100%]">
+              <div className="w-full">
                 <Button
                   text="Reject"
                   danger
@@ -261,7 +271,7 @@ const ViewUser = () => {
                 />
               </div>
 
-              <div className="w-[100%]">
+              <div className="w-full">
                 <Button
                   text="Approve"
                   onclick={() => dispatch(isModalShowReducser(true))}

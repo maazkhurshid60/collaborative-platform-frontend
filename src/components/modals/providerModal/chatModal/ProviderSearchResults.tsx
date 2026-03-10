@@ -2,6 +2,7 @@ import React from 'react';
 import { ProviderType } from '../../../../types/providerType/ProviderType';
 import UserIcon from '../../../icons/user/User';
 import verifyBadge from "../../../../assets/images/verifyBadge.png";
+import { HiMiniUserCircle } from 'react-icons/hi2';
 
 interface ProviderSearchResultsProps {
     providers: ProviderType[];
@@ -76,11 +77,11 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                     <img
                         src={provider?.user.profileImage}
                         alt={provider?.user?.fullName || "Provider"}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                        className="w-12 h-12 rounded-full object-cover border-2 ml-1.5 border-gray-200"
                     />
                 ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                        <UserIcon className="text-gray-400 text-xl" />
+                    <div className="w-[55px] h-[55px] rounded-full flex items-center justify-center">
+                        <HiMiniUserCircle className='w-[55px] h-[55px]' />
                     </div>
                 )}
             </div>
@@ -120,7 +121,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                     <div className="flex items-center gap-2">
                         {provider?.user?.status && (
                             <span className={`text-xs px-2 py-1 rounded-full font-medium ${provider.user.status?.toLowerCase() === 'active'
-                                ? 'bg-primaryColorDark text-white'
+                                ? 'bg-green-400   text-green-900'
                                 : 'bg-redColor text-primary'
                                 }`}>
                                 {provider.user.status?.toLowerCase()}

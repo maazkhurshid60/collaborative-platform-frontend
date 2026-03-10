@@ -19,7 +19,7 @@ interface User {
     subscription?: {
         id: string;
         plan: 'STANDARD' | 'PRO';
-        status: 'TRIALING' | 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'UNPAID';
+        status: 'TRIALING' | 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'UNPAID' | 'INCOMPLETE' | 'INCOMPLETE_EXPIRED' | 'PAUSED';
         trialStart?: string;
         trialEnd?: string;
         currentPeriodEnd?: string;

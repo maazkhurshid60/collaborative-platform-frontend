@@ -225,7 +225,9 @@ const VerifiedUsers = () => {
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">
-                    {data?.licenseNo || data?.client?.clientId}
+                    {data.role === "client"
+                      ? data?.client?.clientId
+                      : data?.licenseNo}
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">

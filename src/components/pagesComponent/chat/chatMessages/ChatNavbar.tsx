@@ -15,6 +15,7 @@ import chatApiService from '../../../../apiServices/chatApi/ChatApi';
 import { toast } from 'react-toastify';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { getSocket } from '../../../../socket/Socket';
+import { HiMiniUserCircle } from 'react-icons/hi2';
 
 
 interface chatNavbarProps {
@@ -157,16 +158,16 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                         >
                                             <p className='text-sm font-semibold'>Other Group Members:</p>
                                             <hr className='h-2 text-2xl' />
-                                            {props?.groupMembers?.map((data) => <div className='flex items-center gap-x-2 '>
+                                            {props?.groupMembers?.map((data) => <div className={`flex items-center gap-x-2 `}>
                                                 {((data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage) && (data?.Provider?.user?.profileImage !== "null" && (data as any)?.user?.profileImage !== "null")) ?
                                                     <img
-                                                        className='w-10 h-10 rounded-full object-cover'
+                                                        className='w-9 h-9 rounded-full object-cover'
                                                         src={data?.Provider?.user?.profileImage || (data as any)?.user?.profileImage} />
 
-                                                    : <UserIcon className="w-10! h-10! rounded-full object-cover text-gray-400" />}
-                                                <div className='text-xs '>
+                                                    : <HiMiniUserCircle size={25} className='w-11! h-11! rounded-full object-cover' />}
+                                                <div className={`text-xs flex flex-col items-start gap-x-1.5 ${data?.Provider?.user?.profileImage ? "pl-3" : "pl-[-20px]"}`}>
                                                     <p className='font-semibold capitalize'>{data?.Provider?.user?.fullName || (data as any)?.user?.fullName}</p>
-                                                    <p>{(data?.Provider?.user as any)?.email || (data as any)?.user?.email || (data?.Provider as any)?.email}</p>
+                                                    <p className='text-ellipsis w-2.5'>{(data?.Provider?.user as any)?.email || (data as any)?.user?.email || (data?.Provider as any)?.email}</p>
                                                 </div>
                                             </div>)}
                                         </div>

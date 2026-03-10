@@ -5,6 +5,7 @@ import AddIcon from '../icons/add/Add';
 import { FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { _email } from 'zod/v4/core';
+import { LuCirclePlus } from 'react-icons/lu';
 
 interface SearchResultsProps {
     results: ClientType[];
@@ -104,9 +105,14 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                         <p className="text-xs text-gray-600 truncate">
                             <span className="font-medium">Email:</span> {user?.user?.email || '-'}
                         </p>
-                        {user?.user?.licenseNo && (
+                        {user?.user?.role === "provider" && user?.user?.licenseNo && (
                             <p className="text-xs text-gray-600 truncate">
                                 <span className="font-medium">License:</span> {user.user.licenseNo}
+                            </p>
+                        )}
+                        {user?.user?.role === "client" && user?.clientId && (
+                            <p className="text-xs text-gray-600 truncate">
+                                <span className="font-medium">Client ID:</span> {user.clientId}
                             </p>
                         )}
                         {user?.user?.role && (
@@ -119,7 +125,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
             </div>
 
             {/* Action Button */}
-            <div className="flex-shrink-0 ml-2">
+            <div className="shrink-0 ml-2">
                 {isAlreadyAdded ? (
                     <span className="text-xs text-primaryColorDark font-medium px-2 py-1 bg-primaryColorLight rounded-md">
                         Added
@@ -131,10 +137,10 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                             e.stopPropagation();
                             onAddClient(user);
                         }}
-                        className="p-2 text-primaryColorDark hover:text-white hover:bg-primaryColorDark rounded-md transition-colors duration-200 group"
+                        className="p-2  text-textGreyColor hover:text-white cursor-pointer  hover:bg-primaryColorDark rounded-md transition-colors duration-200 group"
                         title="Add to your list"
                     >
-                        <AddIcon />
+                        <LuCirclePlus />
                     </button>
                 ) : null}
             </div>

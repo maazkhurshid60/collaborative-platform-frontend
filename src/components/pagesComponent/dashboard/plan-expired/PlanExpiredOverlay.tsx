@@ -130,10 +130,10 @@ const PlanExpiredOverlay: React.FC = () => {
                     </div>
 
                     {/* MAIN CONTENT AREA - Enhanced div separation with gap-6 */}
-                    <div className='flex flex-col gap-6 lg:flex-row items-start justify-between'>
+                    <div className='flex flex-col  gap-6 lg:flex-row items-start justify-between'>
                         {/* LEFT COLUMN: LISTS */}
-                        <div className='flex flex-col gap-6 w-full lg:w-[68%]'>
-                            <div className='w-full overflow-hidden rounded-xl'>
+                        <div className='flex flex-col gap-6 w-full lg:w-[69%]'>
+                            <div className='w-full overflow-hidden border-0 rounded-xl'>
                                 <LockedSection label="Client Portfolio Access">
                                     <CardDashboardLayout heading='Clients List'>
                                         <div className="min-h-[350px]"><ClientList /></div>

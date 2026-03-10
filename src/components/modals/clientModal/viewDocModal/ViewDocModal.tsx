@@ -301,7 +301,7 @@ const ModalBodyContent: React.FC<{
               </div>
             ) : (
               <p className="text-red-600 mb-4">
-                First Upload E-Signature on Your Account. To Upload please Click{" "}
+                First Upload E-Signature on Your Account. To Upload please Click
                 <span
                   className="cursor-pointer font-bold"
                   onClick={() => {

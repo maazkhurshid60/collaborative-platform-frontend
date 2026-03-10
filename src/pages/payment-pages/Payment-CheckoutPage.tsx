@@ -243,7 +243,7 @@ export const PaymentCheckoutPage = () => {
 
     const getPrice = () => {
         if (planType === 'PRO') return billingCycle === 'MONTHLY' ? 79 : 756;
-        return billingCycle === 'MONTHLY' ? 29 : 278;
+        return billingCycle === 'MONTHLY' ? 9.99 : 95.90;
     };
     const price = getPrice();
     const tax = 0;
@@ -386,10 +386,10 @@ export const PaymentCheckoutPage = () => {
                                     <span className="text-[16px] text-[#667085]">Subtotal</span>
                                     <span className="text-[16px] font-medium text-[#101828]">${price.toFixed(2)}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
+                                {/* <div className="flex items-center justify-between">
                                     <span className="text-[16px] text-[#667085]">Tax (0%)</span>
                                     <span className="text-[16px] font-medium text-[#101828]">$0.00</span>
-                                </div>
+                                </div> */}
                             </div>
                             <div className="border-t border-[#E2E8F0] pt-6 mb-2">
                                 <div className="flex items-center justify-between">

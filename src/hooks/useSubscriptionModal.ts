@@ -40,6 +40,13 @@ export const useSubscriptionModals = () => {
             setShowSubscriptionCanceled(false);
         }
 
+        // Show Subscription Expired for UNPAID or INCOMPLETE_EXPIRED status
+        if (currentStatus === 'UNPAID' || currentStatus === 'INCOMPLETE_EXPIRED') {
+            setShowSubscriptionExpired(true);
+        } else {
+            setShowSubscriptionExpired(false);
+        }
+
         // Show Trial Expired only when trial has actually ended
         if (currentStatus === "TRIALING" && subscription.trialEnd) {
             const trialEnd = new Date(subscription.trialEnd);

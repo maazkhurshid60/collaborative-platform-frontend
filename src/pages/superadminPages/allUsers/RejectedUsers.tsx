@@ -138,7 +138,7 @@ const RejectedUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
-                                        {data?.licenseNo || data?.client?.clientId}
+                                        {data.role === "client" ? data?.client?.clientId : data?.licenseNo}
                                     </td>
                                     <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td>
                                     <td className="px-4 py-3">{data.state}</td>

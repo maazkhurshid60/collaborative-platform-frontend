@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Check, Copy, FileText, LayoutDashboard, Search, ChevronDown, Loader2, Loader } from "lucide-react";
-import logo from "../../../public/assets/logo.png";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -31,36 +30,73 @@ const PaymentSuccessPage = () => {
 
             try {
                 setIsLoading(true);
-                // 1. Force Backend to Sync with Stripe
-                await subscriptionApiService.syncSubscription().catch((err: any) => {
-                    console.warn("⚠️ Sync request failed, proceeding to refresh...", err);
-                });
 
-                // 3. Fetch Latest Payment with retries
-                let payments = [];
-                for (let i = 0; i < 3; i++) {
-                    console.log(`🔄 Fetching payments (Attempt ${i + 1})...`);
-                    payments = await subscriptionApiService.getAllPayments();
-                    const successfulPayment = payments?.find((p: any) => p.status === 'paid' || p.status === 'succeeded');
-                    if (successfulPayment) {
-                        setLatestPayment(successfulPayment);
-                        break;
-                    }
-                    if (i < 2) await new Promise(resolve => setTimeout(resolve, 2000));
+                // 1. Force Backend to Sync with Stripe (this saves currentPeriodEnd into DB)
+                let syncSucceeded = false;
+                try {
+                    await subscriptionApiService.syncSubscription();
+                    syncSucceeded = true;
+                } catch (err: any) {
+                    // Sync may fail for users whose subscription was just created — OK to continue
                 }
 
-                if (!latestPayment && payments && payments.length > 0) {
+                // 2. Fetch Latest Payment with retries — poll until we have real digits
+                let payments: any[] = [];
+                for (let i = 0; i < 6; i++) { // Increased retries
+                    console.log(`[Diagnostic] Fetching payments attempt ${i + 1}`);
+                    payments = await subscriptionApiService.getAllPayments();
+                    const successfulPayment = payments?.find((p: any) => p.status === 'paid' || p.status === 'succeeded');
+
+                    if (successfulPayment) {
+                        const hasDigits = successfulPayment.last4 &&
+                            successfulPayment.last4 !== '----' &&
+                            successfulPayment.last4 !== '4242';
+
+                        setLatestPayment(successfulPayment);
+
+                        if (hasDigits) {
+                            console.log(`[Diagnostic] Found valid digits: ${successfulPayment.last4}`);
+                            break;
+                        } else {
+                            console.log(`[Diagnostic] Payment found but digits are still: ${successfulPayment.last4}`);
+                        }
+                    }
+                    if (i < 5) await new Promise(resolve => setTimeout(resolve, 3000));
+                }
+
+                if (payments && payments.length > 0 && !latestPayment) {
                     setLatestPayment(payments[0]);
                 }
 
-                // 4. Refresh local Redux data
-                const response = await authService.getMe(loginUserId, role);
+                // 3. Refresh Redux data — poll getMe until currentPeriodEnd exists in DB
+                let isUpdated = false;
+                // If sync succeeded, fewer retries needed. If not, give webhook more time.
+                const maxAttempts = syncSucceeded ? 4 : 8;
+                for (let i = 0; i < maxAttempts; i++) {
+                    const response = await authService.getMe(loginUserId, role);
 
-                if (response?.data?.data) {
-                    dispatch(saveLoginUserDetailsReducer(response.data.data));
+                    if (response?.data?.data) {
+                        const userData = response.data.data;
+                        const periodEnd = userData?.user?.subscription?.currentPeriodEnd;
+
+                        if (periodEnd) {
+                            dispatch(saveLoginUserDetailsReducer(userData));
+                            isUpdated = true;
+                            break;
+                        }
+                    }
+                    if (i < maxAttempts - 1) await new Promise(resolve => setTimeout(resolve, 3000));
                 }
+
+                // Fallback: save whatever data we have
+                if (!isUpdated) {
+                    const response = await authService.getMe(loginUserId, role);
+                    if (response?.data?.data) {
+                        dispatch(saveLoginUserDetailsReducer(response.data.data));
+                    }
+                }
+
             } catch (error) {
-                console.error("❌ Sync/Refresh failed:", error);
             } finally {
                 setIsLoading(false);
             }
@@ -84,9 +120,12 @@ const PaymentSuccessPage = () => {
             return;
         }
 
-        const date = userDetails?.user?.subscription?.currentPeriodEnd
-            ? new Date(userDetails.user.subscription.currentPeriodEnd).toLocaleDateString()
-            : new Date().toLocaleDateString();
+        const rawDate = userDetails?.user?.subscription?.currentPeriodEnd
+            ? new Date(userDetails.user.subscription.currentPeriodEnd)
+            : latestPayment?.dueDate
+                ? new Date(latestPayment.dueDate)
+                : null;
+        const date = rawDate ? rawDate.toLocaleDateString() : "-";
 
         const receiptText = `
 --------------------------
@@ -215,9 +254,18 @@ Thank you for your purchase!
                                             <div className="flex items-center justify-between">
                                                 <span className="text-[14px] font-bold text-[#101828]">Next Billing Date</span>
                                                 <span className="text-[16px] font-bold text-[#2C9993]">
-                                                    {userDetails?.user?.subscription?.currentPeriodEnd
-                                                        ? new Date(userDetails.user.subscription.currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-                                                        : "-"}
+                                                    {(() => {
+                                                        const fromSub = userDetails?.user?.subscription?.currentPeriodEnd
+                                                            ? new Date(userDetails.user.subscription.currentPeriodEnd)
+                                                            : null;
+                                                        const fromPayment = latestPayment?.dueDate
+                                                            ? new Date(latestPayment.dueDate)
+                                                            : null;
+                                                        const date = fromSub || fromPayment;
+                                                        return date
+                                                            ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                                                            : "-";
+                                                    })()}
                                                 </span>
                                             </div>
                                         </div>

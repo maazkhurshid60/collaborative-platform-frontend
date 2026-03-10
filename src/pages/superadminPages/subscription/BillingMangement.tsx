@@ -154,7 +154,7 @@ const SubscriptionPage = () => {
         });
     };
 
-    const filterOptions = ["All", "Paid", "Failed", "Canceled"];
+    const filterOptions = ["All", "Trial", "Paid", "Failed", "Canceled"];
 
     const filteredRecords = subscriptions.filter((record) => {
         const fullName = record.user?.fullName || "";
@@ -213,7 +213,7 @@ const SubscriptionPage = () => {
                         <input
                             type="search"
                             className="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primaryColorDark focus:border-primaryColorDark outline-none"
-                            placeholder="Search Settlements"
+                            placeholder="Search Provider or Email"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             autoFocus

@@ -80,7 +80,7 @@ const Routing = () => {
             <Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
             <Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
-            <Route path="/signup-with-license" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
+            <Route path="/signup-with-client-id" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
             <Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
             <Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
 

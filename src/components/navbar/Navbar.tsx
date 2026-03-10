@@ -62,9 +62,7 @@ const Navbar = () => {
     queryFn: async () => {
       try {
         const response = await clientApiService.getAllTotalClient();
-        const verifiedUsers = response?.data?.clients?.filter(
-          (data: ClientType) => data?.user?.isApprove === "APPROVED"
-        );
+        const verifiedUsers = response?.data?.clients;
         return verifiedUsers || [];
       } catch (error) {
         console.error("Error fetching clients:", error);
@@ -78,9 +76,7 @@ const Navbar = () => {
     queryFn: async () => {
       try {
         const response = await providerApiService.getAllTotalProviders();
-        const verifiedProviders = response?.data?.providers?.filter(
-          (data: ClientType) => data?.user?.isApprove === "APPROVED"
-        );
+        const verifiedProviders = response?.data?.providers;
         return verifiedProviders || [];
       } catch (error) {
         console.error("Error fetching providers:", error);
@@ -98,6 +94,7 @@ const Navbar = () => {
         const filtered = allUsers.filter((user) => {
           return (
             user.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
+            user.clientId?.toLowerCase().includes(searchTerm) ||
             user.user?.fullName?.toLowerCase().includes(searchTerm) ||
             user.email?.toLowerCase().includes(searchTerm) ||
             user.user?.role?.toLowerCase().includes(searchTerm)

@@ -133,6 +133,17 @@ class MessageApiService {
         }
     }
 
+    async shareChatByEmail(data: { chatChannelId: string, email: string, loginUserId: string }) {
+        try {
+            const response = await this.api.post("/chat/single-chat/share-chat", data)
+            toast.success("Chat shared successfully!");
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to share chat";
+            toast.error(errMsg);
+        }
+    }
+
     //GROUP APIS
 
     async updateGroupApi(data: updateGroupApiType) {
@@ -201,6 +212,17 @@ class MessageApiService {
 
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
+
+    async shareGroupChatByEmail(data: { groupId: string, email: string, loginUserId: string }) {
+        try {
+            const response = await this.api.post("/chat-group/share-group-chat", data)
+            toast.success("Group chat shared successfully!");
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to share group chat";
             toast.error(errMsg);
         }
     }

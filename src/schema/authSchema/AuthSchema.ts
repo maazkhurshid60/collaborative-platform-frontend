@@ -22,17 +22,7 @@ export const fullNameValidator = z
 export const licenseNoValidator = z
   .string()
   .trim()
-  .min(6, "License number must be at least 6 characters.")
-  .max(50, "License number must be 50 characters or less.")
-  .refine((val) => /[A-Za-z]/.test(val), {
-    message: "License number must include at least one letter.",
-  })
-  .refine((val) => /\d/.test(val), {
-    message: "License number must include at least one number.",
-  })
-  .refine((val) => /[^A-Za-z0-9]/.test(val), {
-    message: "License number must include at least one special character.",
-  });
+  .min(1, "License number is required.");
 
 // ✅ Schemas AFTER validators
 export const LoginSchema = z.object({

@@ -97,9 +97,9 @@ const ProviderSignup = () => {
         } catch (error: any) {
             setIsLoading(false);
 
-            // Handle 409 Conflict (email exists)
             if (error?.response?.status === 409) {
-                toast.error("Email is already registered");
+                const field = error.response.data?.data?.field || "Email";
+                toast.error(`${field} is already registered`);
                 return;
             }
 
@@ -209,12 +209,12 @@ const ProviderSignup = () => {
                                 type='text'
                                 label='License Number'
                                 register={register("licenseNo")}
-                                placeHolder='e.g. AB12@cd'
+                                placeHolder='Enter License Number'
                                 error={errors.licenseNo?.message}
                             />
 
                             <p className="text-xs text-gray-500 mt-1">
-                                Min 6 chars. Must include 1 letter, 1 number, and 1 special char.
+                                Enter your professional license number as it appears on your ID.
                             </p>
                         </div>
 

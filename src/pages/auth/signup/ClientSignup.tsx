@@ -131,7 +131,7 @@ const ClientSignup = () => {
                                 Sign in
                             </span>
                             or
-                            <span className='capitalize text-greenColor underline font-bold cursor-pointer ml-1' onClick={() => { navigate("/signup-with-license"); dispatch(emptyResult()) }}> Enter Client ID</span>
+                            <span className='capitalize text-greenColor underline font-bold cursor-pointer ml-1' onClick={() => { navigate("/signup-with-client-id"); dispatch(emptyResult()) }}> Enter Client ID</span>
                         </p>
                     </form>
                 </FormProvider>
