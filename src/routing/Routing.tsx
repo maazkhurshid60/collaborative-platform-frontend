@@ -204,8 +204,12 @@ const Routing = () => {
                 <Route path="/chat" element={<WrappedRoute><Chat /></WrappedRoute>} />
                 <Route path="/clients" element={<WrappedRoute ><Clients /></WrappedRoute>} />
 
-                {/* Screens for subscription */}
-                <Route path="/billing/change-plan" element={<WrappedRoute ><ChangePlanScreen /></WrappedRoute>} />
+
+                {
+                    loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+                        <Route path="/subscription/change-plan" element={<WrappedRoute ><ChangePlanScreen /></WrappedRoute>} />)
+
+                }
 
 
 

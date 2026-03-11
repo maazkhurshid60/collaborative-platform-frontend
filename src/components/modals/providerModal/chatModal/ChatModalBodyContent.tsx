@@ -42,8 +42,12 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
             toast.success(resp?.message || 'Action completed successfully');
         } catch (error: any) {
             console.error("Error sharing chat:", error);
-            const errorMsg = error?.response?.data?.message || 'Failed to share group chat';
-            toast.error(errorMsg);
+            const errorMsg = error?.response?.data?.message || error?.message || 'Failed to share group chat';
+            if (error?.response?.status === 409) {
+                toast.warn(errorMsg);
+            } else {
+                toast.error(errorMsg);
+            }
         } finally {
             setIsLoading(false);
         }

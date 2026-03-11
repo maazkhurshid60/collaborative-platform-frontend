@@ -218,7 +218,6 @@ export default function ChangePlanScreen() {
                                 <div className="absolute inset-0 z-20 rounded-[20px] flex flex-col items-center justify-center"
                                     style={{ backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', background: 'rgba(255,255,255,0.55)' }}>
                                     <div className="bg-[#2C9993] text-white text-[13px] font-bold px-5 py-1.5 rounded-full shadow-md tracking-widest uppercase mb-2">Coming Soon</div>
-                                    <p className="text-[#444] text-[13px] font-medium">This plan is not available yet</p>
                                 </div>
                             )}
                             <div
@@ -227,7 +226,7 @@ export default function ChangePlanScreen() {
                                         ? 'bg-[#2C9993] text-white shadow-xl scale-105 z-10'
                                         : 'bg-white text-[#101828] shadow-md'
                                     } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}
-                                ${plan.name == 'Standard' ? "h-[550px] mt-40" : ""}
+                                ${plan.name == 'Standard' ? "" : ""}
                                 `}
                             >
                                 {/* Badges */}

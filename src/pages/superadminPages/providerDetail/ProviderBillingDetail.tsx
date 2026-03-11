@@ -5,7 +5,8 @@ import { GoDotFill } from "react-icons/go";
 
 import Table from "../../../components/table/Table";
 import InvoiceModal from "../../../components/modals/InvoiceModal";
-import { useState, useEffect } from "react";
+import CustomPagination from "../../../components/customPagination/CustomPagination";
+import { useState, useEffect, useMemo } from "react";
 import DeleteProviderBilling from "../../../components/modals/superAdminModal/deleteProviderBilling/DeleteProviderBilling";
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi";
 import { toast } from "react-toastify";
@@ -22,7 +23,23 @@ const ProviderBillingDetail = () => {
     const [contactInfo, setContactInfo] = useState<any>(null);
     const [subscription, setSubscription] = useState<any>(null);
     const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const recordsPerPage = 10;
     const navigate = useNavigate()
+
+    const paginatedRecords = useMemo(() => paymentHistory.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+    ), [paymentHistory, currentPage]);
+
+    const totalPages = useMemo(
+        () => Math.max(1, Math.ceil(paymentHistory.length / recordsPerPage)),
+        [paymentHistory]
+    );
+
+    const onPageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     const heading = [
         "Date",
@@ -402,7 +419,7 @@ const ProviderBillingDetail = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    paymentHistory.map((data, idx) => (
+                                    paginatedRecords.map((data, idx) => (
                                         <tr
                                             key={data.id || idx}
                                             className="border-b border-b-solid border-b-lightGreyColor"
@@ -460,6 +477,15 @@ const ProviderBillingDetail = () => {
                                 )
                             }
                         </Table>
+                        {totalPages > 1 && (
+                            <div className="mt-4">
+                                <CustomPagination
+                                    totalPages={totalPages}
+                                    onPageChange={onPageChange}
+                                    hookCurrentPage={currentPage}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
