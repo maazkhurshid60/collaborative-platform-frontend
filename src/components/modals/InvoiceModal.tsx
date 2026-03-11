@@ -74,11 +74,11 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, invoiceId,
                         {/* Header Section */}
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex flex-col gap-1">
-                                <img src={logo} alt="Kolabme" className="h-7 w-fit object-contain mb-1" />
+                                <img src={logo} alt="Kolabme" className="h-15 w-fit object-contain mb-1" />
                                 <div className="text-xs font-normal font-[Poppins] space-y-0.5" style={{ color: '#6b7280' }}>
                                     <p>123 Business Street</p>
                                     <p>San Francisco, CA 94102</p>
-                                    <p>support@example.com</p>
+                                    <p>katelin@kolabme.com</p>
                                 </div>
                             </div>
                             <div className="text-right">

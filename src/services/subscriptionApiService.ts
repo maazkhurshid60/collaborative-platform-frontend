@@ -20,7 +20,7 @@ export const subscriptionApiService = {
     },
 
     getAllPayments: async () => {
-        const response = await authenticatedAxiosInstance.get(`/subscription/payments`);
+        const response = await authenticatedAxiosInstance.get(`/subscription/payments?_t=${Date.now()}`);
         return response.data;
     },
 

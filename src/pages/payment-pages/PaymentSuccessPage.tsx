@@ -23,80 +23,77 @@ const PaymentSuccessPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-    // 🔄 Force Sync and Refresh user data after payment
+    // ① Continuously poll for payment data with real last4 digits (independent of sync)
+    useEffect(() => {
+        if (!token || !loginUserId) return;
+
+        let attempts = 0;
+        const MAX_ATTEMPTS = 20; // poll every 3s for up to 60 seconds
+
+        const fetchLatestPayment = async () => {
+            try {
+                const payments = await subscriptionApiService.getAllPayments();
+
+                // Priority: find ANY payment with real digits first
+                // (charge.succeeded may have updated an older record while the new record still has ****)
+                const withRealDigits = payments?.find((p: any) =>
+                    p.last4 && p.last4 !== '****' && p.last4 !== '----'
+                );
+                const best = withRealDigits
+                    ?? payments?.find((p: any) => p.status === 'paid' || p.status === 'succeeded')
+                    ?? payments?.[0];
+
+                if (best) {
+                    setLatestPayment(best);
+
+                    const hasRealDigits = best.last4 && best.last4 !== '****' && best.last4 !== '----';
+                    if (hasRealDigits) {
+                        console.log(`[PaymentSuccess] Got real digits: ${best.last4} — stopping poll`);
+                        clearInterval(intervalId);
+                    } else {
+                        console.log(`[PaymentSuccess] Attempt ${attempts + 1}: digits not ready (${best.last4})`);
+                    }
+                }
+
+                attempts++;
+                if (attempts >= MAX_ATTEMPTS) {
+                    console.log('[PaymentSuccess] Max attempts reached, stopping poll');
+                    clearInterval(intervalId);
+                }
+            } catch (e) {
+                // silently ignore fetch errors during polling
+            }
+        };
+
+        // Start immediately, then repeat every 3s
+        fetchLatestPayment();
+        const intervalId = setInterval(fetchLatestPayment, 3000);
+
+        return () => clearInterval(intervalId); // cleanup on unmount
+    }, [token, loginUserId]);
+
+    // ② One-shot: sync subscription with Stripe and refresh user Redux state
     useEffect(() => {
         const syncAndRefresh = async () => {
             if (!token || !loginUserId || !role) return;
-
             try {
                 setIsLoading(true);
 
-                // 1. Force Backend to Sync with Stripe (this saves currentPeriodEnd into DB)
-                let syncSucceeded = false;
-                try {
-                    await subscriptionApiService.syncSubscription();
-                    syncSucceeded = true;
-                } catch (err: any) {
-                    // Sync may fail for users whose subscription was just created — OK to continue
-                }
+                // Sync subscription data
+                try { await subscriptionApiService.syncSubscription(); } catch (_) { }
 
-                // 2. Fetch Latest Payment with retries — poll until we have real digits
-                let payments: any[] = [];
-                for (let i = 0; i < 6; i++) { // Increased retries
-                    console.log(`[Diagnostic] Fetching payments attempt ${i + 1}`);
-                    payments = await subscriptionApiService.getAllPayments();
-                    const successfulPayment = payments?.find((p: any) => p.status === 'paid' || p.status === 'succeeded');
-
-                    if (successfulPayment) {
-                        const hasDigits = successfulPayment.last4 &&
-                            successfulPayment.last4 !== '----' &&
-                            successfulPayment.last4 !== '4242';
-
-                        setLatestPayment(successfulPayment);
-
-                        if (hasDigits) {
-                            console.log(`[Diagnostic] Found valid digits: ${successfulPayment.last4}`);
-                            break;
-                        } else {
-                            console.log(`[Diagnostic] Payment found but digits are still: ${successfulPayment.last4}`);
-                        }
-                    }
-                    if (i < 5) await new Promise(resolve => setTimeout(resolve, 3000));
-                }
-
-                if (payments && payments.length > 0 && !latestPayment) {
-                    setLatestPayment(payments[0]);
-                }
-
-                // 3. Refresh Redux data — poll getMe until currentPeriodEnd exists in DB
-                let isUpdated = false;
-                // If sync succeeded, fewer retries needed. If not, give webhook more time.
-                const maxAttempts = syncSucceeded ? 4 : 8;
+                // Poll getMe until currentPeriodEnd appears in DB
+                const maxAttempts = 8;
                 for (let i = 0; i < maxAttempts; i++) {
                     const response = await authService.getMe(loginUserId, role);
-
                     if (response?.data?.data) {
                         const userData = response.data.data;
-                        const periodEnd = userData?.user?.subscription?.currentPeriodEnd;
-
-                        if (periodEnd) {
-                            dispatch(saveLoginUserDetailsReducer(userData));
-                            isUpdated = true;
-                            break;
-                        }
+                        dispatch(saveLoginUserDetailsReducer(userData));
+                        if (userData?.user?.subscription?.currentPeriodEnd) break;
                     }
-                    if (i < maxAttempts - 1) await new Promise(resolve => setTimeout(resolve, 3000));
+                    if (i < maxAttempts - 1) await new Promise(r => setTimeout(r, 3000));
                 }
-
-                // Fallback: save whatever data we have
-                if (!isUpdated) {
-                    const response = await authService.getMe(loginUserId, role);
-                    if (response?.data?.data) {
-                        dispatch(saveLoginUserDetailsReducer(response.data.data));
-                    }
-                }
-
-            } catch (error) {
+            } catch (_) {
             } finally {
                 setIsLoading(false);
             }

@@ -121,7 +121,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                     <div className="flex items-center gap-2">
                         {provider?.user?.status && (
                             <span className={`text-xs px-2 py-1 rounded-full font-medium ${provider.user.status?.toLowerCase() === 'active'
-                                ? 'bg-green-400   text-green-900'
+                                ? 'text-green-700 border bg-green-200 border-none'
                                 : 'bg-redColor text-primary'
                                 }`}>
                                 {provider.user.status?.toLowerCase()}
@@ -143,7 +143,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
             </div>
-        </div>
+        </div >
     );
 };
 
