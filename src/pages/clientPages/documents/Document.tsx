@@ -224,7 +224,7 @@ const Document = () => {
                                                 <img
                                                     className='w-10 h-10 rounded-full object-cover'
                                                     src={data?.provider?.user?.profileImage ? data?.provider?.user?.profileImage : undefined}
-                                                    crossOrigin="use-credentials"
+                                                    alt="Provider Profile"
                                                 />
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
