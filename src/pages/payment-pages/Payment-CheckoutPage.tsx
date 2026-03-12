@@ -17,7 +17,7 @@ import { RootState } from "../../redux/store";
 // Initialize Stripe outside of component to avoid recreating it
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
-const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, price }: any) => {
+const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, price, planType, billingCycle }: any) => {
     const stripe = useStripe();
     const elements = useElements();
     const navigate = useNavigate();
@@ -60,7 +60,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             if (result.error) {
                 setErrorMessage(result.error.message || "Payment failed");
                 toast.error(result.error.message || "Payment failed");
-                navigate("/payment-failure", { state: { error: result.error.message || "Payment failed" } });
+                navigate("/payment-failure", { state: { error: result.error.message || "Payment failed", userData, planType, billingCycle } });
                 setIsLoading(false);
                 return;
             }
@@ -88,7 +88,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             console.error("Payment error:", err);
             setErrorMessage(err.message || "An unexpected error occurred");
             toast.error(err.message || "An unexpected error occurred");
-            navigate("/payment-failure", { state: { error: err.message || "Payment failed" } });
+            navigate("/payment-failure", { state: { error: err.message || "Payment failed", userData, planType, billingCycle } });
             setIsLoading(false);
         }
     };

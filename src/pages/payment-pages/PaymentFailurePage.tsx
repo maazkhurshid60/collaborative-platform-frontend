@@ -1,7 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const PaymentFailurePage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { userData, planType, billingCycle } = location.state || {};
 
     const token = localStorage.getItem("token");
 
@@ -86,13 +88,19 @@ export const PaymentFailurePage = () => {
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={() => {
+                                if (token) {
+                                    navigate("/dashboard");
+                                } else {
+                                    navigate("/");
+                                }
+                            }}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl border-2 border-[#E2E8F0] bg-white text-[#101828] font-medium text-[18px] md:text-[20px] hover:bg-[#F9FAFB] transition-all cursor-pointer"
                         >
                             <span>Go to Home</span>
                         </button>
                         <button
-                            onClick={() => navigate("/select-plan")}
+                            onClick={() => navigate("/select-plan", { state: { userData, planType, billingCycle } })}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3 rounded-xl bg-[#2C9993] text-white font-medium text-[18px] md:text-[20px] hover:bg-[#237c76] shadow-lg shadow-[#2c9993]/20 transition-all cursor-pointer"
                         >
                             <span>Retry Payment</span>

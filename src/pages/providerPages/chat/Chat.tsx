@@ -242,7 +242,7 @@ const Chat = () => {
                 type: newMessage.type,
               },
               unreadCount:
-                newMessage.senderId === loginUserUserId
+                isFromSelf || isSameChatOpen
                   ? group.unreadCount
                   : (Number(group.unreadCount) || 0) + 1,
               updatedAt: `${new Date().toISOString()}_${Math.random()}`,
