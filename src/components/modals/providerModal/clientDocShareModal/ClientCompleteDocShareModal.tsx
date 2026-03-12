@@ -73,8 +73,14 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         loadDoc();
     }, [completedDoc]);
 
-    const filteredRecords =
-        completedDoc?.sharedRecord?.filter((r) => String(r.clientId) === String(clientId)) || [];
+    // Robust signature extraction
+    const rawRecords = (completedDoc as any)?.sharedWith || (completedDoc as any)?.sharedRecord || (completedDoc as any)?.sharedRecords || [];
+    const filteredRecords = Array.isArray(rawRecords)
+        ? rawRecords.filter((r: any) => !clientId || String(r?.clientId) === String(clientId))
+        : [];
+
+    // Support for direct eSignature if nested structure is missing
+    const directSignature = (completedDoc as any)?.eSignature;
 
     const handleDownloadPDF = async () => {
 
@@ -160,12 +166,15 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                     if (canvas.width === 0 || canvas.height === 0) continue;
 
                     const imgData = canvas.toDataURL('image/png');
+                    if (imgData.length < 50) continue; // Skip suspicious tiny stubs
+
                     const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
                     if (i > 0) pdf.addPage();
                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
                 }
 
+                // Add Footer Section (Signatures) - Get from original if visible or clone if not
                 const footer = document.getElementById('provider-footer-section');
                 if (footer && footer.offsetHeight > 0) {
                     const footerCanvas = await html2canvas(footer, {
@@ -175,10 +184,9 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                         onclone: (clonedDoc) => sanitizeClonedDoc(clonedDoc)
                     });
 
-                    if (footerCanvas.width > 0 && footerCanvas.height > 0) {
-                        const footerImgData = footerCanvas.toDataURL('image/png');
+                    const footerImgData = footerCanvas.toDataURL('image/png');
+                    if (footerImgData.length > 100) {
                         const footerImgHeight = (footerCanvas.height * pdfWidth) / footerCanvas.width;
-
                         pdf.addPage();
                         pdf.addImage(footerImgData, 'PNG', 0, 0, pdfWidth, footerImgHeight);
                     }
@@ -193,17 +201,18 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
 
                 if (canvas.width > 0 && canvas.height > 0) {
                     const imgData = canvas.toDataURL('image/png');
-                    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+                    if (imgData.length > 100) {
+                        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+                        let heightLeft = imgHeight;
+                        let position = 0;
 
-                    let heightLeft = imgHeight;
-                    let position = 0;
-
-                    while (heightLeft > 0) {
-                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-                        heightLeft -= pageHeight;
-                        if (heightLeft > 0) {
-                            pdf.addPage();
-                            position -= pageHeight;
+                        while (heightLeft > 0) {
+                            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                            heightLeft -= pageHeight;
+                            if (heightLeft > 0) {
+                                pdf.addPage();
+                                position -= pageHeight;
+                            }
                         }
                     }
                 }
@@ -276,11 +285,20 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
 
                         <div id="provider-footer-section">
                             {/* eSignatures */}
-                            {filteredRecords.length > 0 && (
+                            {(filteredRecords.length > 0 || directSignature) && (
                                 <div className='mt-8'>
                                     <p className="font-semibold text-[14px] mb-2">Esignatures:</p>
                                     <div className="flex flex-wrap gap-4">
-                                        {filteredRecords.map((record) =>
+                                        {directSignature && (
+                                            <img
+                                                src={directSignature}
+                                                alt="eSignature"
+                                                crossOrigin="use-credentials"
+                                                className="w-[400px] h-[200px] border rounded shadow mt-4"
+                                                onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                                            />
+                                        )}
+                                        {filteredRecords.map((record: any) =>
                                             record.eSignature ? (
                                                 <img
                                                     key={record.id}
@@ -290,14 +308,13 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                                     className="w-[400px] h-[200px] border rounded shadow mt-4"
                                                     onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                                                 />
-                                            ) : (
-                                                <p key={record.id} className="text-sm text-gray-500">
-                                                    No eSignature available
-                                                </p>
-                                            )
+                                            ) : null
                                         )}
                                     </div>
                                 </div>
+                            )}
+                            {filteredRecords.length === 0 && !directSignature && (
+                                <p className="text-sm text-gray-500 mt-4 italic">No signatures found for this client on this document.</p>
                             )}
                         </div>
                     </div>

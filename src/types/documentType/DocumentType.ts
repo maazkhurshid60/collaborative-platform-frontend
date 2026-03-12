@@ -63,7 +63,7 @@ export interface Document {
     name: string,
     createdAt: string,
     updatedAt: string
-    sharedRecord: [
+    sharedWith: [
         {
             id: string,
             eSignature: string | null,
