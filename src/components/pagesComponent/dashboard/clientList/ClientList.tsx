@@ -135,7 +135,7 @@ const ClientList = () => {
                 return (
                   <tr
                     key={data?.id ?? index}
-                    className="border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s"
+                    className="border-b border-b-solid border-b-lightGreyColor pb-4s"
                   >
                     {/* S.No. column */}
                     <td className="px-4 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
@@ -193,7 +193,7 @@ const ClientList = () => {
                             <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
                             {!(data?.createdByProviderId === loginUserId?.user?.id ||
                               data?.createdByProviderId === loginUserId?.id) && (
-                                <div title="Share Documents" className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
+                                <div className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
                                   <IoDocumentTextOutline />
                                 </div>
                               )}
