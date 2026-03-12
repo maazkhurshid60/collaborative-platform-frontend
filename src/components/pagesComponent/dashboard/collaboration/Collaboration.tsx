@@ -106,13 +106,34 @@ const Collaboration = () => {
     }, [allGroups, searchText]);
 
 
-    console.log(filteredChats, "dataaa of chaytss");
+    // Join all group socket rooms so we receive group messages
+    useEffect(() => {
+        if (!loginUserProviderId || !allGroups?.length) return;
+
+        const socket = getSocket();
+        if (!socket) return;
+
+        const joinAllGroupRooms = () => {
+            allGroups.forEach((group: GroupChat) => {
+                socket.emit('join_channel', { chatChannelId: group.id });
+            });
+        };
+
+        if (socket.connected) {
+            joinAllGroupRooms();
+        } else {
+            socket.on('connect', joinAllGroupRooms);
+        }
+
+        return () => {
+            socket.off('connect', joinAllGroupRooms);
+        };
+    }, [loginUserProviderId, allGroups]);
 
     useEffect(() => {
         if (!socket || !loginUserProviderId) return;
 
-        const handleNewMessage = (newMessage: Message) => {
-            // Increment totalUnread for the chat channel
+        const handleNewDirectMessage = (newMessage: Message) => {
             queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
                 if (!oldData) return [];
                 return oldData.map(channel => {
@@ -128,12 +149,40 @@ const Collaboration = () => {
             });
         };
 
-        socket.on('new_message', handleNewMessage);
+        const handleNewGroupMessage = (newMessage: Message) => {
+            const isFromSelf = newMessage.senderId === loginUserUserId;
+            if (isFromSelf) return; // don't increment for own messages
+
+            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldData = []) => {
+                return oldData.map(group => {
+                    if (group.id === newMessage.groupId) {
+                        return {
+                            ...group,
+                            unreadCount: (Number(group.unreadCount) || 0) + 1,
+                            lastMessage: {
+                                id: newMessage.id,
+                                message: newMessage.message || '📎 File',
+                                createdAt: newMessage.createdAt || new Date().toISOString(),
+                                mediaUrl: newMessage.mediaUrl,
+                                type: newMessage.type,
+                            },
+                        };
+                    }
+                    return group;
+                });
+            });
+        };
+
+        socket.on('new_message', handleNewDirectMessage);
+        socket.on('receive_direct', handleNewDirectMessage);
+        socket.on('receive_group', handleNewGroupMessage);
 
         return () => {
-            socket.off('new_message', handleNewMessage);
+            socket.off('new_message', handleNewDirectMessage);
+            socket.off('receive_direct', handleNewDirectMessage);
+            socket.off('receive_group', handleNewGroupMessage);
         };
-    }, [socket, loginUserProviderId]);
+    }, [socket, loginUserProviderId, loginUserUserId, queryClient]);
 
     useEffect(() => {
         const socket = getSocket();
@@ -239,6 +288,21 @@ const Collaboration = () => {
                                         if (socket?.connected && data?.id) {
                                             socket.emit('join_channel', { chatChannelId: data.id });
                                         }
+                                        messageApiService.readMessageGroupConservation({
+                                            loginUserId: loginUserProviderId,
+                                            groupId: data?.id,
+                                        }).then(() => {
+                                            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
+                                                if (!oldData) return oldData;
+                                                return oldData.map(group =>
+                                                    group.id === data.id
+                                                        ? { ...group, unreadCount: 0 }
+                                                        : group
+                                                );
+                                            });
+                                        }).catch((err) => {
+                                            console.error('Failed to mark group messages as read', err);
+                                        });
                                     }}
                                 />
                             </div>

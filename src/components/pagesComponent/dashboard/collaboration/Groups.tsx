@@ -35,11 +35,12 @@ const Groups: React.FC<GroupsProps> = ({ data, onClick }) => {
                 <div className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  w-full  hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md
                      `} onClick={onClick}>
                     <div className='w-[100%]'>
-                        <div className={`font-[Poppins] text-[14px] text-textColor flex items-center gap-x-4 font-semibold 
-                         `}>
+                        <div className={`font-[Poppins] text-[14px] text-textColor flex items-center gap-x-4`}>
                             <HiUserGroup className="text-[40px]" />
                             <div>
-                                {data?.name}
+                                <p className={`font-[Poppins] flex items-center gap-x-4 capitalize text-[14px] text-textColor ${unreadCount > 0 ? 'font-semibold' : 'font-normal'}`}>
+                                    {data?.name}
+                                </p>
                                 {data?.lastMessage && (
                                     <div className="text-xs text-gray-500 truncate max-w-[90%]">
                                         {(data.lastMessage?.type === 'media' && data.lastMessage?.mediaUrl) ? (
