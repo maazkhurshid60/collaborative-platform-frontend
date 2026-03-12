@@ -30,7 +30,7 @@ import { useMemo, useState } from "react";
 import { ClientType, Provider } from "../../../types/clientType/ClientType";
 import { ProviderType } from "../../../types/providerType/ProviderType";
 import { IoMdAdd } from "react-icons/io";
-import { IoDocumentTextOutline } from "react-icons/io5";
+import ShareDocumentIcon from "../../../components/icons/share/ShareDocument";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import SearchBar from "../../../components/searchBar/SearchBar";
@@ -110,10 +110,12 @@ const Clients = () => {
   const myClients = useMemo(() => {
     return (
       clientData?.filter((client: ClientType) =>
-        client?.providerList?.some((p) => p?.provider?.user?.id === loginUserId?.user?.id)
+        client?.providerList?.some((p) => p?.provider?.user?.id === loginUserId?.user?.id) ||
+        client?.createdByProviderId === loginUserId?.id ||
+        client?.createdByProviderId === loginUserId?.user?.id
       ) || []
     );
-  }, [clientData, loginUserId?.user?.id]);
+  }, [clientData, loginUserId?.user?.id, loginUserId?.id]);
 
   const filteredSearchClients = useMemo(() => {
     return filterClients(myClients, searchTerm);
@@ -264,7 +266,7 @@ const Clients = () => {
                           {(data?.providerList?.length ?? 0) > 2 && (
                             <p
                               className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark whitespace-nowrap"
-                              onClick={() => navigate(`/clients/edit-client/${data?.id}`)}
+                              onClick={() => navigate(`/clients/${data?.id}`)}
                             >
                               ... View All
                             </p>
@@ -281,13 +283,9 @@ const Clients = () => {
                         <div className="w-5 h-5 flex items-center justify-start">
                           <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
                         </div>
-                        {!canEditDelete && (
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            <div title="Share Documents" className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
-                              <IoDocumentTextOutline />
-                            </div>
-                          </div>
-                        )}
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <ShareDocumentIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })} />
+                        </div>
                         {canEditDelete && (
                           <>
                             <div className="w-5 h-5 flex items-center justify-center">

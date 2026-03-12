@@ -1,5 +1,5 @@
 import Table from '../../../table/Table';
-import { IoDocumentTextOutline } from 'react-icons/io5';
+import ShareDocumentIcon from '../../../../components/icons/share/ShareDocument';
 import CustomPagination from '../../../customPagination/CustomPagination';
 import usePaginationHook from '../../../../hook/usePaginationHook';
 import { useState, useMemo } from 'react';
@@ -74,10 +74,12 @@ const ClientList = () => {
   const myClients = useMemo(() => {
     return (
       clientData?.filter((client: ClientType) =>
-        client?.providerList?.some((provider) => provider?.provider?.user?.id === loginUserId?.user?.id)
+        client?.providerList?.some((provider) => provider?.provider?.user?.id === loginUserId?.user?.id) ||
+        client?.createdByProviderId === loginUserId?.id ||
+        client?.createdByProviderId === loginUserId?.user?.id
       ) || []
     );
-  }, [clientData, loginUserId?.user?.id]);
+  }, [clientData, loginUserId?.user?.id, loginUserId?.id]);
 
   // Keep this as a constant so S.No. stays correct
   const recordPerPage = 4;
@@ -172,7 +174,7 @@ const ClientList = () => {
                           {data?.providerList?.length > 2 && (
                             <p
                               className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark"
-                              onClick={() => navigate(`/clients/edit-client/${data?.id}`)}
+                              onClick={() => navigate(`/clients/${data?.id}`)}
                             >
                               ... View All
                             </p>
@@ -184,19 +186,17 @@ const ClientList = () => {
                     <td className="px-4 py-4 h-full align-middle">
                       <div className="flex items-center justify-start gap-x-2 h-full">
                         {(
-                          (data?.providerList?.length ?? 0) !== 0 &&
-                          data?.providerList?.some(
-                            (provider: any) => provider?.provider?.user?.id === loginUserId?.user?.id
-                          )
+                          ((data?.providerList?.length ?? 0) !== 0 &&
+                            data?.providerList?.some(
+                              (provider: any) => provider?.provider?.user?.id === loginUserId?.user?.id
+                            )) ||
+                          data?.createdByProviderId === loginUserId?.id ||
+                          data?.createdByProviderId === loginUserId?.user?.id ||
+                          loginUserId?.user?.role === "superAdmin"
                         ) ? (
                           <>
                             <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
-                            {!(data?.createdByProviderId === loginUserId?.user?.id ||
-                              data?.createdByProviderId === loginUserId?.id) && (
-                                <div className="cursor-pointer text-xl text-gray-600" onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })}>
-                                  <IoDocumentTextOutline />
-                                </div>
-                              )}
+                            <ShareDocumentIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })} />
                             {(data?.createdByProviderId === loginUserId?.user?.id ||
                               data?.createdByProviderId === loginUserId?.id ||
                               loginUserId?.user?.role === "superAdmin") && (
