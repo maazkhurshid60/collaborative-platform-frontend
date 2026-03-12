@@ -68,7 +68,7 @@ const Chats: React.FC<ChatsProps> = ({ data, onClick }) => {
                   <div className={`${imagePath ? "pl-1.5" : ""}`}>
                     <img
                       src={imagePath}
-                      alt="Client"
+                      alt="User Profile"
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   </div>

@@ -42,7 +42,8 @@ const Collaboration = () => {
             const res = await chatApiService.getAllChatChannels(loginUserProviderId);
             return res.data.findAllChatChannel;
         },
-        enabled: !!loginUserProviderId
+        enabled: !!loginUserProviderId,
+        staleTime: 30 * 1000, // prevent badge flicker from background refetch
     });
 
     const { data: allGroups = [], isLoading: isGroupLoading } = useQuery({
@@ -56,7 +57,8 @@ const Collaboration = () => {
                 return [];
             }
         },
-        enabled: !!loginUserUserId
+        enabled: !!loginUserUserId,
+        staleTime: 30 * 1000, // prevent badge flicker from background refetch
     });
 
     const { data: providerData } = useQuery<ProviderType[]>({

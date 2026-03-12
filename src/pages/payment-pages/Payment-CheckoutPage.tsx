@@ -171,6 +171,11 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
 
         } catch (err: any) {
             console.error("Signup/Upgrade failed after payment:", err);
+            if (err.response?.status === 429) {
+                toast.error("Too Many Request Please Try again later");
+                setIsLoading(false);
+                return;
+            }
             if (err.response?.status === 409) {
                 toast.warning("Payment was successful, but your account already exists. Please try logging in.");
                 navigate("/");
@@ -307,10 +312,14 @@ export const PaymentCheckoutPage = () => {
 
         } catch (error: any) {
             console.error("Failed to init payment:", error);
-            const msg = error.response?.data?.message || "Failed to initialize payment.";
-            const debug = error.response?.data?.debug;
-            toast.error(msg);
-            if (debug) console.error("Debug info:", debug);
+            if (error?.response?.status === 429) {
+                toast.error("Too Many Request Please Try again later");
+            } else {
+                const msg = error.response?.data?.message || "Failed to initialize payment.";
+                const debug = error.response?.data?.debug;
+                toast.error(msg);
+                if (debug) console.error("Debug info:", debug);
+            }
         } finally {
             setIsInitializing(false);
         }

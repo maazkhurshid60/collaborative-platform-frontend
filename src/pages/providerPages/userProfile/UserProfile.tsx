@@ -311,8 +311,7 @@ const UserProfile = () => {
                   previewUrl ? (
                     <img
                       src={previewUrl}
-                      alt="Client"
-                      crossOrigin="use-credentials"
+                      alt="User Profile"
                       className="w-32 h-32 rounded-md object-cover"
                     />
                   ) : (
@@ -469,8 +468,7 @@ const UserProfile = () => {
                 {previewUrl ? (
                   <img
                     src={previewUrl}
-                    alt="Client"
-                    crossOrigin="use-credentials"
+                    alt="User Profile"
                     className="w-32 h-32 rounded-lg object-cover"
                   />
                 ) : (

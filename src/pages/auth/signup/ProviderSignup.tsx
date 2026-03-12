@@ -97,6 +97,11 @@ const ProviderSignup = () => {
         } catch (error: any) {
             setIsLoading(false);
 
+            if (error?.response?.status === 429) {
+                toast.error("Too Many Request Please Try again later");
+                return;
+            }
+
             if (error?.response?.status === 409) {
                 const field = error.response.data?.data?.field || "Email";
                 toast.error(`${field} is already registered`);

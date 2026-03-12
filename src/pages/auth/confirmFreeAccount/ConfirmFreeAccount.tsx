@@ -263,14 +263,18 @@ const ConfirmFreeAccount = () => {
                                     navigate('/dashboard');
                                 } catch (error: any) {
                                     console.error(error);
-                                    const errorMessage = error.response?.data?.message || "Failed to create account.";
-
-                                    // Handle specific error cases
-                                    if (errorMessage.includes("already exists")) {
-                                        toast.error("Account already exists. Please login.");
-                                        navigate('/login');
+                                    if (error?.response?.status === 429) {
+                                        toast.error("Too Many Request Please Try again later");
                                     } else {
-                                        toast.error(errorMessage);
+                                        const errorMessage = error.response?.data?.message || "Failed to create account.";
+
+                                        // Handle specific error cases
+                                        if (errorMessage.includes("already exists")) {
+                                            toast.error("Account already exists. Please login.");
+                                            navigate('/login');
+                                        } else {
+                                            toast.error(errorMessage);
+                                        }
                                     }
                                 } finally {
                                     setIsLoading(false);

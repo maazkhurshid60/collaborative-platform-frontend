@@ -92,8 +92,12 @@ const Login = () => {
 
 
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || error?.response?.data?.data?.error || "Unexpected error occurred.";
-            toast.error(errorMessage);
+            if (error?.response?.status === 429) {
+                toast.error("Too Many Request Please Try again later");
+            } else {
+                const errorMessage = error?.response?.data?.message || error?.response?.data?.data?.error || "Unexpected error occurred.";
+                toast.error(errorMessage);
+            }
         } finally {
             setIsLoading(false)
         }

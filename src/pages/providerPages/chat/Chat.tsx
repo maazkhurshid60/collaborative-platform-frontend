@@ -82,6 +82,7 @@ const Chat = () => {
         return bTime - aTime; // latest group sabse upar
       });
     },
+    staleTime: 30 * 1000, // prevent background refetch from resetting socket-updated unreadCount
   });
 
   console.log(allChannels, "all channessssssssssslsss");
