@@ -26,6 +26,7 @@ const TransactionDetail = () => {
             try {
                 const response = await superAdminApi.getAllPayments();
                 setPayments(response.data || []);
+                console.log(response.data, "Payments Data for Transaction Detail");
             } catch (error) {
                 console.error("Failed to fetch payments", error);
             } finally {

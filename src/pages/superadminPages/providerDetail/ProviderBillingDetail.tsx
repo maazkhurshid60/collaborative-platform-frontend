@@ -63,6 +63,7 @@ const ProviderBillingDetail = () => {
             setContactInfo(contactRes.data);
             setSubscription(subscriptionRes.data);
             setPaymentHistory(paymentRes.data || []);
+            console.log("Payment History:", paymentRes.data);
         } catch (error) {
             console.error("Failed to fetch provider details", error);
             toast.error("Failed to load provider details");

@@ -210,7 +210,7 @@ export default function ChangePlanScreen() {
                 </div>
 
                 {/* Plans Grid */}
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full} `}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full`}>
                     {plans.map((plan) => (
                         <div key={plan.name} className="relative">
                             {/* Coming Soon overlay for Pro and Enterprise */}
@@ -225,9 +225,7 @@ export default function ChangePlanScreen() {
                                     } ${plan.theme === 'pro'
                                         ? 'bg-[#2C9993] text-white shadow-xl scale-105 z-10'
                                         : 'bg-white text-[#101828] shadow-md'
-                                    } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}
-                                ${plan.name == 'Standard' ? "" : ""}
-                                `}
+                                    } ${plan.isActive && plan.theme !== 'pro' ? 'border-2 border-[#2ACF27]' : plan.isActive ? 'border-2 border-white' : 'border border-[#E2E8F0]'} ${selectedPlan === plan.name.toUpperCase() ? 'ring-4 ring-[#2C9993] ring-opacity-50' : ''}`}
                             >
                                 {/* Badges */}
                                 {plan.isActive && (
@@ -250,12 +248,11 @@ export default function ChangePlanScreen() {
                                 {/* Price */}
                                 <div className="mb-8 flex items-baseline">
                                     <span className={`text-[48px] font-bold relative ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
-                                        ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
+                                        ${plan.isActive ? getActivePlanPrice() : (billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice)}
                                     </span>
-                                    {
-                                        plan.annualPrice ? <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/ {billingCycle === 'monthly' ? 'monthly' : 'yearly'}</span> : <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>/ {billingCycle === 'monthly' ? 'monthly' : 'yearly'}</span>
-                                    }
-
+                                    <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                        / {plan.isActive ? (userSubscription?.billingCycle === 'YEARLY' ? 'yearly' : 'monthly') : (billingCycle === 'monthly' ? 'monthly' : 'yearly')}
+                                    </span>
                                 </div>
 
                                 {/* Action Button */}
@@ -267,10 +264,11 @@ export default function ChangePlanScreen() {
                                             ? 'bg-transparent border-2 border-white text-white hover:bg-white/10'
                                             : 'bg-white border-2 border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5'
                                             } ${selectedPlan === plan.name.toUpperCase() ? 'bg-opacity-90 scale-95' : ''}`}>
-                                        {selectedPlan === plan.name.toUpperCase() ? 'Selected' : "Comming Soon"}
+                                        {selectedPlan === plan.name.toUpperCase() ? 'Selected' : "Coming Soon"}
                                     </button>
                                 )}
-                                {plan.isActive && <div className="h-[60px] mb-10" />} {/* Spacer for active plan */}
+                                {plan.isActive && <div className="h-[60px] mb-10 flex items-center justify-center">
+                                </div>}
 
                                 {/* Features */}
                                 <div className={`mt-auto p-6 rounded-[16px] ${plan.theme === 'pro' ? '' : 'bg-inputBgColor'}`}>
@@ -295,8 +293,7 @@ export default function ChangePlanScreen() {
                 <div className="flex flex-row justify-end items-end gap-x-2 mt-20 w-full">
                     <button
                         onClick={handleCancel}
-                        disabled={isLoading || true}
-                        className="w-[220px] h-[60px] border-[#2C9993] border-2 flex items-center cursor-pointer justify-center rounded-[12px] text-[#2C9993] text-[18px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        className="w-[220px] h-[60px] border-[#2C9993] border-2 flex items-center cursor-pointer justify-center rounded-[12px] text-[#2C9993] text-[18px] font-semibold hover:bg-[#2C9993]/5 transition-all">
                         Cancel
                     </button>
                     <button
@@ -311,7 +308,6 @@ export default function ChangePlanScreen() {
                         ) : 'Confirm'}
                     </button>
                 </div>
-
             </div>
         </div >
     );

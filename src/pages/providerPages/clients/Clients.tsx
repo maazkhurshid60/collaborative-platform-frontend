@@ -126,7 +126,36 @@ const Clients = () => {
     recordPerPage,
   });
 
-  const handleDeleteFun = (clientId: string, providerId: string) => {
+  const [modalConfig, setModalConfig] = useState<{
+    heading: string;
+    text: React.ReactNode;
+    confirmText: string;
+  }>({
+    heading: "Delete Client",
+    text: "",
+    confirmText: "Delete",
+  });
+
+  const handleDeleteFun = (clientId: string, providerId: string, isCreator: boolean) => {
+    const isDetach = !isCreator && loginUserId?.user?.role !== "superAdmin";
+
+    setModalConfig({
+      heading: isDetach ? "Detach Client" : "Delete Client",
+      confirmText: isDetach ? "Detach" : "Delete",
+      text: isDetach ? (
+        <div>
+          Are you sure you want to <span className="font-semibold">Detach this Client</span>?
+          They will be removed from your list, but their account will remain active for other providers.
+        </div>
+      ) : (
+        <div>
+          By Deleting this account you won’t be able to track records of your signed
+          Documents. Are you sure that you want to{" "}
+          <span className="font-semibold">Delete your Account</span>?
+        </div>
+      )
+    });
+
     dispatch(isModalDeleteReducer(true));
     setSelectedClientId({ clientId, providerId });
   };
@@ -287,17 +316,15 @@ const Clients = () => {
                           <ShareDocumentIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`, { state: { view: 'documents' } })} />
                         </div>
                         {canEditDelete && (
-                          <>
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
-                            </div>
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              <DeleteIcon
-                                onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)}
-                              />
-                            </div>
-                          </>
+                          <div className="w-5 h-5 flex items-center justify-center">
+                            <EditIcon onClick={() => navigate(`/clients/edit-client/${data?.id}`)} />
+                          </div>
                         )}
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <DeleteIcon
+                            onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id, canEditDelete)}
+                          />
+                        </div>
                       </div>
                     </td>
                   </tr>

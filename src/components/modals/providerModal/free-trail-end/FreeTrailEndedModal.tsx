@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface FreeTrailEndedModalProps {
     onClose?: () => void;

@@ -34,30 +34,31 @@ const PaymentSuccessPage = () => {
             try {
                 const payments = await subscriptionApiService.getAllPayments();
 
-                // Priority: find ANY payment with real digits first
-                // (charge.succeeded may have updated an older record while the new record still has ****)
-                const withRealDigits = payments?.find((p: any) =>
-                    p.last4 && p.last4 !== '****' && p.last4 !== '----'
-                );
-                const best = withRealDigits
-                    ?? payments?.find((p: any) => p.status === 'paid' || p.status === 'succeeded')
-                    ?? payments?.[0];
+                // 1. Prioritize the newest PAID record, but only look at the most recent 3 records.
+                // This ensures we catch a 'paid' record even if a 'canceled' record happened slightly after it,
+                // without accidentally grabbing a 'paid' record from months ago.
+                const recentPayments = payments?.slice(0, 3) || [];
+                let best;
+                // Fallback to absolute newest if no recent paid record is found
+                if (!best) {
+                    best = payments?.[2];
+                }
 
                 if (best) {
                     setLatestPayment(best);
 
-                    const hasRealDigits = best.last4 && best.last4 !== '****' && best.last4 !== '----';
-                    if (hasRealDigits) {
-                        console.log(`[PaymentSuccess] Got real digits: ${best.last4} — stopping poll`);
+                    // 2. Stop polling if THIS specific record has real digits OR if it's a canceled record (which will never get digits)
+                    const hasRealDigits = best.last4 && best.last4 !== '****' && best.last4 !== '----' && best.last4 !== 'null';
+                    const isCanceled = best.status === 'canceled';
+
+                    if (hasRealDigits || isCanceled) {
+                        console.log(`[PaymentSuccess] Stopping poll. best.last4: ${best.last4}`);
                         clearInterval(intervalId);
-                    } else {
-                        console.log(`[PaymentSuccess] Attempt ${attempts + 1}: digits not ready (${best.last4})`);
                     }
                 }
 
                 attempts++;
                 if (attempts >= MAX_ATTEMPTS) {
-                    console.log('[PaymentSuccess] Max attempts reached, stopping poll');
                     clearInterval(intervalId);
                 }
             } catch (e) {

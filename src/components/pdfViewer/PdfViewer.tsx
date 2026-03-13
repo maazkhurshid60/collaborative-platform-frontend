@@ -1,59 +1,47 @@
-import { useMemo, useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+import Loader from "../loader/Loader";
+
+// Set up worker for react-pdf
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 type PdfViewerProps = {
-  url: string;      // must be publicly accessible
-  maxPages?: number;
+  url: string;
 };
 
-export default function PdfViewer({ url, maxPages }: PdfViewerProps) {
-  const [page, setPage] = useState(1);
+export default function PdfViewer({ url }: PdfViewerProps) {
+  const [numPages, setNumPages] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(500);
 
-  const prev = () => setPage((p) => Math.max(1, p - 1));
-
-
-  const src = useMemo(() => {
-    const gview = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-    return `${gview}#page=${page}`;
-  }, [url, page]);
+  useEffect(() => {
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth - 40);
+    }
+  }, []);
 
   return (
-    <div className="w-full">
-      {/* <div className="mb-3 grid grid-cols-3 items-center gap-2">
-        <div className="flex justify-start">
-          <button
-            type="button"
-            onClick={prev}
-            disabled={page <= 1}
-            className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium shadow-sm
-                       hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300
-                       disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span aria-hidden="true">←</span>
-            Prev
-          </button>
-        </div>
-
-        <div className="flex justify-center text-sm tabular-nums text-gray-600">
-          
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={next}
-            disabled={page >= maxPages}
-            className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium shadow-sm
-                       hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300
-                       disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
-      </div> */}
-
-      <div className="h-[55vh] w-full overflow-hidden rounded-xl border bg-gray-50 shadow-sm">
-        <iframe key={page} className="h-full w-full border-0" src={src} title="PDF" />
+    <div className="w-full" ref={containerRef}>
+      <div className="h-[55vh] w-full overflow-y-auto rounded-xl border bg-gray-50 shadow-sm p-4 flex flex-col items-center gap-y-4">
+        <Document
+          file={url}
+          onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+          loading={<Loader text="Loading PDF..." />}
+          error={<p className="text-red-500">Failed to load PDF.</p>}
+        >
+          {Array.from(new Array(numPages), (el, index) => (
+            <div key={`page_${index + 1}`} className="shadow-md mb-4 bg-white">
+              <Page
+                pageNumber={index + 1}
+                width={containerWidth}
+                renderAnnotationLayer={false}
+                renderTextLayer={false}
+              />
+            </div>
+          ))}
+        </Document>
       </div>
     </div>
   );
