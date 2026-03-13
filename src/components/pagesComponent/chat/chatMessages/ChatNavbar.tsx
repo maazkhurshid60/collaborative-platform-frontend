@@ -74,7 +74,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
 
             // 2️⃣ Invalidate or update the cache so the list refreshes
             queryClient.invalidateQueries({
-                queryKey: ['groupChatchannels', loginUserId]
+                queryKey: ['groupChatchannels']
             });
             dispatch(isDeleteChannelModalShowReducer(false))
             navigate('/chat')

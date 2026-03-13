@@ -23,36 +23,32 @@ const PaymentSuccessPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-    // ① Continuously poll for payment data with real last4 digits (independent of sync)
     useEffect(() => {
         if (!token || !loginUserId) return;
 
         let attempts = 0;
-        const MAX_ATTEMPTS = 20; // poll every 3s for up to 60 seconds
+        const MAX_ATTEMPTS = 20;
 
         const fetchLatestPayment = async () => {
             try {
                 const payments = await subscriptionApiService.getAllPayments();
 
-                // 1. Prioritize the newest PAID record, but only look at the most recent 3 records.
-                // This ensures we catch a 'paid' record even if a 'canceled' record happened slightly after it,
-                // without accidentally grabbing a 'paid' record from months ago.
-                const recentPayments = payments?.slice(0, 3) || [];
-                let best;
-                // Fallback to absolute newest if no recent paid record is found
+                const recentPayments = payments?.slice(0, 5) || [];
+                let best = recentPayments.find((p: any) => p.status === 'paid');
+
                 if (!best) {
-                    best = payments?.[2];
+                    best = payments?.[0];
                 }
 
                 if (best) {
                     setLatestPayment(best);
 
-                    // 2. Stop polling if THIS specific record has real digits OR if it's a canceled record (which will never get digits)
                     const hasRealDigits = best.last4 && best.last4 !== '****' && best.last4 !== '----' && best.last4 !== 'null';
                     const isCanceled = best.status === 'canceled';
 
                     if (hasRealDigits || isCanceled) {
                         console.log(`[PaymentSuccess] Stopping poll. best.last4: ${best.last4}`);
+                        console.log("best", best);
                         clearInterval(intervalId);
                     }
                 }
@@ -62,28 +58,23 @@ const PaymentSuccessPage = () => {
                     clearInterval(intervalId);
                 }
             } catch (e) {
-                // silently ignore fetch errors during polling
             }
         };
 
-        // Start immediately, then repeat every 3s
         fetchLatestPayment();
         const intervalId = setInterval(fetchLatestPayment, 3000);
 
-        return () => clearInterval(intervalId); // cleanup on unmount
+        return () => clearInterval(intervalId);
     }, [token, loginUserId]);
 
-    // ② One-shot: sync subscription with Stripe and refresh user Redux state
     useEffect(() => {
         const syncAndRefresh = async () => {
             if (!token || !loginUserId || !role) return;
             try {
                 setIsLoading(true);
 
-                // Sync subscription data
                 try { await subscriptionApiService.syncSubscription(); } catch (_) { }
 
-                // Poll getMe until currentPeriodEnd appears in DB
                 const maxAttempts = 8;
                 for (let i = 0; i < maxAttempts; i++) {
                     const response = await authService.getMe(loginUserId, role);

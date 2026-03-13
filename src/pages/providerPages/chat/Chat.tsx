@@ -380,7 +380,7 @@ const Chat = () => {
                               ? {
                                 ...channel,
                                 totalUnread: 0,
-                                updatedAt: new Date().toISOString()
+                                //updatedAt: new Date().toISOString()
                               }
                               : channel
                           );
@@ -449,7 +449,7 @@ const Chat = () => {
                                   ? {
                                     ...group,
                                     unreadCount: 0,
-                                    updatedAt: new Date().toISOString(),
+                                    // updatedAt: new Date().toISOString(),
                                   }
                                   : group
                               );
