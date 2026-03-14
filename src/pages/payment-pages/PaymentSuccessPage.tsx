@@ -36,6 +36,9 @@ const PaymentSuccessPage = () => {
                 const recentPayments = payments?.slice(0, 5) || [];
                 let best = recentPayments.find((p: any) => p.status === 'paid');
 
+                console.log("payments", payments);
+                console.log("recentPayments", recentPayments);
+                console.log("best", best);
                 if (!best) {
                     best = payments?.[0];
                 }
