@@ -13,12 +13,9 @@ export const initSocket = (providerId: string, userId: string): Socket => {
         });
 
         socket.on('connect', () => {
-            console.log('✅ Socket connected:');
         });
 
         socket.on('connect_error', (err) => {
-            console.error('❌ Socket connection failed:', err.message);
-            console.error('❌ Socket connection failed:front end');
         });
     } else if (!socket.connected) {
         socket.connect(); // Ensure it reconnects if disconnected
@@ -35,7 +32,6 @@ export const getSocket = (): Socket | undefined => {
 export const disconnectSocket = (): void => {
     if (socket) {
         socket.disconnect();
-        console.error('🛑 Socket disconnected');
     }
 };
 

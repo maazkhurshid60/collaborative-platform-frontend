@@ -76,7 +76,7 @@ export async function downloadInvoicePdf(invoiceData: {
             <div style="margin-bottom:20px;">
                 <p style="font-size:12px; font-weight:700; color:#111827; margin:0 0 6px;">Bill To:</p>
                 <p style="font-size:11px; font-weight:600; color:#111827; margin:2px 0;">${invoiceData.billTo.name}</p>
-                <p style="font-size:11px; color:#4b5563; margin:2px 0;">${invoiceData.billTo.email}</p>
+                <p style="font-size:11px; color:#4b5563; margin:2px 0;">${invoiceData.billTo.email} </p>
                 <p style="font-size:11px; color:#4b5563; margin:2px 0;">${invoiceData.billTo.address}${invoiceData.billTo.city ? ', ' + invoiceData.billTo.city : ''}</p>
             </div>
 
