@@ -61,7 +61,7 @@ export async function downloadInvoicePdf(invoiceData: {
                     <img src="/assets/logo.png" alt="KolabMe" style="height:60px; width:auto; object-fit:contain; margin-bottom:4px;" />
                     <p style="font-size:10px; color:#6b7280; margin:2px 0;">123 Business Street</p>
                     <p style="font-size:10px; color:#6b7280; margin:2px 0;">San Francisco, CA 94102</p>
-                    <p style="font-size:10px; color:#6b7280; margin:2px 0;">katelin@kolabme.com/p>
+                    <p style="font-size:10px; color:#6b7280; margin:2px 0;">katelin@kolabme.com</p>
                 </div>
                 <div style="text-align:right;">
                     <p style="font-size:22px; font-weight:700; color:#111827; margin:0 0 8px;">INVOICE</p>
