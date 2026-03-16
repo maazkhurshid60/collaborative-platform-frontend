@@ -12,6 +12,7 @@ import PaymentOverDueModal from '../../components/modals/PaymentOverdue'
 import SubscriptionExpiredModal from '../../components/modals/SubscriptionExpiredModal'
 import TrialExpiredModal from '../../components/modals/TrialExpiredModal'
 import SubscriptionCanceledModal from '../../components/modals/SubscriptionCanceledModal'
+import EmailVerificationBanner from '../../components/common/EmailVerificationBanner'
 
 const DashboardLayout = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
@@ -79,6 +80,7 @@ const DashboardLayout = () => {
                     {/* Fixed Navbar - Only show if logged in and not in clean payment flow */}
                     {token && !isPaymentFlow && (
                         <div className=" shadow-md z-40">
+                            <EmailVerificationBanner />
                             <Navbar />
                         </div>
                     )}

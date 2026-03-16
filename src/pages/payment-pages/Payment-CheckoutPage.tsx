@@ -356,7 +356,7 @@ export const PaymentCheckoutPage = () => {
                             <div className="flex items-center justify-between mb-6">
                                 <h1 className="text-[32px] font-semibold text-[#101828]">Plan Summary</h1>
                                 <button
-                                    onClick={() => navigate("/billing/change-plan")}
+                                    onClick={() => navigate("/select-plan")}
                                     className="text-[#2C9993] font-medium hover:underline cursor-pointer"
                                 >
                                     Change Plan

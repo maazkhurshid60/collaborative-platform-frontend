@@ -24,6 +24,7 @@ import UpgradePrompt from "../components/upgradePrompt/UpgradePrompt";
 const LicenseNo = lazy(() => import("../pages/auth/LicenseScreen/LicenseScreen"))
 const ViewUser = lazy(() => import("../pages/superadminPages/allUsers/ViewUser"))
 const ClientSignup = lazy(() => import("../pages/auth/signup/ClientSignup"));
+const VerifyEmailPage = lazy(() => import("../pages/auth/verifyEmail/VerifyEmailPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/forgotPassword/ForgotPassword"));
 const ResettPassword = lazy(() => import("../pages/auth/resetPassword/ResetPassword"));
 const Dashboard = lazy(() => import("../pages/providerPages/dashboard/Dashboard"));
@@ -83,6 +84,7 @@ const Routing = () => {
             <Route path="/signup-with-client-id" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
             <Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
             <Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
+            <Route path="/verify-email/:token" element={<WrappedRoute><VerifyEmailPage /></WrappedRoute>} />
 
             {/* Protected Routes */}
             <Route

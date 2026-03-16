@@ -15,6 +15,7 @@ interface User {
     status: string | null;
     updatedAt: string;
     isApprove: string;
+    isEmailVerified?: boolean;
     hasUsedFreeTrial?: boolean;
     subscription?: {
         id: string;
@@ -97,7 +98,8 @@ const initialState: LoginUserDetailState = {
             role: "",
             status: null,
             updatedAt: "",
-            isApprove: ""
+            isApprove: "",
+            isEmailVerified: false
         }
     },
     licenseNoResult: {
@@ -179,7 +181,8 @@ const LoginUserDetail = createSlice({
                     role: "",
                     status: null,
                     updatedAt: "",
-                    isApprove: ""
+                    isApprove: "",
+                    isEmailVerified: false
                 }
             }
             state.decryptedPrivateKey = null;
@@ -189,12 +192,17 @@ const LoginUserDetail = createSlice({
         },
         setIsRefreshing: (state, action: PayloadAction<boolean>) => {
             state.isRefreshing = action.payload;
+        },
+        setEmailVerified: (state, action: PayloadAction<boolean>) => {
+            if (state.userDetails.user) {
+                state.userDetails.user.isEmailVerified = action.payload;
+            }
         }
     }
 
 
 })
 export const { saveLoginUserDetailsReducer, updateBlockedMembers, saveLicenseNoResult, emptyResult, searchByLicenseNoReducer
-    , saveDecryptedPrivateKey, setIsRefreshing
+    , saveDecryptedPrivateKey, setIsRefreshing, setEmailVerified
 } = LoginUserDetail.actions
 export default LoginUserDetail.reducer

@@ -131,6 +131,30 @@ class AuthService {
             // Even if backend fails, we should still clear local storage (handled in Sidebar)
         }
     }
+    async resendVerification() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post("/resend-verification", {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error resendVerification", error);
+            throw error;
+        }
+    }
+
+    async verifyEmail(token: string) {
+        try {
+            const response = await this.api.post(`/verify-email/${token}`);
+            return response.data;
+        } catch (error: unknown) {
+            console.error("error verifyEmail", error);
+            throw error;
+        }
+    }
 
 }
 // Export a single instance
