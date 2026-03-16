@@ -20,6 +20,7 @@ function App() {
   const role = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role)
   const dispatch = useDispatch();
   const [showRenwalModal, setShowRenwalModal] = useState(false);
+  const [renewalData, setRenewalData] = useState<any>(null);
 
   const fetchUserData = async () => {
     const token = localStorage.getItem("token");
@@ -72,6 +73,7 @@ function App() {
       // Listen for subscription renewal success
       socket.on("subscription_renewal", (data) => {
         console.log("🔔 App.tsx: Subscription renewal received:", data);
+        setRenewalData(data);
         setShowRenwalModal(true);
         fetchUserData();
       });
@@ -114,7 +116,12 @@ function App() {
 
         {/* Renewal Success Modal */}
         {showRenwalModal && (
-          <RenewalSuccessfullModal onClose={() => setShowRenwalModal(false)} />
+          <RenewalSuccessfullModal
+            onClose={() => setShowRenwalModal(false)}
+            planName={renewalData?.planName}
+            amountBilled={renewalData?.amountBilled}
+            nextBillingDate={renewalData?.nextBillingDate}
+          />
         )}
       </BrowserRouter>
     </QueryClientProvider>
