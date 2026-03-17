@@ -33,6 +33,15 @@ class ClientApiService {
             toast.error(errMsg);
         }
     }
+    async getClientById(id: string) {
+        try {
+            const response = await this.api.get(`${API_BASE_URL}/client/get-client/${id}`)
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get client details";
+            toast.error(errMsg);
+        }
+    }
     async deleteClientApi(data: selectedClientIdType) {
         try {
 

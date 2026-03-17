@@ -18,28 +18,20 @@ const ClientProfile = () => {
     const navigate = useNavigate()
     const { id } = useParams()
     const loginUser = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
-    const [selectedClientData, setSelectedClientData] = useState<ClientType>()
-
-    // Fetch specifically the one client by ID (or filter if necessary)
-    const { data: clients, isLoading, isError } = useQuery<ClientType[]>({
-        queryKey: ["clients", loginUser?.user?.id],
+    // Fetch specifically the one client by ID
+    const { data: selectedClientData, isLoading, isError } = useQuery<ClientType>({
+        queryKey: ["client", id],
         queryFn: async () => {
             try {
-                const response = await clientApiService.getAllClient(loginUser?.user?.id);
-                return response?.data?.clients || [];
+                const response = await clientApiService.getClientById(id!);
+                return response?.data?.client;
             } catch (error) {
-                console.error("Error fetching clients:", error);
-                return [];
+                console.error("Error fetching client details:", error);
+                return null;
             }
-        }
+        },
+        enabled: !!id
     })
-
-    useEffect(() => {
-        if (clients) {
-            const selected = clients.find(data => data?.id === id)
-            setSelectedClientData(selected)
-        }
-    }, [clients, id])
 
     if (isLoading) {
         return <Loader text='Loading...' />

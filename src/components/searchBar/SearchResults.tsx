@@ -14,6 +14,7 @@ interface SearchResultsProps {
     isVisible: boolean;
     isLoading?: boolean;
     emptyMessage?: string;
+    onResultClick?: () => void;
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({
@@ -22,7 +23,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     currentUserId,
     isVisible,
     isLoading = false,
-    emptyMessage = "No users found"
+    emptyMessage = "No users found",
+    onResultClick
 
 }) => {
     if (!isVisible) return null;
@@ -47,6 +49,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                             onAddClient={onAddClient}
                             currentUserId={currentUserId}
                             isLast={index === results.length - 1}
+                            onResultClick={onResultClick}
                         />
                     ))}
                 </div>
@@ -60,13 +63,15 @@ interface SearchResultItemProps {
     onAddClient: (client: ClientType) => void;
     currentUserId: string;
     isLast: boolean;
+    onResultClick?: () => void;
 }
 
 const SearchResultItem: React.FC<SearchResultItemProps> = ({
     user,
     onAddClient,
     currentUserId,
-    isLast
+    isLast,
+    onResultClick
 }) => {
     const isAlreadyAdded = user?.providerList?.some(
         provider => provider.providerId === currentUserId
@@ -75,10 +80,14 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
 
     return (
 
-        <Link to={user?.user?.role === "client" ? `/clients/${user.id}` : `/providers/${user.id}`} className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}>
+        <Link 
+            to={user?.user?.role === "client" ? `/clients/${user.id}` : `/providers/${user.id}`} 
+            className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}
+            onClick={() => onResultClick && onResultClick()}
+        >
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 {/* Profile Image */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                     {user?.user?.profileImage && user?.user?.profileImage !== "null" ? (
                         <img
                             src={user.user.profileImage}

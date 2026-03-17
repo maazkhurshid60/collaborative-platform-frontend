@@ -96,6 +96,7 @@ const Navbar = () => {
             user.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
             user.clientId?.toLowerCase().includes(searchTerm) ||
             user.user?.fullName?.toLowerCase().includes(searchTerm) ||
+            user.user?.email?.toLowerCase().includes(searchTerm) ||
             user.email?.toLowerCase().includes(searchTerm) ||
             user.user?.role?.toLowerCase().includes(searchTerm)
           );
@@ -244,6 +245,7 @@ const Navbar = () => {
                 onAddClient={addClientFun}
                 currentUserId={loginUserDetail.id}
                 isVisible={showSearchResults}
+                onResultClick={handleClearSearch}
                 emptyMessage={searchQuery ? `No users found for "${searchQuery}"` : "Start typing to search users..."}
               />
             </div>
