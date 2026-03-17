@@ -9,6 +9,7 @@ import { clientSchema } from '../../../../schema/clientSchema/ClientSchema'
 import { statusOption } from '../../../../constantData/statusOptions'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import UserIcon from '../../../icons/user/User'
 import { RootState } from '../../../../redux/store'
 import DeleteClientModal from '../../../modals/providerModal/deleteClientModal/DeleteClientModal'
 import { ClientType, Provider } from '../../../../types/clientType/ClientType'
@@ -49,13 +50,12 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
     } = methods;
     const queryClient = useQueryClient()
     const [isLoader, setIsLoader] = useState(false)
-    // const [showUploader, setShowUploader] = useState(false)
-    // const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
-    // const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    // const [showUploader, setShowUploader] = useState(false)
-    // const [selectedFile, setSelectedFile] = useState<File | string | null>(null)
-    // const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [wantToBeSeen, setWantToBeSeen] = useState(true);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [showUploader, setShowUploader] = useState(false);
+    const [imageChanged, setImageChanged] = useState(false);
+
     const handleCheckboxChange = () => {
         setWantToBeSeen((prev) => !prev);
     };
@@ -74,37 +74,19 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 
-            // if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
-            // if (clientData?.user?.profileImage !== "null" && clientData?.user?.profileImage !== null) {
-
-            //     const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
-            //     setPreviewUrl(imagePath)
-            //     setSelectedFile(imagePath)
-            // } else {
-            //     const imagePath = clientData?.user?.profileImage ? clientData?.user?.profileImage : null;
-            //     setPreviewUrl(imagePath)
-            //     setSelectedFile(imagePath)
-            // } else {
-
-            //     setPreviewUrl(null)
-            //     setPreviewUrl(null)
-
-            // }
-            // }
+            const img = clientData?.user?.profileImage;
+            setPreviewUrl(img && img !== "null" ? img : null);
+            setImageChanged(false);
         }
     }, [clientData, setValue])
 
 
-    // const handleFileSelect = (file: File) => {
-    //     setSelectedFile(file)
-    //     setPreviewUrl(URL.createObjectURL(file))
-    //     setShowUploader(false)
-    // }
-    // const handleFileSelect = (file: File) => {
-    //     setSelectedFile(file)
-    //     setPreviewUrl(URL.createObjectURL(file))
-    //     setShowUploader(false)
-    // }
+    const handleFileSelect = (file: File) => {
+        setSelectedFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+        setShowUploader(false);
+        setImageChanged(true);
+    };
 
     const updateFunction = (data: FormFields) => {
         // if (selectedFile === null) {
@@ -127,13 +109,13 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('country', data.country ?? '')
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
-        // if (selectedFile !== null) {
-        // if (selectedFile !== null) {
-
-        //     formData.append('profileImage', selectedFile)
-        // }
-        //     formData.append('profileImage', selectedFile)
-        // }
+        if (imageChanged) {
+            if (selectedFile) {
+                formData.append("profileImage", selectedFile);
+            } else {
+                formData.append("profileImage", "null");
+            }
+        }
 
         updateMutation.mutate(formData)
     }
@@ -167,37 +149,71 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             Only the original creator of this client can modify their profile information.
                         </div>
                     )}
-                    {/* <div className='mb-5'>
-                    {/* <div className='mb-5'>
-                        <LabelData label='Client Image' />
-                        <div className="relative w-32 h-32">
-                            {!showUploader ? (
-                                previewUrl ? (
-                                    <img
-                                        src={previewUrl}
-                                        alt="Client"
-                                        className="w-32 h-32 rounded-md object-cover " />
+                    {canEdit && (
+                        <div className='mb-5'>
+                            <LabelData label='Client Image' />
+                            <div className="relative w-32 h-32">
+                                {!showUploader ? (
+                                    previewUrl ? (
+                                        <div className="relative">
+                                            <img
+                                                src={previewUrl}
+                                                alt="Client"
+                                                className="w-32 h-32 rounded-lg object-cover"
+                                            />
+                                            <div
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 cursor-pointer"
+                                                onClick={() => {
+                                                    setPreviewUrl(null);
+                                                    setSelectedFile(null);
+                                                    setImageChanged(true);
+                                                }}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primaryColorDark transition-colors"
+                                            onClick={() => setShowUploader(true)}
+                                        >
+                                            <UserIcon className="text-4xl text-gray-400" />
+                                            <span className="text-xs text-gray-500 mt-1">Add Image</span>
+                                        </div>
+                                    )
                                 ) : (
-
-                                    <UserIcon className="text-8xl text-textColor" />
-                                )
-                            ) : (
-                                <FileUploader onFileSelect={handleFileSelect} />
-                            )}
-
-                           
-                           
-                            {!showUploader && (
-
-                                <CrossIcon onClick={() => {
-                                    setShowUploader(true);
-                                    setSelectedFile(null);
-                                    setPreviewUrl(null);
-                                }} />
-                            )}
+                                    <div className="relative">
+                                        <div
+                                            className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 cursor-pointer z-10"
+                                            onClick={() => setShowUploader(false)}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </div>
+                                        {/* Assuming FileUploader has its own UI, but we need to pass handleFileSelect */}
+                                        <div className="w-32 h-32 rounded-lg overflow-hidden border">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    if (e.target.files && e.target.files[0]) {
+                                                        handleFileSelect(e.target.files[0]);
+                                                    }
+                                                }}
+                                                className="w-full h-full opacity-0 absolute cursor-pointer"
+                                            />
+                                            <div className="flex items-center justify-center h-full bg-gray-50 text-gray-400 text-xs text-center px-2">
+                                                Click to Upload
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-
-                    </div> */}
+                    )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
                         <InputField disabled={!canEdit} required label='Full Name' register={register("fullName")} placeHolder='Enter Full Name.' error={errors.fullName?.message} />

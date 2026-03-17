@@ -248,7 +248,7 @@ const UserProfile = () => {
       if (selectedFile !== null) {
         formData.append("profileImage", selectedFile);
       } else {
-        formData.append("profileImage", "");
+        formData.append("profileImage", "null");
       }
     }
 
