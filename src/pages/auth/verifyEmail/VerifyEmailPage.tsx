@@ -34,7 +34,15 @@ const VerifyEmailPage: React.FC = () => {
             toastId: "verify-email-success" // Prevent duplicate toasts
           });
         }
+
+
       } catch (error: any) {
+        if (error.response?.data?.message === "Email already verified") {
+          dispatch(setEmailVerified(true));
+          toast.info("You email is already verified");
+          navigate("/dashboard");
+          return;
+        }
         setStatus('error');
         setErrorMessage(error.response?.data?.message || error.response?.data?.data?.error || "Invalid or expired verification link.");
       }

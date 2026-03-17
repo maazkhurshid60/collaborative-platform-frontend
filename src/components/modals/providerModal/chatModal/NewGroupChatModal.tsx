@@ -114,13 +114,13 @@ const NewGroupChatModal = () => {
         >
             <div className='mt-4'>
 
-                <InputField 
-                required label='Group Name' 
-                  register={register("name")} 
-                  placeHolder='Enter Full Name.'
-                   error={errors.name?.message}
-                   
-                   />
+                <InputField
+                    required label='Group Name'
+                    register={register("name")}
+                    placeHolder='Enter Full Name.'
+                    error={errors.name?.message}
+
+                />
             </div>
             <div className='mt-4'>
 
@@ -134,7 +134,7 @@ const NewGroupChatModal = () => {
                     placeholder="Search Users..."
                 />
             </div>
-            <div className='mt-2 mb-4'>
+            <div className='mt-2 mb-4 overflow-visible px-6 pt-6'>
                 {allProviders?.filter((data: ProviderType) =>
                     data?.user?.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
                 ).map((data: ProviderType, id: number) => {
@@ -143,12 +143,12 @@ const NewGroupChatModal = () => {
                     const isMember = groupMembers.includes(data.id.toString());
 
                     return (
-                        <div className='flex items-center gap-x-0 w-auto rounded-md hover:bg-primaryColorLight p-2' key={id}>
+                        <div className='flex items-center justify-between  gap-x-0 w-auto rounded-md hover:bg-primaryColorLight p-2' key={id}>
                             <p className='capitalize w-30 text-[14px] font-medium'>
                                 {data?.user?.fullName}
                             </p>
                             {isMember ? (
-                                <div className='relative group'>
+                                <div className='relative group w-fit'>
                                     <FiMinusCircle
                                         className='cursor-pointer text-xl text-textGreyColor'
                                         onClick={() =>
@@ -158,8 +158,8 @@ const NewGroupChatModal = () => {
                                     <ToolTip toolTipText='Remove Member' />
                                 </div>
                             ) : (
-                                <div className='relative group'>
-                                    <AddIcon
+                                <div className='relative group w-fit'>
+                                    <AddIcon className='cursor-pointer'
                                         onClick={() => setGroupMembers(prev => [...prev, data.id!.toString()])}
                                     />
                                     <ToolTip toolTipText='Add Member' />

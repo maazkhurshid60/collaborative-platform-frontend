@@ -5,15 +5,13 @@ interface AddIconProps {
     className?: string
 }
 const AddIcon: React.FC<AddIconProps> = (props) => {
-    return (<div className="relative group">
-
+    return (
         <LuCirclePlus className={`cursor-pointer text-xl text-textGreyColor ${props.className}`}
             onClick={props.onClick}
         />
-
-    </div>
-
     )
+
+
 }
 
 export default AddIcon

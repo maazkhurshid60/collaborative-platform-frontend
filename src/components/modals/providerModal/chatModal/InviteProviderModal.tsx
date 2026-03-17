@@ -45,17 +45,23 @@ const InviteProviderModal: React.FC<InviteProviderModalProps> = ({ onClose }) =>
       if (res.success) {
         toast.success("Invitation email sent successfully");
         setEmail("");
-        // ✅ Close modal after success (optional)
         onClose?.();
       }
       else if (res.statusCode === 409) {
-        toast.error("Provider is already on the platform");
+        toast.info(res.message || "Provider is already on the platform");
       }
       else {
         toast.error(res.message || "Failed to send invitation");
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to send invitation");
+      const statusCode = err?.response?.status;
+      const message = err?.response?.data?.message || "Failed to send invitation";
+
+      if (statusCode === 409) {
+        toast.info(message);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setIsSending(false);
     }
@@ -73,7 +79,7 @@ const InviteProviderModal: React.FC<InviteProviderModalProps> = ({ onClose }) =>
       />
 
       <button
-        className="bg-teal-700 text-white rounded-md py-2 text-sm disabled:opacity-60"
+        className="bg-teal-700 text-white cursor-pointer rounded-md py-2 text-sm disabled:opacity-60"
         disabled={isSending}
         onClick={onSend}
       >
@@ -83,7 +89,7 @@ const InviteProviderModal: React.FC<InviteProviderModalProps> = ({ onClose }) =>
       {/* Optional cancel button */}
       <button
         type="button"
-        className="border rounded-md py-2 text-sm"
+        className="border cursor-pointer rounded-md py-2 text-sm"
         onClick={onClose}
         disabled={isSending}
       >
