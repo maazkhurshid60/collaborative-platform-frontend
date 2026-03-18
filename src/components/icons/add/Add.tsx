@@ -1,5 +1,6 @@
 import React from 'react'
 import { LuCirclePlus } from "react-icons/lu";
+import ToolTip from '../../toolTip/ToolTip';
 interface AddIconProps {
     onClick?: () => void
     className?: string

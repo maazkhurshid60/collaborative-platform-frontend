@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { lazy } from "react";
 import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
+import PublicRoute from "./PublicRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
 import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
@@ -58,8 +59,8 @@ const Routing = () => {
         <Routes>
 
             {/* Public Routes */}
-            < Route path="/" element={<WrappedRoute><Login /></WrappedRoute>} />
-            <Route path="/provider-signup" element={<WrappedRoute><ProviderSignup /></WrappedRoute>} />
+            <Route path="/" element={<WrappedRoute><PublicRoute><Login /></PublicRoute></WrappedRoute>} />
+            <Route path="/provider-signup" element={<WrappedRoute><PublicRoute><ProviderSignup /></PublicRoute></WrappedRoute>} />
 
 
 
@@ -78,13 +79,13 @@ const Routing = () => {
 
 
 
-            <Route path="/client-signup" element={<WrappedRoute><ClientSignup /></WrappedRoute>} />
+            <Route path="/client-signup" element={<WrappedRoute><PublicRoute><ClientSignup /></PublicRoute></WrappedRoute>} />
             <Route path="/invite-chat/:type/:id/:email" element={<WrappedRoute><NonUserChat /></WrappedRoute>} />
             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
-            <Route path="/signup-with-client-id" element={<WrappedRoute><LicenseNo /></WrappedRoute>} />
-            <Route path="/forgot-password" element={<WrappedRoute><ForgotPassword /></WrappedRoute>} />
-            <Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
-            <Route path="/verify-email/:token" element={<WrappedRoute><VerifyEmailPage /></WrappedRoute>} />
+            <Route path="/signup-with-client-id" element={<WrappedRoute><PublicRoute><LicenseNo /></PublicRoute></WrappedRoute>} />
+            <Route path="/forgot-password" element={<WrappedRoute><PublicRoute><ForgotPassword /></PublicRoute></WrappedRoute>} />
+            <Route path="/reset-password/:token" element={<WrappedRoute><PublicRoute><ResettPassword /></PublicRoute></WrappedRoute>} />
+            <Route path="/verify-email/:token" element={<WrappedRoute><PublicRoute><VerifyEmailPage /></PublicRoute></WrappedRoute>} />
 
             {/* Protected Routes */}
             <Route

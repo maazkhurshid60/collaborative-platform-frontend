@@ -68,7 +68,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("status", (clientData?.user?.status ?? "").toLowerCase())
             setValue("address", clientData?.user?.address ?? "")
             setValue("contactNo", clientData?.user?.contactNo ?? "")
-            setValue("age", String(clientData?.user?.age ?? ""))
+            setValue("age", Number(clientData?.user?.age ?? 0))
             setValue("gender", (clientData?.user?.gender ?? "").toLowerCase())
             setValue("country", clientData?.user?.country ?? "")
             setValue("state", clientData?.user?.state ?? "")
