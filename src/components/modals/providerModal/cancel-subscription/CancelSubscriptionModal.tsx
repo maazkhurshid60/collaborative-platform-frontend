@@ -161,6 +161,7 @@ const CancelSubscriptionModal: React.FC<CancelSubscriptionModalMainProps> = ({ o
     return (
         <ModalLayout
             heading=""
+            onClose={onClose}
             modalBodyContent={<CancelSubscriptionModalBody onClose={onClose} />}
         />
     );

@@ -5,11 +5,13 @@ import { toast } from 'react-toastify';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import authApiService from '../../../apiServices/authApi/AuthApi';
 import { setEmailVerified } from '../../../redux/slices/LoginUserDetailSlice';
+import { useQueryClient } from '@tanstack/react-query';
 
 const VerifyEmailPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -29,6 +31,11 @@ const VerifyEmailPage: React.FC = () => {
           setStatus('success');
           // Update Redux state so the banner disappears immediately
           dispatch(setEmailVerified(true));
+
+          // Invalidate user queries to refresh data across the app
+          queryClient.invalidateQueries({ queryKey: ["loginUser"] });
+          queryClient.invalidateQueries({ queryKey: ["get-me"] });
+
           // Update local storage or trigger a refresh if the user is already logged in
           toast.success("Email verified successfully! You can now access all features.", {
             toastId: "verify-email-success" // Prevent duplicate toasts
@@ -39,6 +46,10 @@ const VerifyEmailPage: React.FC = () => {
       } catch (error: any) {
         if (error.response?.data?.message === "Email already verified") {
           dispatch(setEmailVerified(true));
+          // Also invalidate here just in case
+          queryClient.invalidateQueries({ queryKey: ["loginUser"] });
+          queryClient.invalidateQueries({ queryKey: ["get-me"] });
+
           toast.info("You email is already verified");
           navigate("/dashboard");
           return;
@@ -51,7 +62,7 @@ const VerifyEmailPage: React.FC = () => {
     if (token) {
       verifyEmail();
     }
-  }, [token]);
+  }, [token, queryClient, dispatch, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

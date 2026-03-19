@@ -84,8 +84,8 @@ const Routing = () => {
             <Route path="/invite-chat/:type/:id" element={<><NonUserChat /></>} />
             <Route path="/signup-with-client-id" element={<WrappedRoute><PublicRoute><LicenseNo /></PublicRoute></WrappedRoute>} />
             <Route path="/forgot-password" element={<WrappedRoute><PublicRoute><ForgotPassword /></PublicRoute></WrappedRoute>} />
-            <Route path="/reset-password/:token" element={<WrappedRoute><PublicRoute><ResettPassword /></PublicRoute></WrappedRoute>} />
-            <Route path="/verify-email/:token" element={<WrappedRoute><PublicRoute><VerifyEmailPage /></PublicRoute></WrappedRoute>} />
+            <Route path="/reset-password/:token" element={<WrappedRoute><ResettPassword /></WrappedRoute>} />
+            <Route path="/verify-email/:token" element={<WrappedRoute><VerifyEmailPage /></WrappedRoute>} />
 
             {/* Protected Routes */}
             <Route

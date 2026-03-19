@@ -141,7 +141,7 @@ export const SubscriptionSettingPage = () => {
                 : userSubscription?.cancelAtPeriodEnd
                     ? `Your subscription will end on ${formatDate(userSubscription.currentPeriodEnd)}`
                     : "Full access to all premium features",
-            cancelBtnText: userSubscription?.cancelAtPeriodEnd ? "Scheduled for Cancellation" : "Cancel Subscription"
+            cancelBtnText: userSubscription?.cancelAtPeriodEnd ? "Scheduled" : "Cancel Plan"
         },
         billingInfoSection: {
             emailTitle: "Billing Email",
@@ -173,31 +173,35 @@ export const SubscriptionSettingPage = () => {
         `}>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
                     <div className="flex flex-col items-start gap-y-1">
-                        <p className='headingMedium w-[250  px] sm:w-[400px] '>{subscriptionPageData.title}</p>
+                        <p className='headingMedium w-[250px] sm:w-[400px] '>{subscriptionPageData.title}</p>
                         <p className='text-textColor/50'>{subscriptionPageData.subtitle}</p>
 
                     </div>
-                    <div className='w-[170px]'>
+                    <div className='w-auto'>
                         <button
                             disabled={userSubscription?.status === 'TRIALING'}
                             onClick={() => navigate('/subscription/change-plan')}
-                            className={` ${userSubscription?.status === 'TRIALING' ? 'opacity-50  cursor-not-allowed hover:bg-none p-2   flex items-center gap-x-1.5 justify-center rounded-[10px] border-2 border-[#2C9993]' : ' text-white p-2   flex items-center gap-x-1.5 cursor-pointer hover:bg-[#2C9993]/10 justify-center rounded-[10px] border-2 border-[#2C9993]'}`} >
-                            <Repeat className="w-[20px] h-[20px] text-[#2C9993]" />
-                            <span className=" text-[15px] font-[Poppins] text-[#2C9993]">{subscriptionPageData.changePlanBtnText}</span>
+                            className={`px-4 h-[40px] flex items-center gap-x-2 justify-center rounded-[10px] border-2 border-[#2C9993] transition-all ${userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-not-allowed' : 'text-[#2C9993] hover:bg-[#2C9993]/5 cursor-pointer'}`}
+                        >
+                            <Repeat className="w-4 h-4" />
+                            <span className="text-[14px] font-medium font-[Poppins]">
+                                <span className="hidden lg:inline">Change Subscription</span>
+                                <span className="inline lg:hidden">Change Plan</span>
+                            </span>
                         </button>
                     </div>
 
                 </div>
                 {/* Current Plan Summary (Upper Section) */}
-                <div className="flex flex-row items-stretch justify-start gap-x-[24px]">
-                    <div className="flex flex-col items-start h-[610px] gap-y-[16px] w-1/2 " >
+                <div className="flex flex-col lg:flex-row items-stretch justify-start gap-6">
+                    <div className="flex flex-col items-start h-auto lg:h-[610px] gap-y-[16px] w-full lg:w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#D1FAE5]/50 rounded-[16px]  p-[33px] mt-2">
-                            <div className="flex items-center justify-between">
-                                <div className="w-full flex flex-col items-start gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex flex-col items-start gap-2">
                                     <div className="flex items-center gap-3">
                                         <p className="text-[14px] font-semibold text-[#101828] font-[Poppins]">{subscriptionPageData.currentPlanSection.title}</p>
-                                        <div className={`px-4 py-1 rounded-full flex items-center justify-center ${isTrialing ? 'bg-[#FFA500]' : 'bg-[#2ACF27]'}`}>
-                                            <p className="text-[14px] font-medium text-[#FFFFFF] font-[Poppins]">{subscriptionPageData.currentPlanSection.status}</p>
+                                        <div className={`px-4 py-0.5 rounded-full flex items-center justify-center ${isTrialing ? 'bg-[#FFA500]' : 'bg-[#2ACF27]'}`}>
+                                            <p className="text-[12px] font-medium text-[#FFFFFF] font-[Poppins] whitespace-nowrap">{subscriptionPageData.currentPlanSection.status}</p>
                                         </div>
                                     </div>
                                     <p className="text-[13px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.currentPlanSection.description}</p>
@@ -206,18 +210,20 @@ export const SubscriptionSettingPage = () => {
                                     <button
                                         disabled={userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING'}
                                         onClick={() => setIsCancelModalOpen(true)}
-                                        className={`w-[170px] h-[46px] border-2 rounded-[10px] cursor-pointer ${userSubscription?.status === 'TRIALING' ? 'hidden' : ''}   ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'opacity-50 cursor-none  border-gray-400' : 'hover:bg-[#E21414]/10 border-[#E21414]'}`}
+                                        className={`px-4 h-[40px] border-2 rounded-[10px] transition-all ${userSubscription?.status === 'TRIALING' ? 'hidden' : ''} ${userSubscription?.cancelAtPeriodEnd ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400' : 'border-[#E21414] text-[#E21414] hover:bg-[#E21414]/5 cursor-pointer'}`}
                                     >
-                                        <p className={`text-[14px] font-medium font-[Poppins] ${userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING' ? 'text-gray-400' : 'text-[#E21414]'}`}>{subscriptionPageData.currentPlanSection.cancelBtnText}</p>
+                                        <span className="text-xs md:text-sm font-medium font-[Poppins]">
+                                            <span className="hidden lg:inline">{userSubscription?.cancelAtPeriodEnd ? "Scheduled for Cancellation" : "Cancel Subscription"}</span>
+                                            <span className="inline lg:hidden">{userSubscription?.cancelAtPeriodEnd ? "Scheduled" : "Cancel Plan"}</span>
+                                        </span>
                                     </button>
-                                    <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm">
-                                        <Crown className="w-[32px] h-[32px] text-[#2C9993]" />
+                                    <div className="w-12 h-12 bg-[#FFFFFF] rounded-[12px] flex items-center justify-center shadow-sm shrink-0">
+                                        <Crown className="w-6 h-6 text-[#2C9993]" />
                                     </div>
                                 </div>
-
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-8">
                                 <div className="bg-white rounded-[12px] p-5 flex flex-col gap-3 shadow-sm">
                                     <div className="w-11 h-11 bg-[#CCD1FB] rounded-lg flex items-center justify-center text-[#2835A0]">
                                         <Calendar size={24} />
@@ -267,9 +273,9 @@ export const SubscriptionSettingPage = () => {
 
                     </div>
                     {/* 2nd div biling options */}
-                    <div className="flex flex-col items-start h-[610px] gap-y-[16px] w-1/2 " >
+                    <div className="flex flex-col items-start h-auto lg:h-[610px] gap-y-[16px] w-full lg:w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#E5E7EB]/50 rounded-[16px]  p-[33px] mt-2">
-                            <div className="flex  justify-between">
+                            <div className="flex flex-col sm:flex-row justify-between gap-6">
                                 <div className="w-full flex flex-col items-start justify-between gap-2">
                                     <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.billingInfoSection.emailTitle}</p>
                                     <p className="text-[16px] font-medium text-black font-[Poppins] truncate max-w-[150px] sm:max-w-[200px]" title={subscriptionData.billingEmail}>

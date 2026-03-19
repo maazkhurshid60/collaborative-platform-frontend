@@ -105,7 +105,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                 {/* Group Chat Share Layout */}
                 {chatType === 'group' && (
                     <div className='mt-2'>
-                        <p className='mb-4'>Share this chat by generating a link</p>
+                        <p className='mb-4'>Invite to this chat by generating a link</p>
                         <div className='flex items-center justify-baseline gap-x-3'>
                             <div className='relative flex-1'>
                                 <InputFieldOnlyRead value={generatedUrl} placeHolder='Create Link' />
@@ -131,7 +131,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                         <div className='mt-8 pt-6 border-t border-gray-100'>
                             <form className='flex items-end gap-x-4' onSubmit={handleSubmit(sendInvitationFun)}>
                                 <div className='flex-1'>
-                                    <p className="text-textColor text-[15px] font-semibold mb-2">Share via Email</p>
+                                    <p className="text-textColor text-[15px] font-semibold mb-2">Invite via Email</p>
                                     <InputField
                                         placeHolder='Enter recipient email'
                                         register={register("email")}
@@ -139,7 +139,7 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                                     />
                                 </div>
                                 <div className='w-[100px] mb-[2px]'>
-                                    <Button text='Share' />
+                                    <Button text='Invite' />
                                 </div>
                             </form>
 

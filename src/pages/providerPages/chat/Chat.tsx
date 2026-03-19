@@ -85,7 +85,6 @@ const Chat = () => {
     staleTime: 30 * 1000, // prevent background refetch from resetting socket-updated unreadCount
   });
 
-  console.log(allChannels, "all channessssssssssslsss");
 
   useEffect(() => {
     // If there's an ID in the URL, try to find and set the active chat
@@ -298,7 +297,7 @@ const Chat = () => {
     <OutletLayout isWhiteColor={false}>
       {isModalShow && (
         <ModalLayout
-          heading="Share this chat by generating a link"
+          heading="Invite to this chat by generating a link"
           modalBodyContent={<ChatModalBodyContent id={activeChatObject?.id} chatType={activeChatType} />}
         />
       )}

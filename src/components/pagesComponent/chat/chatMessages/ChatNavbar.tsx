@@ -184,7 +184,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     }
 
                     <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
-                        <Button text='share' icon={<FaRegShareFromSquare />} sm onclick={() => {
+                        <Button text='Invite' icon={<FaRegShareFromSquare />} sm onclick={() => {
                             dispatch(isModalShowReducser(true))
                         }} />
                     </div>
