@@ -168,6 +168,7 @@ const Document = () => {
             {isshowSignedDocumentModal && (
                 <SignedDocModal
                     completedDoc={dataSendToSignedDocModal}
+                    clientId={clientId}
                     showDownloadButton
                 />
             )}

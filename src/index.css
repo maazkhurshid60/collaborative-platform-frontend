@@ -4,3 +4,40 @@
     --color-transaction-summary-text: #6B7280;
     --color-transaction-summary-ammont: #2C9993;
 }
+
+@layer base {
+
+    button,
+    [type='button'],
+    [type='submit'],
+    [type='reset'] {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        cursor: pointer;
+    }
+
+    html,
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (hover : hover) {
+
+        button:hover,
+        a:hover {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+    }
+
+    .flex>* {
+        min-height: auto;
+        min-width: auto;
+    }
+}

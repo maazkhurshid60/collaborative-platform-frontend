@@ -22,7 +22,7 @@ interface ClientDocShareModalProps {
 }
 
 export const modalBodyContent = (docs: string[], providerId: string, clientId: string, sharedDocsId: string[], dispatch: AppDispatch, recipientId: string, senderId: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-    , clientEmail?: string,) => {
+    , clientEmail?: string, isLoading?: boolean) => {
 
     const queryClient = useQueryClient()
 
@@ -74,7 +74,13 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
                 </div>
             ))}
         </div>
-        <Button text='Send' sm onclick={docShareFunction} />
+        <Button
+            text='Send'
+            sm
+            onclick={docShareFunction}
+            isLoading={isLoading}
+            disabled={isLoading}
+        />
     </div>
 }
 
@@ -85,10 +91,10 @@ const ClientDocShareModal: React.FC<ClientDocShareModalProps> = ({ sharedDocs, p
 
 
     return (
-        <>
-            {isLoading && <Loader />}
-            <ModalLayout heading='Share the documents with clients' modalBodyContent={modalBodyContent(sharedDocs ?? [], providerId, clientId, sharedDocsId, dispatch, recipientId, senderId, setIsLoading, clientEmail)} />
-        </>
+        <ModalLayout
+            heading='Share the documents with clients'
+            modalBodyContent={modalBodyContent(sharedDocs ?? [], providerId, clientId, sharedDocsId, dispatch, recipientId, senderId, setIsLoading, clientEmail, isLoading)}
+        />
     )
 }
 

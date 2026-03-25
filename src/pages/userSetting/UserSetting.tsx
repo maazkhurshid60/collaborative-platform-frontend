@@ -41,14 +41,14 @@ const UserSetting = () => {
     let filteredData: blockListDataType[] | undefined;
 
     if (Array.isArray(allUsersData)) {
-        // If it's an array, filter normally
+        // Show all users EXCEPT the logged-in user themselves
+        // BlockUserAccount handles the "Block"/"Unblock" button state internally via Redux
         filteredData = allUsersData.filter(
-            (user) => !user.blockedMembers?.includes(loginUserDetail?.user?.id)
+            (user) => user.id !== loginUserDetail?.user?.id
         );
     } else if (allUsersData && typeof allUsersData === 'object') {
-        // allUsersData is a single object here, treat accordingly
-        if (!allUsersData.blockedMembers?.includes(loginUserDetail?.user?.id)) {
-            filteredData = [allUsersData]; // wrap single object in array
+        if (allUsersData.id !== loginUserDetail?.user?.id) {
+            filteredData = [allUsersData];
         } else {
             filteredData = [];
         }

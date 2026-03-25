@@ -42,12 +42,15 @@ const DeleteDocumentModal: React.FC<DeleteDocumentModalProps> = ({ documentId })
                         text='Cancel'
                         borderButton
                         onclick={() => dispatch(isModalDeleteReducer(false))}
+                        disabled={deleteMutation.isPending}
                     />
                 </div>
                 <div className='w-full'>
                     <Button
                         text={'Delete'}
                         onclick={() => deleteMutation.mutate()}
+                        isLoading={deleteMutation.isPending}
+                        disabled={deleteMutation.isPending}
                     />
                 </div>
             </div>

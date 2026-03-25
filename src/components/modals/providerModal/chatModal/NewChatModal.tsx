@@ -179,7 +179,7 @@ const NewChatModal = () => {
                     <ProviderSearchResults
                         providers={filteredProviders}
                         onProviderSelect={createNewChat}
-                        // isLoading={isSearchLoading}
+                        isActionLoading={createNewChat.hasOwnProperty('isPending') ? (createNewChat as any).isPending : false}
                         searchQuery={searchQuery}
                         emptyMessage={searchQuery ? "No providers match your search" : "No providers available for new chats"}
                     />

@@ -17,6 +17,7 @@ import {
   isNewChatModalShowReducser,
   isNewGroupChatModalShowReducser,
   isInviteProviderModalShowReducser,
+  isInviteToGroupModalShowReducer,
 } from '../../../redux/slices/ModalSlice';
 import { toast } from 'react-toastify';
 import { ChatChannelType } from '../../../types/chatType/ChatChannelType';
@@ -30,6 +31,7 @@ import ToolTip from '../../../components/toolTip/ToolTip';
 import SpinnerLoader from '../../../components/loader/SpinnerLoader';
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
+import InviteToGroupModalBody from '../../../components/modals/providerModal/chatModal/InviteToGroupModalBody';
 
 const Chat = () => {
   const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
@@ -40,6 +42,7 @@ const Chat = () => {
   const isModalShow = useSelector((state: RootState) => state?.modalSlice?.isModalShow);
 
   const isInviteProviderModal = useSelector((state: RootState) => state?.modalSlice?.isInviteProviderModal);
+  const isInviteToGroupModalShow = useSelector((state: RootState) => state?.modalSlice?.isInviteToGroupModalShow);
 
   const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
   const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
@@ -297,8 +300,16 @@ const Chat = () => {
     <OutletLayout isWhiteColor={false}>
       {isModalShow && (
         <ModalLayout
-          heading="Invite to this chat by generating a link"
+          heading="Share this chat by generating a link"
           modalBodyContent={<ChatModalBodyContent id={activeChatObject?.id} chatType={activeChatType} />}
+        />
+      )}
+
+      {isInviteToGroupModalShow && (
+        <ModalLayout
+          heading="Invite to Group"
+          onClose={() => dispatch(isInviteToGroupModalShowReducer(false))}
+          modalBodyContent={<InviteToGroupModalBody id={activeChatObject?.id} />}
         />
       )}
 

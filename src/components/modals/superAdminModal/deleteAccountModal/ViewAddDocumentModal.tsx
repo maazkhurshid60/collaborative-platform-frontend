@@ -243,9 +243,12 @@ const ModalBodyContent: React.FC = () => {
       </div>
 
       {/* Submit area (your Button component doesn't support disabled; we disable via wrapper) */}
-      <div className={isUploading ? "opacity-60 pointer-events-none" : ""}>
-        <Button text={isUploading ? "Uploading..." : "Add"} sm />
-      </div>
+      <Button
+        text="Add"
+        sm
+        isLoading={isUploading}
+        disabled={isUploading}
+      />
     </form>
   );
 };

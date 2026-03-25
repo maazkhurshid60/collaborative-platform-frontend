@@ -3,7 +3,7 @@ import Button from '../../../button/Button';
 import { FaRegShareFromSquare } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../redux/store';
-import { isDeleteChannelModalShowReducer, isModalShowReducser } from '../../../../redux/slices/ModalSlice';
+import { isDeleteChannelModalShowReducer, isInviteToGroupModalShowReducer, isModalShowReducser } from '../../../../redux/slices/ModalSlice';
 import UserIcon from '../../../icons/user/User';
 import { useState } from 'react';
 import { GroupCreatedBy, GroupDelete, GroupMember } from '../../../../types/chatType/GroupType';
@@ -183,10 +183,23 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                         </div>
                     }
 
-                    <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
-                        <Button text='Invite' icon={<FaRegShareFromSquare />} sm onclick={() => {
-                            dispatch(isModalShowReducser(true))
-                        }} />
+                    <div className='flex items-center gap-x-2'>
+
+                        {/* New Invite Button for Group Chats */}
+                        {props.groupMembers?.length > 0 && (
+                            <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
+                                <Button text='Invite' icon={<HiMiniUserCircle />} sm onclick={() => {
+                                    dispatch(isInviteToGroupModalShowReducer(true))
+                                }} />
+                            </div>
+                        )}
+                        {/* Share Button (renamed from Invite) */}
+                        <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
+                            <Button text='Share' icon={<FaRegShareFromSquare />} sm onclick={() => {
+                                dispatch(isModalShowReducser(true))
+                            }} />
+                        </div>
+
                     </div>
                 </div>
             </div >

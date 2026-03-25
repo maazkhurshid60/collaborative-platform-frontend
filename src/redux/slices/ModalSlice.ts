@@ -16,6 +16,7 @@ const initialState = {
   // ✅ ADDED
   isInviteProviderModal: false,
   isCancelSubscriptionModal: false,
+  isInviteToGroupModalShow: false,
 };
 
 const modalSlice = createSlice({
@@ -63,6 +64,9 @@ const modalSlice = createSlice({
     isCancelSubscriptionModalShowReducer: (state, action) => {
       state.isCancelSubscriptionModal = action.payload;
     },
+    isInviteToGroupModalShowReducer: (state, action) => {
+      state.isInviteToGroupModalShow = action.payload;
+    },
   },
 });
 
@@ -82,6 +86,7 @@ export const {
   // ✅ ADDED
   isInviteProviderModalShowReducser,
   isCancelSubscriptionModalShowReducer,
+  isInviteToGroupModalShowReducer,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

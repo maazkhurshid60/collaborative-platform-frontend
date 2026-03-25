@@ -157,9 +157,9 @@ const ConfirmFreeAccount = () => {
             <div className='flex min-h-screen items-stretch'>
                 {/* Left Side - Form Section */}
 
-                <div className='w-full md:w-1/2 flex flex-col items-center justify-center md:py-8 lg:py-[60px]'>
+                <div className='w-full md:w-[60%] lg:w-1/2 flex flex-col items-center justify-center md:py-8 lg:py-[60px]'>
                     <StepIndicator currentStep={2} totalSteps={2} />
-                    <div className='w-full md:w-[70%] rounded-[20px]  max-w-screen  bg-white px-6 md:px-10 lg:px-14 py-4 md:drop-shadow-md'>
+                    <div className='w-full md:w-[90%] lg:w-[70%] rounded-[20px]  max-w-screen  bg-white px-6 md:px-8 lg:px-14 py-4 md:drop-shadow-md'>
                         <p className='heading text-left mb-4 capitalize'>Confirm Your Free Account</p>
                         {/* Features */}
                         <div className={`mt-auto p-6 rounded-[16px] bg-inputBgColor`}>
@@ -198,7 +198,7 @@ const ConfirmFreeAccount = () => {
                             <ArrowRight size={18} className={'text-[#2C9993]'} strokeWidth={3} />
                         </button>
                     </div>
-                    <div className="w-full md:w-[70%] flex flex-row items-center mt-20 justify-between gap-x-2">
+                    <div className="w-full md:w-[90%] lg:w-[70%] flex flex-row items-center mt-20 justify-between gap-x-2">
                         <button className="flex flex-row items-center gap-2 border-[#2C9993] border text-[#2C9993] cursor-pointer hover:text-white hover:bg-[#2C9993] px-4 py-2 rounded-lg">
                             <ArrowLeft size={18} className={'text-inherit'} strokeWidth={3} />
                             Back
@@ -289,7 +289,7 @@ const ConfirmFreeAccount = () => {
                 </div>
 
                 {/* Right Side - Image Section */}
-                <div className='hidden md:flex md:w-1/2 bg-primaryColorLight items-center justify-center rounded-bl-[20px] rounded-tl-[20px]'>
+                <div className='hidden md:flex md:w-[40%] lg:w-1/2 bg-primaryColorLight items-center justify-center rounded-bl-[20px] rounded-tl-[20px]'>
                     <img
                         src={confirmFreeAccount}
                         alt=""

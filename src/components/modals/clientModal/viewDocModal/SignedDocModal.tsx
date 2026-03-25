@@ -32,13 +32,22 @@ interface SignedDocModalProps {
 
 const SignedDocModal: React.FC<SignedDocModalProps> = ({
     completedDoc,
-    // clientId,
+    clientId,
     showDownloadButton = false
 }) => {
     const [docContent, setDocContent] = useState<string>('');
     const [numPages, setNumPages] = useState<number>(0);
     const contentRef = useRef<HTMLDivElement>(null);
     console.log("COMPLETED DOCUMENT", completedDoc);
+
+    // Support both direct and nested signature structures
+    const rawRecords = (completedDoc as any)?.sharedWith || (completedDoc as any)?.sharedRecord || (completedDoc as any)?.sharedRecords || [];
+    const filteredRecords = Array.isArray(rawRecords)
+        ? rawRecords.filter((r: any) => !clientId || String(r?.clientId) === String(clientId))
+        : [];
+
+    const directSignature = (completedDoc as any)?.eSignature;
+    const hasAnySignature = filteredRecords.some((r: any) => r.eSignature && r.eSignature !== "null") || (directSignature && directSignature !== "null");
 
     const [previewKind, setPreviewKind] = useState<'html' | 'pdf' | 'image' | undefined>(undefined);
 
@@ -292,20 +301,43 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                             </div>
 
                             {/* eSignatures */}
-                            <div>
-                                <p className="font-semibold text-[14px] mb-2">ESignatures:</p>
-                                <div className="flex flex-wrap gap-4">
-                                    <img
-                                        key={completedDoc?.eSignature}
-                                        src={completedDoc?.eSignature}
-                                        alt="eSignature"
-                                        crossOrigin="use-credentials" // Match backend auth requirements
-                                        className="w-[400px] h-[200px] border rounded shadow mt-4"
-                                        onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                                    />
+                            {hasAnySignature && (
+                                <div>
+                                    <p className="font-semibold text-[14px] mb-2">ESignatures:</p>
+                                    <div className="flex flex-wrap gap-4">
+                                        {/* Render nested records */}
+                                        {filteredRecords.map((record: any) => (
+                                            record.eSignature && record.eSignature !== "null" && (
+                                                <img
+                                                    key={record.id}
+                                                    src={record.eSignature}
+                                                    alt="eSignature"
+                                                    crossOrigin="use-credentials"
+                                                    className="w-[400px] h-[200px] border rounded shadow mt-4 object-contain"
+                                                    onError={(e) => {
+                                                        console.error("Signature load error for nested record:", record.id);
+                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                    }}
+                                                />
+                                            )
+                                        ))}
 
+                                        {/* Render direct signature if not already shown in filteredRecords */}
+                                        {directSignature && directSignature !== "null" && !filteredRecords.some((r: any) => r.eSignature === directSignature) && (
+                                            <img
+                                                src={directSignature}
+                                                alt="eSignature"
+                                                crossOrigin="use-credentials"
+                                                className="w-[400px] h-[200px] border rounded shadow mt-4 object-contain"
+                                                onError={(e) => {
+                                                    console.error("Signature load error for directSignature");
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                }}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                     </div>

@@ -32,8 +32,9 @@ const RejectedUsers = () => {
     const [isDocLoading, setIsDocLoading] = useState(false);
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
-    const [selectedUserForDelete, setSelectedUserForDelete] = useState<string>("");
+    const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isRestoreLoading, setIsRestoreLoading] = useState(false);
 
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
     const [selectedUserForRestore, setSelectedUserForRestore] = useState<User | null>(null);
@@ -66,6 +67,7 @@ const RejectedUsers = () => {
 
     const restoreFunction = async (data: User) => {
         try {
+            setIsRestoreLoading(true);
             await loginUserApiService.restoreUsersApi({
                 id: data?.id,
                 name: data?.fullName,
@@ -74,10 +76,12 @@ const RejectedUsers = () => {
             toast.success("User restored successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
             dispatch(isModalShowRestoreReducer(false));
+            setSelectedUserForRestore(null);
         } catch (error) {
             console.error("Approve failed:", error);
             toast.error("Failed to restore user");
-            dispatch(isModalShowRestoreReducer(false));
+        } finally {
+            setIsRestoreLoading(false);
         }
     };
 
@@ -87,7 +91,7 @@ const RejectedUsers = () => {
         <OutletLayout heading="All Rejected Users">
             {isDocLoading && <Loader text="Loading Rejected Users..." />}
             {isDeleteAccountShowModal && selectedUserForDelete && (
-                <DeleteAccountModal userId={selectedUserForDelete} />
+                <DeleteAccountModal userId={selectedUserForDelete.id} role={selectedUserForDelete.role} />
             )}
 
 
@@ -98,6 +102,7 @@ const RejectedUsers = () => {
                         setSelectedUserForRestore(null);
                         dispatch(isModalShowRestoreReducer(false));
                     }}
+                    isLoading={isRestoreLoading}
                 />
             )}
 
@@ -170,7 +175,7 @@ const RejectedUsers = () => {
                                             }} />
                                             <ViewIcon onClick={() => navigate(`/rejected-users/view-user/${data?.id}`)} />
                                             <DeleteIcon onClick={() => {
-                                                setSelectedUserForDelete(data?.id ?? "");
+                                                setSelectedUserForDelete({ id: data?.id ?? "", role: data?.role ?? "" });
                                                 dispatch(isModalDeleteReducer(true));
                                             }} />
                                         </div>

@@ -56,11 +56,20 @@ class LoginUserApiService {
 
 
             return response.data
-        } catch (error) {
-            console.error("error", error);
+        } catch (error: any) {
+            console.log("error", error);
+            throw error;
 
-            const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
-            toast.error(errMsg)
+        }
+    }
+
+    async deleteUserByAdminApi(targetUserId: string) {
+        try {
+            const response = await this.api.delete("/auth/admin/delete-user", { data: { targetUserId } });
+            return response.data;
+        } catch (error: any) {
+            console.log("error deleting user by admin", error);
+            throw error;
         }
     }
     async updateMeApi(data: unknown) {

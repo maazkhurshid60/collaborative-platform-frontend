@@ -125,7 +125,7 @@ const SelectPlan = () => {
                                 .map((plan, index) => (
                                     <div
                                         key={index}
-                                        className={`relative flex flex-col p-8 rounded-[24px] transition-all duration-300 w-full md:w-[394.66px] md:h-[500px] ${plan.theme === 'pro'
+                                        className={`relative flex flex-col p-8 rounded-[24px] transition-all duration-300 w-full h-full min-h-[500px] ${plan.theme === 'pro'
                                             ? 'bg-[#2C9993] text-white shadow-md'
                                             : 'bg-white border border-[#E5E7EB] text-[#101828] shadow-md hover:shadow-lg'
                                             }`}
@@ -147,12 +147,12 @@ const SelectPlan = () => {
                                         </div>
 
                                         {/* Price */}
-                                        <div className="mb-4 flex items-baseline relative">
+                                        <div className="mb-4 flex items-baseline gap-1">
                                             <span className={`text-[42px] font-bold ${plan.theme === 'pro' ? 'text-white' : 'text-[#101828]'}`}>
                                                 ${billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                                             </span>
                                             {plan.name !== 'Free Trial' && (
-                                                <span className={`ml-1 absolute top-3  ${billingCycle === 'monthly' ? 'left-29' : 'left-36'} text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
+                                                <span className={`text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
                                                     {billingCycle === 'monthly' ? '/month' : '/yearly'}
                                                 </span>
                                             )}

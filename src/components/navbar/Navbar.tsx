@@ -90,8 +90,11 @@ const Navbar = () => {
   useEffect(() => {
     if (searchQuery.trim() !== "") {
       const searchTerm = searchQuery.toLowerCase();
+      const loginUserId = loginUserDetail?.user?.id;
       const timeoutId = setTimeout(() => {
         const filtered = allUsers.filter((user) => {
+          // Exclude the logged-in user from results
+          if (user.user?.id === loginUserId || user.id === loginUserId) return false;
           return (
             user.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
             user.clientId?.toLowerCase().includes(searchTerm) ||

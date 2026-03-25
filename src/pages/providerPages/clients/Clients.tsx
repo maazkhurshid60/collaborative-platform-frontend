@@ -60,7 +60,7 @@ const Clients = () => {
     "Action",
   ];
 
-  const [isLoader, setIsLoader] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -72,7 +72,6 @@ const Clients = () => {
     providerId: "",
   });
 
-  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
     queryKey: ["clients", loginUserId?.user?.id],
@@ -92,18 +91,17 @@ const Clients = () => {
     mutationFn: async (id: selectedClientIdType) => {
       await clientApiService.deleteClientApi(id);
     },
-    onMutate: () => setIsLoader(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["providers"] });
       queryClient.invalidateQueries({ queryKey: ["allclients"] });
       queryClient.invalidateQueries({ queryKey: ["allproviders"] });
       toast.success("Account has deleted successfully");
-      setIsLoader(false);
+      dispatch(isModalDeleteReducer(false));
     },
     onError: () => {
       toast.error("Failed to delete the department!");
-      setIsLoader(false);
+      dispatch(isModalDeleteReducer(false));
     },
   });
 
@@ -162,7 +160,6 @@ const Clients = () => {
 
   const handleDeleteConfirm = () => {
     deleteMutation.mutate(selectedClientId);
-    dispatch(isModalDeleteReducer(false));
   };
 
   if (isLoading) return <Loader text="Loading..." />;
@@ -173,17 +170,13 @@ const Clients = () => {
       heading="Client List"
       button={<Button text="Add New" onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}
     >
-      {isLoader && <Loader text="Deleting..." />}
 
       {isModalDelete && selectedClientId?.clientId && (
         <DeleteClientModal
           onDeleteConfirm={handleDeleteConfirm}
+          isLoading={deleteMutation.isPending}
           text={
-            <div>
-              By Deleting this you account you won’t be able to track record of your signed
-              Documents. Are you sure that you want to{" "}
-              <span className="font-semibold">Delete your Account</span>?
-            </div>
+            modalConfig.text
           }
         />
       )}

@@ -188,20 +188,21 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
 
     return (
         <form onSubmit={handleSubmit} className="w-full">
-            <div className="mb-6 min-h-[200px]">
+
+            <div className="mb-6 min-h-[200px] relative w-full">
+                {/* Loading Spinner */}
                 {!isElementReady && (
-                    <div className="flex justify-center items-center h-[200px] border border-dashed border-gray-300 rounded mb-4">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center bg-white z-10 w-full min-h-[200px] border border-dashed border-gray-300 rounded mb-4">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2C9993]"></div>
-                        <span className="ml-2 text-gray-500">Loading Payment Form...</span>
+                        <span className="ml-2 text-gray-500 mt-2">Loading Payment Form...</span>
                     </div>
                 )}
-                {/* Keep PaymentElement mounted to ensure it loads, but hide it visually until ready */}
-                <div style={{
-                    opacity: isElementReady ? 1 : 0,
-                    position: isElementReady ? 'static' : 'absolute',
-                    zIndex: -1,
-                    visibility: isElementReady ? 'visible' : 'hidden',
-                }}>
+
+                {/* 
+      We leave PaymentElement in the normal document flow so Safari renders it.
+      We just cover it with the absolute-positioned loading spinner above!
+    */}
+                <div className={`w-full transition-opacity duration-300 ${isElementReady ? "opacity-100" : "opacity-0"}`}>
                     <PaymentElement
                         onReady={() => {
                             console.log("Payment Element Ready");
@@ -508,3 +509,28 @@ export const PaymentCheckoutPage = () => {
         </div>
     );
 };
+
+
+
+// <div className="mb-6 min-h-[200px]">
+//     {!isElementReady && (
+//         <div className="flex justify-center items-center h-[200px] border border-dashed border-gray-300 rounded mb-4">
+//             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2C9993]"></div>
+//             <span className="ml-2 text-gray-500">Loading Payment Form...</span>
+//         </div>
+//     )}
+//     {/* Keep PaymentElement mounted to ensure it loads, but hide it visually until ready */}
+//     <div style={{
+//         opacity: isElementReady ? 1 : 0,
+//         position: isElementReady ? 'static' : 'absolute',
+//         zIndex: -1,
+//         visibility: isElementReady ? 'visible' : 'hidden',
+//     }}>
+//         <PaymentElement
+//             onReady={() => {
+//                 console.log("Payment Element Ready");
+//                 setIsElementReady(true);
+//             }}
+//         />
+//     </div>
+// </div>

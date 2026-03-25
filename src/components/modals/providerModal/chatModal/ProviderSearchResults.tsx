@@ -1,13 +1,15 @@
 import React from 'react';
 import { ProviderType } from '../../../../types/providerType/ProviderType';
-import UserIcon from '../../../icons/user/User';
 import verifyBadge from "../../../../assets/images/verifyBadge.png";
 import { HiMiniUserCircle } from 'react-icons/hi2';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../redux/store';
 
 interface ProviderSearchResultsProps {
     providers: ProviderType[];
     onProviderSelect: (provider: ProviderType) => void;
     isLoading?: boolean;
+    isActionLoading?: boolean;
     searchQuery?: string;
     emptyMessage?: string;
 }
@@ -16,6 +18,7 @@ const ProviderSearchResults: React.FC<ProviderSearchResultsProps> = ({
     providers,
     onProviderSelect,
     isLoading = false,
+    isActionLoading = false,
     searchQuery = '',
     emptyMessage = "No providers found"
 }) => {
@@ -44,7 +47,12 @@ const ProviderSearchResults: React.FC<ProviderSearchResultsProps> = ({
     }
 
     return (
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-80 overflow-y-auto relative">
+            {isActionLoading && (
+                <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primaryColor"></div>
+                </div>
+            )}
             <div className="space-y-1">
                 {providers.map((provider, index) => (
                     <ProviderItem
@@ -66,13 +74,43 @@ interface ProviderItemProps {
 }
 
 const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast }) => {
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+    const isBlocked = loginUserDetail?.user?.blockedMembers?.includes(provider?.user?.id);
+
+    if (isBlocked) {
+        return (
+            <div
+                className={`flex items-center gap-3 p-3 rounded-md bg-gray-50 opacity-80 ${!isLast ? 'border-b border-gray-100' : ''}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    import('react-toastify').then(({ toast }) => toast.error("Please unblock this user to see their details."));
+                }}
+            >
+                <div className="shrink-0">
+                    <div className="w-[55px] h-[55px] rounded-full flex items-center justify-center bg-gray-200">
+                        <HiMiniUserCircle className='w-[40px] h-[40px] text-gray-400' />
+                    </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-500 capitalize truncate">
+                        {provider?.user?.fullName || 'Unknown Provider'}
+                    </h4>
+                    <p className="text-[10px] text-red-500 font-medium mt-1">
+                        To see the details please unblock the user at setting
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
             className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-primaryColorLight transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}
             onClick={() => onSelect(provider)}
         >
             {/* Profile Image */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 {provider?.user?.profileImage && provider?.user?.profileImage !== "null" ? (
                     <img
                         src={provider?.user.profileImage}
@@ -93,7 +131,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
                         <img
                             src={verifyBadge}
                             alt="Verified"
-                            className="h-4 w-4 flex-shrink-0"
+                            className="h-4 w-4 shrink-0"
                         />
                     )}
                     <h4 className="text-sm font-semibold text-gray-900 capitalize truncate">
@@ -138,7 +176,7 @@ const ProviderItem: React.FC<ProviderItemProps> = ({ provider, onSelect, isLast 
             </div>
 
             {/* Action Indicator */}
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

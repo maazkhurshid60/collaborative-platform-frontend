@@ -6,6 +6,8 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { _email } from 'zod/v4/core';
 import { LuCirclePlus } from 'react-icons/lu';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 interface SearchResultsProps {
     results: ClientType[];
@@ -31,7 +33,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     console.log(results);
 
     return (
-        <div className="absolute top-12 left-0 w-full z-[9999] bg-white border border-lightGreyColor rounded-lg shadow-lg overflow-hidden">
+        <div className="absolute top-12 left-0 w-full z-9999 bg-white border border-lightGreyColor rounded-lg shadow-lg overflow-hidden">
             {isLoading ? (
                 <div className="p-4 text-center text-lightGreyColor">
                     <div className="animate-pulse">Searching...</div>
@@ -73,15 +75,48 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     isLast,
     onResultClick
 }) => {
+    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+    const isBlocked = loginUserDetail?.user?.blockedMembers?.includes(user?.user?.id);
+
     const isAlreadyAdded = user?.providerList?.some(
         provider => provider.providerId === currentUserId
     );
     console.log(user.user);
 
+    if (isBlocked) {
+        return (
+            <div
+                className={`flex items-center justify-between p-3 bg-gray-50 opacity-80 ${!isLast ? 'border-b border-gray-100' : ''}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    import('react-toastify').then(({ toast }) => toast.error("Please unblock this user to see their details."));
+                    if (onResultClick) onResultClick();
+                }}
+            >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <UserIcon className="text-gray-400 text-lg" />
+                        </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-gray-500 capitalize truncate">
+                            {user?.user?.fullName || 'Unknown User'}
+                        </h4>
+                        <p className="text-[10px] text-red-500 font-medium mt-1">
+                            To see the details please unblock the user at setting
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
 
-        <Link 
-            to={user?.user?.role === "client" ? `/clients/${user.id}` : `/providers/${user.id}`} 
+        <Link
+            to={user?.user?.role === "client" ? `/clients/${user.id}` : `/providers/${user.id}`}
             className={`flex items-center justify-between p-3 hover:bg-gray-50 transition-colors duration-200 ${!isLast ? 'border-b border-gray-100' : ''}`}
             onClick={() => onResultClick && onResultClick()}
         >

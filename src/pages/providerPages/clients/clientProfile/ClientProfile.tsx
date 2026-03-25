@@ -44,82 +44,98 @@ const ClientProfile = () => {
     const isCreator = (selectedClientData?.createdByProviderId === loginUser?.id) || (selectedClientData?.createdByProviderId === loginUser?.user?.id);
     const canEdit = isSuperAdmin || isCreator;
 
+    const isBlocked = loginUser?.user?.blockedMembers?.includes(selectedClientData?.user?.id || "");
+
     return (
         <OutletLayout
             heading='Client profile'
             backButton={<BackIcon onClick={() => navigate(-1)} />}
-            isEdit={canEdit}
+            isEdit={canEdit && !isBlocked}
             onEditClick={() => navigate(`/clients/edit-client/${id}`)}
         >
             <div className='mt-6'>
-                <div>
-                    <LabelData label='Client Image' />
-                    {selectedClientData?.user?.profileImage ? (
-                        <img
-                            src={selectedClientData?.user?.profileImage}
-                            alt="Client Image"
-                            className="w-20 h-20 rounded-lg object-cover"
-                        />
-                    ) : (
-                        <UserIcon className='text-6xl mt-2' />
-                    )}
-                </div>
+                {isBlocked ? (
+                    <div className="flex flex-col items-center justify-center p-10 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                        <UserIcon className='text-6xl text-gray-300 mb-4' />
+                        <p className="text-lg font-semibold text-gray-500 text-center">
+                            {selectedClientData?.user?.fullName || 'Client'} is blocked
+                        </p>
+                        <p className="text-sm text-red-500 font-medium mt-2 text-center">
+                            To see the details please unblock the user at setting
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <div>
+                            <LabelData label='Client Image' />
+                            {selectedClientData?.user?.profileImage ? (
+                                <img
+                                    src={selectedClientData?.user?.profileImage}
+                                    alt="Client Image"
+                                    className="w-20 h-20 rounded-lg object-cover"
+                                />
+                            ) : (
+                                <UserIcon className='text-6xl mt-2' />
+                            )}
+                        </div>
 
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
-                    <div>
-                        <LabelData label='Full Name' data={selectedClientData?.user?.fullName} />
-                    </div>
-                    <div>
-                        <LabelData label='Client ID' data={selectedClientData?.clientId ?? '-'} />
-                    </div>
-                    <div>
-                        <LabelData label='Age' data={selectedClientData?.user?.age ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Email' data={selectedClientData?.user?.email ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Contact Number' data={selectedClientData?.user?.contactNo ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Gender' data={selectedClientData?.user?.gender ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Address' data={selectedClientData?.user?.address ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Country' data={getCountryNameFromCode(selectedClientData?.user?.country ?? "") ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='State' data={selectedClientData?.user?.state ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Status' data={selectedClientData?.user?.status ?? "-"} />
-                    </div>
-                    <div>
-                        <LabelData label='Account Created By Client' data={selectedClientData?.isAccountCreatedByOwnClient ? "Yes" : "No"} />
-                    </div>
-                    <div>
-                        <LabelData label='Visible To Other Providers' data={selectedClientData?.clientShowToOthers ? "Yes" : "No"} />
-                    </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10'>
+                            <div>
+                                <LabelData label='Full Name' data={selectedClientData?.user?.fullName} />
+                            </div>
+                            <div>
+                                <LabelData label='Client ID' data={selectedClientData?.clientId ?? '-'} />
+                            </div>
+                            <div>
+                                <LabelData label='Age' data={selectedClientData?.user?.age ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Email' data={selectedClientData?.user?.email ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Contact Number' data={selectedClientData?.user?.contactNo ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Gender' data={selectedClientData?.user?.gender ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Address' data={selectedClientData?.user?.address ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Country' data={getCountryNameFromCode(selectedClientData?.user?.country ?? "") ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='State' data={selectedClientData?.user?.state ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Status' data={selectedClientData?.user?.status ?? "-"} />
+                            </div>
+                            <div>
+                                <LabelData label='Account Created By Client' data={selectedClientData?.isAccountCreatedByOwnClient ? "Yes" : "No"} />
+                            </div>
+                            <div>
+                                <LabelData label='Visible To Other Providers' data={selectedClientData?.clientShowToOthers ? "Yes" : "No"} />
+                            </div>
 
-                    <div className=' '>
-                        <LabelData label='List of Providers' />
-                        {selectedClientData?.providerList === undefined || selectedClientData?.providerList?.length === 0 ? (
-                            <p className='text-[14px] py-0.5 font-medium text-textGreyColor'>No Providers</p>
-                        ) : (
-                            selectedClientData?.providerList.map((provider: Provider, index) => (
-                                <p
-                                    className='flex items-center gap-x-1 capitalize text-[14px] py-0.5 font-medium text-textGreyColor'
-                                    key={index}
-                                >
-                                    <GoDotFill className='text-[6px]' />
-                                    {provider?.provider?.user?.fullName}
-                                </p>
-                            ))
-                        )}
-                    </div>
-                </div>
+                            <div className=' '>
+                                <LabelData label='List of Providers' />
+                                {selectedClientData?.providerList === undefined || selectedClientData?.providerList?.length === 0 ? (
+                                    <p className='text-[14px] py-0.5 font-medium text-textGreyColor'>No Providers</p>
+                                ) : (
+                                    selectedClientData?.providerList.map((provider: Provider, index) => (
+                                        <p
+                                            className='flex items-center gap-x-1 capitalize text-[14px] py-0.5 font-medium text-textGreyColor'
+                                            key={index}
+                                        >
+                                            <GoDotFill className='text-[6px]' />
+                                            {provider?.provider?.user?.fullName}
+                                        </p>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </OutletLayout>
     )

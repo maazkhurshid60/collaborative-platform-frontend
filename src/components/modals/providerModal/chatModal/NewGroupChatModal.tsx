@@ -98,9 +98,6 @@ const NewGroupChatModal = () => {
     if (isError) {
         return <p>something went wrong</p>
     }
-    if (isCreating) {
-        return <Loader text="Creating Group..." />
-    }
     return (<>
 
         <form
@@ -172,7 +169,12 @@ const NewGroupChatModal = () => {
 
             </div>
 
-            <Button text='Create Group' sm />
+            <Button
+                text='Create Group'
+                sm
+                isLoading={isCreating}
+                disabled={isCreating}
+            />
         </form >
     </>
     )

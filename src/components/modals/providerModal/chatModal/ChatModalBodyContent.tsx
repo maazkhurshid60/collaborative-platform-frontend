@@ -102,10 +102,10 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                     </>
                 )}
 
-                {/* Group Chat Share Layout */}
+                {/* Group Chat Share Layout - Now only handles link generation */}
                 {chatType === 'group' && (
                     <div className='mt-2'>
-                        <p className='mb-4'>Invite to this chat by generating a link</p>
+                        <p className='mb-4'>Share this chat by generating a link</p>
                         <div className='flex items-center justify-baseline gap-x-3'>
                             <div className='relative flex-1'>
                                 <InputFieldOnlyRead value={generatedUrl} placeHolder='Create Link' />
@@ -125,29 +125,6 @@ const ChatModalBodyContent = ({ id, chatType }: { id?: string, chatType?: string
                                     <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" alt="Gmail" className="w-9 h-9" />
                                 </div>
                                 <p>Gmail</p>
-                            </div>
-                        </div>
-
-                        <div className='mt-8 pt-6 border-t border-gray-100'>
-                            <form className='flex items-end gap-x-4' onSubmit={handleSubmit(sendInvitationFun)}>
-                                <div className='flex-1'>
-                                    <p className="text-textColor text-[15px] font-semibold mb-2">Invite via Email</p>
-                                    <InputField
-                                        placeHolder='Enter recipient email'
-                                        register={register("email")}
-                                        error={errors.email?.message}
-                                    />
-                                </div>
-                                <div className='w-[100px] mb-[2px]'>
-                                    <Button text='Invite' />
-                                </div>
-                            </form>
-
-                            <div className='font-[Poppins] text-textGreyColor bg-teal-50 px-5 py-4 rounded-xl mt-6 flex items-start gap-x-3'>
-                                <PiWarningCircle className='mt-0.5 text-teal-600' size={20} />
-                                <p className='text-[13px] leading-relaxed'>
-                                    The recipient will receive a professionally styled email with a secure link to this chat.
-                                </p>
                             </div>
                         </div>
                     </div>

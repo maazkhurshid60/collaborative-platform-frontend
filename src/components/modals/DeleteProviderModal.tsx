@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { isModalDeleteReducer } from '../../redux/slices/ModalSlice';
 import superAdminApi from '../../apiServices/superAdminApi/SuperAdminApi';
+import Button from '../button/Button';
 import { toast } from 'react-toastify';
 
 interface DeleteProviderModalProps {
@@ -90,21 +91,19 @@ const DeleteProviderModal: React.FC<DeleteProviderModalProps> = ({ subscriptionI
                         Are you sure you want to delete provider billing!                    </p>
                     {/* Footer Buttons */}
                     <div className="flex flex-row gap-6 w-full mt-auto">
-                        <button
-                            onClick={handleClose}
+                        <Button
+                            text='Cancel'
+                            borderButton
+                            onclick={handleClose}
                             disabled={loading}
-                            className="flex-1 h-[60px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all disabled:opacity-50"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleDelete}
+                        />
+                        <Button
+                            text='Yes, Delete'
+                            onclick={handleDelete}
+                            isLoading={loading}
                             disabled={loading}
-                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl disabled:opacity-50"
-                        >
-                            {loading ? "Deleting..." : "Yes, Delete"}
 
-                        </button>
+                        />
                     </div>
                 </div>
             </div>

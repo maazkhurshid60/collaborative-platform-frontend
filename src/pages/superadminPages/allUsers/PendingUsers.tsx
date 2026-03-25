@@ -33,8 +33,10 @@ const PendingUsers = () => {
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
     const [selectedUserForApproval, setSelectedUserForApproval] = useState<User | null>(null);
     const [selectedUserForReject, setSelectedUserForReject] = useState<User | null>(null);
-    const [selectedUserForDelete, setSelectedUserForDelete] = useState<string>("");
+    const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isApproveLoading, setIsApproveLoading] = useState(false);
+    const [isRejectLoading, setIsRejectLoading] = useState(false);
 
     const [isAllUsersLoading, setIsAllUsersLoading] = useState(false);
     const queryClient = useQueryClient();
@@ -63,6 +65,7 @@ const PendingUsers = () => {
 
     const approveFunction = async (data: User) => {
         try {
+            setIsApproveLoading(true);
             await loginUserApiService.approveUsersApi({
                 id: data?.id,
                 name: data?.fullName,
@@ -71,14 +74,17 @@ const PendingUsers = () => {
             toast.success("User approved successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
             dispatch(isModalShowReducser(false));
+            setSelectedUserForApproval(null);
         } catch (error) {
             console.error("Approve failed:", error);
             toast.error("Failed to approve user");
-            dispatch(isModalShowReducser(false));
+        } finally {
+            setIsApproveLoading(false);
         }
     };
     const rejectFunction = async (data: User) => {
         try {
+            setIsRejectLoading(true);
             await loginUserApiService.rejectUsersApi({
                 id: data?.id,
                 name: data?.fullName,
@@ -86,11 +92,13 @@ const PendingUsers = () => {
             });
             toast.success("User rejected successfully");
             queryClient.invalidateQueries({ queryKey: ['users'] });
-            dispatch(isModalShowReducser(false));
+            dispatch(isModalShowRejectReducer(false));
+            setSelectedUserForReject(null);
         } catch (error) {
             console.error("Rejected failed:", error);
             toast.error("Failed to rejected user");
-            dispatch(isModalShowReducser(false));
+        } finally {
+            setIsRejectLoading(false);
         }
     };
     console.log("PENDING USERS", getCurrentRecords());
@@ -100,7 +108,7 @@ const PendingUsers = () => {
             {isAllUsersLoading && <Loader text="Loading users..." />}
 
             {isDeleteAccountShowModal && selectedUserForDelete && (
-                <DeleteAccountModal userId={selectedUserForDelete} />
+                <DeleteAccountModal userId={selectedUserForDelete.id} role={selectedUserForDelete.role} />
             )}
 
             {showModal && selectedUserForApproval && (
@@ -110,6 +118,7 @@ const PendingUsers = () => {
                         setSelectedUserForApproval(null);
                         dispatch(isModalShowReducser(false));
                     }}
+                    isLoading={isApproveLoading}
                 />
             )}
             {showRejectModal && selectedUserForReject && (
@@ -119,6 +128,7 @@ const PendingUsers = () => {
                         setSelectedUserForReject(null);
                         dispatch(isModalShowRejectReducer(false));
                     }}
+                    isLoading={isRejectLoading}
                 />
             )}
             {/* {getCurrentRecords()?.length !== 0 && */}
@@ -179,7 +189,7 @@ const PendingUsers = () => {
                                                 }} />
                                                 <ViewIcon onClick={() => navigate(`/pending-users/view-user/${data?.id}`)} />
                                                 <DeleteIcon onClick={() => {
-                                                    setSelectedUserForDelete(data?.id ?? "");
+                                                    setSelectedUserForDelete({ id: data?.id ?? "", role: data?.role ?? "" });
                                                     dispatch(isModalDeleteReducer(true));
                                                 }} />
                                             </div>

@@ -105,13 +105,13 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
 
                     </div>
                 </div>
-                <p className={`text-center  border-solid border-[1px] rounded-full w-[70px] py-1 text-[12px]  font-semibold  cursor-pointer ${userStatus?.isBlocked ? "text-textGreyColor border-textGreyColor" : "text-redColor border-redColor"}`}
+                <p className={`text-center border-solid border-[1px] rounded-full min-w-[100px] px-4 py-1.5 text-[12px] font-semibold cursor-pointer transition-colors duration-200 ${userStatus?.isBlocked ? "text-primaryColor border-primaryColor hover:bg-primaryColorLight" : "text-redColor border-redColor hover:bg-red-50"}`}
                     onClick={() =>
                         userStatus?.isBlocked
                             ? unblockUserAccount(userStatus.id)
                             : blockUserAccount(userStatus.id)
                     }>
-                    {userStatus.isBlocked ? "Remove" : "Block"}</p>
+                    {userStatus.isBlocked ? "Unblock" : "Block"}</p>
             </div>
         </div>
 

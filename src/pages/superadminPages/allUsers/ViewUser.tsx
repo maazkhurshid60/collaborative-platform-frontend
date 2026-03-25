@@ -2,7 +2,7 @@
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { GoDotFill } from "react-icons/go";
 import { ProviderType } from "../../../types/providerType/ProviderType";
 import loginUserApiService from "../../../apiServices/loginUserApi/LoginUserApi";
@@ -41,6 +41,9 @@ const ViewUser = () => {
   const showRestoreModal = useSelector(
     (state: RootState) => state.modalSlice.isShowRestoreModal
   );
+  const [isApproveLoading, setIsApproveLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [isRestoreLoading, setIsRestoreLoading] = useState(false);
 
   // ✅ Back should return to the list WITH the same query params
   // e.g. /verified-users?page=3&q=ali
@@ -79,6 +82,7 @@ const ViewUser = () => {
   // Approve / Reject / Restore
   const approveUserFun = async (data: User) => {
     try {
+      setIsApproveLoading(true);
       await loginUserApiService.approveUsersApi({
         id: data?.id,
         name: data?.fullName,
@@ -91,12 +95,14 @@ const ViewUser = () => {
     } catch (error) {
       console.error("Approve failed:", error);
       toast.error("Failed to approve user");
-      dispatch(isModalShowReducser(false));
+    } finally {
+      setIsApproveLoading(false);
     }
   };
 
   const rejectFunction = async (data: User) => {
     try {
+      setIsRejectLoading(true);
       await loginUserApiService.rejectUsersApi({
         id: data?.id,
         name: data?.fullName,
@@ -109,12 +115,14 @@ const ViewUser = () => {
     } catch (error) {
       console.error("Reject failed:", error);
       toast.error("Failed to reject user");
-      dispatch(isModalShowRejectReducer(false));
+    } finally {
+      setIsRejectLoading(false);
     }
   };
 
   const restoreFunction = async (data: User) => {
     try {
+      setIsRestoreLoading(true);
       await loginUserApiService.restoreUsersApi({
         id: data?.id,
         name: data?.fullName,
@@ -127,7 +135,8 @@ const ViewUser = () => {
     } catch (error) {
       console.error("Restore failed:", error);
       toast.error("Failed to restore user");
-      dispatch(isModalShowRestoreReducer(false));
+    } finally {
+      setIsRestoreLoading(false);
     }
   };
 
@@ -166,6 +175,7 @@ const ViewUser = () => {
         <VerifyAccountModal
           onConfirm={async () => await approveUserFun(selectedUserData)}
           onCancel={() => dispatch(isModalShowReducser(false))}
+          isLoading={isApproveLoading}
         />
       )}
 
@@ -173,6 +183,7 @@ const ViewUser = () => {
         <RejectAccountModal
           onConfirm={async () => await rejectFunction(selectedUserData)}
           onCancel={() => dispatch(isModalShowRejectReducer(false))}
+          isLoading={isRejectLoading}
         />
       )}
 
@@ -180,6 +191,7 @@ const ViewUser = () => {
         <RestoreAccountModal
           onConfirm={async () => await restoreFunction(selectedUserData)}
           onCancel={() => dispatch(isModalShowRestoreReducer(false))}
+          isLoading={isRestoreLoading}
         />
       )}
 

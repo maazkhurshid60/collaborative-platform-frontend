@@ -5,11 +5,12 @@ import { AppDispatch } from '../../../../redux/store'
 import { isModalShowRejectReducer } from '../../../../redux/slices/ModalSlice'
 
 interface RejectAccountModalProps {
-    onConfirm: () => void
+    onConfirm: () => void | Promise<void>
     onCancel: () => void
+    isLoading?: boolean
 }
 
-const RejectAccountModal: React.FC<RejectAccountModalProps> = ({ onConfirm, onCancel }) => {
+const RejectAccountModal: React.FC<RejectAccountModalProps> = ({ onConfirm, onCancel, isLoading = false }) => {
     const dispatch = useDispatch<AppDispatch>()
 
     const modalBody = (
@@ -24,15 +25,17 @@ const RejectAccountModal: React.FC<RejectAccountModalProps> = ({ onConfirm, onCa
                             dispatch(isModalShowRejectReducer(false))
                             onCancel()
                         }}
+                        disabled={isLoading}
                     />
                 </div>
                 <div className='w-full'>
                     <Button
                         text='Reject'
                         onclick={() => {
-                            dispatch(isModalShowRejectReducer(false))
                             onConfirm()
                         }}
+                        isLoading={isLoading}
+                        disabled={isLoading}
                     />
                 </div>
             </div>

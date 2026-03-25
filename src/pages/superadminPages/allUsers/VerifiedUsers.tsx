@@ -55,7 +55,7 @@ const VerifiedUsers = () => {
   );
 
   const [isDocLoading, setIsDocLoading] = useState(false);
-  const [selectedUserForDelete, setSelectedUserForDelete] = useState<string>("");
+  const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
   const [selectedDoc, setSelectedDoc] = useState("");
   const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({
     clientId: "",
@@ -168,7 +168,7 @@ const VerifiedUsers = () => {
       {isDocLoading && <Loader text="Loading Verified Users..." />}
 
       {isDeleteAccountShowModal && selectedUserForDelete && (
-        <DeleteAccountModal userId={selectedUserForDelete} />
+        <DeleteAccountModal userId={selectedUserForDelete.id} role={selectedUserForDelete.role} />
       )}
 
       {showModal && (
@@ -271,7 +271,7 @@ const VerifiedUsers = () => {
                       />
                       <DeleteIcon
                         onClick={() => {
-                          setSelectedUserForDelete(data?.id ?? "");
+                          setSelectedUserForDelete({ id: data?.id ?? "", role: data?.role ?? "" });
                           dispatch(isModalDeleteReducer(true));
                         }}
                       />

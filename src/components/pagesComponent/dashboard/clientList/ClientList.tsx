@@ -108,12 +108,12 @@ const ClientList = () => {
             heading: isDetach ? "Detach Client" : "Delete Client",
             confirmText: isDetach ? "Detach" : "Delete",
             text: isDetach ? (
-                <div>
+                <div className='text-black'>
                     Are you sure you want to <span className="font-semibold">Detach this Client</span>?
                     They will be removed from your list, but their account will remain active.
                 </div>
             ) : (
-                <div>
+                <div className='text-black'>
                     By Deleting this account you won’t be able to track record of your signed Documents.
                     Are you sure that you want to <span className="font-semibold">Delete your Account</span>?
                 </div>

@@ -5,11 +5,12 @@ import { AppDispatch } from '../../../../redux/store'
 import { isModalShowRejectReducer } from '../../../../redux/slices/ModalSlice'
 
 interface RestoreAccountModalProps {
-    onConfirm: () => void
+    onConfirm: () => void | Promise<void>
     onCancel: () => void
+    isLoading?: boolean
 }
 
-const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({ onConfirm, onCancel }) => {
+const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({ onConfirm, onCancel, isLoading = false }) => {
     const dispatch = useDispatch<AppDispatch>()
 
     const modalBody = (
@@ -24,29 +25,31 @@ const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({ onConfirm, on
                             dispatch(isModalShowRejectReducer(false))
                             onCancel()
                         }}
+                        disabled={isLoading}
                     />
                 </div>
                 <div className='w-full'>
                     <Button
                         text='Restore'
                         onclick={() => {
-                            dispatch(isModalShowRejectReducer(false))
                             onConfirm()
                         }}
+                        isLoading={isLoading}
+                        disabled={isLoading}
                     />
                 </div>
             </div>
         </div>
     )
 
-    return  <ModalLayout
-            heading='Restore Account'
-            modalBodyContent={modalBody}
-            onClose={() => {
-                dispatch(isModalShowRejectReducer(false))
-                onCancel() 
-            }}
-        />
+    return <ModalLayout
+        heading='Restore Account'
+        modalBodyContent={modalBody}
+        onClose={() => {
+            dispatch(isModalShowRejectReducer(false))
+            onCancel()
+        }}
+    />
 }
 
 export default RestoreAccountModal
