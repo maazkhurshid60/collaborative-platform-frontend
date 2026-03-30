@@ -52,6 +52,8 @@ const VerifiedUsers = lazy(() => import("../pages/superadminPages/allUsers/Verif
 const AllDocuments = lazy(() => import("../pages/superadminPages/AllDocuments"));
 const ClientProfile = lazy(() => import("../pages/providerPages/clients/clientProfile/ClientProfile"));
 const AdminInvoices = lazy(() => import("../pages/adminPages/invoices/AdminInvoices"));
+const NotFound = lazy(() => import("../pages/errorPages/NotFound"));
+const InviteProvider = lazy(() => import("../pages/providerPages/inviteProvider/InviteProvider"));
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -189,9 +191,10 @@ const Routing = () => {
 
                 {
                     loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
-                        <Route path="/billing" element={<WrappedRoute ><BilingPage /></WrappedRoute>} />
+                        <Route path="/invoices" element={<WrappedRoute ><BilingPage /></WrappedRoute>} />
                     )
                 }
+
 
 
                 <Route path="/settings" element={<WrappedRoute ><Settings /></WrappedRoute>} />
@@ -236,6 +239,7 @@ const Routing = () => {
                 <Route path="/user-profile" element={<WrappedRoute ><UserProfile /></WrappedRoute>} />
                 <Route path="/providers" element={<WrappedRoute ><Providers /></WrappedRoute>} />
                 <Route path="/providers/:id" element={<WrappedRoute ><ProviderProfile /></WrappedRoute>} />
+                <Route path="/invite-provider" element={<WrappedRoute ><InviteProvider /></WrappedRoute>} />
                 <Route path="/help-and-support" element={<WrappedRoute ><HelpAndSupport /></WrappedRoute>} />
                 <Route path="/chat/individual/:id" element={<Chat />} />
                 <Route path="/chat/group/:id" element={<Chat />} />
@@ -262,6 +266,7 @@ const Routing = () => {
                 <Route path="/payment-failure" element={<WrappedRoute><PaymentFailurePage /></WrappedRoute>} />
             </Route>
             <Route path="/super-admin" element={<SuperAdminMePage />} />
+            <Route path="*" element={<NotFound />} />
         </Routes >
     );
 };

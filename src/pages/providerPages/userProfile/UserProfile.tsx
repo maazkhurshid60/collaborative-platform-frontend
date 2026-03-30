@@ -419,7 +419,7 @@ const UserProfile = () => {
               />
 
               <div className="">
-                <LabelData label="List of Active Clients" />
+                <LabelData label="List of Active Verified Clients" />
                 <ul className="text-[14px] font-medium text-textGreyColor">
                   {getMeDetail?.clientList?.map((c, index) => (
                     <li key={index}>
@@ -499,7 +499,7 @@ const UserProfile = () => {
               <LabelData label="State" data={getMeData?.user?.state} />
 
               <div className="">
-                <LabelData label="List of Active Clients" />
+                <LabelData label="List of Active Verified Clients" />
                 <ul className="text-[14px] font-medium text-textGreyColor">
                   {getMeDetail?.clientList && getMeDetail?.clientList?.length > 0 ? (
                     getMeDetail?.clientList?.map((c, index) => (

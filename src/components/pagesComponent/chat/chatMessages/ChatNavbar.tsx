@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { getSocket } from '../../../../socket/Socket';
 import { HiMiniUserCircle } from 'react-icons/hi2';
+import { FiArchive } from 'react-icons/fi';
+import ToolTip from '../../../toolTip/ToolTip';
 
 
 interface chatNavbarProps {
@@ -70,7 +72,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
             return data;
         },
         onSuccess: () => {
-            toast.success("Group Channel has deleted Successfully")
+            toast.success("Group Channel has been deleted Successfully")
 
             // 2️⃣ Invalidate or update the cache so the list refreshes
             queryClient.invalidateQueries({
@@ -99,7 +101,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                 <DeleteChannelModal
                     text={props.groupMembers?.length > 0
                         ? "Deleting this conversation will remove it permanently for both users and it cannot be recovered. Are you sure you want to delete this conversation?"
-                        : "This conversation will be hidden for you until a new message is received. The other participant will still see the chat history. Are you sure?"
+                        : "This will hide the conversation from your view. Messages remain visible to other participants."
                     }
                     heading={props.groupMembers?.length > 0 ? "Deleting Group Conversation" : "Hiding Conversation"}
                     onDeleteConfirm={confirmDeleteChatChannel}
@@ -178,8 +180,18 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                         )}
                     </div>
                     {(loginUserId === props.groupCreatedBy?.id || props.groupMembers?.length === 0) &&
-                        <div>
-                            <DeleteIcon onClick={deleteConservation} />
+                        <div className="relative group flex items-center justify-center">
+                            {props.groupMembers?.length > 0 ? (
+                                <>
+                                    <DeleteIcon onClick={deleteConservation} />
+                                    <ToolTip toolTipText="Delete Group" />
+                                </>
+                            ) : (
+                                <>
+                                    <FiArchive onClick={deleteConservation} className="text-xl text-textGreyColor hover:text-[#2C9993] cursor-pointer" />
+                                    <ToolTip toolTipText="Hide Conversation" />
+                                </>
+                            )}
                         </div>
                     }
 
@@ -193,12 +205,12 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                                 }} />
                             </div>
                         )}
-                        {/* Share Button (renamed from Invite) */}
+                        {/* Share Button (renamed from Invite)
                         <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
                             <Button text='Share' icon={<FaRegShareFromSquare />} sm onclick={() => {
                                 dispatch(isModalShowReducser(true))
                             }} />
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>

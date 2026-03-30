@@ -9,6 +9,7 @@ interface User {
     createdAt: string;
     fullName: string;
     gender: string | null;
+    email: string | null;
     id: string;
     profileImage: string;
     role: string;
@@ -92,6 +93,7 @@ const initialState: LoginUserDetailState = {
             contactNo: null,
             createdAt: "",
             fullName: "",
+            email: null,
             gender: null,
             id: "",
             profileImage: "",
@@ -175,6 +177,7 @@ const LoginUserDetail = createSlice({
                     contactNo: null,
                     createdAt: "",
                     fullName: "",
+                    email: "",
                     gender: null,
                     id: "",
                     profileImage: "",

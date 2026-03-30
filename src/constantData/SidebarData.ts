@@ -23,15 +23,16 @@ export const ProviderSidebarData = [
         url: "/clients",
         icon: ClientsIcon
     },
-    {
-        name: "User Profile",
-        url: "/user-profile",
-        icon: RiUserLine
-    },
+
     {
         name: "Providers",
         url: "/providers",
         icon: ProvidersIcon
+    },
+    {
+        name: "Invite Provider",
+        url: "/invite-provider",
+        icon: ClientsIcon
     },
     {
         name: "Subscription",
@@ -39,10 +40,16 @@ export const ProviderSidebarData = [
         icon: Crown
     },
     {
-        name: "Billing",
-        url: "/billing",
+        name: "Invoices",
+        url: "/invoices",
         icon: FileText
-    }
+    },
+    {
+        name: "User Profile",
+        url: "/user-profile",
+        icon: RiUserLine
+    },
+
 ];
 
 

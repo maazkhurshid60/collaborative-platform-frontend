@@ -22,7 +22,7 @@ const Dashboard = () => {
     const [cardData, setCardData] = useState([
         { icon: ClientsIcon, heading: "Total Users", numbers: 200 },
         { icon: ClientsIcon, heading: "Clients", numbers: 1034, isLoading: true, error: "" },
-        { icon: ProvidersIcon, heading: "Providers", numbers: 1024, isLoading: true, error: "" },
+        { icon: ProvidersIcon, heading: "Providers on the plateform", numbers: 1024, isLoading: true, error: "" },
     ])
     // Fetch total provider using React Query
     const { data: totalNoOfProvider = 0, isLoading: isLoadingProviders, isError: isErrorProviders } = useQuery<number>({
@@ -58,7 +58,7 @@ const Dashboard = () => {
     useEffect(() => {
         setCardData((prev) =>
             prev.map((item) => {
-                if (item.heading === "Providers") {
+                if (item.heading === "Providers on the plateform") {
                     return {
                         ...item,
                         numbers: totalNoOfProvider,
@@ -138,7 +138,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <div className='w-[110%] min-h-screen  lg:w-[31.5%] overflow-y-auto'>
-                            <CardDashboardLayout heading='Collaborations'>
+                            <CardDashboardLayout heading='Conversations'>
                                 <Collaboration />
                             </CardDashboardLayout>
                         </div>

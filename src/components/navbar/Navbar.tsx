@@ -16,8 +16,10 @@ import { toast } from "react-toastify";
 import Loader from "../loader/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { LuSearch } from "react-icons/lu";
+import { useSubscription } from "../../hooks/useSubscription";
 
 const Navbar = () => {
+  const { isTrialActive } = useSubscription();
 
   const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose);
   const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
@@ -134,6 +136,10 @@ const Navbar = () => {
   };
 
   const addClientFun = (data: ClientType) => {
+    if (isTrialActive) {
+      toast.info("Collaborating with other providers' clients is a premium feature. Please upgrade your plan.");
+      return;
+    }
     updateMutation.mutate(data);
     handleClearSearch();
   };
@@ -271,6 +277,7 @@ const Navbar = () => {
             {isProvider && (
               <div>
                 <span
+                  title={`Your account is ${loginUserDetail?.user?.isApprove === "APPROVED" ? "Verified" : "Unverified"}`}
                   className={`px-2 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full ${loginUserDetail?.user?.isApprove === "APPROVED"
                     ? "bg-green-100 text-green-700 border border-green-200"
                     : "bg-red-100 text-red-700 border border-red-200"
@@ -341,7 +348,7 @@ const Navbar = () => {
                 className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
                 to="/setting"
               >
-                Settings
+                Setting
               </Link>
               <Link
                 onClick={() => setIsDropDownOpen(false)}

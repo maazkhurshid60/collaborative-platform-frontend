@@ -144,8 +144,6 @@ const TransactionDetail = () => {
         await downloadInvoicePdf(invoice);
     };
 
-    console.log(payments, "Payments Data for Transaction Detail");
-
     return (
         <OutletLayout heading="Transaction Lists">
             <div className="flex flex-col md:flex-row items-center gap-4 my-6 pl-10.5">
@@ -159,7 +157,7 @@ const TransactionDetail = () => {
                         <input
                             type="search"
                             className="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primaryColorDark focus:border-primaryColorDark outline-none"
-                            placeholder="Search Transactions"
+                            placeholder="Search Transactions by Name or Email"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -198,7 +196,10 @@ const TransactionDetail = () => {
                             </td>
 
                             <td className="px-4 py-3 align-middle whitespace-nowrap">
-                                <p className="capitalize leading-5 text-[15px] font-medium">{data?.user?.fullName}</p>
+                                <div className="flex flex-col">
+                                    <p className="capitalize leading-5 text-[15px] font-medium">{data?.user?.fullName}</p>
+                                    <p className="text-xs text-gray-500 lowercase mt-0.5">{data?.user?.email}</p>
+                                </div>
                             </td>
 
                             <td className="px-4 py-3 align-middle whitespace-nowrap">

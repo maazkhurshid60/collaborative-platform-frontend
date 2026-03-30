@@ -111,7 +111,7 @@ const BilingHistory = () => {
                                 onChange={(e) => setDateRange(e.target.value)}
                                 className="w-full h-[48px] bg-inputBgColor rounded-md px-3 outline-none appearance-none cursor-pointer text-sm"
                             >
-                                <option value="">All Time</option>
+                                <option value="">Full History</option>
                                 <option value="7">Last 7 Days</option>
                                 <option value="30">Last 30 Days</option>
                                 <option value="60">Last 60 Days</option>
@@ -131,11 +131,10 @@ const BilingHistory = () => {
                                 onChange={(e) => setActiveFilter(e.target.value)}
                                 className="w-full h-[48px] bg-inputBgColor rounded-md px-3 outline-none appearance-none cursor-pointer text-sm"
                             >
-                                <option value="All">All Status</option>
-                                <option value="paid">Paid</option>
-                                <option value="pending">Pending</option>
-                                <option value="overdue">Overdue</option>
-                                <option value="canceled">Canceled</option>
+                                <option value="All" title="View invoices of all statuses">All Status</option>
+                                <option value="paid" title="Invoices that have been successfully paid">Paid</option>
+                                <option value="overdue" title="Invoices that have passed their due date">Overdue</option>
+                                <option value="canceled" title="Invoices that have been canceled">Canceled</option>
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666666] pointer-events-none" size={18} />
                         </div>
@@ -199,7 +198,7 @@ const BilingHistory = () => {
                                                 billTo: data.billTo || { name: "-", email: "-", address: "-", city: "-" },
                                                 items: data.items || [{
                                                     description: `${data.plan || 'Standard'} Plan`,
-                                                    subtext: 'Subscription',
+                                                    subtext: 'Platform Access',
                                                     qty: '01',
                                                     price: data.amount || '$0.00',
                                                     amount: data.amount || '$0.00',

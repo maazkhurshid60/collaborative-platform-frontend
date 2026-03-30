@@ -55,7 +55,7 @@ const Clients = () => {
     "Status",
     "Country",
     "State",
-    "Is Verified",
+    "Verified Status",
     "Provider Name",
     "Action",
   ];
@@ -96,7 +96,7 @@ const Clients = () => {
       queryClient.invalidateQueries({ queryKey: ["providers"] });
       queryClient.invalidateQueries({ queryKey: ["allclients"] });
       queryClient.invalidateQueries({ queryKey: ["allproviders"] });
-      toast.success("Account has deleted successfully");
+      toast.success("Client has been deleted successfully");
       dispatch(isModalDeleteReducer(false));
     },
     onError: () => {
@@ -148,8 +148,8 @@ const Clients = () => {
       ) : (
         <div>
           By Deleting this account you won’t be able to track records of your signed
-          Documents. Are you sure that you want to{" "}
-          <span className="font-semibold">Delete your Account</span>?
+          Documents. Are you sure that you want to
+          <span className="font-semibold">Delete this Account</span>?
         </div>
       )
     });

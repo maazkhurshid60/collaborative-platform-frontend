@@ -33,12 +33,12 @@ const SelectPlan = () => {
             // Show "Start Trial" if: new signup AND never had trial
             buttonText: 'Start 14-Day Free Trial',
             features: [
-                'Up to 100 customers',
+                'Up to 100 Clients',
                 'Basic invoicing & billing',
                 'Email support',
                 'Payment processing',
-                'Basic analytics',
-                'Mobile app access',
+                '1-on-1 direct messaging only',
+                'Add own clients only',
             ],
             theme: 'default',
         },
@@ -70,7 +70,7 @@ const SelectPlan = () => {
             // Show "Start Trial" if: new signup AND never had trial
             buttonText: 'Subscribe Now',
             features: [
-                'Up to 100 customers',
+                'Up to 100 Clients',
                 'Basic invoicing & billing',
                 'Email support',
                 'Payment processing',
@@ -96,7 +96,7 @@ const SelectPlan = () => {
                     <div className="flex flex-col items-center mt-4">
                         {/* Title & Description */}
                         <div className="text-center mb-10">
-                            <h1 className="text-[40px] font-bold text-[#101828] mb-4">Choose the plan that fits your business</h1>
+                            <h1 className="text-[40px] font-bold text-[#101828] mb-4">Choose the plan that best fits your practice</h1>
                             <p className="text-[#666666] max-w-[1000px] mx-auto text-[18px] leading-relaxed">
                                 Transparent billing with no hidden fees. Start with any plan and upgrade as you grow. All plans include our core features with flexible scaling options.
                             </p>

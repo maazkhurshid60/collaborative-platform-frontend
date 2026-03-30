@@ -31,8 +31,6 @@ export interface DocumentFile {
 
 export interface Provider {
     id: string;
-    email: string;
-    password: string;
     department: string;
     createdAt: string;
     updatedAt: string;
@@ -43,6 +41,7 @@ export interface Provider {
 export interface User {
     id: string;
     fullName: string;
+    email: string;
     licenseNo: string;
     age: number;
     gender: string;

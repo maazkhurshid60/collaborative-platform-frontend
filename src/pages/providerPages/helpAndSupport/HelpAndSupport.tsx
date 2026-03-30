@@ -4,68 +4,70 @@ import { RiArrowLeftSLine } from "react-icons/ri";
 
 type HelpItem = {
   name: string;
-  data: string[];
+  data: React.ReactNode[];
 };
 
 const HelpAndSupport = () => {
   const helpData = [
-  {
-    name: "What's New",
-    data: [
-      "A redesigned dashboard for faster access to providers, clients, and chats.",
-      "Improved collaboration features with real-time messaging.",
-      "Performance enhancements and minor bug fixes for a smoother experience.",
-    ],
-  },
-  {
-    name: "Sign-in Issues",
-    data: [
-      "Ensure your email and password are entered correctly.",
-      "If you forgot your password, use the 'Forgot Password' option to reset it.",
-      "Contact support if your account is locked or access is restricted.",
-    ],
-  },
-  {
-    name: "Who can use this platform?",
-    data: [
-      "Licensed healthcare providers such as nutritionists, eye specialists, and heart specialists.",
-      "Administrative staff managing clients and providers.",
-      "Authorized professionals collaborating on patient care.",
-    ],
-  },
-  {
-    name: "How many members does the platform support?",
-    data: [
-      "The platform supports multiple providers and clients under one organization.",
-      "There is no fixed limit for users; capacity scales based on your subscription plan.",
-      "Contact support for enterprise-level usage requirements.",
-    ],
-  },
-  {
-    name: "How to add designation and department?",
-    data: [
-      "Navigate to your User Profile from the sidebar.",
-      "Edit your professional details including designation and department.",
-      "Save changes to update your profile across the platform.",
-    ],
-  },
-  {
-    name: "How to restrict offensive messages?",
-    data: [
-      "The system automatically monitors messages for inappropriate language.",
-      "Users can report offensive content directly from the chat interface.",
-      "Repeated violations may result in account suspension or restricted access.",
-    ],
-  },
-  {
-    name: "How do I delete my account?",
-    data: [
-      "Go to User Profile and select Account Settings.",
-      "Submit an account deletion request.",
-      "Your account and data will be permanently removed after verification.",
-    ],
-  },
-];
+    {
+      name: "Release Notes",
+      data: [
+        "A redesigned dashboard for faster access to providers, clients, and chats.",
+        "Improved collaboration features with real-time messaging.",
+        "Performance enhancements and minor bug fixes for a smoother experience.",
+      ],
+    },
+    {
+      name: "Sign-in Issues?",
+      data: [
+        "Ensure your email and password are entered correctly.",
+        "If you forgot your password, use the 'Forgot Password' option to reset it.",
+        "If your account is locked or access is restricted.",
+        <>Contact Support Email: <a href="mailto:katelin@kolabme.com" className="text-[#2C9993] hover:underline font-medium">katelin@kolabme.com</a></>
+      ],
+    },
+    {
+      name: "Who can use this platform?",
+      data: [
+        "Licensed healthcare providers such as nutritionists, eye specialists, and heart specialists.",
+        "Administrative staff managing clients and providers.",
+        "Authorized professionals collaborating on patient care.such as providers, clients, and other healthcare professionals.",
+      ],
+    },
+    {
+      name: "How many members does the platform support?",
+      data: [
+        "Currently we offer 1 Standard plan for 100 members for free and 1000 memebers for standard plan",
+        "There is no fixed limit for users; capacity scales based on your subscription plan.",
+        "Contact support for enterprise-level usage requirements.",
+      ],
+    },
+    {
+      name: "How to add Profile and department?",
+      data: [
+        "Navigate to your User Profile Image from the sidebar.",
+        "Edit your professional details including Profile Image and department.",
+        "Update your profile across the platform.",
+      ],
+    },
+    {
+      name: "How to restrict offensive messages?",
+      data: [
+        "The system automatically monitors messages for inappropriate language. This Feature currently Under development",
+        "Users can report offensive content directly from the chat interface. This Feature currently Under development",
+        "Repeated violations may result in account suspension or restricted access. This Feature currently Under development",
+      ],
+    },
+    {
+      name: "How do I delete my account?",
+      data: [
+        "Go to User Profile and select Account Settings.",
+        "In last Card you will see Delete Account button",
+        "By Clicking on Delete Account button you will see the modal to confirm",
+        "Then Click on Delete Button Will Delete Your Account Permanently and also Cancel there existing subscription"
+      ],
+    },
+  ];
 
 
   // null = none open, number = index open
@@ -76,42 +78,46 @@ const HelpAndSupport = () => {
   };
 
   return (
-    <OutletLayout heading="Help and support">
-      {helpData.map((item, idx) => {
-        const isOpen = openIndex === idx;
+    <OutletLayout heading="Help & Support">
+      <div className="flex flex-col gap-4 mt-6">
+        {helpData.map((item, idx) => {
+          const isOpen = openIndex === idx;
 
-        return (
-          <div
-            key={item.name}
-            className="bg-inputBgColor p-2 rounded-[10px] text-textColor mt-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-[14px] md:text-[16px] font-medium w-[90%]">
-                {item.name}
-              </p>
-
-              <RiArrowLeftSLine
+          return (
+            <div
+              key={idx}
+              className={`border rounded-xl transition-all duration-300 overflow-hidden ${isOpen ? 'border-[#2C9993] bg-[#F4FAFA] shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+            >
+              <button
                 onClick={() => toggle(idx)}
-                className={[
-                  "text-xl sm:text-2xl md:text-3xl transition-transform duration-300",
-                  "text-textGreyColor cursor-pointer",
-                  isOpen ? "-rotate-90" : "rotate-180",
-                ].join(" ")}
-              />
-            </div>
+                className="w-full text-left px-6 py-4 flex items-center justify-between focus:outline-none cursor-pointer"
+              >
+                <span className={`text-[15px] sm:text-[16px] font-semibold pr-4 ${isOpen ? 'text-[#2C9993]' : 'text-textColor'}`}>
+                  {item.name}
+                </span>
 
-            {isOpen && (
-              <div className="mt-2">
-                {item.data.map((line, lineIdx) => (
-                  <p key={`${item.name}-${lineIdx}`} className="text-xs md:text-sm mt-2">
-                    {lineIdx + 1}- {line}
-                  </p>
-                ))}
+                <RiArrowLeftSLine
+                  className={`text-2xl transition-transform duration-300 shrink-0 ${isOpen ? 'text-[#2C9993] -rotate-90' : 'text-textGreyColor rotate-180'}`}
+                />
+              </button>
+
+              <div
+                className={`transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+              >
+                <div className="px-6 pb-5 pt-1 text-[#666666]">
+                  <ul className="list-disc pl-5 space-y-2">
+                    {item.data.map((line, lineIdx) => (
+                      <li key={lineIdx} className="text-[13px] md:text-[14px] leading-relaxed">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
     </OutletLayout>
   );
 };

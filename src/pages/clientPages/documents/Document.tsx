@@ -230,7 +230,7 @@ const Document = () => {
                                                 : <UserIcon size={30} />}
                                             <div className="text-left">
                                                 <p>{data?.provider?.user?.fullName}</p>
-                                                <p className="lowercase"> {data?.provider?.email}</p>
+                                                <p className="lowercase"> {data?.provider?.user?.email}</p>
                                             </div>
                                         </div>
                                     </td>

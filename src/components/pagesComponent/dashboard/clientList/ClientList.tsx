@@ -62,7 +62,7 @@ const ClientList = () => {
             queryClient.invalidateQueries({ queryKey: ['totalclients'] });
             queryClient.invalidateQueries({ queryKey: ['allclients'] });
 
-            toast.success("Account has deleted successfully");
+            toast.success("Client has been deleted successfully");
             setIsLoader(false);
         },
         onError: () => {
@@ -115,7 +115,7 @@ const ClientList = () => {
             ) : (
                 <div className='text-black'>
                     By Deleting this account you won’t be able to track record of your signed Documents.
-                    Are you sure that you want to <span className="font-semibold">Delete your Account</span>?
+                    Are you sure that you want to <span className="font-semibold">Delete this Account</span>?
                 </div>
             )
         });
