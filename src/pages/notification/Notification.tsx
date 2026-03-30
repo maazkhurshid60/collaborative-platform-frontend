@@ -128,19 +128,28 @@ const Notification = () => {
                                         <div className='w-[100%] sm:w-[80%] md:w-[70%] lg:w-[100%] '>
                                             <div className='flex items-center justify-between gap-x-5'>
                                                 <div className='flex items-center gap-x-4'>
-                                                    <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize'>
+                                                    <p className='font-semibold text-[14px] md:text-[16px] lg:text-[18px] text-textColor capitalize flex items-center gap-2'>
                                                         {data?.sender?.id === loginUserId
                                                             ? "you"
                                                             : data?.sender?.fullName}
+                                                        {data?.type && (
+                                                            <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-bold uppercase tracking-wide">
+                                                                {data.type.replace(/_/g, " ")}
+                                                            </span>
+                                                        )}
                                                     </p>
                                                     <p className='font-semibold text-[18px]'>.</p>
                                                     <p className='font-light text-[10px] lg:text-[12px] '>  {formatDistanceToNow(new Date(data?.createdAt), { addSuffix: true })}
                                                     </p>
 
                                                 </div>
-                                                <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => toast.success("This feature is comming soon.")
-                                                } />
+                                                <AiOutlineDelete className='text-redColor cursor-pointer block sm:hidden' size={18} onClick={() => handleDeleteFun(data?.id)} />
                                             </div>
+                                            {data?.title && (
+                                                <p className="font-semibold text-[13px] md:text-[15px] text-[#2C9993] mt-1 mb-0.5">
+                                                    {data.title}
+                                                </p>
+                                            )}
                                             <p className=' text-[12px] lg:text-[14px] '>{data?.message}</p>
                                         </div>
                                     </div>

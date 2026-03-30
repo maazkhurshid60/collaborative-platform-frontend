@@ -76,6 +76,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     onResultClick
 }) => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+    //@ts-ignore
     const isBlocked = loginUserDetail?.user?.blockedMembers?.includes(user?.user?.id);
 
     const isAlreadyAdded = user?.providerList?.some(

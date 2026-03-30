@@ -283,7 +283,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                         <div className='mt-8'
                         >
                             <Checkbox
-                                text="Want to be seen by different providers for this client"
+                                text="Allow other providers to access and collaborate on this client’s care "
                                 checked={wantToBeSeen}
                                 onChange={handleCheckboxChange}
                             />

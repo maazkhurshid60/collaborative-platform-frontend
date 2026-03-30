@@ -35,7 +35,7 @@ export default function ChangePlanScreen() {
             monthlyPrice: 9.99,
             annualPrice: 95.90,
             features: [
-                "Up to 100 customers",
+                "Up to 1000 Clients",
                 "Basic invoicing & billing",
                 "Email support",
                 "Payment processing",
@@ -52,7 +52,7 @@ export default function ChangePlanScreen() {
             monthlyPrice: 79,
             annualPrice: 63,
             features: [
-                "Up to 1,000 customers",
+                "Up to 1,000 Clients",
                 "Advanced invoicing & automation",
                 "Priority support 24/7",
                 "Multi-currency support",
@@ -143,7 +143,7 @@ export default function ChangePlanScreen() {
                                 {currentPlan} Plan - {isTrialing ? 'Free Trial' : 'Full access to all premium features'}
                             </p>
                         </div>
-                        <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm">
+                        <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm" >
                             <Crown className="w-[32px] h-[32px] text-[#2C9993]" />
                         </div>
                     </div>

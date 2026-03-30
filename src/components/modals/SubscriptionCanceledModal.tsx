@@ -38,7 +38,7 @@ const SubscriptionCanceledModal: React.FC<SubscriptionCanceledModalProps> = ({ o
                 <div className="w-full border mt-8 border-[#E2E8F0]" />
 
                 {/* Success Icon */}
-                <div className="w-[120px] h-[120px] mt-8 rounded-full bg-linear-to-b from-[#8ADE88] to-[#2C9993] flex items-center justify-center mb-6 shadow-lg">
+                <div className="w-[120px] h-[120px] mt-8 rounded-full bg-linear-to-b from-[#8ADE88] to-[#2C9993] flex items-center justify-center mb-6 shadow-lg" >
                     <Crown className="w-[60px] h-[60px] text-white" />
                 </div>
 

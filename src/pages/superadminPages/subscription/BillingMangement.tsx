@@ -33,7 +33,6 @@ const SubscriptionPage = () => {
     const [selectedInvoiceData, setSelectedInvoiceData] = useState<any>(null);
 
     const recordsPerPage = 10;
-    const totalPages = Math.ceil(subscriptions.length / recordsPerPage);
 
     const fetchSubscriptions = async () => {
         try {
@@ -168,6 +167,12 @@ const SubscriptionPage = () => {
         return matchesSearch && matchesFilter;
     });
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredRecords.length / recordsPerPage));
+
     const paginatedRecords = filteredRecords.slice(
         (currentPage - 1) * recordsPerPage,
         currentPage * recordsPerPage
@@ -259,14 +264,20 @@ const SubscriptionPage = () => {
                                                 alt="profile"
                                                 className="w-10 h-10 rounded-full object-cover"
                                             />
-                                            <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                            <div className="flex flex-col">
+                                                <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                                <p className="text-xs text-gray-500 lowercase">{record.user?.email}</p>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-x-4">
                                             <div className="w-10 h-10 bg-black flex items-center justify-center rounded-full object-cover">
                                                 <UserIcon className="w-5 h-5 text-white" />
                                             </div>
-                                            <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                            <div className="flex flex-col">
+                                                <p className="capitalize font-medium">{record.user?.fullName}</p>
+                                                <p className="text-xs text-gray-500 lowercase">{record.user?.email}</p>
+                                            </div>
                                         </div>
                                     )}
                                 </td>

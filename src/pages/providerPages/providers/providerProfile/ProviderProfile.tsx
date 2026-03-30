@@ -117,7 +117,7 @@ const ProviderProfile = () => {
 
 
                             <div className=' '>
-                                <LabelData label='List of Active Clients' />
+                                <LabelData label='List of Active Verified Clients' />
 
 
                                 {selectedProviderData?.clientList === undefined ||

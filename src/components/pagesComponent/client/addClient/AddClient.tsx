@@ -283,6 +283,7 @@ const AddClient = () => {
               label="Address"
               register={register("address")}
               placeHolder="Enter Address."
+              required
               error={errors.address?.message}
             />
 
@@ -304,7 +305,7 @@ const AddClient = () => {
 
           <div className="mt-8">
             <Checkbox
-              text="Want to be seen by different providers for this client"
+              text="Allow other providers to access and collaborate on this client’s cares for this client"
               checked={wantToBeSeen}
               onChange={handleCheckboxChange}
             />

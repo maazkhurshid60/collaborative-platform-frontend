@@ -28,12 +28,12 @@ import { ArrowLeft, ArrowRight, Check, Info } from 'lucide-react';
 import StepIndicator from '../../../components/stepIndicator/StepIndicator';
 
 const features = [
-    "Up to 100 customers",
+    "Up to 100 Clients",
     "Basic invoicing & billing",
     "Email support",
     "Payment processing",
-    "Basic analytics",
-    "Mobile app access"
+    "1-on-1 direct messaging only",
+    "Add own clients only"
 ]
 type FormFields = z.infer<typeof ProviderSignupSchema>;
 
@@ -186,7 +186,7 @@ const ConfirmFreeAccount = () => {
                             </div>
                         </div>
                         <p className="text-[12px] mt-4 text-[#64748B] text-center max-w-[450px]">
-                            By completing this purchase, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+                            By starting your free trial, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
                         </p>
 
                         <div className='w-full mt-6 border border-[#E5E7EB]' />

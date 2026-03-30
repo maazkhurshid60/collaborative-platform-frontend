@@ -27,7 +27,6 @@ import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import { useMemo, useState } from "react";
 import { filterProviders } from "../../../utils/FilteredUsers";
 import SearchBar from "../../../components/searchBar/SearchBar";
-
 const Providers = () => {
   const heading = [
     "S.No.",
@@ -84,7 +83,7 @@ const Providers = () => {
       License: provider?.user?.licenseNo ?? "",
       Contact: provider?.user?.contactNo ?? "",
       Gender: provider?.user?.gender ?? "",
-      Email: provider?.email ?? "",
+      Email: provider?.user?.email ?? "",
       Status: provider?.user?.status ?? "",
       Role: provider?.user?.role ?? "",
       Clients:
@@ -110,7 +109,7 @@ const Providers = () => {
       button={<Button text="Download xls" onclick={() => downloadXLS(currentRecords)} />}
     >
       <div className="flex items-center md:justify-end mt-6">
-        <div className="w-[100%] md:w-[40%]">
+        <div className="w-full md:w-[40%]">
           <SearchBar
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -155,7 +154,7 @@ const Providers = () => {
 
                     {/* Email */}
                     <td className="px-4 py-3 align-middle">
-                      <span className="block max-w-[260px] truncate lowercase" title={data?.email}>
+                      <span className="block max-w-[260px] truncate lowercase" title={data?.user?.email}>
                         {data?.user?.email}
                       </span>
                     </td>

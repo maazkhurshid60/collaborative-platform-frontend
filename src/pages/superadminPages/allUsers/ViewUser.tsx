@@ -243,7 +243,7 @@ const ViewUser = () => {
           {/* PROVIDER CLIENT LIST */}
           {selectedUserData?.role === "provider" && (
             <div>
-              <LabelData label="List of Active Clients" />
+              <LabelData label="List of Active Verified Clients" />
 
               {selectedUserData?.clientList === undefined ||
                 selectedUserData?.clientList?.filter(

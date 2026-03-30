@@ -35,19 +35,36 @@ export const SubscriptionSettingPage = () => {
 
     const plans = [
         {
+            name: "Free Trial",
+            description: "14-day free trial limited access",
+            monthlyPrice: 0,
+            annualPrice: 0,
+            features: [
+                "Up to 100 Clients",
+                "Basic invoicing & billing",
+                "Email support",
+                "Payment processing",
+                "1-on-1 direct messaging only",
+                "Add own clients only"
+            ],
+            isActive: isTrialing,
+            isPopular: false,
+            theme: 'basic'
+        },
+        {
             name: "Standard",
             description: "Perfect for startups and small teams",
             monthlyPrice: 9.99,
             annualPrice: 95.90,
             features: [
-                "Up to 100 customers",
+                "Up to 1000 Clients",
                 "Basic invoicing & billing",
                 "Email support",
                 "Payment processing",
                 "Basic analytics",
                 "Mobile app access"
             ],
-            isActive: currentPlanName === 'STANDARD',
+            isActive: currentPlanName === 'STANDARD' && !isTrialing,
             isPopular: false,
             theme: 'basic'
         },
@@ -207,16 +224,27 @@ export const SubscriptionSettingPage = () => {
                                     <p className="text-[13px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.currentPlanSection.description}</p>
                                 </div>
                                 <div className="flex items-center gap-x-4">
-                                    <button
-                                        disabled={userSubscription?.cancelAtPeriodEnd || userSubscription?.status === 'TRIALING'}
-                                        onClick={() => setIsCancelModalOpen(true)}
-                                        className={`px-4 h-[40px] border-2 rounded-[10px] transition-all ${userSubscription?.status === 'TRIALING' ? 'hidden' : ''} ${userSubscription?.cancelAtPeriodEnd ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400' : 'border-[#E21414] text-[#E21414] hover:bg-[#E21414]/5 cursor-pointer'}`}
-                                    >
-                                        <span className="text-xs md:text-sm font-medium font-[Poppins]">
-                                            <span className="hidden lg:inline">{userSubscription?.cancelAtPeriodEnd ? "Scheduled for Cancellation" : "Cancel Subscription"}</span>
-                                            <span className="inline lg:hidden">{userSubscription?.cancelAtPeriodEnd ? "Scheduled" : "Cancel Plan"}</span>
-                                        </span>
-                                    </button>
+                                    {isTrialing ? (
+                                        <button
+                                            onClick={() => navigate('/select-plan')}
+                                            className="px-4 h-[40px] border-2 rounded-[10px] transition-all border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5 cursor-pointer"
+                                        >
+                                            <span className="text-xs md:text-sm font-medium font-[Poppins]">
+                                                Upgrade Now
+                                            </span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            disabled={userSubscription?.cancelAtPeriodEnd}
+                                            onClick={() => setIsCancelModalOpen(true)}
+                                            className={`px-4 h-[40px] border-2 rounded-[10px] transition-all ${userSubscription?.cancelAtPeriodEnd ? 'opacity-50 cursor-not-allowed border-gray-300 text-gray-400' : 'border-[#E21414] text-[#E21414] hover:bg-[#E21414]/5 cursor-pointer'}`}
+                                        >
+                                            <span className="text-xs md:text-sm font-medium font-[Poppins]">
+                                                <span className="hidden lg:inline">{userSubscription?.cancelAtPeriodEnd ? "Scheduled for Cancellation" : "Cancel Subscription"}</span>
+                                                <span className="inline lg:hidden">{userSubscription?.cancelAtPeriodEnd ? "Scheduled" : "Cancel Plan"}</span>
+                                            </span>
+                                        </button>
+                                    )}
                                     <div className="w-12 h-12 bg-[#FFFFFF] rounded-[12px] flex items-center justify-center shadow-sm shrink-0">
                                         <Crown className="w-6 h-6 text-[#2C9993]" />
                                     </div>

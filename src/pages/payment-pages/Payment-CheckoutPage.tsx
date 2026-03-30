@@ -337,7 +337,7 @@ export const PaymentCheckoutPage = () => {
     };
 
     const features = [
-        "Up to 100 customers",
+        "Up to 100 Clients",
         "Basic invoicing & billing",
         "Email support",
         "Payment processing",

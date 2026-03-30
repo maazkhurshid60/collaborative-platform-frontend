@@ -63,7 +63,7 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
     }
 
     return <div className='mt-4'>
-        <p className='text-[14px] text-textGreyColor  mb-4'>Share the documents with client to get their consent by sending them the following documents via email.</p>
+        <p className='text-[14px] text-textGreyColor  mb-4'>Documents can be shared with clients via email for review and consent</p>
         <InputFieldOnlyRead placeHolder='user@gmail.com' value={clientEmail} />
         <p className='font-semibold text-[14px] mt-4 mb-4'>Selected Documents</p>
         <div className='grid grid-cols-1 gap-3 mb-4'>

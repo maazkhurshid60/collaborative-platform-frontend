@@ -32,8 +32,11 @@ import SpinnerLoader from '../../../components/loader/SpinnerLoader';
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
 import InviteToGroupModalBody from '../../../components/modals/providerModal/chatModal/InviteToGroupModalBody';
+import { useSubscription } from '../../../hooks/useSubscription';
 
 const Chat = () => {
+  const { isTrialActive } = useSubscription();
+
   const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
   const loginUserUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId);
 
@@ -343,7 +346,7 @@ const Chat = () => {
                   className='cursor-pointer text-xl text-textGreyColor'
                   onClick={() => dispatch(isNewChatModalShowReducser(true))}
                 />
-                <ToolTip toolTipText='Start chat with new Provider' />
+                <ToolTip toolTipText='Start chat with a provider on the platform' />
               </div>
 
               {/* ✅ Invite provider by email (icon changed) */}
@@ -414,7 +417,13 @@ const Chat = () => {
             <div className='relative group'>
               <HiOutlineUserAdd
                 className='cursor-pointer text-xl text-textGreyColor'
-                onClick={() => dispatch(isNewGroupChatModalShowReducser(true))}
+                onClick={() => {
+                  if (isTrialActive) {
+                    toast.info("Group chats are not available on the Free Trial. Please upgrade your plan.");
+                  } else {
+                    dispatch(isNewGroupChatModalShowReducser(true));
+                  }
+                }}
               />
               <ToolTip toolTipText='Add New Group' />
             </div>

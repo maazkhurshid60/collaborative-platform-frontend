@@ -8,7 +8,7 @@ export const filterUsers = (users: User[], searchTerm: string): User[] => {
     const lowerSearch = searchTerm.toLowerCase();
 
     return users.filter((user) => {
-        const email = user.client?.email || user.provider?.email || "";
+        const email = user.email || user.client?.email || user.provider?.email || "";
         const country = getCountryNameFromCode(user.country || "") || "";
 
         return (
@@ -33,7 +33,7 @@ export const filterProviders = (users: ProviderType[], searchTerm: string): Prov
     const lowerSearch = searchTerm.toLowerCase();
 
     return users.filter((user) => {
-        const email = user?.email || "";
+        const email = user?.user?.email || "";
         const country = getCountryNameFromCode(user?.user?.country || "") || "";
 
         return (
@@ -55,7 +55,7 @@ export const filterClients = (users: ClientType[], searchTerm: string): ClientTy
     const lowerSearch = searchTerm.toLowerCase();
 
     return users.filter((user) => {
-        const email = user?.email || "";
+        const email = user?.user?.email || "";
         const country = getCountryNameFromCode(user?.user?.country || "") || "";
 
         return (

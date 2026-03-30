@@ -114,7 +114,7 @@ const ClientProfile = () => {
                                 <LabelData label='Account Created By Client' data={selectedClientData?.isAccountCreatedByOwnClient ? "Yes" : "No"} />
                             </div>
                             <div>
-                                <LabelData label='Visible To Other Providers' data={selectedClientData?.clientShowToOthers ? "Yes" : "No"} />
+                                <LabelData label='Visible to collaborating providers.' data={selectedClientData?.clientShowToOthers ? "Yes" : "No"} />
                             </div>
 
                             <div className=' '>
