@@ -1,4 +1,4 @@
-import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, Trash, User, View, ViewIcon } from "lucide-react";
+import { Calendar, Check, Clock, DeleteIcon, Download, Eye, File, FilePenLine, FileText, Info, RotateCw, Trash, User, View, ViewIcon } from "lucide-react";
 import BackIcon from "../../../components/icons/back/Back";
 import { useNavigate, useParams } from "react-router-dom"
 import { GoDotFill } from "react-icons/go";
@@ -23,6 +23,7 @@ const ProviderBillingDetail = () => {
     const [contactInfo, setContactInfo] = useState<any>(null);
     const [subscription, setSubscription] = useState<any>(null);
     const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+    const [syncing, setSyncing] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 10;
     const navigate = useNavigate()
@@ -69,6 +70,23 @@ const ProviderBillingDetail = () => {
             toast.error("Failed to load provider details");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSync = async () => {
+        if (!id) return;
+        try {
+            setSyncing(true);
+            const res = await superAdminApi.syncProviderSubscription(id);
+            if (res.success) {
+                toast.success("Subscription synced with Stripe");
+                await fetchAllData();
+            }
+        } catch (error: any) {
+            console.error("Sync failed", error);
+            toast.error("Failed to sync with Stripe");
+        } finally {
+            setSyncing(false);
         }
     };
 
@@ -270,6 +288,15 @@ const ProviderBillingDetail = () => {
                             <div className="w-[80px] h-[26px] rounded-[4px] bg-[#ECFDF5] flex items-center justify-center">
                                 <p className="font-[Poppins] text-[12px] font-medium text-primaryColorDark capitalize">{subscription?.status || "inactive"}</p>
                             </div>
+                            <button
+                                onClick={handleSync}
+                                disabled={syncing}
+                                className={`flex items-center gap-x-1 text-[12px] font-medium transition-colors ${syncing ? 'text-gray-400' : 'text-[#2C9993] hover:text-[#23807a]'} ml-2`}
+                                title="Sync with Stripe"
+                            >
+                                <RotateCw className={`w-3 h-3 ${syncing ? 'animate-spin text-gray-400' : ''}`} />
+                                {syncing ? 'Syncing...' : 'Sync'}
+                            </button>
                         </div>
                     </div>
                 </div>
