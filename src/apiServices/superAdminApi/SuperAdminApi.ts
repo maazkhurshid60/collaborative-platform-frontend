@@ -116,6 +116,21 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async syncProviderSubscription(userId: string) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post(`/provider/${userId}/sync`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error syncing provider subscription:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();
