@@ -72,7 +72,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
             return data;
         },
         onSuccess: () => {
-            toast.success("Group Channel has been deleted Successfully")
+            toast.success("Group has been deleted Successfully")
 
             // 2️⃣ Invalidate or update the cache so the list refreshes
             queryClient.invalidateQueries({

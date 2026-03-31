@@ -11,6 +11,7 @@ import ToolTip from "../toolTip/ToolTip";
 import authService from "../../apiServices/authApi/AuthApi";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
 import Logout from "../icons/logout/Logout";
+import Button from "../button/Button";
 
 interface sideBarDataType {
     name?: string
@@ -114,11 +115,13 @@ const Sidebar = () => {
 
 
             </div>
-            <span className="relative group inline-block ml-3 cursor-pointer text-textColor w-max">
-
-                <Logout onClick={logoutFunction} />
-                <ToolTip toolTipText="Logout" />
-            </span>
+            <div className="px-2 mx-9 mt-auto mb-2">
+                <Button
+                    text="Logout"
+                    icon={<Logout stroke="#fff" className="" />}
+                    onclick={logoutFunction}
+                />
+            </div>
         </div>
     );
 };

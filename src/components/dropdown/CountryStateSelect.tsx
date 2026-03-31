@@ -39,12 +39,14 @@ const CountryStateSelect = ({
 
   const selectedCountry = useWatch({ control, name: "country" });
 
-  // Countries: computed once
+  // Countries: restricted to United States only
   const countryOptions: OptionType[] = useMemo(() => {
-    return Country.getAllCountries().map((c) => ({
-      label: c.name,
-      value: c.isoCode,
-    }));
+    const us = Country.getCountryByCode("US");
+    if (!us) return [];
+    return [{
+      label: us.name,
+      value: us.isoCode,
+    }];
   }, []);
 
   // States: recompute when country changes
@@ -56,12 +58,11 @@ const CountryStateSelect = ({
     }));
   }, [selectedCountry]);
 
-  // Apply defaultCountry only if country is empty and user hasn't changed it
+  // Apply defaultCountry or "US" as default
   useEffect(() => {
-    if (!defaultCountry) return;
     const current = getValues("country");
     if (!current && !dirtyFields.country) {
-      setValue("country", defaultCountry, { shouldValidate: true });
+      setValue("country", defaultCountry || "US", { shouldValidate: true });
     }
   }, [defaultCountry, dirtyFields.country, getValues, setValue]);
 

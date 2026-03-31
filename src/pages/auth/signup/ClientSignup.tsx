@@ -83,7 +83,7 @@ const ClientSignup = () => {
         setValue("fullName", licenseNoData?.fullName, { shouldValidate: true });
         setValue("email", licenseNoData?.email, { shouldValidate: true });
         if (licenseNoData?.country) {
-            setValue("country", licenseNoData.country, { shouldValidate: true });
+            setValue("country", licenseNoData.country as "US", { shouldValidate: true });
         }
         if (licenseNoData?.state) {
             setValue("state", licenseNoData.state, { shouldValidate: true });

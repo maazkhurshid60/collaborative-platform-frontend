@@ -186,7 +186,7 @@ const ConfirmFreeAccount = () => {
                             </div>
                         </div>
                         <p className="text-[12px] mt-4 text-[#64748B] text-center max-w-[450px]">
-                            By starting your free trial, you agree to our <span className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</span> and <span className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</span>
+                            By starting your free trial, you agree to our <a href="https://kolabme.com/terms-and-conditions" className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</a> and <a href="https://kolabme.com/privacy-policy/" className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</a>
                         </p>
 
                         <div className='w-full mt-6 border border-[#E5E7EB]' />
@@ -258,7 +258,7 @@ const ConfirmFreeAccount = () => {
 
                                     const successMessage = planType === 'FREE'
                                         ? "14-day free trial activated!"
-                                        : "Free plan activated!";
+                                        : "Free 14-day trial plan activated!";
                                     toast.success(successMessage);
                                     navigate('/dashboard');
                                 } catch (error: any) {

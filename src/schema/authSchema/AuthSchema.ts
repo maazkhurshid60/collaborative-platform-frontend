@@ -53,7 +53,7 @@ export const ClientSignupSchema = z
     email: z.string().email(),
     fullName: fullNameValidator,      // ✅ use here too (optional but recommended)
     // licenseNo is not needed for clients
-    country: z.string().nonempty("Country is required"),
+    country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -71,7 +71,7 @@ interface ClientIdData {
 export const ProviderSignupSchema = z
   .object({
     email: z.string().email("Email is required"),
-    country: z.string().nonempty("Country is required"),
+    country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
     fullName: fullNameValidator,      // ✅ now no error
     department: z.string().min(1, "Department is required"),

@@ -246,18 +246,13 @@ const ViewUser = () => {
               <LabelData label="List of Active Verified Clients" />
 
               {selectedUserData?.clientList === undefined ||
-                selectedUserData?.clientList?.filter(
-                  (d: ProviderType) => d.client?.clientShowToOthers === true
-                ).length === 0 ? (
+                selectedUserData?.clientList?.length === 0 ? (
                 <p className="text-[14px] py-0.5 font-medium text-textGreyColor">
                   No Clients
                 </p>
               ) : (
                 selectedUserData?.clientList
-                  ?.filter(
-                    (p: ProviderType) => p?.client?.clientShowToOthers === true
-                  )
-                  .map((p: ProviderType, index: number) => (
+                  ?.map((p: ProviderType, index: number) => (
                     <p
                       className="flex items-center gap-x-1 capitalize text-[14px] py-0.5 font-medium text-textGreyColor"
                       key={index}

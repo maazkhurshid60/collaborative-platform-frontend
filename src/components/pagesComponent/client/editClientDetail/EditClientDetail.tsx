@@ -70,7 +70,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", Number(clientData?.user?.age ?? 0))
             setValue("gender", (clientData?.user?.gender ?? "").toLowerCase())
-            setValue("country", clientData?.user?.country ?? "")
+            setValue("country", (clientData?.user?.country as "US") || "US")
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 

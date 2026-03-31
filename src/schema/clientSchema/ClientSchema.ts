@@ -18,7 +18,7 @@ export const clientSchema = z.object({
   // gender: z.string().min(1, "Gender No is required"),
   // profileImg: z.string().optional()
   // country: z.string().min(1, "Country is required"),
-  country: z.string().min(1, "Country is required"),
+  country: z.literal("US", { message: "Only United States is supported" }),
   // country: z.string().min(1, "Country is required"),
   state: z.string().min(1, "State is required"),
 
@@ -28,7 +28,7 @@ export const accountSchema = z.object({
   licenseNo: z.string().optional(),
   email: z.string().email("Invalid email address"),
   address: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
+  country: z.literal("US", { message: "Only United States is supported" }),
   state: z.string().min(1, "State is required"),
   // password: z
   //     .string()

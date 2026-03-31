@@ -402,6 +402,7 @@ const UserProfile = () => {
                 label="Address"
                 register={register("address")}
                 placeHolder="Enter Address."
+                required
                 error={errors.address?.message}
               />
 
