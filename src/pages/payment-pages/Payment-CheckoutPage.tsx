@@ -6,9 +6,10 @@ import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import authService from "../../apiServices/authApi/AuthApi";
+import messageApiService from "../../apiServices/chatApi/messagesApi/MessagesApi";
 import { useDispatch, useSelector } from "react-redux";
 import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from "../../redux/slices/LoginUserDetailSlice";
-import { emptyDataNewJoinUserReducer } from "../../redux/slices/JoinNowUserSlice";
+import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from "../../redux/slices/JoinNowUserSlice";
 import CryptoJS from "crypto-js";
 import naclUtil from "tweetnacl-util";
 import { toast } from "react-toastify";
@@ -17,7 +18,7 @@ import { RootState } from "../../redux/store";
 // Initialize Stripe outside of component to avoid recreating it
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
-const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, price, planType, billingCycle }: any) => {
+const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, price, planType, billingCycle, inviteToken }: any) => {
     const stripe = useStripe();
     const elements = useElements();
     const navigate = useNavigate();
@@ -29,6 +30,9 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
     // Get logged in user for refresh logic
     const userDetails = useSelector((state: RootState) => state.LoginUserDetail?.userDetails);
     const loggedInUser = userDetails?.user;
+
+    // Get join user data for group-invite handling
+    const joinUser = useSelector((state: RootState) => state.joinUserSlice?.data);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -135,7 +139,9 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             const response = await authService.signup({
                 ...userData,
                 subscriptionId: subscriptionId,
-                stripeCustomerId: customerId
+                stripeCustomerId: customerId,
+                // If this user was invited (inviteToken), pass it so backend can process the invite
+                ...(inviteToken ? { inviteToken } : {}),
             });
             toast.success("Account created and subscription active!");
 
@@ -162,6 +168,21 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                     clientList: user?.clientList?.map((item: any) => item.client) || []
                 };
                 dispatch(saveLoginUserDetailsReducer(fixedUserData));
+            }
+
+            // ✅ Group-join: if this user was invited to a group/chat, complete the join now
+            if (joinUser?.groupId && joinUser?.memberEmail) {
+                try {
+                    await messageApiService.updateGroupApi({
+                        groupId: joinUser.groupId,
+                        memberEmail: joinUser.memberEmail,
+                    });
+                    toast.success('You have joined the group. Please login to continue.');
+                } catch (groupErr) {
+                    console.error('Group join failed after paid signup:', groupErr);
+                    // Still dispatch isNewJoin so the retry logic kicks in on next login
+                    dispatch(addDataNewJoinUserReducer({ ...joinUser, isNewJoin: true }));
+                }
             }
 
             dispatch(emptyDataNewJoinUserReducer());
@@ -236,7 +257,7 @@ export const PaymentCheckoutPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { planType = 'STANDARD', billingCycle = 'MONTHLY', userData } = location.state || {};
+    const { planType = 'STANDARD', billingCycle = 'MONTHLY', userData, inviteToken } = location.state || {};
     const token = localStorage.getItem("token");
 
     const [clientSecret, setClientSecret] = useState("");
@@ -448,6 +469,7 @@ export const PaymentCheckoutPage = () => {
                                             planType={planType}
                                             billingCycle={billingCycle}
                                             price={total}
+                                            inviteToken={inviteToken}
                                         />
                                     </Elements>
                                 </div>

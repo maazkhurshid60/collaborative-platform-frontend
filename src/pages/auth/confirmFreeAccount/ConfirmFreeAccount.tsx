@@ -56,7 +56,7 @@ const ConfirmFreeAccount = () => {
     const { register, handleSubmit, formState: { errors }, setValue, control } = methods;
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const location = useLocation() as { state: any };
+    const location = useLocation() as { state: { userData?: any; planType?: string; inviteToken?: string } };
     //FUNCTIONS
     const signupFunction = async (data: FormFields) => {
         setIsLoading(true)
@@ -193,13 +193,24 @@ const ConfirmFreeAccount = () => {
                         <p className='text-[18px] mt-4 text-[#333333] font-[Poppins] font-medium text-center max-w-[450px]'>
                             Need more features for your team?
                         </p>
-                        <button className='flex flex-row items-center justify-center gap-2 w-full mt-4 py-2'>
+                        <button
+                            className='flex flex-row items-center justify-center gap-2 w-full mt-4 py-2'
+                            onClick={() => navigate('/select-plan', {
+                                state: {
+                                    userData: location.state?.userData,
+                                    inviteToken: location.state?.inviteToken,
+                                }
+                            })}
+                        >
                             <p className='text-[16px] font-medium font-[Poppins] text-[#2C9993] cursor-pointer'>View Pricing Plans </p>
                             <ArrowRight size={18} className={'text-[#2C9993]'} strokeWidth={3} />
                         </button>
                     </div>
                     <div className="w-full md:w-[90%] lg:w-[70%] flex flex-row items-center mt-20 justify-between gap-x-2">
-                        <button className="flex flex-row items-center gap-2 border-[#2C9993] border text-[#2C9993] cursor-pointer hover:text-white hover:bg-[#2C9993] px-4 py-2 rounded-lg">
+                        <button
+                            className="flex flex-row items-center gap-2 border-[#2C9993] border text-[#2C9993] cursor-pointer hover:text-white hover:bg-[#2C9993] px-4 py-2 rounded-lg"
+                            onClick={() => navigate(-1)}
+                        >
                             <ArrowLeft size={18} className={'text-inherit'} strokeWidth={3} />
                             Back
                         </button>

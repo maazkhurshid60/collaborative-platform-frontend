@@ -135,13 +135,16 @@ const ProviderSignup = () => {
         };
 
 
-        // If invited (has token), skip plan selection and go to confirm free trial
+        // If invited (has token), go to confirm-free-account
+        // We also pass inviteToken in state so the user can later navigate to select-plan
+        // and have their invite context preserved throughout.
         if (token) {
             setIsLoading(false);
             navigate("/confirm-free-account", {
                 state: {
                     userData: dataSendToBackend,
-                    planType: 'FREE' // Free triggers the 14-day Stripe trial backend logic
+                    planType: 'FREE',
+                    inviteToken: token, // ✅ preserve so "View Plans" detour works
                 }
             });
             return;

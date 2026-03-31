@@ -8,7 +8,7 @@ import { RootState } from '../../redux/store';
 const SelectPlan = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { userData } = location.state || {};
+    const { userData, inviteToken } = location.state || {};
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
     // Get logged-in user to check trial history
@@ -163,14 +163,21 @@ const SelectPlan = () => {
 
                                             onClick={() => {
                                                 if (plan.name === 'Free Trial') {
-                                                    navigate('/confirm-free-account', { state: { userData, planType: 'FREE' } });
+                                                    navigate('/confirm-free-account', {
+                                                        state: {
+                                                            userData,
+                                                            planType: 'FREE',
+                                                            inviteToken, // ✅ preserve invite context
+                                                        }
+                                                    });
                                                 } else if (plan.name === 'Standard') {
                                                     navigate('/payment-checkout', {
                                                         state: {
                                                             planType: 'STANDARD',
                                                             billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
                                                             userData,
-                                                            isRenewal: hasUsedTrial
+                                                            isRenewal: hasUsedTrial,
+                                                            inviteToken, // ✅ preserve invite context
                                                         }
                                                     });
                                                 } else {
@@ -179,7 +186,8 @@ const SelectPlan = () => {
                                                         state: {
                                                             planType: 'PRO',
                                                             billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-                                                            userData
+                                                            userData,
+                                                            inviteToken, // ✅ preserve invite context
                                                         }
                                                     });
                                                 }
