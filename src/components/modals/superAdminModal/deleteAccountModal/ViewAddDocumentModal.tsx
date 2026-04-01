@@ -71,7 +71,12 @@ const ModalBodyContent: React.FC = () => {
     },
     onSuccess: () => {
       toast.success("Document uploaded successfully!");
+      
+      // 🔥 Hard refresh for ALL roles (Admin, Provider, Client)
+      // This invalidates by prefix, catching all variants of ["documents", ...]
       queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.refetchQueries({ queryKey: ["documents"] });
+
       dispatch(isAddDocumentModalReducer(false));
     },
     onError: (err: unknown) => {

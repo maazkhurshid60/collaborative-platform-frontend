@@ -408,9 +408,6 @@ const AllDocuments = () => {
     queryFn: async () => {
       const response = await documentApiService.getAllDocuments(clientId);
 
-      console.log("✅ getAllDocuments raw response:", response);
-      console.log("✅ allDocuments array:", response?.data?.data?.allDocuments);
-
       return response?.data?.data?.allDocuments || [];
     },
   });
@@ -486,9 +483,8 @@ const AllDocuments = () => {
       }
 
       toast.error("Preview not supported for this file type.");
-    } catch (err: any) {
-      console.error("Preview error:", err);
-      toast.error(err?.message || "Unable to preview document.");
+    } catch (_err: any) {
+      toast.error("Unable to preview document.");
     }
   };
 

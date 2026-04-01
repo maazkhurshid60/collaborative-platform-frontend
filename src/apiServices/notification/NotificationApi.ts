@@ -34,6 +34,24 @@ class NotificationServiceApi {
         }
     }
 
+    async getUnreadCount(userId: string) {
+        try {
+            const response = await this.api.get(`/notification/unread-count/${userId}`)
+            return response?.data
+        } catch (error) {
+            console.error("Error fetching unread count:", error);
+        }
+    }
+
+    async markAsSeen(userId: string, notificationIds?: string[]) {
+        try {
+            const response = await this.api.post("/notification/mark-as-seen", { userId, notificationIds })
+            return response?.data
+        } catch (error) {
+            console.error("Error marking as seen:", error);
+        }
+    }
+
     async deleteNotification(data: deleteNotification) {
 
 

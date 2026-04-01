@@ -89,7 +89,6 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             }
 
         } catch (err: any) {
-            console.error("Payment error:", err);
             setErrorMessage(err.message || "An unexpected error occurred");
             toast.error(err.message || "An unexpected error occurred");
             navigate("/payment-failure", { state: { error: err.message || "Payment failed", userData, planType, billingCycle } });
@@ -108,8 +107,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                     const role = loggedInUser.role || 'PROVIDER';
 
                     // 1. Force Sync first
-                    await subscriptionApiService.syncSubscription().catch((syncErr: any) => {
-                        console.warn("⚠️ Checkout: Sync failed, proceeding to refresh", syncErr);
+                    await subscriptionApiService.syncSubscription().catch((_syncErr: any) => {
                     });
 
                     // 2. Refresh data
@@ -124,10 +122,8 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                             clientList: getMeDetails.clientList?.map((item: any) => item.client) || []
                         };
                         dispatch(saveLoginUserDetailsReducer(fixedUserData));
-                        console.log("✅ Checkout: User data refreshed after upgrade");
                     }
-                } catch (refreshError: any) {
-                    console.error("❌ Checkout: Failed to refresh user data:", refreshError);
+                } catch (_refreshError: any) {
                 }
 
                 toast.success("Subscription upgraded successfully!");
@@ -158,8 +154,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                         const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
                         const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
                         dispatch(saveDecryptedPrivateKey(base64Key));
-                    } catch (decryptError) {
-                        console.error("Failed to decrypt private key:", decryptError);
+                    } catch (_decryptError) {
                     }
                 }
 
@@ -178,8 +173,7 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                         memberEmail: joinUser.memberEmail,
                     });
                     toast.success('You have joined the group. Please login to continue.');
-                } catch (groupErr) {
-                    console.error('Group join failed after paid signup:', groupErr);
+                } catch (_groupErr) {
                     // Still dispatch isNewJoin so the retry logic kicks in on next login
                     dispatch(addDataNewJoinUserReducer({ ...joinUser, isNewJoin: true }));
                 }
@@ -191,7 +185,6 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
             setTimeout(() => navigate("/payment-success"), 1500);
 
         } catch (err: any) {
-            console.error("Signup/Upgrade failed after payment:", err);
             if (err.response?.status === 429) {
                 toast.error("Too Many Request Please Try again later");
                 setIsLoading(false);
@@ -226,7 +219,6 @@ const CheckoutForm = ({ clientSecret, subscriptionId, customerId, userData, pric
                 <div className={`w-full transition-opacity duration-300 ${isElementReady ? "opacity-100" : "opacity-0"}`}>
                     <PaymentElement
                         onReady={() => {
-                            console.log("Payment Element Ready");
                             setIsElementReady(true);
                         }}
                     />

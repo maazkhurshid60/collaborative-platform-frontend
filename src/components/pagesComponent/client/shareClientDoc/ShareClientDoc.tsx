@@ -43,7 +43,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
 
 
     const { data: documentData } = useQuery<DocumentResponseType>({
-        queryKey: ["documents"],
+        queryKey: ["documents", clientId],
         queryFn: async () => {
             try {
                 const response = await documentApiService.getAllDocuments(clientId, providerId);
@@ -77,7 +77,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
             </div>
             <div className='grid  grid-cols-1 sm:grid-cols-2 gap-y-3'>
                 {documentData?.uncompletedDocuments?.map((data: Document) => (
-                    <div key={data.name} className='flex items-center gap-x-3 font-medium text-[14px]'>
+                    <div key={data.id} className='flex items-center gap-x-3 font-medium text-[14px]'>
 
 
                         <Checkbox
@@ -99,9 +99,15 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
-                {documentData?.sharedDocuments && documentData?.sharedDocuments?.length > 0 ? documentData?.sharedDocuments?.map((data: Document) => <div className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
-                    onClick={() => { dispatch(isClientShareDocModalReducer(true)); setSelectedCompletedDoc(data); }}
-                > <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}</div>)
+                {documentData?.sharedDocuments && documentData?.sharedDocuments?.length > 0 ? documentData?.sharedDocuments?.map((data: Document) => (
+                    <div 
+                        key={data.id}
+                        className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
+                        onClick={() => { dispatch(isClientShareDocModalReducer(true)); setSelectedCompletedDoc(data); }}
+                    > 
+                        <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}
+                    </div>
+                ))
                     : <NoRecordFound />
                 }
             </div>
@@ -113,9 +119,15 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
-                {documentData?.completedDocuments && documentData?.completedDocuments?.length > 0 ? documentData?.completedDocuments?.map((data: Document) => <div className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
-                    onClick={() => { dispatch(isClientCompleteDocModalReducer(true)); setSelectedCompletedDoc(data); }}
-                > <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}</div>)
+                {documentData?.completedDocuments && documentData?.completedDocuments?.length > 0 ? documentData?.completedDocuments?.map((data: Document) => (
+                    <div 
+                        key={data.id}
+                        className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
+                        onClick={() => { dispatch(isClientCompleteDocModalReducer(true)); setSelectedCompletedDoc(data); }}
+                    > 
+                        <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}
+                    </div>
+                ))
                     : <NoRecordFound />
                 }
             </div>

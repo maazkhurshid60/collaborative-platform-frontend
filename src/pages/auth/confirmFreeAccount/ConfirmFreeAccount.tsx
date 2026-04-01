@@ -44,7 +44,6 @@ export interface ISigninData {
 const ConfirmFreeAccount = () => {
     const [isLoading, setIsLoading] = useState(false)
     const joinUser = useSelector((state: RootState) => state?.joinUserSlice?.data)
-    console.log("joinUserSlice", joinUser);
 
 
     const methods = useForm<FormFields>({
@@ -82,7 +81,6 @@ const ConfirmFreeAccount = () => {
             publicKey: publicKey,
             privateKey: encryptedPrivateKey,
         };
-        console.log("log", dataSendToBackend);
         // const dataSendToBackend = { email: data?.email, isApprove: "pending", password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, department: data?.department, role: "provider", country: data?.country, state: data?.state };
         try {
             const response = await authService.signup(dataSendToBackend);
@@ -108,11 +106,10 @@ const ConfirmFreeAccount = () => {
         try {
             const response = await messageApiService.updateGroupApi(dataSendToBack)
 
-            console.log(response);
             toast.success('You have joined the group. Please login yourself and go chat for more information once you verified in next 24hours .')
 
         } catch (err) {
-            console.error("❌:", err);
+
 
             let errorMessage = "Error loading messages.";
 
@@ -248,8 +245,7 @@ const ConfirmFreeAccount = () => {
                                                 const decryptedPrivateKeyUint8 = naclUtil.decodeBase64(decryptedKeyString);
                                                 const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
                                                 dispatch(saveDecryptedPrivateKey(base64Key));
-                                            } catch (decryptError) {
-                                                console.error("Failed to decrypt private key:", decryptError);
+                                            } catch (_decryptError) {
                                             }
                                         }
 
@@ -273,7 +269,6 @@ const ConfirmFreeAccount = () => {
                                     toast.success(successMessage);
                                     navigate('/dashboard');
                                 } catch (error: any) {
-                                    console.error(error);
                                     if (error?.response?.status === 429) {
                                         toast.error("Too Many Request Please Try again later");
                                     } else {

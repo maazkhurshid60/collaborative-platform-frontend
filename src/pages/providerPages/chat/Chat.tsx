@@ -126,27 +126,27 @@ const Chat = () => {
   useEffect(() => {
     if (!loginUserProviderId || (!allChannels?.length && !allGroups?.length)) return;
 
-    const socket = initSocket(loginUserProviderId, "");
+    const socket = getSocket();
 
     const joinAllRooms = () => {
       allChannels?.forEach((channel: ChatChannelType) => {
-        socket.emit("join_channel", { chatChannelId: channel?.id });
+        socket?.emit("join_channel", { chatChannelId: channel?.id });
       });
 
       // Join group chats
       allGroups?.forEach((group: Group) => {
-        socket.emit("join_channel", { chatChannelId: group?.id });
+        socket?.emit("join_channel", { chatChannelId: group?.id });
       });
     };
 
-    if (socket.connected) {
+    if (socket && socket.connected) {
       joinAllRooms();
-    } else {
+    } else if (socket) {
       socket.on('connect', joinAllRooms);
     }
 
     return () => {
-      socket.off('connect', joinAllRooms);
+      socket?.off('connect', joinAllRooms);
     };
   }, [loginUserProviderId, allChannels, allGroups]);
 
@@ -161,8 +161,7 @@ const Chat = () => {
       try {
         const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
         return response?.data?.messages;
-      } catch (error) {
-        console.error('Error fetching messages:', error);
+      } catch (_error) {
         return [];
       }
     },
@@ -184,19 +183,14 @@ const Chat = () => {
       try {
         const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
         return response?.data?.groupMessages ?? [];
-      } catch (error) {
-        console.error("Error fetching group messages:", error);
+      } catch (_error) {
         return [];
       }
     },
     enabled: !!activeChatObject?.id && activeChatType === "group",
   });
 
-  useEffect(() => {
-    if (loginUserProviderId) {
-      initSocket(loginUserProviderId, "");
-    }
-  }, [loginUserProviderId]);
+    /* socket managed globally */
 
   useEffect(() => {
     const socket = getSocket();
@@ -399,8 +393,7 @@ const Chat = () => {
                           );
                         });
 
-                      }).catch((err) => {
-                        console.error('Failed to mark messages as read', err);
+                      }).catch((_err) => {
                       }).finally(() => {
                         setIsMessagesLoading(false);
                       });
@@ -473,8 +466,7 @@ const Chat = () => {
                                   : group
                               );
                             });
-                          }).catch((err) => {
-                            console.error('Failed to mark messages as read', err);
+                          }).catch((_err) => {
                             toast.error('Failed to update read status');
                           }).finally(() => {
                             setIsMessagesLoading(false);

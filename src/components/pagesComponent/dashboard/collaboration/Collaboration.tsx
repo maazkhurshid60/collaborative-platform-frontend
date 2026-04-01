@@ -33,7 +33,7 @@ const Collaboration = () => {
     const socket = getSocket();
 
     useEffect(() => {
-        if (loginUserProviderId) initSocket(loginUserProviderId, "");
+        // Socket managed globally in App.tsx
     }, [loginUserProviderId]);
 
     const { data: allChannels = [] } = useQuery({

@@ -33,14 +33,8 @@ const DashboardLayout = () => {
     } = useSubscriptionModals();
 
     useEffect(() => {
-        if (!loginUserDetail?.user?.id) return;
-
-        const socket = getSocket();
-        initSocket(loginUserDetail.user.id, "");
-
-        return () => {
-            socket?.disconnect(); // optional: cleanup if needed on unmount or user switch
-        };
+        // Socket is now managed globally in App.tsx
+        // No need to init here as it kills the global listener
     }, [loginUserDetail?.user?.id]);
 
     // Pages that should show NO sidebar/navbar (clean payment flow)

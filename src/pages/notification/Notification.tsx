@@ -19,7 +19,7 @@ import { getSocket } from '../../socket/Socket';
 import UserIcon from '../../components/icons/user/User';
 
 
-const Notification = () => {
+const NotificationPage = () => {
 
     const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
     const isModalDelete = useSelector((state: RootState) => state?.modalSlice.isModalDelete)
@@ -29,7 +29,7 @@ const Notification = () => {
     const [selectedNotificationId, setSelectedNotificationId] = useState<string>("")
 
     const { data: notificationData, isLoading } = useQuery<NotificationType[]>({
-        queryKey: ["notifications"],
+        queryKey: ["notifications", loginUserId],
         queryFn: async () => {
             try {
                 const response = await notificationApiService.getAllNotification(loginUserId);
@@ -45,8 +45,8 @@ const Notification = () => {
                 console.error("Error fetching client:", error);
                 return []; // Return an empty array in case of an error
             }
-        }
-
+        },
+        enabled: !!loginUserId, // important only shows when user id exist
     })
 
 
@@ -85,14 +85,43 @@ const Notification = () => {
         dispatch(isModalDeleteReducer(false))
     }
 
+    const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>(
+        "Notification" in window ? window.Notification.permission : "denied"
+    );
+
+    const requestNotificationPermission = async () => {
+        if (!("Notification" in window)) {
+            toast.error("This browser does not support desktop notifications.");
+            return;
+        }
+
+        const permission = await window.Notification.requestPermission();
+        setPermissionStatus(permission);
+
+        if (permission === "granted") {
+            toast.success("Desktop notifications enabled!");
+        } else if (permission === "denied") {
+            toast.error("Notifications were denied. Please enable them in browser settings.");
+        }
+    };
+
+    useEffect(() => {
+        if (loginUserId) {
+            notificationApiService.markAsSeen(loginUserId)
+                .then(() => {
+                    queryClient.invalidateQueries({ queryKey: ["unreadNotificationCount"] });
+                });
+        }
+    }, [loginUserId, queryClient]);
+
     useEffect(() => {
         const socket = getSocket();
         if (!socket) return;
 
         const handleNewNotification = (notification: NotificationType) => {
-            toast.info(notification.title || "New Notification");
+            // Toast will be handled in App.tsx globally now, 
+            // but we keep invalidate query here for local UI update
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
-
         };
 
         socket.on("new_notification", handleNewNotification);
@@ -100,12 +129,31 @@ const Notification = () => {
         return () => {
             socket.off("new_notification", handleNewNotification);
         };
-    }, []);
+    }, [queryClient]);
     return (
         <OutletLayout heading='Notifications'>
             {isLoader && <Loader text='Deleting...' />}
             {isModalDelete && selectedNotificationId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this notification you won’t be able to track record of your Notification. Are you sure that you want to <span className='font-semibold'>Delete this notification</span>?</div>}
             />}
+            {permissionStatus !== "granted" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-500 p-2 rounded-full text-white">
+                            <AiOutlineDelete className="rotate-180" /> {/* Just a placeholder icon */}
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-blue-900 text-sm">Stay Updated</h4>
+                            <p className="text-blue-700 text-xs">Enable desktop notifications to get real-time alerts for document shares and signings.</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={requestNotificationPermission}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded transition-colors"
+                    >
+                        Enable Notifications
+                    </button>
+                </div>
+            )}
             {
                 isLoading ? (
                     <Loader text="Loading Notifications..." />
@@ -163,7 +211,7 @@ const Notification = () => {
         </OutletLayout>)
 }
 
-export default Notification
+export default NotificationPage
 
 
 

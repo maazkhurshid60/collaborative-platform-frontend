@@ -325,9 +325,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
 
     useEffect(() => {
-        if (!socket && loginUserProviderId) {
-            initSocket(loginUserProviderId, "");
-        }
+        // socket managed globally
     }, [loginUserProviderId]);
 
 

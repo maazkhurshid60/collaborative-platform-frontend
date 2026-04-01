@@ -35,7 +35,7 @@ const UserProfile = lazy(() => import("../pages/providerPages/userProfile/UserPr
 const Providers = lazy(() => import("../pages/providerPages/providers/Providers"));
 const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
 const DashboardLayout = lazy(() => import("../layouts/dashboardLayout/DashboardLayout"));
-const Notification = lazy(() => import("../pages/notification/Notification"));
+const NotificationPage = lazy(() => import("../pages/notification/Notification"));
 const UserSetting = lazy(() => import("../pages/userSetting/UserSetting"));
 const HelpAndSupport = lazy(() => import("../pages/providerPages/helpAndSupport/HelpAndSupport"));
 const NonUserChat = lazy(() => import("../pages/providerPages/nonUserChat/NonUserChat"));
@@ -204,7 +204,7 @@ const Routing = () => {
                 <Route path="/all-documents" element={<WrappedRoute ><AllDocuments /></WrappedRoute>} />
                 <Route path="/verified-users" element={<WrappedRoute ><VerifiedUsers /></WrappedRoute>} />
                 <Route path="/rejected-users" element={<WrappedRoute ><RejectedUsers /></WrappedRoute>} />
-                <Route path="/notification" element={<WrappedRoute ><Notification /></WrappedRoute>} />
+                <Route path="/notification" element={<WrappedRoute ><NotificationPage /></WrappedRoute>} />
                 <Route path="/setting" element={<WrappedRoute ><UserSetting /></WrappedRoute>} />
                 <Route path="/setting/change-password" element={<WrappedRoute ><ChangePassword /></WrappedRoute>} />
                 <Route path="/chat" element={<WrappedRoute><Chat /></WrappedRoute>} />
