@@ -100,7 +100,7 @@ const FIELD_MAP: Record<string, keyof FormFields> = {
   address: "address",
   gender: "gender",
   status: "status",
-  country: "country",
+  // country: "country",
   state: "state",
 };
 
@@ -153,7 +153,7 @@ const AddClient = () => {
       formData.append("address", data.address ?? "");
       formData.append("gender", data.gender ?? "male");
       formData.append("status", data.status ?? "active");
-      formData.append("country", data.country ?? "");
+      //    formData.append("country", data.country ?? "");
       formData.append("state", data.state ?? "");
 
       formData.append("isAccountCreatedByOwnClient", "false");
@@ -171,7 +171,7 @@ const AddClient = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast.success("New Client has added successfully");
+      toast.success("New Client has been added successfully");
       navigate("/clients");
       setIsLoader(false);
     },
@@ -248,6 +248,7 @@ const AddClient = () => {
               options={[
                 { value: "male", label: "Male" },
                 { value: "female", label: "Female" },
+                { value: "prefer_not_to_say", label: "Prefer not to say" },
               ]}
               placeholder="Choose an option"
             />
@@ -291,8 +292,8 @@ const AddClient = () => {
                These components MUST write into RHF fields named "country" and "state"
                Otherwise backend validation will fail but UI can’t highlight.
             */}
-            <CountryStateSelect isCountryView={true} isStateView={false} required={false} />
-            <CountryStateSelect isCountryView={false} isStateView={true} />
+            {/* <CountryStateSelect  isStateView={false} required={false} /> */}
+            <CountryStateSelect isStateView={true} />
 
             <Dropdown<FormFields>
               name="status"
@@ -305,7 +306,7 @@ const AddClient = () => {
 
           <div className="mt-8">
             <Checkbox
-              text="Allow other providers to access and collaborate on this client’s cares for this client"
+              text="Allow other providers to access and collaborate on this client’s care for this client"
               checked={wantToBeSeen}
               onChange={handleCheckboxChange}
             />

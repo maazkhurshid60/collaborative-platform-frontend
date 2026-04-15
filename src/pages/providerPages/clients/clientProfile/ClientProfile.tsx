@@ -101,9 +101,9 @@ const ClientProfile = () => {
                             <div>
                                 <LabelData label='Address' data={selectedClientData?.user?.address ?? "-"} />
                             </div>
-                            <div>
+                            {/* <div>
                                 <LabelData label='Country' data={getCountryNameFromCode(selectedClientData?.user?.country ?? "") ?? "-"} />
-                            </div>
+                            </div> */}
                             <div>
                                 <LabelData label='State' data={selectedClientData?.user?.state ?? "-"} />
                             </div>

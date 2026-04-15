@@ -36,11 +36,14 @@ export default function ChangePlanScreen() {
             annualPrice: 95.90,
             features: [
                 "Up to 1000 Clients",
-                "Basic invoicing & billing",
-                "Email support",
-                "Payment processing",
-                "Basic analytics",
-                "Mobile app access"
+                "Provider to Provider Communication",
+                "Invite Providers to Platfrom",
+                "Participate in Group Chat",
+                "Add Your Client To Platform",
+                "Share Documents with Clients",
+                "Basic Invoicing & Billing",
+                "Start a New Group Chat",
+                "Add others Providers Client To Your Profile"
             ],
             isActive: currentPlan === 'STANDARD', // Dynamic from backend
             isPopular: false,

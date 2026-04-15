@@ -47,7 +47,7 @@ const Login = () => {
 
             const userData = response?.data?.user;
             if (userData?.user?.isApprove === "PENDING" && userData?.user?.role !== "provider") {
-                toast.error("Your account has not been approved or verified by the super admin yet. Please check your email for the verification link.");
+                toast.error("Your account has not been approved or verified by the super admin yet. Please contact with super admin");
                 navigate("/");
                 return;
             }

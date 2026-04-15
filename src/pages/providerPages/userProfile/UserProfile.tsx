@@ -105,7 +105,7 @@ const UserProfile = () => {
       email: "",
       contactNo: "" as any,
       address: "",
-      country: "",
+      //    country: "",
       state: "",
     } as any,
   });
@@ -148,7 +148,7 @@ const UserProfile = () => {
       email: getMeData?.user?.email ?? "",
       department: normalizeDepartmentValue(getMeData?.department),
       address: getMeData?.user?.address ?? "",
-      country: getCountryIsoCode(getMeData?.user?.country),
+      //    country: getCountryIsoCode(getMeData?.user?.country),
       state: getMeData?.user?.state ?? "",
     } as Partial<FormFields>;
   }, [getMeData]);
@@ -191,7 +191,7 @@ const UserProfile = () => {
     onMutate: () => setIsLoader(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["loginUser"] });
-      toast.success("Account has updated successfully");
+      toast.success("Account has been updated successfully");
       setIsEdit(false);
       setSelectedFile(null);
       setImageChanged(false);
@@ -218,10 +218,10 @@ const UserProfile = () => {
         ? data.department
         : normalizeDepartmentValue(getMeData?.department)) || "";
 
-    const safeCountry =
-      (data?.country && String(data.country).trim() !== ""
-        ? data.country
-        : getMeData?.user?.country) || "";
+    // const safeCountry =
+    //   (data?.country && String(data.country).trim() !== ""
+    //     ? data.country
+    //     : getMeData?.user?.country) || "";
 
     const safeState =
       (data?.state && String(data.state).trim() !== ""
@@ -240,7 +240,7 @@ const UserProfile = () => {
     formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
     formData.append("role", getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "");
     formData.append("state", safeState);
-    formData.append("country", safeCountry);
+    //   formData.append("country", safeCountry);
     formData.append("contactNo", String(data?.contactNo ?? ""));
 
     // Only include profileImage if user explicitly changed it
@@ -406,16 +406,16 @@ const UserProfile = () => {
                 error={errors.address?.message}
               />
 
-              <CountryStateSelect
+              {/* <CountryStateSelect
                 isCountryView={true}
                 isStateView={false}
                 defaultCountry={getMeData?.user?.country}
                 required={true}
-              />
+              /> */}
               <CountryStateSelect
-                isCountryView={false}
+                //     isCountryView={false}
                 isStateView={true}
-                defaultState={getMeData?.user?.state}
+                //    defaultState={getMeData?.user?.state}
                 required={true}
               />
 
@@ -493,10 +493,10 @@ const UserProfile = () => {
               <LabelData label="Email" data={getMeData?.user?.email} />
               <LabelData label="Contact Number" data={getMeData?.user?.contactNo ?? ""} />
               <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
-              <LabelData
+              {/* <LabelData
                 label="Country"
                 data={getCountryNameFromCode(getMeData?.user?.country ?? "")}
-              />
+              /> */}
               <LabelData label="State" data={getMeData?.user?.state} />
 
               <div className="">

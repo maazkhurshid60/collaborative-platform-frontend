@@ -155,7 +155,7 @@ const Navbar = () => {
       localFormData.append("address", data?.user?.address || "No Address");
       localFormData.append("gender", (data?.user?.gender || "male").toLowerCase());
       localFormData.append("status", (data?.user?.status || "active").toLowerCase());
-      localFormData.append("country", data?.user?.country || "");
+      // localFormData.append("country", data?.user?.country || "");
       localFormData.append("state", data?.user?.state || "");
       localFormData.append("role", "client");
       localFormData.append("isApprove", "pending");
@@ -348,7 +348,7 @@ const Navbar = () => {
                 className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
                 to="/setting"
               >
-                Setting
+                Settings
               </Link>
               <Link
                 onClick={() => setIsDropDownOpen(false)}

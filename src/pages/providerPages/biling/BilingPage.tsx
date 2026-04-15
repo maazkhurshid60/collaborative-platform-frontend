@@ -46,20 +46,6 @@ const BilingHistory = () => {
 
     const onPageChange = (page: number) => setCurrentPage(page);
 
-    // Compute the cutoff date for the selected date range
-    const getDateCutoff = (): Date | null => {
-        const now = new Date();
-        switch (dateRange) {
-            case "7": return new Date(now.setDate(now.getDate() - 7));
-            case "30": return new Date(now.setDate(now.getDate() - 30));
-            case "60": return new Date(now.setDate(now.getDate() - 60));
-            case "90": return new Date(now.setDate(now.getDate() - 90));
-            default: return null; // "All Time" — no cutoff
-        }
-    };
-
-    const heading = ["Invoice No", "Date", "Amount", "Status", "Actions"];
-
     // Apply all filters
     const filteredRecords = payments.filter((record) => {
         const matchesSearch =
@@ -68,11 +54,30 @@ const BilingHistory = () => {
 
         const matchesStatus = activeFilter === "All" || record.status === activeFilter;
 
-        const cutoff = getDateCutoff();
-        const matchesDate = !cutoff || new Date(record.createdAt || record.date) >= cutoff;
+        let matchesDate = true;
+        if (dateRange) {
+            const recordDate = new Date(record.createdAt || record.date);
+            const now = new Date();
+            const recordMonth = recordDate.getMonth();
+            const recordYear = recordDate.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            if (dateRange === "this_month") {
+                matchesDate = recordMonth === currentMonth && recordYear === currentYear;
+            } else if (dateRange === "last_month") {
+                const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                matchesDate = recordMonth === prevMonth && recordYear === prevYear;
+            } else if (dateRange === "this_year") {
+                matchesDate = recordYear === currentYear;
+            }
+        }
 
         return matchesSearch && matchesStatus && matchesDate;
     });
+
+    const heading = ["Invoice No", "Date", "Amount", "Status", "Actions"];
 
     // Pagination computed from filtered results
     const totalPages = Math.max(1, Math.ceil(filteredRecords.length / ITEMS_PER_PAGE));
@@ -112,10 +117,9 @@ const BilingHistory = () => {
                                 className="w-full h-[48px] bg-inputBgColor rounded-md px-3 outline-none appearance-none cursor-pointer text-sm"
                             >
                                 <option value="">Full History</option>
-                                <option value="7">Last 7 Days</option>
-                                <option value="30">Last 30 Days</option>
-                                <option value="60">Last 60 Days</option>
-                                <option value="90">Last 90 Days</option>
+                                <option value="this_month">This month</option>
+                                <option value="last_month">Last month</option>
+                                <option value="this_year">This year</option>
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666666] pointer-events-none" size={18} />
                         </div>

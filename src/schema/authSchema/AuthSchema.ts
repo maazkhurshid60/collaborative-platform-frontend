@@ -12,7 +12,7 @@ const strongPassword = z
 export const fullNameValidator = z
   .string()
   .trim()
-  .min(2, "Full name must be at least 2 characters.")
+  .min(2, "Enter a valid name")
   .max(80, "Full name must be 80 characters or less.")
   .refine((val) => /^[\p{L}.'-]+(?:\s[\p{L}.'-]+)*$/u.test(val), {
     message:
@@ -53,8 +53,8 @@ export const ClientSignupSchema = z
     email: z.string().email(),
     fullName: fullNameValidator,      // ✅ use here too (optional but recommended)
     // licenseNo is not needed for clients
-    country: z.literal("US", { message: "Only United States is supported" }),
-    state: z.string().nonempty("State is required"),
+    //   country: z.literal("US", { message: "Only United States is supported" }),
+    state: z.string().nonempty("State must be selected"),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
   })
@@ -71,7 +71,7 @@ interface ClientIdData {
 export const ProviderSignupSchema = z
   .object({
     email: z.string().email("Email is required"),
-    country: z.literal("US", { message: "Only United States is supported" }),
+    //   country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
     fullName: fullNameValidator,      // ✅ now no error
     department: z.string().min(1, "Department is required"),

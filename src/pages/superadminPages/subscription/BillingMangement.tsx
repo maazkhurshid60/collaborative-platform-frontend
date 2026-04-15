@@ -100,7 +100,8 @@ const SubscriptionPage = () => {
                 name: record.user?.fullName || "-",
                 email: record.user?.email || "-",
                 address: record.user?.address || "-",
-                city: `${record.user?.state || ""}, ${record.user?.country || ""}`
+                city: `${record.user?.state || ""},
+                //  ${record.user?.country || ""}`
             },
             items: [
                 {

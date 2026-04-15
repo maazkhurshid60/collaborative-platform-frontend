@@ -48,7 +48,7 @@ const ClientSignup = () => {
             email: data.email,
             password: data.password,
             fullName: data.fullName,
-            country: data.country,
+            //    country: data.country,
             state: data.state,
             role: "client",
             isAccountCreatedByOwnClient: true,
@@ -82,9 +82,9 @@ const ClientSignup = () => {
     useEffect(() => {
         setValue("fullName", licenseNoData?.fullName, { shouldValidate: true });
         setValue("email", licenseNoData?.email, { shouldValidate: true });
-        if (licenseNoData?.country) {
-            setValue("country", licenseNoData.country as "US", { shouldValidate: true });
-        }
+        // if (licenseNoData?.country) {
+        //     setValue("country", licenseNoData.country as "US", { shouldValidate: true });
+        // }
         if (licenseNoData?.state) {
             setValue("state", licenseNoData.state, { shouldValidate: true });
         }
@@ -95,6 +95,13 @@ const ClientSignup = () => {
         <>
             {isLoading && <Loader />}
             <AuthLayout heading="Sign up">
+                {isLicenseFound && (
+                    <div className="text-center mb-6">
+                        <p className="text-[#0d9488] font-medium text-sm bg-[#ccfbf1] p-3 rounded-md">
+                            Complete your account setup to access the documents shared with you.
+                        </p>
+                    </div>
+                )}
                 <FormProvider {...methods}>
                     <form onSubmit={handleSubmit(signupFunction)}>
                         <div className='mb-3.5'>
@@ -107,8 +114,10 @@ const ClientSignup = () => {
                             <InputField disabled={isLicenseFound} required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
                         </div>
                         {/* License Number input removed */}
-                        <CountryStateSelect disable={isLicenseFound} isCountryView={true} isStateView={false} defaultCountry={licenseNoData?.country} />
-                        <CountryStateSelect disable={isLicenseFound} isCountryView={false} isStateView={true} defaultState={licenseNoData?.state} />
+                        <CountryStateSelect disable={isLicenseFound} isStateView={false} />
+                        <CountryStateSelect disable={isLicenseFound} isStateView={true}
+                        // defaultState={licenseNoData?.state} 
+                        />
                         <div className='mb-3.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password' error={errors?.password?.message} />
                             <p className="text-xs text-gray-500 mt-1 leading-tight">

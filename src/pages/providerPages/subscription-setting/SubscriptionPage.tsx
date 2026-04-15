@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import CancelSubscriptionModal from "../../../components/modals/providerModal/cancel-subscription/CancelSubscriptionModal";
 import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf";
 import { AppDispatch, RootState } from "../../../redux/store";
-import { isCancelSubscriptionModalShowReducer } from "../../../redux/slices/ModalSlice";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionApiService } from "../../../services/subscriptionApiService";
 
@@ -41,11 +40,13 @@ export const SubscriptionSettingPage = () => {
             annualPrice: 0,
             features: [
                 "Up to 100 Clients",
-                "Basic invoicing & billing",
-                "Email support",
-                "Payment processing",
-                "1-on-1 direct messaging only",
-                "Add own clients only"
+                "Provider to Provider Communication",
+                "Invite Providers to Platfrom",
+                "Can participate in group chats when invited, but cannot start new ones",
+                "Add Your Client To Platform",
+                "Share Documents with Clients",
+                "Basic Invoicing & Billing"
+
             ],
             isActive: isTrialing,
             isPopular: false,
@@ -58,11 +59,14 @@ export const SubscriptionSettingPage = () => {
             annualPrice: 95.90,
             features: [
                 "Up to 1000 Clients",
-                "Basic invoicing & billing",
-                "Email support",
-                "Payment processing",
-                "Basic analytics",
-                "Mobile app access"
+                "Provider to Provider Communication",
+                "Invite Providers to Platfrom",
+                "Participate in Group Chat",
+                "Add Your Client To Platform",
+                "Share Documents with Clients",
+                "Basic Invoicing & Billing",
+                "Start a New Group Chat",
+                "Add others Providers Client To Your Profile"
             ],
             isActive: currentPlanName === 'STANDARD' && !isTrialing,
             isPopular: false,
@@ -185,7 +189,7 @@ export const SubscriptionSettingPage = () => {
 
     return (
         <div className="flex flex-col gap-6 pb-10">
-            <div className={` bg-white relative  w-full p-3  pt-5 rounded-lg space-y-7   
+            <div className={` bg-white relative  w-full p-3  pt-5 rounded-lg space-y-7
         font-[Poppins] text-textColor  pb-[33px]
         `}>
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
@@ -210,8 +214,8 @@ export const SubscriptionSettingPage = () => {
 
                 </div>
                 {/* Current Plan Summary (Upper Section) */}
-                <div className="flex flex-col lg:flex-row items-stretch justify-start gap-6">
-                    <div className="flex flex-col items-start h-auto lg:h-[610px] gap-y-[16px] w-full lg:w-1/2 " >
+                <div className="flex flex-col lg:flex-row items-stretch  justify-start gap-6">
+                    <div className="flex flex-col items-start h-auto lg:h-[680px] gap-y-[16px]  w-full lg:w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#D1FAE5]/50 rounded-[16px]  p-[33px] mt-2">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex flex-col items-start gap-2">
@@ -245,9 +249,9 @@ export const SubscriptionSettingPage = () => {
                                             </span>
                                         </button>
                                     )}
-                                    <div className="w-12 h-12 bg-[#FFFFFF] rounded-[12px] flex items-center justify-center shadow-sm shrink-0">
+                                    {/* <div className="w-12 h-12 bg-[#FFFFFF] rounded-[12px] flex items-center justify-center shadow-sm shrink-0">
                                         <Crown className="w-6 h-6 text-[#2C9993]" />
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
 
@@ -301,7 +305,7 @@ export const SubscriptionSettingPage = () => {
 
                     </div>
                     {/* 2nd div biling options */}
-                    <div className="flex flex-col items-start h-auto lg:h-[610px] gap-y-[16px] w-full lg:w-1/2 " >
+                    <div className="flex flex-col items-start h-auto lg:h-[680px] gap-y-[16px] w-full lg:w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#E5E7EB]/50 rounded-[16px]  p-[33px] mt-2">
                             <div className="flex flex-col sm:flex-row justify-between gap-6">
                                 <div className="w-full flex flex-col items-start justify-between gap-2">
@@ -384,3 +388,6 @@ export const SubscriptionSettingPage = () => {
         </div >
     );
 }
+
+
+

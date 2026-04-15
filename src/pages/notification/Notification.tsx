@@ -61,7 +61,7 @@ const NotificationPage = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] })
-            toast.success("Notification has deleted successfully")
+            toast.success("Notification has been deleted successfully")
 
             setIsLoader(false)
         },
@@ -133,7 +133,7 @@ const NotificationPage = () => {
     return (
         <OutletLayout heading='Notifications'>
             {isLoader && <Loader text='Deleting...' />}
-            {isModalDelete && selectedNotificationId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this notification you won’t be able to track record of your Notification. Are you sure that you want to <span className='font-semibold'>Delete this notification</span>?</div>}
+            {isModalDelete && selectedNotificationId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By deleting this notification, you won’t be able to view it again. Are you sure you want to delete it?</div>}
             />}
             {permissionStatus !== "granted" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
@@ -146,7 +146,7 @@ const NotificationPage = () => {
                             <p className="text-blue-700 text-xs">Enable desktop notifications to get real-time alerts for document shares and signings.</p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={requestNotificationPermission}
                         className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded transition-colors"
                     >

@@ -36,7 +36,7 @@ export interface User {
     status?: string | null
     licenseNo?: string
     role?: string
-    country: string
+    // country: string
     state: string
     blockedMembers?: string
     createdAt?: string

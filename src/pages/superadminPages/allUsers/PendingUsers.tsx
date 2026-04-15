@@ -27,7 +27,9 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 import SearchBar from "../../../components/searchBar/SearchBar"
 
 const PendingUsers = () => {
-    const heading = ["Sr. No", "Name", "License/Client ID", "Country", "State", "status", "Role", "date", "action"];
+    const heading = ["Sr. No", "Name", "License/Client ID",
+        //  "Country",
+        "State", "status", "Role", "date", "action"];
     const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow);
     const showRejectModal = useSelector((state: RootState) => state.modalSlice.isShowRejectModal);
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
@@ -167,7 +169,7 @@ const PendingUsers = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">{data.role === 'client' ? data.client?.clientId : data.licenseNo}</td>
-                                        <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td>
+                                        {/* <td className="px-4 py-3">{getCountryNameFromCode(data.country)}</td> */}
                                         <td className="px-4 py-3">{data.state}</td>
                                         <td className="px-4 py-3">
                                             <p className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove === "PENDING" ? "bg-primaryColorDark/20" : "bg-inputBgColor"}`}>

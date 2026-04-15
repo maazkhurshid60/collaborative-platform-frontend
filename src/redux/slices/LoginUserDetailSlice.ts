@@ -59,7 +59,7 @@ interface LicenseNoResult {
     isAccountCreatedByOwnClient: boolean;
     isApprove: string;
     state: string;
-    country: string;
+    //   country: string;
 }
 
 interface LoginUserDetailState {
@@ -118,7 +118,7 @@ const initialState: LoginUserDetailState = {
         isAccountCreatedByOwnClient: true,
         isApprove: "",
         state: "",
-        country: ""
+        //      country: ""
     },
     isRefreshing: false
 }
@@ -155,7 +155,7 @@ const LoginUserDetail = createSlice({
                 isAccountCreatedByOwnClient: true,
                 isApprove: "",
                 state: "",
-                country: ""
+                //    country: ""
             }
             state.userDetails = {
                 createAt: "",

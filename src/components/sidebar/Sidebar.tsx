@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { SVGProps, useEffect, useState } from "react";
 import { disconnectSocket } from "../../socket/Socket";
-import ToolTip from "../toolTip/ToolTip";
 import authService from "../../apiServices/authApi/AuthApi";
 import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
 import Logout from "../icons/logout/Logout";

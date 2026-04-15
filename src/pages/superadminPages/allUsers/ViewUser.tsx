@@ -233,11 +233,11 @@ const ViewUser = () => {
           />
 
           <LabelData label="Contact Number" data={selectedUserData?.contactNo ?? "-"} />
-          <LabelData
+          {/* <LabelData
             label="Country"
             data={getCountryNameFromCode(selectedUserData?.country ?? "") ?? "-"}
           />
-          <LabelData label="State" data={selectedUserData?.state ?? "-"} />
+          <LabelData label="State" data={selectedUserData?.state ?? "-"} /> */}
           <LabelData label="Address" data={selectedUserData?.address ?? "-"} />
 
           {/* PROVIDER CLIENT LIST */}

@@ -29,7 +29,7 @@ import { filterProviders } from "../../../utils/FilteredUsers";
 import SearchBar from "../../../components/searchBar/SearchBar";
 const Providers = () => {
   const heading = [
-    "S.No.",
+    "#",
     "Name",
     "License Number",
     "Gender",
@@ -64,7 +64,7 @@ const Providers = () => {
   const recordPerPage = 6;
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
-    usePaginationHook({ data: providerData ?? [], recordPerPage });
+    usePaginationHook({ data: providerData ?? [], recordPerPage, storageKey: "providers_pagination" });
 
   const currentRecords = getCurrentRecords() ?? [];
 
@@ -78,7 +78,7 @@ const Providers = () => {
 
   const downloadXLS = (data: ProviderType[], fileName: string = "providers.xls") => {
     const formattedData = data.map((provider, index) => ({
-      "S.No.": (currentPage - 1) * recordPerPage + index + 1,
+      "#": (currentPage - 1) * recordPerPage + index + 1,
       Name: provider?.user?.fullName ?? "",
       License: provider?.user?.licenseNo ?? "",
       Contact: provider?.user?.contactNo ?? "",
@@ -105,7 +105,7 @@ const Providers = () => {
 
   return (
     <OutletLayout
-      heading="Providers List"
+      heading="Providers on the platform"
       button={<Button text="Download xls" onclick={() => downloadXLS(currentRecords)} />}
     >
       <div className="flex items-center md:justify-end mt-6">

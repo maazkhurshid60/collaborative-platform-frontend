@@ -72,7 +72,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
                 <p className='font-semibold text-[14px] '>Needs to be Shared</p>
                 <div className='w-[95px]'>
 
-                    <Button text='Share' sm onclick={() => (sharedDocs && sharedDocs.length > 0) ? dispatch(isModalShowReducser(true)) : toast.warn("First Select Document")} icon={<FaRegShareFromSquare />} />
+                    <Button text='Share' sm onclick={() => (sharedDocs && sharedDocs.length > 0) ? dispatch(isModalShowReducser(true)) : toast.warn("Select a document first")} icon={<FaRegShareFromSquare />} />
                 </div>
             </div>
             <div className='grid  grid-cols-1 sm:grid-cols-2 gap-y-3'>
@@ -95,16 +95,16 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
             <hr className='text-textGreyColor/30 h-[2px] mt-10 mb-10' />
 
             <div className='mt-8 flex items-center justify-between mb-2' >
-                <p className='font-semibold text-[14px] '>Shared Documents</p>
+                <p className='font-semibold text-[14px] '>Shared Documents for client review</p>
 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
                 {documentData?.sharedDocuments && documentData?.sharedDocuments?.length > 0 ? documentData?.sharedDocuments?.map((data: Document) => (
-                    <div 
+                    <div
                         key={data.id}
                         className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
                         onClick={() => { dispatch(isClientShareDocModalReducer(true)); setSelectedCompletedDoc(data); }}
-                    > 
+                    >
                         <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}
                     </div>
                 ))
@@ -120,11 +120,11 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-3'>
                 {documentData?.completedDocuments && documentData?.completedDocuments?.length > 0 ? documentData?.completedDocuments?.map((data: Document) => (
-                    <div 
+                    <div
                         key={data.id}
                         className='cursor-pointer flex items-center gap-x-3 font-medium text-[14px] '
                         onClick={() => { dispatch(isClientCompleteDocModalReducer(true)); setSelectedCompletedDoc(data); }}
-                    > 
+                    >
                         <IoDocumentTextOutline className='text-primaryColorDark text-2xl' />{data?.name}
                     </div>
                 ))

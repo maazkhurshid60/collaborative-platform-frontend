@@ -105,7 +105,7 @@ const UserSetting = () => {
             {isShowDeleteModal && <DeleteClientModal heading='Delete Account' onDeleteConfirm={deleteMe} text={<div>Deleting your account will permanently remove access to your data, including signed documents. This action cannot be undone. Are you sure you want to continue?</div>}
             />}
             <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} profile={loginUserDetail?.user?.profileImage} />
-            <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Setting</p>
+            <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Settings</p>
 
             <div className="flex flex-col gap-4 mt-6">
                 {/* Email Box */}

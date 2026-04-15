@@ -114,7 +114,9 @@ const TransactionDetail = () => {
                 name: data.user?.fullName || "-",
                 email: data.user?.email || "-",
                 address: data.user?.address || "-",
-                city: `${data.user?.state || ""}, ${data.user?.country || ""}`
+                city: `${data.user?.state || ""}, 
+                
+                // ${data.user?.country || ""}`
             },
             items: [
                 {

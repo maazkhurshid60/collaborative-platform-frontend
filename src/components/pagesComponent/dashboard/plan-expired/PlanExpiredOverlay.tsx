@@ -143,7 +143,7 @@ const PlanExpiredOverlay: React.FC = () => {
 
                             <div className='w-full overflow-hidden rounded-xl'>
                                 <LockedSection label="Provider Directory Access">
-                                    <CardDashboardLayout heading='Providers List'>
+                                    <CardDashboardLayout heading='Providers on the platform'>
                                         <div className="min-h-[350px]"><ProviderList /></div>
                                     </CardDashboardLayout>
                                 </LockedSection>

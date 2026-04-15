@@ -165,7 +165,7 @@ const ProviderBillingDetail = () => {
                 name: contactInfo?.fullName || "Valued Customer",
                 email: contactInfo?.email || "",
                 address: contactInfo?.address || "-",
-                city: `${contactInfo?.state || ""}, ${contactInfo?.country || ""}`
+                // city: `${contactInfo?.state || ""}, ${contactInfo?.country || ""}`
             },
             items: [
                 {

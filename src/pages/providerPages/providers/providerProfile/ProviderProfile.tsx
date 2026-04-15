@@ -106,10 +106,10 @@ const ProviderProfile = () => {
                             <div className=''>
                                 <LabelData label='Address' data={selectedProviderData?.user?.address ?? "-"} />
                             </div>
-
+                            {/* 
                             <div className=''>
                                 <LabelData label='Country' data={getCountryNameFromCode(selectedProviderData?.user?.country ?? "") ?? "-"} />
-                            </div>
+                            </div> */}
 
                             <div className=''>
                                 <LabelData label='State' data={selectedProviderData?.user?.state ?? "-"} />

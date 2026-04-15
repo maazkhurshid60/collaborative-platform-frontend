@@ -34,6 +34,7 @@ type FormFields = z.infer<typeof superAdminSchema>;
 const genderOptions = [
   { value: "MALE", label: "Male" },
   { value: "FEMALE", label: "Female" },
+  { value: "PREFER_NOT_TO_SAY", label: "Prefer not to say" },
 ];
 
 export default function SuperAdminMePage() {
@@ -78,7 +79,7 @@ export default function SuperAdminMePage() {
       contactNo: user.contactNo ?? "",
       email: user.email ?? "",
       address: user.address ?? "",
-      country: user.country ?? "", // ISO2 code like "US"
+      //     country: user.country ?? "", // ISO2 code like "US"
       state: user.state ?? "",
       gender: user.gender ?? "MALE",
     } as FormFields;
@@ -127,7 +128,7 @@ export default function SuperAdminMePage() {
     formData.append("contactNo", data.contactNo);
     formData.append("email", data.email);
     formData.append("address", data.address);
-    formData.append("country", data.country);
+    //  formData.append("country", data.country);
     formData.append("state", data.state);
     formData.append("gender", data.gender);
 
@@ -263,15 +264,16 @@ export default function SuperAdminMePage() {
                 error={errors.address?.message}
               />
 
-              <CountryStateSelect
+              {/* <CountryStateSelect
                 isCountryView={true}
                 isStateView={false}
                 defaultCountry={adminData?.user?.country}
-              />
+              /> */}
+
               <CountryStateSelect
-                isCountryView={false}
+                // isCountryView={false}
                 isStateView={true}
-                defaultState={adminData?.user?.state}
+              // defaultState={adminData?.user?.state}
               />
             </div>
 

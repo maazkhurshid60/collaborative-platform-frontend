@@ -110,7 +110,7 @@ const ProviderSignup = () => {
 
             // Handle other errors
             console.error("Email check error:", error);
-            toast.error("Please Enter Valid Email.");
+            toast.error("Please Enter Valid Email address");
             return;
         }
 
@@ -125,7 +125,7 @@ const ProviderSignup = () => {
             password: data.password,
             licenseNo: data.licenseNo,
             department: data.department,
-            country: data.country,
+            //         country: data.country,
             state: data.state,
             isApprove: "pending",
             role: "provider",
@@ -238,9 +238,9 @@ const ProviderSignup = () => {
                             />
                         </div>
                         {/* 👇 Country & State Dropdown 👇 */}
-                        <CountryStateSelect isCountryView={true} isStateView={false} />
+                        {/* <CountryStateSelect isCountryView={true} isStateView={false} /> */}
                         <div className='mb-1.5' />
-                        <CountryStateSelect isCountryView={false} isStateView={true} />
+                        <CountryStateSelect isStateView={true} />
                         <div className='mt-1.5 mb-1.5'>
                             <InputField required label='Password' type='password' register={register("password")} placeHolder='Enter Password.' error={errors.password?.message} />
                             <p className="text-xs text-gray-500 mt-1 leading-tight">

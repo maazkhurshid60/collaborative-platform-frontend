@@ -350,12 +350,15 @@ export const PaymentCheckoutPage = () => {
     };
 
     const features = [
-        "Up to 100 Clients",
-        "Basic invoicing & billing",
-        "Email support",
-        "Payment processing",
-        "Basic analytics",
-        "Mobile app access"
+        "Up to 1000 Clients",
+        "Provider to Provider Communication",
+        "Invite Providers to Platfrom",
+        "Participate in Group Chat",
+        "Add Your Client To Platform",
+        "Share Documents with Clients",
+        "Basic Invoicing & Billing",
+        "Start a New Group Chat",
+        "Add others Providers Client To Your Profile"
     ];
 
     return (

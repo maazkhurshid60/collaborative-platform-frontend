@@ -41,7 +41,6 @@ const VerifiedUsers = () => {
     "Sr. No",
     "Name",
     "License No/Client ID",
-    "Country",
     "State",
     "Status",
     "Role",
@@ -230,9 +229,9 @@ const VerifiedUsers = () => {
                       : data?.licenseNo}
                   </td>
 
-                  <td className="px-4 py-3 align-middle whitespace-nowrap">
+                  {/* <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {getCountryNameFromCode(data.country)}
-                  </td>
+                  </td> */}
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">
                     {data.state}

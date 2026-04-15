@@ -140,7 +140,7 @@ const Settings = () => {
         ? (getMeData?.clientId ?? "")
         : (getMeData?.user?.licenseNo ?? ""),
       email: getMeData?.user?.email ?? "",
-      country: getMeData?.user?.country ?? "",
+      //  country: getMeData?.user?.country ?? "",
       state: getMeData?.user?.state ?? "",
       address: getMeData?.user?.address ?? "",
     } as any);
@@ -218,7 +218,7 @@ const Settings = () => {
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
     formData.append("address", (data.address ?? "") as any);
-    formData.append("country", data.country);
+    // formData.append("country", data.country);
     formData.append("state", data.state);
 
     // If schema is number: stringify
@@ -275,7 +275,7 @@ const Settings = () => {
           ? (getMeData?.clientId ?? "")
           : (getMeData?.user?.licenseNo ?? ""),
         email: getMeData?.user?.email ?? "",
-        country: getMeData?.user?.country ?? "",
+        //     country: getMeData?.user?.country ?? "",
         state: getMeData?.user?.state ?? "",
         address: getMeData?.user?.address ?? "",
       } as any);
@@ -396,14 +396,9 @@ const Settings = () => {
               />
 
               <CountryStateSelect
-                isCountryView={true}
-                isStateView={false}
-                defaultCountry={getMeData?.user?.country}
-              />
-              <CountryStateSelect
-                isCountryView={false}
+                //        isCountryView={false}
                 isStateView={true}
-                defaultState={getMeData?.user?.state}
+              //      defaultState={getMeData?.user?.state}
               />
             </div>
 
@@ -453,10 +448,10 @@ const Settings = () => {
               data={getMeData?.user?.email?.toLowerCase()}
             />
             <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
-            <LabelData
+            {/* {/* <LabelData
               label="Country"
               data={getCountryNameFromCode(getMeData?.user?.country ?? "")}
-            />
+            /> */}
             <LabelData label="State" data={getMeData?.user?.state} />
           </div>
 

@@ -70,7 +70,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
             setValue("contactNo", clientData?.user?.contactNo ?? "")
             setValue("age", Number(clientData?.user?.age ?? 0))
             setValue("gender", (clientData?.user?.gender ?? "").toLowerCase())
-            setValue("country", (clientData?.user?.country as "US") || "US")
+            //           setValue("country", (clientData?.user?.country as "US") || "US")
             setValue("state", clientData?.user?.state ?? "")
             setWantToBeSeen(clientData?.clientShowToOthers ?? false)
 
@@ -106,7 +106,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         formData.append('address', data.address ?? '')
         formData.append('contactNo', data.contactNo)
         formData.append('state', data.state)
-        formData.append('country', data.country ?? '')
+        //      formData.append('country', data.country ?? '')
         formData.append("clientShowToOthers", wantToBeSeen.toString());
 
         if (imageChanged) {
@@ -227,7 +227,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             name="gender"
                             label="Gender"
                             control={control}
-                            options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }]}
+                            options={[{ value: "male", label: "Male" }, { value: "female", label: "Female" }, { value: "prefer_not_to_say", label: "Prefer not to say" }]}
                             placeholder="Choose an option"
                             error={errors.gender?.message}
                             disable={!canEdit}
@@ -237,7 +237,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             defaultCountry={clientData?.user?.country}
                             defaultState={clientData?.user?.state}
                         /> */}
-
+                        {/* 
                         <CountryStateSelect
                             isCountryView={true}
                             isStateView={false}
@@ -245,12 +245,11 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
                             required={false}
                             disable={!canEdit}
                         // defaultState={getMeData?.user?.state}
-                        />
+                        /> */}
+
                         <CountryStateSelect
-                            isCountryView={false}
+                            // isCountryView={false}
                             isStateView={true}
-                            // defaultCountry={getMeData?.user?.country}
-                            defaultState={clientData?.user?.state}
                             required={false}
                             disable={!canEdit}
                         />

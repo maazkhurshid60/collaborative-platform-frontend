@@ -60,7 +60,7 @@ const LicenseNo = () => {
                 address: userData.address,
                 status: userData.status,
                 state: userData.state,
-                country: userData.country,
+                //           country: userData.country,
                 isApprove: userData.isApprove,
                 isAccountCreatedByOwnClient: userData.client?.isAccountCreatedByOwnClient ?? false
             };
@@ -76,8 +76,12 @@ const LicenseNo = () => {
     }
     return (<>
         {isLoading && <Loader />}
-        <AuthLayout heading='sign up'>
-
+        <AuthLayout heading='Access Shared Documents'>
+            <div className="text-center mb-6">
+                <p className="text-gray-600 text-sm">
+                    To view documents shared with you, please enter the Client ID provided in your email.
+                </p>
+            </div>
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
                     <InputField required label='Client ID' type='text' register={register("clientId")} placeHolder='Enter Client ID' error={errors.clientId?.message} />
@@ -85,7 +89,7 @@ const LicenseNo = () => {
                 <div className='mt-10'>
                     <Button text='sign up' />
                 </div>
-                <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
+                <p className='font-normal labelNormal  text-center mt-14'> Already have an account?  <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span> <span>Or Enter your Client ID</span></p>
             </form>
         </AuthLayout>
     </>

@@ -47,13 +47,12 @@ const Clients = () => {
   const navigate = useNavigate();
 
   const heading = [
-    "S.No",
+    "#",
     "Name",
     "Client ID",
     "Gender",
     "Email",
     "Status",
-    "Country",
     "State",
     "Verified Status",
     "Provider Name",
@@ -142,14 +141,14 @@ const Clients = () => {
       confirmText: isDetach ? "Detach" : "Delete",
       text: isDetach ? (
         <div>
-          Are you sure you want to <span className="font-semibold">Detach this Client</span>?
+          Are you sure you want to <span className="font-semibold">detach this client</span>?
           They will be removed from your list, but their account will remain active for other providers.
         </div>
       ) : (
         <div>
-          By Deleting this account you won’t be able to track records of your signed
+          By deleting this account you won’t be able to track records of your signed
           Documents. Are you sure that you want to
-          <span className="font-semibold">Delete this Account</span>?
+          <span className="font-semibold">delete this account</span>?
         </div>
       )
     });
@@ -242,9 +241,9 @@ const Clients = () => {
                     </td>
 
                     {/* Country */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap">
+                    {/* <td className="px-2 py-3 align-middle whitespace-nowrap">
                       {getCountryNameFromCode(data?.user?.country ?? "")}
-                    </td>
+                    </td> */}
 
                     {/* State */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.user?.state}</td>

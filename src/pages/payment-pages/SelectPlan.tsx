@@ -33,12 +33,13 @@ const SelectPlan = () => {
             // Show "Start Trial" if: new signup AND never had trial
             buttonText: 'Start 14-Day Free Trial',
             features: [
-                'Up to 100 Clients',
-                'Basic invoicing & billing',
-                'Email support',
-                'Payment processing',
-                '1-on-1 direct messaging only',
-                'Add own clients only',
+                "Up to 100 Clients",
+                "Provider to Provider Communication",
+                "Invite Providers to Platfrom",
+                "Can participate in group chats when invited, but cannot start new ones",
+                "Add Your Client To Platform",
+                "Share Documents with Clients",
+                "Basic Invoicing & Billing"
             ],
             theme: 'default',
         },
@@ -70,12 +71,15 @@ const SelectPlan = () => {
             // Show "Start Trial" if: new signup AND never had trial
             buttonText: 'Subscribe Now',
             features: [
-                'Up to 100 Clients',
-                'Basic invoicing & billing',
-                'Email support',
-                'Payment processing',
-                'Basic analytics',
-                'Mobile app access',
+                "Up to 1000 Clients",
+                "Provider to Provider Communication",
+                "Invite Providers to Platfrom",
+                "Participate in Group Chat",
+                "Add Your Client To Platform",
+                "Share Documents with Clients",
+                "Basic Invoicing & Billing",
+                "Start a New Group Chat",
+                "Add others Providers Client To Your Profile"
             ],
             theme: 'default',
         },
@@ -153,7 +157,7 @@ const SelectPlan = () => {
                                             </span>
                                             {plan.name !== 'Free Trial' && (
                                                 <span className={`text-[16px] ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
-                                                    {billingCycle === 'monthly' ? '/month' : '/yearly'}
+                                                    {billingCycle === 'monthly' ? '/month' : '/year'}
                                                 </span>
                                             )}
                                         </div>

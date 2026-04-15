@@ -5,7 +5,16 @@ import ProvidersIcon from "../components/icons/dashboardIcons/providersPortalIco
 import { RiUserLine } from "react-icons/ri";
 import DocumentIcon from "../components/icons/dashboardIcons/clientsPortalIcons/document/Document";
 import SettingIcon from "../components/icons/dashboardIcons/clientsPortalIcons/setting/Setting";
-import { Crown, FileText } from "lucide-react"
+import { CornerLeftDownIcon, Crown, CrownIcon, FileText, SubscriptIcon, Verified } from "lucide-react"
+import BillingIcon from "../components/BillingIcon";
+import InviteProvider from "../components/icons/dashboardIcons/providersPortalIcons/clients/InviteProvider";
+import InvoiceIcon from "../components/icons/Invocies/InvociesIcon";
+import ProvidersInDashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/providers/ProvidersInDashboard";
+import SubscriptionIcon from "../components/icons/crownIcon/CrownIcon";
+import RejectedIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/RejectedIcon";
+import VerifiedIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/VerifiedIcon";
+import PendingIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/PendingIcon";
+import UserIconForSidbar from "../components/icons/dashboardIcons/providersPortalIcons/clients/UserIconForSidbar";
 
 export const ProviderSidebarData = [
     {
@@ -27,27 +36,27 @@ export const ProviderSidebarData = [
     {
         name: "Providers",
         url: "/providers",
-        icon: ProvidersIcon
+        icon: ProvidersInDashboardIcon
     },
     {
         name: "Invite Provider",
         url: "/invite-provider",
-        icon: ClientsIcon
+        icon: InviteProvider
     },
     {
         name: "Subscription",
         url: "/subscription",
-        icon: Crown
+        icon: SubscriptionIcon
     },
     {
         name: "Invoices",
         url: "/invoices",
-        icon: FileText
+        icon: InvoiceIcon
     },
     {
         name: "User Profile",
         url: "/user-profile",
-        icon: RiUserLine
+        icon: UserIconForSidbar
     },
 
 ];
@@ -70,17 +79,17 @@ export const SuperAdminSidebarData = [
     {
         name: "Pending Users",
         url: "/pending-users",
-        icon: ClientsIcon
+        icon: PendingIcon
     },
     {
         name: "Verified Users",
         url: "/verified-users",
-        icon: ClientsIcon
+        icon: VerifiedIcon
     },
     {
         name: "Rejected Users",
         url: "/rejected-users",
-        icon: ClientsIcon
+        icon: RejectedIcon
     }
     , {
         name: "Documents",
@@ -95,11 +104,11 @@ export const SuperAdminSidebarData = [
     {
         name: "Billing Management",
         url: "/billing-management",
-        icon: FileText
+        icon: BillingIcon
     },
     {
         name: "User Profile",
         url: "/super-admin",
-        icon: RiUserLine
+        icon: UserIconForSidbar
     }
 ]

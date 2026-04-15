@@ -21,7 +21,7 @@ import ViewIcon from '../../../icons/view/View';
 
 const ClientList = () => {
     // 1) Add S.No. as first heading
-    const heading = ["S.No.", "name", "Client ID", "gender", "email", "status", "providers", "action"];
+    const heading = ["#", "name", "Client ID", "gender", "email", "status", "providers", "action"];
 
     const [isLoader, setIsLoader] = useState(false);
     const queryClient = useQueryClient();
@@ -114,8 +114,8 @@ const ClientList = () => {
                 </div>
             ) : (
                 <div className='text-black'>
-                    By Deleting this account you won’t be able to track record of your signed Documents.
-                    Are you sure that you want to <span className="font-semibold">Delete this Account</span>?
+                    By deleting this account you won’t be able to track record of your signed Documents.
+                    Are you sure that you want to <span className="font-semibold">delete this account</span>?
                 </div>
             )
         });

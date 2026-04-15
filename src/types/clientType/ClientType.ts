@@ -49,7 +49,7 @@ export interface User {
     isApprove: string
     client?: ClientType
     provider?: ProviderType
-    country: string
+    //    country: string
     state: string
     clientList?: Provider[];
 }

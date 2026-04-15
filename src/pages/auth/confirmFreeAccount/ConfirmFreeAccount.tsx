@@ -13,7 +13,7 @@ import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import Loader from '../../../components/loader/Loader';
-import CountryStateSelect from '../../../components/dropdown/CountryStateSelect';
+// import CountryStateSelect from '../../../components/dropdown/CountryStateSelect';
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
 import CryptoJS from 'crypto-js';
@@ -29,11 +29,12 @@ import StepIndicator from '../../../components/stepIndicator/StepIndicator';
 
 const features = [
     "Up to 100 Clients",
-    "Basic invoicing & billing",
-    "Email support",
-    "Payment processing",
-    "1-on-1 direct messaging only",
-    "Add own clients only"
+    "Provider to Provider Communication",
+    "Invite Providers to Platfrom",
+    "Can participate in group chats when invited, but cannot start new ones",
+    "Add Your Client To Platform",
+    "Share Documents with Clients",
+    "Basic Invoicing & Billing"
 ]
 type FormFields = z.infer<typeof ProviderSignupSchema>;
 
@@ -74,7 +75,7 @@ const ConfirmFreeAccount = () => {
             password: data.password,
             licenseNo: data.licenseNo,
             department: data.department,
-            country: data.country,
+            //        country: data.country,
             state: data.state,
             isApprove: "pending",
             role: "provider",

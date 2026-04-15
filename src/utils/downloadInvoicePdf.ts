@@ -9,7 +9,12 @@ export async function downloadInvoicePdf(invoiceData: {
     invoiceNo: string;
     date: string;
     dueDate: string;
-    billTo: { name: string; email: string; address: string; city: string };
+    billTo: {
+        name: string; email: string; address: string;
+
+        city?: string
+
+    };
     items: { description: string; subtext: string; qty: string; price: string; amount: string; status: string }[];
     subtotal: string;
     tax: string;
