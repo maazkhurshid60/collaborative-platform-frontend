@@ -99,7 +99,7 @@ const Clients = () => {
       dispatch(isModalDeleteReducer(false));
     },
     onError: () => {
-      toast.error("Failed to delete the department!");
+      toast.error("Failed to delete the specialty!");
       dispatch(isModalDeleteReducer(false));
     },
   });
