@@ -74,7 +74,8 @@ export const ProviderSignupSchema = z
     //   country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
     fullName: fullNameValidator,      // ✅ now no error
-    department: z.string().min(1, "Department is required"),
+    specialty: z.string().min(1, "Specialty is required"),
+    otherSpecialty: z.string().optional(),
     licenseNo: licenseNoValidator,
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -82,7 +83,19 @@ export const ProviderSignupSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
     path: ["confirmPassword"],
-  });
+  })
+  .refine(
+    (data) => {
+      if (data.specialty === "Other") {
+        return !!data.otherSpecialty && data.otherSpecialty.trim().length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Please write your specialty",
+      path: ["otherSpecialty"],
+    }
+  );
 
 
 export const ChangePasswordSchema = z

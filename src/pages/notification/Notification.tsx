@@ -66,7 +66,7 @@ const NotificationPage = () => {
             setIsLoader(false)
         },
         onError: () => {
-            toast.error('Failed to delete the department!');
+            toast.error('Failed to delete the specialty!');
             setIsLoader(false)
         },
     })

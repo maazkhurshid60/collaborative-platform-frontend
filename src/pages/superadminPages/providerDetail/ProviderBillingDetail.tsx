@@ -306,7 +306,7 @@ const ProviderBillingDetail = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Speciality </p>
-                            <p className="text-[16px] font-medium">{contactInfo.provider?.department || "Cardiology"}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.provider?.specialty || "Cardiology"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Payment Method</p>
@@ -369,7 +369,7 @@ const ProviderBillingDetail = () => {
                                     : (subscription?.plan === 'PRO' ? '$79' : '$9.99')
                                 }
                                 <span className={`text-[14px] font-normal absolute ${subscription?.billingCycle === 'YEARLY' ? 'left-[104px]' : 'left-[85px]'} top-[10px] font-[poppins] text-white z-10 `}>
-                                    {subscription?.billingCycle === 'YEARLY' ? '/yearly' : '/monthly'}
+                                    {subscription?.billingCycle === 'YEARLY' ? '/year' : '/month'}
                                 </span>
                             </p>
                             <div className="w-full h-px mt-5 bg-white/20 " />

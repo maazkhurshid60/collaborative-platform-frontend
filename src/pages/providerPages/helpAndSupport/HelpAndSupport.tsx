@@ -43,28 +43,26 @@ const HelpAndSupport = () => {
       ],
     },
     {
-      name: "How to add Profile and department?",
+      name: "How to add Profile and specialty?",
       data: [
         "Navigate to your User Profile Image from the sidebar.",
-        "Edit your professional details including Profile Image and department.",
+        "Edit your professional details including Profile Image and specialty.",
         "Update your profile across the platform.",
       ],
     },
     {
       name: "How to restrict offensive messages?",
       data: [
-        "The system automatically monitors messages for inappropriate language. This Feature currently Under development",
-        "Users can report offensive content directly from the chat interface. This Feature currently Under development",
-        "Repeated violations may result in account suspension or restricted access. This Feature currently Under development",
+        "Moderation features (e.g., reporting and content monitoring) are currently under development.",
       ],
     },
     {
       name: "How do I delete my account?",
       data: [
-        "Go to User Profile and select Account Settings.",
-        "In last Card you will see Delete Account button",
-        "By Clicking on Delete Account button you will see the modal to confirm",
-        "Then Click on Delete Button Will Delete Your Account Permanently and also Cancel there existing subscription"
+        "Go to Settings (top-right dropdown menu).",
+        "Select “Delete my account.”",
+        "Confirm your decision by clicking the Delete button.",
+        "Note: Deleting your account is immediate and cannot be undone."
       ],
     },
   ];

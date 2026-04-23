@@ -74,7 +74,7 @@ const ConfirmFreeAccount = () => {
             fullName: data.fullName,
             password: data.password,
             licenseNo: data.licenseNo,
-            department: data.department,
+            specialty: data.specialty,
             //        country: data.country,
             state: data.state,
             isApprove: "pending",
@@ -82,7 +82,7 @@ const ConfirmFreeAccount = () => {
             publicKey: publicKey,
             privateKey: encryptedPrivateKey,
         };
-        // const dataSendToBackend = { email: data?.email, isApprove: "pending", password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, department: data?.department, role: "provider", country: data?.country, state: data?.state };
+        // const dataSendToBackend = { email: data?.email, isApprove: "pending", password: data?.password, fullName: data?.fullName, licenseNo: data?.licenseNo, specialty: data?.specialty, role: "provider", country: data?.country, state: data?.state };
         try {
             const response = await authService.signup(dataSendToBackend);
             toast.success(response?.message);
@@ -180,7 +180,7 @@ const ConfirmFreeAccount = () => {
                                 <p className="text-[16px] font-medium text-[#78350F]">Limited Features Included</p>
                             </div>
                             <div className="flex flex-col gap-2 mt-2 ml-6">
-                                <p className="text-[14px] font-normal text-[#78350F]">Your free account includes basic features to get you started. Upgrade anytime to unlock advanced capabilities </p>
+                                <p className="text-[14px] font-normal text-[#78350F]">Your free account includes basic features to get you started. Upgrade anytime to unlock advanced capabilities.</p>
                             </div>
                         </div>
                         <p className="text-[12px] mt-4 text-[#64748B] text-center max-w-[450px]">

@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 
 const ProviderList = () => {
-  const heading = ["#", "name", "license No", "email", "status", "Department", "clients"];
+  const heading = ["#", "name", "license No", "email", "status", "specialty", "clients"];
   const loginUserDetail = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id
   );
@@ -78,7 +78,7 @@ const ProviderList = () => {
                       <td className="px-2 py-4 capitalize text-red-500">{data?.user?.status}</td>
                     )}
 
-                    <td className="px-2 py-4 capitalize">{data?.department}</td>
+                    <td className="px-2 py-4 capitalize">{data?.specialty}</td>
 
                     <td className="px-2 py-4 w-[100px]">
                       {data?.clientList === undefined ||

@@ -254,7 +254,7 @@ export default function ChangePlanScreen() {
                                         ${plan.isActive ? getActivePlanPrice() : (billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice)}
                                     </span>
                                     <span className={`ml-2 text-[18px] -translate-y-1/2 right-0 ${plan.theme === 'pro' ? 'text-white/80' : 'text-[#666666]'}`}>
-                                        / {plan.isActive ? (userSubscription?.billingCycle === 'YEARLY' ? 'yearly' : 'monthly') : (billingCycle === 'monthly' ? 'monthly' : 'yearly')}
+                                        / {plan.isActive ? (userSubscription?.billingCycle === 'YEARLY' ? 'year' : 'month') : (billingCycle === 'monthly' ? 'month' : 'year')}
                                     </span>
                                 </div>
 
