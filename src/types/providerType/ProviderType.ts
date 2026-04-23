@@ -6,7 +6,7 @@ export interface ProviderType {
     email?: string
     password?: string
     userId?: string
-    department?: string
+    specialty?: string
     createdAt?: string
     updatedAt?: string
     user?: any

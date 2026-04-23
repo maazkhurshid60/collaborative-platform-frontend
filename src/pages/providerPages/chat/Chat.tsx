@@ -190,7 +190,7 @@ const Chat = () => {
     enabled: !!activeChatObject?.id && activeChatType === "group",
   });
 
-    /* socket managed globally */
+  /* socket managed globally */
 
   useEffect(() => {
     const socket = getSocket();
@@ -310,7 +310,7 @@ const Chat = () => {
         />
       )}
 
-      {isNewChatModal && <ModalLayout heading="New Chat with" modalBodyContent={<NewChatModal />} />}
+      {isNewChatModal && <ModalLayout heading="Start chat with a provider" modalBodyContent={<NewChatModal />} />}
       {isNewGroupChatModal && <ModalLayout heading="New Chat Group" modalBodyContent={<NewGroupChatModal />} />}
 
       {/* ✅ Invite Provider Modal (fixed close) */}

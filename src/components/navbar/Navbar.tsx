@@ -46,18 +46,18 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const userDepartment = useMemo(() => {
-    const departmentName = loginUserDetail?.department;
-    if (!departmentName) return "";
+  const userspecialty = useMemo(() => {
+    const specialtyName = loginUserDetail?.specialty;
+    if (!specialtyName) return "";
 
-    return departmentName
+    return specialtyName
       .split(" ")
       .map((word) => {
         if (!word) return "";
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(" ");
-  }, [loginUserDetail?.department]);
+  }, [loginUserDetail?.specialty]);
 
   const { data: clientData } = useQuery<ClientType[]>({
     queryKey: ["allclients"],
@@ -309,7 +309,7 @@ const Navbar = () => {
                 </p>
 
                 <p className="text-gray-500 font-medium text-sm -mt-1.5">
-                  {isSuperAdmin ? "Super Admin" : loginUserDetail?.department ? userDepartment : "Client"}
+                  {isSuperAdmin ? "Super Admin" : loginUserDetail?.specialty ? userspecialty : "Client"}
                 </p>
               </div>
 

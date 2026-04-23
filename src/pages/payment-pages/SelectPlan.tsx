@@ -102,7 +102,7 @@ const SelectPlan = () => {
                         <div className="text-center mb-10">
                             <h1 className="text-[40px] font-bold text-[#101828] mb-4">Choose the plan that best fits your practice</h1>
                             <p className="text-[#666666] max-w-[1000px] mx-auto text-[18px] leading-relaxed">
-                                Transparent billing with no hidden fees. Start with any plan and upgrade as you grow. All plans include our core features with flexible scaling options.
+                                Transparent billing with no hidden fees. Start with a 14-day free trial. Continue with our standard plan.
                             </p>
                         </div>
                         {/* Billing Cycle Toggle */}
@@ -241,7 +241,7 @@ const SelectPlan = () => {
                         {/* Footer Auth Link - Only show if not upgrading */}
                         {!isUpgradeFlow && (
                             <p className="text-[#64748B] text-[16px] mb-8">
-                                Already have an account
+                                Already have an account? 
                                 <span
                                     onClick={() => navigate('/')}
                                     className="text-[#2C9993] font-bold underline cursor-pointer hover:text-[#238a84] transition-colors"

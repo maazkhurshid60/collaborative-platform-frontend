@@ -40,8 +40,12 @@ const Dropdown = <T extends FieldValues>({
   // IMPORTANT: ref wraps trigger + menu
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Sort options alphabetically by label
-  const sortedOptions = [...options].sort((a, b) => a.label.localeCompare(b.label));
+  // Sort options alphabetically by label, keeping "Other" at the end
+  const sortedOptions = [...options].sort((a, b) => {
+    if (a.value === "Other" || a.label === "Other") return 1;
+    if (b.value === "Other" || b.label === "Other") return -1;
+    return a.label.localeCompare(b.label);
+  });
 
   // Filter options based on search term
   const filteredOptions = sortedOptions.filter((option) =>

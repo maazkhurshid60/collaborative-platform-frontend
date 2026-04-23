@@ -33,20 +33,30 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 type FormFields = z.infer<typeof providerSchema>;
 
-const departmentOptions = [
-  { value: "Nutritionist", label: "Nutritionist" },
-  { value: "Psychiatrist", label: "Psychiatrist" },
-  { value: "Therapist", label: "Therapist" },
-  { value: "Eye Specialist", label: "Eye Specialist" },
-  { value: "Heart Specialist", label: "Heart Specialist" },
-  { value: "General Medicine", label: "General Medicine" },
+export const specialtyOptions = [
+  { value: "Psychiatry", label: "Psychiatry" },
+  { value: "Psychology", label: "Psychology" },
+  { value: "Therapy / Counseling", label: "Therapy / Counseling" },
+  { value: "Social Work", label: "Social Work" },
+  { value: "Primary Care", label: "Primary Care" },
+  { value: "Family Medicine", label: "Family Medicine" },
+  { value: "Internal Medicine", label: "Internal Medicine" },
+  { value: "Cardiology", label: "Cardiology" },
+  { value: "Dermatology", label: "Dermatology" },
+  { value: "Neurology", label: "Neurology" },
+  { value: "Pediatrics", label: "Pediatrics" },
+  { value: "Obstetrics & Gynecology (OB/GYN)", label: "Obstetrics & Gynecology (OB/GYN)" },
+  { value: "Nutrition / Dietetics", label: "Nutrition / Dietetics" },
+  { value: "Physical Therapy", label: "Physical Therapy" },
+  { value: "Occupational Therapy", label: "Occupational Therapy" },
+  { value: "Speech Therapy", label: "Speech Therapy" },
+  { value: "Other", label: "Other" },
 ];
 
-// Ensure Dropdown gets a value that matches one of the option values (case-insensitive)
-function normalizeDepartmentValue(dep?: string | null) {
+function normalizeSpecialtyValue(dep?: string | null) {
   if (!dep) return "";
   const trimmed = dep.trim();
-  const match = departmentOptions.find(
+  const match = specialtyOptions.find(
     (o) => o.value.toLowerCase() === trimmed.toLowerCase()
   );
   return match?.value ?? trimmed;
@@ -101,7 +111,8 @@ const UserProfile = () => {
       fullName: "",
       licenseNo: "",
       age: 0 as any,
-      department: "",
+      specialty: "",
+      otherSpecialty: "",
       email: "",
       contactNo: "" as any,
       address: "",
@@ -146,7 +157,7 @@ const UserProfile = () => {
       age: Number(getMeData?.user?.age ?? 0) || 0,
       contactNo: getMeData?.user?.contactNo ?? "",
       email: getMeData?.user?.email ?? "",
-      department: normalizeDepartmentValue(getMeData?.department),
+      specialty: normalizeSpecialtyValue(getMeData?.specialty),
       address: getMeData?.user?.address ?? "",
       //    country: getCountryIsoCode(getMeData?.user?.country),
       state: getMeData?.user?.state ?? "",
@@ -212,11 +223,15 @@ const UserProfile = () => {
       return;
     }
 
-    // Ensure department doesn’t get wiped due to casing/mismatch
-    const safeDepartment =
-      (data?.department && String(data.department).trim() !== ""
-        ? data.department
-        : normalizeDepartmentValue(getMeData?.department)) || "";
+    // Ensure specialty doesn’t get wiped due to casing/mismatch
+    const safeSpecialty =
+      (data?.specialty && String(data.specialty).trim() !== ""
+        ? data.specialty
+        : normalizeSpecialtyValue(getMeData?.specialty)) || "";
+
+    const userSelectedSpecialty = safeSpecialty === "Other" && data.otherSpecialty 
+      ? data.otherSpecialty 
+      : safeSpecialty;
 
     // const safeCountry =
     //   (data?.country && String(data.country).trim() !== ""
@@ -236,7 +251,7 @@ const UserProfile = () => {
       formData.append("licenseNo", data?.licenseNo ?? "");
     }
     formData.append("age", data?.age?.toString() ?? "0");
-    formData.append("department", safeDepartment);
+    formData.append("specialty", userSelectedSpecialty);
     formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
     formData.append("role", getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "");
     formData.append("state", safeState);
@@ -373,13 +388,25 @@ const UserProfile = () => {
               />
 
               <Dropdown<FormFields>
-                name="department"
-                label="Department"
+                name="specialty"
+                label="Specialty"
                 control={control}
-                options={departmentOptions}
-                placeholder="Choose an option"
-                error={errors.department?.message}
+                options={specialtyOptions}
+                placeholder="Choose a specialty"
+                error={errors.specialty?.message}
               />
+              {methods.watch("specialty") === "Other" && (
+                <div className="">
+                  <InputField
+                    required
+                    type="text"
+                    label="Please specify your specialty"
+                    register={register("otherSpecialty")}
+                    placeHolder="Enter your specialty"
+                    error={errors.otherSpecialty?.message}
+                  />
+                </div>
+              )}
 
               <InputField
                 required
@@ -489,7 +516,7 @@ const UserProfile = () => {
                 <LabelData label="Client ID" data={getMeData?.client?.clientId || getMeData?.user?.licenseNo} />
               )}
               <LabelData label="Age" data={getMeData?.user?.age ?? ""} />
-              <LabelData label="Department" data={getMeData?.department} />
+              <LabelData label="Specialty" data={getMeData?.specialty} />
               <LabelData label="Email" data={getMeData?.user?.email} />
               <LabelData label="Contact Number" data={getMeData?.user?.contactNo ?? ""} />
               <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />

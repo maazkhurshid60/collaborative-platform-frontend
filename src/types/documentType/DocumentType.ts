@@ -31,7 +31,7 @@ export interface DocumentFile {
 
 export interface Provider {
     id: string;
-    department: string;
+    specialty: string;
     createdAt: string;
     updatedAt: string;
     userId: string;

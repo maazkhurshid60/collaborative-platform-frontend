@@ -23,12 +23,24 @@ import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../..
 import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 
-const departmentOptions = [
-    { value: "Nutritionist", label: "Nutritionist" },
-    { value: "Psychiatrist", label: "Psychiatrist" },
-    { value: "Therapist", label: "Therapist" },
-    { value: "Eye Specialist", label: "Eye Specialist" },
-    { value: "Heart Specialist", label: "Heart Specialist" },
+export const specialtyOptions = [
+    { value: "Psychiatry", label: "Psychiatry" },
+    { value: "Psychology", label: "Psychology" },
+    { value: "Therapy / Counseling", label: "Therapy / Counseling" },
+    { value: "Social Work", label: "Social Work" },
+    { value: "Primary Care", label: "Primary Care" },
+    { value: "Family Medicine", label: "Family Medicine" },
+    { value: "Internal Medicine", label: "Internal Medicine" },
+    { value: "Cardiology", label: "Cardiology" },
+    { value: "Dermatology", label: "Dermatology" },
+    { value: "Neurology", label: "Neurology" },
+    { value: "Pediatrics", label: "Pediatrics" },
+    { value: "Obstetrics & Gynecology (OB/GYN)", label: "Obstetrics & Gynecology (OB/GYN)" },
+    { value: "Nutrition / Dietetics", label: "Nutrition / Dietetics" },
+    { value: "Physical Therapy", label: "Physical Therapy" },
+    { value: "Occupational Therapy", label: "Occupational Therapy" },
+    { value: "Speech Therapy", label: "Speech Therapy" },
+    { value: "Other", label: "Other" },
 ]
 type FormFields = z.infer<typeof ProviderSignupSchema>;
 
@@ -124,7 +136,7 @@ const ProviderSignup = () => {
             fullName: data.fullName,
             password: data.password,
             licenseNo: data.licenseNo,
-            department: data.department,
+            specialty: data.specialty === "Other" ? (data.otherSpecialty || "Other") : data.specialty,
             //         country: data.country,
             state: data.state,
             isApprove: "pending",
@@ -228,14 +240,25 @@ const ProviderSignup = () => {
 
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>
-                                name="department"
+                                name="specialty"
                                 control={control}
-                                label="Department"
-                                options={departmentOptions}
-                                placeholder="Choose an option"
-                                error={errors.department?.message}
-
+                                label="Specialty"
+                                options={specialtyOptions}
+                                placeholder="Choose a specialty"
+                                error={errors.specialty?.message}
                             />
+                            {methods.watch("specialty") === "Other" && (
+                                <div className="mt-1.5">
+                                    <InputField
+                                        required
+                                        type="text"
+                                        label="Please specify your specialty"
+                                        register={register("otherSpecialty")}
+                                        placeHolder="Enter your specialty"
+                                        error={errors.otherSpecialty?.message}
+                                    />
+                                </div>
+                            )}
                         </div>
                         {/* 👇 Country & State Dropdown 👇 */}
                         {/* <CountryStateSelect isCountryView={true} isStateView={false} /> */}
@@ -256,7 +279,7 @@ const ProviderSignup = () => {
                             <Button text='sign up' />
                         </div>
 
-                        <p className='font-normal labelNormal  text-center mt-8'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }} >Sign in</span></p>
+                        <p className='font-normal labelNormal  text-center mt-8'> Already have an account? <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }} >Sign in</span></p>
                     </form>
                 </FormProvider>
 

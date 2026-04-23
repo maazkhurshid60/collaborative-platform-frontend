@@ -100,7 +100,7 @@ const ProviderProfile = () => {
                             </div>
 
                             <div className=''>
-                                <LabelData label='Department' data={selectedProviderData?.department ?? "-"} />
+                                <LabelData label='specialty' data={selectedProviderData?.specialty ?? "-"} />
                             </div>
 
                             <div className=''>
