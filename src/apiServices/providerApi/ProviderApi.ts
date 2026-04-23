@@ -17,7 +17,7 @@ class ProviderApiService {
     async getAllProviders(loginUserDetail: string) {
 
         try {
-            const response = await this.api.post("/provider/get-all-providers", { loginUserId: loginUserDetail });
+            const response = await this.api.post("/provider/get-all-providers?limit=10000", { loginUserId: loginUserDetail });
             return response?.data;
         } catch (error) {
 
