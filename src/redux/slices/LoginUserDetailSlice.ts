@@ -38,7 +38,7 @@ export interface UserDetails {
     isAccountCreatedByOwnClient: boolean;
     password: string;
     updatedAt: string;
-    specialty: string;
+    speciality: string;
     clientList: any[];
     providerList: any[];
     userId: string;
@@ -81,7 +81,7 @@ const initialState: LoginUserDetailState = {
         isAccountCreatedByOwnClient: false,
         password: "",
         updatedAt: "",
-        specialty: "",
+        speciality: "",
         clientList: [],
         providerList: [],
         userId: "",
@@ -165,7 +165,7 @@ const LoginUserDetail = createSlice({
                 isAccountCreatedByOwnClient: false,
                 password: "",
                 updatedAt: "",
-                specialty: "",
+                speciality: "",
                 clientList: [],
                 providerList: [],
                 userId: "",

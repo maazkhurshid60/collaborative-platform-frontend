@@ -306,7 +306,7 @@ const ProviderBillingDetail = () => {
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Speciality </p>
-                            <p className="text-[16px] font-medium">{contactInfo.provider?.specialty || "Cardiology"}</p>
+                            <p className="text-[16px] font-medium">{contactInfo.provider?.speciality || "Cardiology"}</p>
                         </div>
                         <div className="flex flex-col items-start">
                             <p className="text-[14px] text-(--color-transaction-summary-text)">Payment Method</p>

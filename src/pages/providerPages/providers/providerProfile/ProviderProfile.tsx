@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../../redux/store'
 import { GoDotFill } from 'react-icons/go'
-import { getCountryNameFromCode } from '../../../../utils/GetCountryName'
 
 const ProviderProfile = () => {
     const navigate = useNavigate()
@@ -100,7 +99,11 @@ const ProviderProfile = () => {
                             </div>
 
                             <div className=''>
-                                <LabelData label='specialty' data={selectedProviderData?.specialty ?? "-"} />
+                                <LabelData label='Gender' data={selectedProviderData?.user?.gender ?? "-"} />
+                            </div>
+
+                            <div className=''>
+                                <LabelData label='Speciality' data={selectedProviderData?.speciality ?? "-"} />
                             </div>
 
                             <div className=''>

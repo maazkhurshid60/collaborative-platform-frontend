@@ -65,7 +65,7 @@ const ClientDashboard = () => {
                                                             </div>
                                                             <div>
                                                                 <p className="font-medium text-gray-900">{item.provider?.user?.fullName}</p>
-                                                                <p className="text-sm text-gray-500">{item.provider?.specialty || 'Provider'}</p>
+                                                                <p className="text-sm text-gray-500">{item.provider?.speciality || 'Provider'}</p>
                                                             </div>
                                                         </div>
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 uppercase">

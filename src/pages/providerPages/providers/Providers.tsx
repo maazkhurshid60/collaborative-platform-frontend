@@ -17,7 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Loader from "../../../components/loader/Loader";
 import providerApiService from "../../../apiServices/providerApi/ProviderApi";
 import { useQuery } from "@tanstack/react-query";
-import { Client, ProviderType } from "../../../types/providerType/ProviderType";
+import { ProviderType } from "../../../types/providerType/ProviderType";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import * as XLSX from "xlsx";
@@ -33,9 +33,8 @@ const Providers = () => {
     "Name",
     "License Number",
     "Gender",
-    "Email",
     "Status",
-    "Clients",
+    "Speciality",
     "Action",
   ];
 
@@ -149,15 +148,15 @@ const Providers = () => {
 
                     {/* Gender */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
-                      {data?.user?.gender}
+                      {data?.user?.gender || "-"}
                     </td>
 
                     {/* Email */}
-                    <td className="px-4 py-3 align-middle">
-                      <span className="block max-w-[260px] truncate lowercase" title={data?.user?.email}>
-                        {data?.user?.email}
-                      </span>
-                    </td>
+                    {/* <td className="px-4 py-3 align-middle">
+                        <span className="block max-w-[260px] truncate lowercase" title={data?.user?.email}>
+                          {data?.user?.email}
+                        </span>
+                      </td> */}
 
                     {/* Status */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
@@ -165,7 +164,7 @@ const Providers = () => {
                     </td>
 
                     {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
-                    <td className="px-4 py-3 align-middle">
+                    {/* <td className="px-4 py-3 align-middle">
                       {data?.clientList === undefined ||
                         data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
                           .length === 0 ? (
@@ -196,6 +195,11 @@ const Providers = () => {
                             )}
                         </div>
                       )}
+                    </td> */}
+
+                    {/* Specaility */}
+                    <td className="px-4 py-3 align-middle whitespace-nowrap">
+                      {data?.speciality}
                     </td>
 
                     {/* Action (fixed padding + centered icon) */}

@@ -27,7 +27,7 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 
 
 const RejectedUsers = () => {
-    const heading = ["Sr. No", "Name", "License No/Client ID",
+    const heading = ["#", "Name", "License No/Client ID",
         //  "Country",
 
         "State", "status", "Role", "date", "action"]

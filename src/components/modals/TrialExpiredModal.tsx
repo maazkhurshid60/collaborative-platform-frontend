@@ -19,11 +19,11 @@ const FreeTrailEndedModal: React.FC<FreeTrailEndedModalProps> = ({ onClose }) =>
 
     return (
         <div
-            className="fixed inset-0 bg-textColor/70 z-50 flex justify-center items-start overflow-y-auto p-4 mt- py-8 md:py-20 "
+            className="fixed inset-0 bg-textColor/70 z-50 flex justify-center items-start overflow-y-auto p-4 mt- py-8 md:py-20  "
             onClick={handleClose}
         >
             <div
-                className="bg-white mt-20 w-full max-w-[500px] rounded-[24px] p-8 relative shadow-2xl"
+                className="bg-white mt-20 w-full max-w-[650px] rounded-[24px] p-8 relative shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
@@ -83,13 +83,13 @@ const FreeTrailEndedModal: React.FC<FreeTrailEndedModalProps> = ({ onClose }) =>
                     <div className="flex flex-row gap-4 w-full">
                         <button
                             onClick={handleClose}
-                            className="flex-1 h-[60px] border-2 border-[#2C9993] text-[#2C9993] rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/5 transition-all"
+                            className="flex-1 h-[50px] border-2 border-[#2C9993] text-[#2C9993] rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/5 transition-all"
                         >
                             Maybe Later
                         </button>
                         <button
                             onClick={() => { handleClose(); navigate('/select-plan') }}
-                            className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-[0_4px_14px_0_rgba(44,153,147,0.39)]"
+                            className="flex-1 h-[50px] bg-[#2C9993] text-white rounded-[12px] font-semibold text-[18px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-[0_4px_14px_0_rgba(44,153,147,0.39)]"
                         >
                             Upgrade Now
                         </button>

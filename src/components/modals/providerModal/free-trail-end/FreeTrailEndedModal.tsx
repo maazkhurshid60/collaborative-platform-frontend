@@ -17,7 +17,7 @@ const FreeTrailEndedModal: React.FC<FreeTrailEndedModalProps> = ({ onClose }) =>
 
     return (
         <div
-            className="fixed inset-0 bg-textColor/70 z-50 flex justify-center items-start overflow-y-auto p-4 py-8 md:py-20 backdrop-blur-sm"
+            className="fixed inset-0 bg-textColor/70 z-50 flex justify-center items-start overflow-y-auto p-4 py-8 md:py-20 backdrop-blur-sm w-[50%]"
             onClick={handleClose}
         >
             <div

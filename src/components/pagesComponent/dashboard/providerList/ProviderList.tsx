@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 
 const ProviderList = () => {
-  const heading = ["#", "name", "license No", "email", "status", "specialty", "clients"];
+  const heading = ["#", "name", "gender", "license No", "email", "status", "speciality", "clients"];
   const loginUserDetail = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id
   );
@@ -70,6 +70,7 @@ const ProviderList = () => {
                   >
                     <td className="px-2 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
                     <td className="px-2 py-4">{data?.user?.fullName}</td>
+                    <td className="px-2 py-4 capitalize">{data?.user?.gender || "N/A"}</td>
                     <td className="px-2 py-4">{data?.user?.licenseNo}</td>
                     <td className="px-2 py-4 lowercase">{data?.user?.email}</td>
                     {data?.user?.status === "active" ? (
@@ -78,7 +79,7 @@ const ProviderList = () => {
                       <td className="px-2 py-4 capitalize text-red-500">{data?.user?.status}</td>
                     )}
 
-                    <td className="px-2 py-4 capitalize">{data?.specialty}</td>
+                    <td className="px-2 py-4 capitalize">{data?.speciality}</td>
 
                     <td className="px-2 py-4 w-[100px]">
                       {data?.clientList === undefined ||

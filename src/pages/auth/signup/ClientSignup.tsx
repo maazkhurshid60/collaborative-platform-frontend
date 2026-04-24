@@ -8,6 +8,7 @@ import Button from '../../../components/button/Button';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import authService from '../../../apiServices/authApi/AuthApi';
+import Dropdown from '../../../components/dropdown/Dropdown';
 import { AuthErrorResponse } from '../../../types/axiosType/AxiosType';
 import { AxiosError } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -55,7 +56,7 @@ const ClientSignup = () => {
             age: licenseNoData.age ?? undefined,
             contactNo: licenseNoData.contactNo ?? undefined,
             address: licenseNoData.address ?? undefined,
-            gender: licenseNoData.gender?.toLowerCase() ?? undefined,
+            gender: data.gender || licenseNoData.gender?.toLowerCase() || undefined,
             status: licenseNoData.status ?? undefined,
             clientId: licenseNoData.clientId,
             isApprove: licenseNoData.isApprove
@@ -88,6 +89,9 @@ const ClientSignup = () => {
         if (licenseNoData?.state) {
             setValue("state", licenseNoData.state, { shouldValidate: true });
         }
+        if (licenseNoData?.gender) {
+            setValue("gender", licenseNoData.gender.toLowerCase(), { shouldValidate: true });
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [licenseNoData]);
 
@@ -112,6 +116,21 @@ const ClientSignup = () => {
                         </div>
                         <div className='mb-3.5'>
                             <InputField disabled={isLicenseFound} required label='Email ID' register={register("email")} placeHolder='Enter Email' error={errors?.email?.message} />
+                        </div>
+                        <div className='mb-3.5'>
+                            <Dropdown<FormFields>
+                                disable={isLicenseFound}
+                                name="gender"
+                                control={methods.control}
+                                label="Gender"
+                                options={[
+                                    { value: "male", label: "Male" },
+                                    { value: "female", label: "Female" },
+                                    { value: "prefer_not_to_say", label: "Prefer not to say" },
+                                ]}
+                                placeholder="Choose an option"
+                                error={errors.gender?.message}
+                            />
                         </div>
                         {/* License Number input removed */}
                         <CountryStateSelect disable={isLicenseFound} isStateView={false} />

@@ -17,6 +17,7 @@ import Loader from '../../components/loader/Loader';
 import DeleteClientModal from '../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
 import { getSocket } from '../../socket/Socket';
 import UserIcon from '../../components/icons/user/User';
+import { Bell } from 'lucide-react';
 
 
 const NotificationPage = () => {
@@ -66,7 +67,7 @@ const NotificationPage = () => {
             setIsLoader(false)
         },
         onError: () => {
-            toast.error('Failed to delete the specialty!');
+            toast.error('Failed to delete the notification!');
             setIsLoader(false)
         },
     })
@@ -159,7 +160,19 @@ const NotificationPage = () => {
                     <Loader text="Loading Notifications..." />
                 ) :
 
-                    getCurrentRecords()?.length === 0 ? <NoRecordFound /> :
+                    getCurrentRecords()?.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
+                            <div className="bg-[#2C9993]/5 p-6 rounded-full mb-6">
+                                <div className="bg-[#2C9993]/10 p-4 rounded-full animate-pulse">
+                                    <Bell className="w-12 h-12 text-[#2C9993]" />
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-[#101828] mb-3 font-[Poppins]">No Notifications</h3>
+                            <p className="text-[#667085] max-w-sm font-medium font-[Poppins] leading-relaxed px-4">
+                                You’ll see notifications here for messages, shared documents, and collaboration activity.
+                            </p>
+                        </div>
+                    ) : (
                         <>
                             <div className='h-[65vh] overflow-y-auto '>
 
@@ -206,6 +219,7 @@ const NotificationPage = () => {
                             </div>
                             <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
                         </>
+                    )
             }
 
         </OutletLayout>)

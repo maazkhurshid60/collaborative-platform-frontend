@@ -33,7 +33,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 type FormFields = z.infer<typeof providerSchema>;
 
-export const specialtyOptions = [
+export const specialityOptions = [
   { value: "Psychiatry", label: "Psychiatry" },
   { value: "Psychology", label: "Psychology" },
   { value: "Therapy / Counseling", label: "Therapy / Counseling" },
@@ -56,7 +56,7 @@ export const specialtyOptions = [
 function normalizeSpecialtyValue(dep?: string | null) {
   if (!dep) return "";
   const trimmed = dep.trim();
-  const match = specialtyOptions.find(
+  const match = specialityOptions.find(
     (o) => o.value.toLowerCase() === trimmed.toLowerCase()
   );
   return match?.value ?? trimmed;
@@ -111,9 +111,10 @@ const UserProfile = () => {
       fullName: "",
       licenseNo: "",
       age: 0 as any,
-      specialty: "",
-      otherSpecialty: "",
+      speciality: "",
+      otherSpeciality: "",
       email: "",
+      gender: "",
       contactNo: "" as any,
       address: "",
       //    country: "",
@@ -157,7 +158,8 @@ const UserProfile = () => {
       age: Number(getMeData?.user?.age ?? 0) || 0,
       contactNo: getMeData?.user?.contactNo ?? "",
       email: getMeData?.user?.email ?? "",
-      specialty: normalizeSpecialtyValue(getMeData?.specialty),
+      gender: getMeData?.user?.gender ?? "",
+      speciality: normalizeSpecialtyValue(getMeData?.speciality),
       address: getMeData?.user?.address ?? "",
       //    country: getCountryIsoCode(getMeData?.user?.country),
       state: getMeData?.user?.state ?? "",
@@ -223,14 +225,14 @@ const UserProfile = () => {
       return;
     }
 
-    // Ensure specialty doesn’t get wiped due to casing/mismatch
+    // Ensure speciality doesn’t get wiped due to casing/mismatch
     const safeSpecialty =
-      (data?.specialty && String(data.specialty).trim() !== ""
-        ? data.specialty
-        : normalizeSpecialtyValue(getMeData?.specialty)) || "";
+      (data?.speciality && String(data.speciality).trim() !== ""
+        ? data.speciality
+        : normalizeSpecialtyValue(getMeData?.speciality)) || "";
 
-    const userSelectedSpecialty = safeSpecialty === "Other" && data.otherSpecialty 
-      ? data.otherSpecialty 
+    const userSelectedSpecialty = safeSpecialty === "Other" && data.otherSpeciality 
+      ? data.otherSpeciality 
       : safeSpecialty;
 
     // const safeCountry =
@@ -251,12 +253,13 @@ const UserProfile = () => {
       formData.append("licenseNo", data?.licenseNo ?? "");
     }
     formData.append("age", data?.age?.toString() ?? "0");
-    formData.append("specialty", userSelectedSpecialty);
+    formData.append("speciality", userSelectedSpecialty);
     formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
     formData.append("role", getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "");
     formData.append("state", safeState);
     //   formData.append("country", safeCountry);
     formData.append("contactNo", String(data?.contactNo ?? ""));
+    formData.append("gender", data?.gender ?? "");
 
     // Only include profileImage if user explicitly changed it
     if (imageChanged) {
@@ -388,22 +391,22 @@ const UserProfile = () => {
               />
 
               <Dropdown<FormFields>
-                name="specialty"
-                label="Specialty"
+                name="speciality"
+                label="Speciality"
                 control={control}
-                options={specialtyOptions}
-                placeholder="Choose a specialty"
-                error={errors.specialty?.message}
+                options={specialityOptions}
+                placeholder="Choose a speciality"
+                error={errors.speciality?.message}
               />
-              {methods.watch("specialty") === "Other" && (
+              {methods.watch("speciality") === "Other" && (
                 <div className="">
                   <InputField
                     required
                     type="text"
-                    label="Please specify your specialty"
-                    register={register("otherSpecialty")}
-                    placeHolder="Enter your specialty"
-                    error={errors.otherSpecialty?.message}
+                    label="Please specify your speciality"
+                    register={register("otherSpeciality")}
+                    placeHolder="Enter your speciality"
+                    error={errors.otherSpeciality?.message}
                   />
                 </div>
               )}
@@ -431,6 +434,19 @@ const UserProfile = () => {
                 placeHolder="Enter Address."
                 required
                 error={errors.address?.message}
+              />
+
+              <Dropdown<FormFields>
+                name="gender"
+                label="Gender"
+                control={control}
+                options={[
+                  { value: "male", label: "Male" },
+                  { value: "female", label: "Female" },
+                  { value: "prefer_not_to_say", label: "Prefer not to say" },
+                ]}
+                placeholder="Choose an option"
+                error={errors.gender?.message}
               />
 
               {/* <CountryStateSelect
@@ -516,9 +532,10 @@ const UserProfile = () => {
                 <LabelData label="Client ID" data={getMeData?.client?.clientId || getMeData?.user?.licenseNo} />
               )}
               <LabelData label="Age" data={getMeData?.user?.age ?? ""} />
-              <LabelData label="Specialty" data={getMeData?.specialty} />
+              <LabelData label="Speciality" data={getMeData?.speciality} />
               <LabelData label="Email" data={getMeData?.user?.email} />
               <LabelData label="Contact Number" data={getMeData?.user?.contactNo ?? ""} />
+              <LabelData label="Gender" data={getMeData?.user?.gender ?? "-"} />
               <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
               {/* <LabelData
                 label="Country"

@@ -32,14 +32,14 @@ import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DeleteAccountModal from "../../../components/modals/clientModal/deleteAccountModal/DeleteAccountModal";
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
-import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import SearchBar from "../../../components/searchBar/SearchBar";
 import { filterUsers } from "../../../utils/FilteredUsers";
 
 const VerifiedUsers = () => {
   const heading = [
-    "Sr. No",
+    "#",
     "Name",
+    "Gender",
     "License No/Client ID",
     "State",
     "Status",
@@ -221,6 +221,10 @@ const VerifiedUsers = () => {
                         </p>
                       </div>
                     </div>
+                  </td>
+
+                  <td className="px-4 py-3 align-middle capitalize">
+                    {data?.gender || "N/A"}
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">

@@ -308,12 +308,14 @@ export const SubscriptionSettingPage = () => {
                     <div className="flex flex-col items-start h-auto lg:h-[680px] gap-y-[16px] w-full lg:w-1/2 " >
                         <div className="w-full h-full flex-1 bg-[#E5E7EB]/50 rounded-[16px]  p-[33px] mt-2">
                             <div className="flex flex-col sm:flex-row justify-between gap-6">
-                                <div className="w-full flex flex-col items-start justify-between gap-2">
-                                    <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.billingInfoSection.emailTitle}</p>
-                                    <p className="text-[16px] font-medium text-black font-[Poppins] truncate max-w-[150px] sm:max-w-[200px]" title={subscriptionData.billingEmail}>
-                                        {subscriptionData.billingEmail.length > 20 ? `${subscriptionData.billingEmail.slice(0, 20)}...` : subscriptionData.billingEmail}
-                                    </p>
-                                </div>
+                                {subscriptionData.billingEmail && subscriptionData.billingEmail !== "-" && (
+                                    <div className="w-full flex flex-col items-start justify-between gap-2">
+                                        <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.billingInfoSection.emailTitle}</p>
+                                        <p className="text-[16px] font-medium text-black font-[Poppins] truncate max-w-[150px] sm:max-w-[200px]" title={subscriptionData.billingEmail}>
+                                            {subscriptionData.billingEmail.length > 20 ? `${subscriptionData.billingEmail.slice(0, 20)}...` : subscriptionData.billingEmail}
+                                        </p>
+                                    </div>
+                                )}
                                 {/* 2nd div biling address */}
                                 <div className="w-full flex flex-col items-start justify-between gap-2">
                                     <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">{subscriptionPageData.billingInfoSection.addressTitle}</p>

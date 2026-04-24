@@ -52,6 +52,7 @@ export const ClientSignupSchema = z
   .object({
     email: z.string().email(),
     fullName: fullNameValidator,      // ✅ use here too (optional but recommended)
+    gender: z.string().nonempty("Gender is required"),
     // licenseNo is not needed for clients
     //   country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State must be selected"),
@@ -74,8 +75,9 @@ export const ProviderSignupSchema = z
     //   country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
     fullName: fullNameValidator,      // ✅ now no error
-    specialty: z.string().min(1, "Specialty is required"),
-    otherSpecialty: z.string().optional(),
+    gender: z.string().nonempty("Gender is required"),
+    speciality: z.string().min(1, "Speciality is required"),
+    otherSpeciality: z.string().optional(),
     licenseNo: licenseNoValidator,
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -86,14 +88,14 @@ export const ProviderSignupSchema = z
   })
   .refine(
     (data) => {
-      if (data.specialty === "Other") {
-        return !!data.otherSpecialty && data.otherSpecialty.trim().length > 0;
+      if (data.speciality === "Other") {
+        return !!data.otherSpeciality && data.otherSpeciality.trim().length > 0;
       }
       return true;
     },
     {
-      message: "Please write your specialty",
-      path: ["otherSpecialty"],
+      message: "Please write your speciality",
+      path: ["otherSpeciality"],
     }
   );
 

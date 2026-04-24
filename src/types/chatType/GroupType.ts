@@ -22,7 +22,7 @@ export interface Provider {
     id: string;
     email: string;
     password: string;
-    specialty: string;
+    speciality: string;
     userId: string;
     createdAt: string;
     updatedAt: string;

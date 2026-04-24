@@ -114,7 +114,7 @@ const NewChatModal = () => {
                 return (
                     provider.user?.fullName?.toLowerCase().includes(searchTerm) ||
                     provider.user?.email?.toLowerCase().includes(searchTerm) ||
-                    provider.specialty?.toLowerCase().includes(searchTerm) ||
+                    provider.speciality?.toLowerCase().includes(searchTerm) ||
                     provider.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
                     provider.user?.role?.toLowerCase().includes(searchTerm)
                 );
@@ -164,7 +164,7 @@ const NewChatModal = () => {
                     bgColor='bg-inputBgColor'
                     isBorder={false}
                     borderRounded='rounded-lg'
-                    placeholder='Search Providers by Name, Email, specialty...'
+                    placeholder='Search Providers by Name, Email, speciality...'
                     value={searchQuery}
                     onChange={handleSearchChange}
                     onClear={handleClearSearch}

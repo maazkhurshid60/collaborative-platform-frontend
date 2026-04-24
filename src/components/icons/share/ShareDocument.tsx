@@ -13,7 +13,7 @@ const ShareDocumentIcon = ({ disabled = false, ...props }: ShareDocumentIconProp
         <span className="text-xl text-textGreyColor">
             <IoDocumentTextOutline />
         </span>
-        {!disabled && <ToolTip toolTipText="Share document" />}
+        {!disabled && <ToolTip toolTipText="Send consent\n form for\n treatment" />}
     </div>
 );
 

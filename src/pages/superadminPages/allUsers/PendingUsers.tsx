@@ -27,7 +27,7 @@ import { filterUsers } from "../../../utils/FilteredUsers"
 import SearchBar from "../../../components/searchBar/SearchBar"
 
 const PendingUsers = () => {
-    const heading = ["Sr. No", "Name", "License/Client ID",
+    const heading = ["#", "Name", "License/Client ID",
         //  "Country",
         "State", "status", "Role", "date", "action"];
     const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow);

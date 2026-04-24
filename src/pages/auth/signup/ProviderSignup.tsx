@@ -23,7 +23,7 @@ import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../..
 import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
 
-export const specialtyOptions = [
+export const specialityOptions = [
     { value: "Psychiatry", label: "Psychiatry" },
     { value: "Psychology", label: "Psychology" },
     { value: "Therapy / Counseling", label: "Therapy / Counseling" },
@@ -134,9 +134,10 @@ const ProviderSignup = () => {
         const dataSendToBackend = {
             email: data.email,
             fullName: data.fullName,
+            gender: data.gender,
             password: data.password,
             licenseNo: data.licenseNo,
-            specialty: data.specialty === "Other" ? (data.otherSpecialty || "Other") : data.specialty,
+            speciality: data.speciality === "Other" ? (data.otherSpeciality || "Other") : data.speciality,
             //         country: data.country,
             state: data.state,
             isApprove: "pending",
@@ -212,6 +213,20 @@ const ProviderSignup = () => {
                         <div className='mb-1.5'>
                             <InputField required label='Email ID' register={register("email")} placeHolder='Enter Email.' error={errors.email?.message} disabled={isVerified} />
                         </div>
+                        <div className='mb-1.5'>
+                            <Dropdown<FormFields>
+                                name="gender"
+                                control={control}
+                                label="Gender"
+                                options={[
+                                    { value: "male", label: "Male" },
+                                    { value: "female", label: "Female" },
+                                    { value: "prefer_not_to_say", label: "Prefer not to say" },
+                                ]}
+                                placeholder="Choose an option"
+                                error={errors.gender?.message}
+                            />
+                        </div>
                         {/* 
                         <div className='mb-1.5'>
                             <InputField required
@@ -240,22 +255,22 @@ const ProviderSignup = () => {
 
                         <div className='mb-1.5'>
                             <Dropdown<FormFields>
-                                name="specialty"
+                                name="speciality"
                                 control={control}
-                                label="Specialty"
-                                options={specialtyOptions}
-                                placeholder="Choose a specialty"
-                                error={errors.specialty?.message}
+                                label="Speciality"
+                                options={specialityOptions}
+                                placeholder="Choose a speciality"
+                                error={errors.speciality?.message}
                             />
-                            {methods.watch("specialty") === "Other" && (
+                            {methods.watch("speciality") === "Other" && (
                                 <div className="mt-1.5">
                                     <InputField
                                         required
                                         type="text"
-                                        label="Please specify your specialty"
-                                        register={register("otherSpecialty")}
-                                        placeHolder="Enter your specialty"
-                                        error={errors.otherSpecialty?.message}
+                                        label="Please specify your speciality"
+                                        register={register("otherSpeciality")}
+                                        placeHolder="Enter your speciality"
+                                        error={errors.otherSpeciality?.message}
                                     />
                                 </div>
                             )}

@@ -100,19 +100,19 @@ const UserSetting = () => {
     };
 
     return (
-        <OutletLayout heading='Settings' backButton={<BackIcon onClick={() => navigate(-1)} />}>
+        <OutletLayout backButton={<BackIcon onClick={() => navigate(-1)} />}>
             {isBlockListScreen && <BlockList blockListData={filteredData} />}
             {isShowDeleteModal && <DeleteClientModal heading='Delete Account' onDeleteConfirm={deleteMe} text={<div>Deleting your account will permanently remove access to your data, including signed documents. This action cannot be undone. Are you sure you want to continue?</div>}
             />}
-            <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} profile={loginUserDetail?.user?.profileImage} />
-            <p className='bg-inputBgColor rounded-[8px] px-6 py-2 mt-6 font-[Poppins] font-semibold text-[18px]'>Account Settings</p>
+            {/* <UserAccount name={loginUserDetail.user?.fullName} email={loginUserDetail.email} profile={loginUserDetail?.user?.profileImage} /> */}
+            <p className='  px-6   font-[Poppins] font-bold text-[25px]'>Account Settings</p>
 
             <div className="flex flex-col gap-4 mt-6">
                 {/* Email Box */}
-                <div className='border border-gray-200 rounded-xl p-5 bg-white shadow-sm flex flex-col justify-center'>
+                {/* <div className='border border-gray-200 rounded-xl p-5 bg-white shadow-sm flex flex-col justify-center'>
                     <p className='text-[16px] font-medium'>Email</p>
                     <p className='text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5'>{loginUserDetail.user?.email}</p>
-                </div>
+                </div> */}
 
                 {/* Change Password Box */}
                 <div className='border border-gray-200 rounded-xl p-5 bg-white shadow-sm flex items-center justify-between'>
@@ -128,7 +128,7 @@ const UserSetting = () => {
                 {/* Notification Box */}
                 <div className='border border-gray-200 rounded-xl p-5 bg-white shadow-sm flex items-center justify-between'>
                     <div>
-                        <p className='text-[16px] font-medium'>Notification</p>
+                        <p className='text-[16px] font-medium'>Notifications</p>
                         <p className='text-textGreyColor font-medium text-[12px] md:text-[14px] mt-0.5'>Enable notifications to stay up-to-date</p>
                     </div>
                     <CheckBox checked={isNotificationEnabled} onChange={handleNotificationToggle} />

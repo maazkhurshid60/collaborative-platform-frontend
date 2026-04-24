@@ -127,7 +127,7 @@ const EditClientetails: React.FC<EditClientDetailProps> = ({ clientData }) => {
         onMutate: () => setIsLoader(true),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clients'] })
-            toast.success("Account has been updated successfully")
+            toast.success("Client information updated successfully.")
             setIsLoader(false)
         },
         onError: () => {

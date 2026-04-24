@@ -23,7 +23,7 @@ const HelpAndSupport = () => {
         "Ensure your email and password are entered correctly.",
         "If you forgot your password, use the 'Forgot Password' option to reset it.",
         "If your account is locked or access is restricted.",
-        <>Contact Support Email: <a href="mailto:katelin@kolabme.com" className="text-[#2C9993] hover:underline font-medium">katelin@kolabme.com</a></>
+        <>Contact Support Email: <a href="mailto:support@kolabme.comm" className="text-[#2C9993] hover:underline font-medium">katelin@kolabme.com</a></>
       ],
     },
     {
@@ -35,18 +35,18 @@ const HelpAndSupport = () => {
       ],
     },
     {
-      name: "How many members does the platform support?",
+      name: "How many memebers does the platform support?",
       data: [
-        "Currently we offer 1 Standard plan for 100 members for free and 1000 memebers for standard plan",
+        "Currently we offer 1 Standard plan for 100 memebers for free and 1000 memebers for standard plan",
         "There is no fixed limit for users; capacity scales based on your subscription plan.",
         "Contact support for enterprise-level usage requirements.",
       ],
     },
     {
-      name: "How to add Profile and specialty?",
+      name: "How to add Profile and speciality?",
       data: [
         "Navigate to your User Profile Image from the sidebar.",
-        "Edit your professional details including Profile Image and specialty.",
+        "Edit your professional details including Profile Image and speciality.",
         "Update your profile across the platform.",
       ],
     },

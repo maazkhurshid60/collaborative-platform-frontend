@@ -51,7 +51,7 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
         },
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['loginUser'] });
-            toast.success("Account has blocked successfully")
+            toast.success("Account has been blocked successfully")
 
             dispatch(updateBlockedMembers(response?.data?.user?.blockedMembers));
 
@@ -73,7 +73,7 @@ const BlockUserAccount: React.FC<BlockUserAccountProps> = (props) => {
         },
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['loginUser'] });
-            toast.success("Account has unblocked successfully")
+            toast.success("Account has been unblocked successfully")
 
             dispatch(updateBlockedMembers(response?.data?.user?.blockedMembers));
 
