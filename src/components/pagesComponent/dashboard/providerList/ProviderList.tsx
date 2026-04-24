@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 
 const ProviderList = () => {
-  const heading = ["#", "name", "gender", "license No", "email", "status", "speciality", "clients"];
+  const heading = ["#", "name", "license No", "email", "status", "speciality", "clients"];
   const loginUserDetail = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id
   );
@@ -66,11 +66,10 @@ const ProviderList = () => {
                 return (
                   <tr
                     key={data?.id ?? serialNo}
-                    className="border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s"
+                    className="border-b border-b-solid border-b-lightGreyColor pb-4s"
                   >
                     <td className="px-2 py-4 w-[60px] whitespace-nowrap">{serialNo}</td>
                     <td className="px-2 py-4">{data?.user?.fullName}</td>
-                    <td className="px-2 py-4 capitalize">{data?.user?.gender || "N/A"}</td>
                     <td className="px-2 py-4">{data?.user?.licenseNo}</td>
                     <td className="px-2 py-4 lowercase">{data?.user?.email}</td>
                     {data?.user?.status === "active" ? (

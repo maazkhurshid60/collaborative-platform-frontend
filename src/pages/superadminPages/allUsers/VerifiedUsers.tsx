@@ -39,7 +39,6 @@ const VerifiedUsers = () => {
   const heading = [
     "#",
     "Name",
-    "Gender",
     "License No/Client ID",
     "State",
     "Status",
@@ -221,10 +220,6 @@ const VerifiedUsers = () => {
                         </p>
                       </div>
                     </div>
-                  </td>
-
-                  <td className="px-4 py-3 align-middle capitalize">
-                    {data?.gender || "N/A"}
                   </td>
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">

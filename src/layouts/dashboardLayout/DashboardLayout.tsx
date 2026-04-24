@@ -1,6 +1,6 @@
 import Sidebar from '../../components/sidebar/Sidebar'
 import Navbar from '../../components/navbar/Navbar'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import { useEffect } from 'react'
@@ -13,6 +13,9 @@ import SubscriptionExpiredModal from '../../components/modals/SubscriptionExpire
 import TrialExpiredModal from '../../components/modals/TrialExpiredModal'
 import SubscriptionCanceledModal from '../../components/modals/SubscriptionCanceledModal'
 import EmailVerificationBanner from '../../components/common/EmailVerificationBanner'
+import GenericLockedPage from '../../components/pagesComponent/dummyPages/GenericLockedPage'
+import DummyChatPage from '../../components/pagesComponent/dummyPages/DummyChatPage'
+
 
 const DashboardLayout = () => {
     const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
@@ -53,6 +56,7 @@ const DashboardLayout = () => {
         location.pathname.startsWith('/user-profile');
 
     const token = localStorage.getItem("token");
+    const navigate = useNavigate();
 
     return (
         <div className=" h-screen flex ">
@@ -86,10 +90,41 @@ const DashboardLayout = () => {
                                 <div className="flex h-full items-center justify-center">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2C9993]"></div>
                                 </div>
-                            ) : (
+                            ) : location.pathname === '/dashboard' || location.pathname === '/' ? (
                                 <div className="min-h-full">
                                     <PlanExpiredOverlay />
                                 </div>
+                            ) : location.pathname.startsWith('/clients') ? (
+                                <GenericLockedPage 
+                                    heading="Client List" 
+                                    columns={["#", "Name", "Client ID", "Gender", "Email", "Status", "State", "Verified Status", "Provider Name", "Action"]} 
+                                    label="Access to your client portfolio is currently locked." 
+                                />
+                            ) : location.pathname.startsWith('/providers') ? (
+                                <GenericLockedPage 
+                                    heading="Provider List" 
+                                    columns={["#", "Name", "Email", "Role", "Specialty", "Status", "Action"]} 
+                                    label="Access to the provider directory is currently locked." 
+                                />
+                            ) : location.pathname.startsWith('/chat') ? (
+                                <DummyChatPage />
+                            ) : location.pathname.startsWith('/invoices') ? (
+                                <GenericLockedPage 
+                                    heading="Invoices" 
+                                    columns={["Invoice ID", "Date", "Amount", "Status", "Action"]} 
+                                    label="Access to your billing history is currently locked." 
+                                />
+                            ) : location.pathname.startsWith('/invite-provider') ? (
+                                <GenericLockedPage 
+                                    heading="Invite Provider" 
+                                    columns={["Email", "Role", "Status", "Date", "Action"]} 
+                                    label="The provider invitation system is currently locked." 
+                                />
+                            ) : (
+                                <GenericLockedPage 
+                                    heading="Restricted View" 
+                                    label="This section is currently locked due to inactive subscription." 
+                                />
                             )
                         ) : (
                             <Outlet />
