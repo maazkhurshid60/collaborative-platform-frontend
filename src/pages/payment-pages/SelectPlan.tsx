@@ -241,7 +241,7 @@ const SelectPlan = () => {
                         {/* Footer Auth Link - Only show if not upgrading */}
                         {!isUpgradeFlow && (
                             <p className="text-[#64748B] text-[16px] mb-8">
-                                Already have an account? 
+                                Already have an account?
                                 <span
                                     onClick={() => navigate('/')}
                                     className="text-[#2C9993] font-bold underline cursor-pointer hover:text-[#238a84] transition-colors"

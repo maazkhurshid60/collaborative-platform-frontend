@@ -58,7 +58,7 @@ export const SubscriptionSettingPage = () => {
             monthlyPrice: 9.99,
             annualPrice: 95.90,
             features: [
-                "Up to 1000 Clients",
+                billingCycle === 'monthly' ? "Up to 100 Clients" : "Up to 1000 Clients",
                 "Provider to Provider Communication",
                 "Invite Providers to Platfrom",
                 "Participate in Group Chat",

@@ -349,13 +349,13 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                             ))}
                                         </div>
                                     </div>
-                                </div>
+                                );
+                            })()}
+                            {filteredRecords.length === 0 && !directSignature && (
+                                <p className="text-sm text-gray-500 mt-4 italic">No signatures found for this client on this document.</p>
                             )}
-                        {filteredRecords.length === 0 && !directSignature && (
-                            <p className="text-sm text-gray-500 mt-4 italic">No signatures found for this client on this document.</p>
-                        )}
+                        </div>
                     </div>
-                </div>
                 </div >
             }
         />
