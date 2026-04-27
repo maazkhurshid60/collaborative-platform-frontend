@@ -293,7 +293,7 @@ const SubscriptionPage = () => {
 
                                 <td className="px-4 py-3 align-middle whitespace-nowrap">
                                     <span>
-                                        {lastPayment ? formatDate(lastPayment.createdAt) : "No payment"}
+                                        {lastPayment ? formatDate(lastPayment.periodStart || lastPayment.createdAt) : "No payment"}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 align-middle whitespace-nowrap">

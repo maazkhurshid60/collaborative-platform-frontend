@@ -267,7 +267,33 @@ const ModalBodyContent: React.FC<{
       <div className="mt-4">
         {/* CONTENT AREA */}
         {previewKind === "pdf" && pdfUrl ? (
-          <PdfViewer url={pdfUrl} />
+          <div className="flex flex-col gap-2">
+            {/* Native iframe — browser streams PDF directly from S3, no JS memory overhead */}
+            <iframe
+              src={pdfUrl}
+              title="PDF Document Preview"
+              className="w-full rounded-xl border border-gray-200 shadow-sm bg-gray-50"
+              style={{ height: "60vh", minHeight: "400px" }}
+            />
+            {/* Fallback for browsers that block inline PDF */}
+            <div className="flex items-center justify-end gap-3 pt-1">
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+              >
+                Open in new tab ↗
+              </a>
+              <a
+                href={pdfUrl}
+                download
+                className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+              >
+                Download PDF ⬇
+              </a>
+            </div>
+          </div>
         ) : previewKind === "image" && pdfUrl ? (
           <div className="max-h-[500px] overflow-auto flex justify-center border rounded p-2">
             <img src={pdfUrl} alt="Document Preview" className="max-w-full h-auto object-contain" />

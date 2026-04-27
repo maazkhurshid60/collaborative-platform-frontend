@@ -11,6 +11,8 @@ import notification from "../src/assets/audio/notification.wav"
 import authService from './apiServices/authApi/AuthApi'
 import { saveLoginUserDetailsReducer, setIsRefreshing } from './redux/slices/LoginUserDetailSlice'
 import RenewalSuccessfullModal from './components/modals/RenowalSuccessfullModal'
+import InvoiceModal from './components/modals/InvoiceModal'
+import { subscriptionApiService } from './services/subscriptionApiService'
 import { useDispatch } from 'react-redux'
 const queryClient = new QueryClient();
 
@@ -20,6 +22,29 @@ function App() {
   const dispatch = useDispatch();
   const [showRenwalModal, setShowRenwalModal] = useState(false);
   const [renewalData, setRenewalData] = useState<any>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [latestInvoiceData, setLatestInvoiceData] = useState<any>(null);
+  const [isFetchingReceipt, setIsFetchingReceipt] = useState(false);
+
+  const handleViewLatestReceipt = async () => {
+    if (isFetchingReceipt) return;
+    setIsFetchingReceipt(true);
+    try {
+      const payments = await subscriptionApiService.getAllPayments();
+      if (Array.isArray(payments) && payments.length > 0) {
+        // Backend returns payments sorted desc by createdAt — first is latest
+        setLatestInvoiceData(payments[0]);
+        setShowInvoiceModal(true);
+      } else {
+        toast.error("No invoice found yet. Please refresh in a moment.");
+      }
+    } catch (err) {
+      console.error("Failed to fetch latest invoice:", err);
+      toast.error("Could not load the latest receipt.");
+    } finally {
+      setIsFetchingReceipt(false);
+    }
+  };
 
   const providerId = useSelector((state: RootState) => state?.LoginUserDetail.userDetails?.user?.id)
 
@@ -162,7 +187,23 @@ function App() {
       }
     });
 
+    // Subscription renewal — opens the success modal when Stripe renews the plan
+    socketInstance.on("subscription_renewal", (data) => {
+      console.log("🔁 Subscription renewal received:", data);
+      setRenewalData(data);
+      setShowRenwalModal(true);
+      fetchUserData();
+    });
+
+    // Subscription state changed (created / cancelled / updated) — just refresh user
+    socketInstance.on("subscription_updated", () => {
+      console.log("🔄 Subscription updated");
+      fetchUserData();
+    });
+
     return () => {
+      socketInstance.off("subscription_renewal");
+      socketInstance.off("subscription_updated");
       socketInstance.disconnect(); // 🔥 IMPORTANT
     };
   }, [userId, role, providerId]);
@@ -192,8 +233,20 @@ function App() {
             planName={renewalData?.planName}
             amountBilled={renewalData?.amountBilled}
             nextBillingDate={renewalData?.nextBillingDate}
+            onViewReceipt={handleViewLatestReceipt}
           />
         )}
+
+        {/* Latest Invoice Receipt Modal (opened from "View Receipt" in renewal modal) */}
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          onClose={() => {
+            setShowInvoiceModal(false);
+            setLatestInvoiceData(null);
+          }}
+          invoiceId={latestInvoiceData?.id ?? null}
+          invoiceData={latestInvoiceData}
+        />
       </BrowserRouter>
     </QueryClientProvider>
 

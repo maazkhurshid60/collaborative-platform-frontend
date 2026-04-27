@@ -7,13 +7,7 @@ import Button from '../../../button/Button';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import Checkbox from '../../../checkbox/Checkbox';
 import { DocumentType } from '../../../../types/documentType/DocumentType';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-import Loader from '../../../loader/Loader';
 
-// Set up worker for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // interface Document {
 //     url: string;
@@ -36,7 +30,6 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
     showDownloadButton = false
 }) => {
     const [docContent, setDocContent] = useState<string>('');
-    const [numPages, setNumPages] = useState<number>(0);
     const contentRef = useRef<HTMLDivElement>(null);
     console.log("COMPLETED DOCUMENT", completedDoc);
 
@@ -252,24 +245,30 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                         <div>
                             <p className="font-semibold text-[14px] mb-2">Document Content:</p>
                             {previewKind === 'pdf' ? (
-                                <div className="w-full border rounded overflow-hidden p-2 bg-gray-100 flex flex-col items-center gap-y-4">
-                                    <Document
-                                        file={completedDoc?.document?.url}
-                                        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                                        loading={<Loader text="Loading PDF..." />}
-                                        error={<p className="text-red-500">Failed to load PDF.</p>}
-                                    >
-                                        {Array.from(new Array(numPages), (el, index) => (
-                                            <div key={`page_${index + 1}`} className="shadow-md">
-                                                <Page
-                                                    pageNumber={index + 1}
-                                                    width={contentRef.current ? contentRef.current.offsetWidth - 40 : 500}
-                                                    renderAnnotationLayer={false}
-                                                    renderTextLayer={false}
-                                                />
-                                            </div>
-                                        ))}
-                                    </Document>
+                                <div className="w-full flex flex-col gap-2">
+                                    <iframe
+                                        src={completedDoc?.document?.url}
+                                        title="PDF Document Preview"
+                                        className="w-full rounded-lg border border-gray-200 bg-gray-50"
+                                        style={{ height: '55vh', minHeight: '380px' }}
+                                    />
+                                    <div className="flex justify-end gap-3">
+                                        <a
+                                            href={completedDoc?.document?.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+                                        >
+                                            Open in new tab ↗
+                                        </a>
+                                        <a
+                                            href={completedDoc?.document?.url}
+                                            download
+                                            className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+                                        >
+                                            Download PDF ⬇
+                                        </a>
+                                    </div>
                                 </div>
                             ) : previewKind === 'image' ? (
                                 <div className="flex justify-center border rounded p-2">
@@ -289,55 +288,80 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                         </div>
 
                         <div id="footer-section">
+                            {/* Agreed checkbox */}
                             <div className='mt-4 mb-4'>
                                 <div className='flex items-center gap-x-2.5'>
-
                                     <Checkbox
                                         text="I agree to the terms and condition mentioned above."
-                                        // onChange={() => setIsAgree(!isAgree)}
                                         checked={completedDoc?.isAgree}
                                     />
                                 </div>
                             </div>
 
-                            {/* eSignatures */}
-                            {hasAnySignature && (
-                                <div>
-                                    <p className="font-semibold text-[14px] mb-2">ESignatures:</p>
-                                    <div className="flex flex-wrap gap-4">
-                                        {/* Render nested records */}
-                                        {filteredRecords.map((record: any) => (
-                                            record.eSignature && record.eSignature !== "null" && (
-                                                <img
-                                                    key={record.id}
-                                                    src={record.eSignature}
-                                                    alt="eSignature"
-                                                    crossOrigin="use-credentials"
-                                                    className="w-[400px] h-[200px] border rounded shadow mt-4 object-contain"
-                                                    onError={(e) => {
-                                                        console.error("Signature load error for nested record:", record.id);
-                                                        (e.target as HTMLImageElement).style.display = 'none';
-                                                    }}
-                                                />
-                                            )
-                                        ))}
+                            {/* Deduplicated e-signatures */}
+                            {(() => {
+                                const allSigs: { url: string; label?: string }[] = [];
+                                const seenUrls = new Set<string>();
 
-                                        {/* Render direct signature if not already shown in filteredRecords */}
-                                        {directSignature && directSignature !== "null" && !filteredRecords.some((r: any) => r.eSignature === directSignature) && (
-                                            <img
-                                                src={directSignature}
-                                                alt="eSignature"
-                                                crossOrigin="use-credentials"
-                                                className="w-[400px] h-[200px] border rounded shadow mt-4 object-contain"
-                                                onError={(e) => {
-                                                    console.error("Signature load error for directSignature");
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                }}
-                                            />
-                                        )}
+                                filteredRecords.forEach((record: any) => {
+                                    const sig = record?.eSignature;
+                                    if (sig && sig !== "null" && !seenUrls.has(sig)) {
+                                        seenUrls.add(sig);
+                                        allSigs.push({ url: sig, label: record?.client?.user?.fullName || record?.clientName || undefined });
+                                    }
+                                });
+
+                                if (directSignature && directSignature !== "null" && !seenUrls.has(directSignature)) {
+                                    seenUrls.add(directSignature);
+                                    allSigs.push({ url: directSignature });
+                                }
+
+                                if (allSigs.length === 0) {
+                                    return (
+                                        <div className="mt-6 flex items-center gap-2 text-gray-400 text-sm italic border-t pt-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                            This document has not been signed yet.
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="mt-6 border-t border-dashed border-gray-300 pt-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                <span className="font-semibold text-[14px]">Digitally Signed</span>
+                                            </div>
+                                        </div>
+
+                                        <p className="font-semibold text-[14px] text-gray-700 mb-3">
+                                            E-Signature{allSigs.length > 1 ? 's' : ''} ({allSigs.length}):
+                                        </p>
+
+                                        <div className="flex flex-wrap gap-6">
+                                            {allSigs.map((sig, idx) => (
+                                                <div key={idx} className="flex flex-col items-center gap-1">
+                                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white shadow-sm">
+                                                        <img
+                                                            src={sig.url}
+                                                            alt={`eSignature${sig.label ? ` - ${sig.label}` : ''}`}
+                                                            crossOrigin="use-credentials"
+                                                            className="w-[300px] h-[120px] object-contain"
+                                                            onError={(e) => {
+                                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {sig.label && (
+                                                        <p className="text-xs text-gray-500 font-medium">{sig.label}</p>
+                                                    )}
+                                                    <p className="text-xs text-gray-400">Signature {idx + 1}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })()}
                         </div>
 
                     </div>
