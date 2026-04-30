@@ -14,6 +14,43 @@ class DocumentApiService {
             toast.error(errMsg);
         }
     }
+    /**
+     * Master document catalog (used by the provider-side "Document Sharing" tab).
+     * When `providerId` is passed, the returned `sharedWith` rows are scoped
+     * to that provider so per-(doc, client) status can be derived on the client.
+     */
+    async getAllMasterDocuments(providerId?: string) {
+        try {
+            const response = await this.api.get("/document/list-all", {
+                params: providerId ? { providerId } : undefined,
+            });
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get documents";
+            toast.error(errMsg);
+        }
+    }
+    /**
+     * Paginated recipients for a single document, scoped to a provider.
+     * Powers the "Document Recipients" modal.
+     */
+    async getDocumentRecipients(
+        documentId: string,
+        providerId: string,
+        page: number = 1,
+        limit: number = 10,
+        status?: "signed" | "awaiting"
+    ) {
+        try {
+            const response = await this.api.get(`/document/${documentId}/recipients`, {
+                params: { providerId, page, limit, ...(status ? { status } : {}) },
+            });
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to load recipients";
+            toast.error(errMsg);
+        }
+    }
     async getAllSharedDocumentWithClientApi(clientId: string) {
         try {
             const response = await this.api.post("/document/get-all-shared-document", { clientId }); // prepend /provider here
@@ -23,10 +60,24 @@ class DocumentApiService {
             toast.error(errMsg);
         }
     }
-    async documentSharedWithClientApi(data: documentSharedWithClientType) {
+    /**
+     * Share documents with a single client.
+     *
+     * @param options.silent  When true, suppresses the built-in success toast.
+     *                        Used by callers that share with multiple clients
+     *                        in one batch and want to render a single summary
+     *                        toast themselves (e.g. MultiClientDocShareModal).
+     *                        Errors still toast normally so failures aren't swallowed.
+     */
+    async documentSharedWithClientApi(
+        data: documentSharedWithClientType,
+        options?: { silent?: boolean }
+    ) {
         try {
             const response = await this.api.post("/document/document-shared-by-provider", data); // prepend /provider here
-            toast.success(`${response?.data?.data?.message}`)
+            if (!options?.silent) {
+                toast.success(`${response?.data?.data?.message}`)
+            }
             return response?.data;
         } catch (error: unknown) {
             let errMsg = "Something went wrong";
@@ -35,7 +86,13 @@ class DocumentApiService {
                 errMsg = error.response?.data?.error || "Failed to share document";
             }
 
-            toast.error(errMsg);
+            if (!options?.silent) {
+                toast.error(errMsg);
+                return; // preserve legacy behaviour for non-silent callers
+            }
+            // Silent callers (batch sharers) need to detect per-call failures
+            // so they can build an accurate summary toast.
+            throw error;
         }
     }
     async documentSignByClientApi(formData: {

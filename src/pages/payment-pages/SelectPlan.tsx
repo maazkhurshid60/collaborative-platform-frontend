@@ -180,6 +180,7 @@ const SelectPlan = () => {
                                                             planType: 'STANDARD',
                                                             billingCycle: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
                                                             userData,
+                                                            isUpgrade: isUpgradeFlow,
                                                             isRenewal: hasUsedTrial,
                                                             inviteToken, // ✅ preserve invite context
                                                         }

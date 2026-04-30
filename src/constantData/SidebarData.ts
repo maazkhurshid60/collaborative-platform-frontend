@@ -32,6 +32,11 @@ export const ProviderSidebarData = [
         url: "/clients",
         icon: ClientsIcon
     },
+    {
+        name: "Document Sharing",
+        url: "/document-sharing",
+        icon: DocumentIcon
+    },
 
     {
         name: "Providers",

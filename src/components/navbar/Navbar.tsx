@@ -136,8 +136,13 @@ const Navbar = () => {
   };
 
   const addClientFun = (data: ClientType) => {
-    if (isTrialActive) {
-      toast.info("Collaborating with other providers' clients is a premium feature. Please upgrade your plan.");
+    // Trial providers can re-add their own clients (rare edge case — backend
+    // also allows it) but not attach another provider's. Match the backend
+    // gate so the UI doesn't reject something the API would have accepted.
+    const currentUserId = loginUserDetail?.id;
+    const isOwnClient = data?.createdByProviderId === currentUserId;
+    if (isTrialActive && !isOwnClient) {
+      toast.info("Adding another provider's client is a premium feature. Please upgrade your plan.");
       return;
     }
     updateMutation.mutate(data);

@@ -143,7 +143,9 @@ export default function ChangePlanScreen() {
                                 </div>
                             </div>
                             <p className="text-[16px] font-normal text-[#666666] font-[Poppins]">
-                                {currentPlan} Plan - {isTrialing ? 'Free Trial' : 'Full access to all premium features'}
+                                {isTrialing
+                                    ? `Free Trial — you'll move to the ${currentPlan.charAt(0) + currentPlan.slice(1).toLowerCase()} plan after your trial ends`
+                                    : `${currentPlan} Plan - Full access to all premium features`}
                             </p>
                         </div>
                         <div className="w-[64px] h-[64px] bg-[#FFFFFF] rounded-[16px] flex items-center justify-center shadow-sm" >

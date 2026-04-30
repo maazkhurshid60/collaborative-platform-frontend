@@ -114,7 +114,7 @@ const Sidebar = () => {
 
 
             </div>
-            <div className="px-2 mx-9 mt-auto mb-2">
+            <div className="px-2 mx-9 mt-auto ">
                 <Button
                     text="Logout"
                     icon={<Logout stroke="#fff" className="" />}

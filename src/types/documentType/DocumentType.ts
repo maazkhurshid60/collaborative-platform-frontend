@@ -98,3 +98,56 @@ export interface DocModalData {
     isAgree?: boolean;
     recipientId: string
 }
+
+// ----- Provider-side "Document Sharing" tab -----
+
+/** A single share-row from `DocumentShareWith`, joined into a master document. */
+export interface DocumentShareRow {
+    id: string;
+    documentId: string;
+    clientId: string | null;
+    providerId: string | null;
+    eSignature: string | null;
+    isAgree: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+/**
+ * Master document with its share rows joined in.
+ * When the request is provider-scoped, `sharedWith` only contains rows
+ * belonging to that provider — making per-(doc, client) status easy to derive.
+ */
+export interface MasterDocument {
+    id: string;
+    name: string;
+    url: string;
+    type?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    sharedWith: DocumentShareRow[];
+}
+
+/** Per-(document, client) status used by the multi-client share modal. */
+export type DocClientStatus = 'NEED_SHARE' | 'SHARED' | 'SIGNED';
+
+/** A flattened recipient row returned by `GET /document/:id/recipients`. */
+export interface DocumentRecipient {
+    id: string;
+    clientId: string;
+    fullName: string;
+    email: string | null;
+    isSigned: boolean;
+    eSignature: string | null;
+    updatedAt: string;
+}
+
+export interface DocumentRecipientsResponse {
+    recipients: DocumentRecipient[];
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
+}

@@ -284,7 +284,8 @@ export const PaymentCheckoutPage = () => {
                 name: token ? userDetails?.user?.fullName : userData?.fullName,
                 planType,
                 period: billingCycle,
-                licenseNo: userData?.licenseNo
+                licenseNo: userData?.licenseNo,
+                isUpgrade: location.state?.isUpgrade || location.state?.isRenewal
             };
 
             if (!data.email || !data.planType || !data.period) {

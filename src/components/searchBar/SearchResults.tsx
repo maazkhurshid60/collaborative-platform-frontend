@@ -5,9 +5,10 @@ import AddIcon from '../icons/add/Add';
 import { FaCheckCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { _email } from 'zod/v4/core';
-import { LuCirclePlus } from 'react-icons/lu';
+import { LuCirclePlus, LuLock } from 'react-icons/lu';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { useSubscription } from '../../hooks/useSubscription';
 
 interface SearchResultsProps {
     results: ClientType[];
@@ -76,13 +77,20 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
     onResultClick
 }) => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+    const { isTrialActive } = useSubscription();
     //@ts-ignore
     const isBlocked = loginUserDetail?.user?.blockedMembers?.includes(user?.user?.id);
 
     const isAlreadyAdded = user?.providerList?.some(
         provider => provider.providerId === currentUserId
     );
-    console.log(user.user);
+
+    // Trial providers can only add their own newly-created clients. Attaching
+    // a client created by another provider is a paid-tier feature, so we lock
+    // that action visibly here (the calling Navbar also blocks the click and
+    // the backend rejects the request — three layers of defence).
+    const isOwnClient = user?.createdByProviderId === currentUserId;
+    const isAddLocked = isTrialActive && !isOwnClient;
 
     if (isBlocked) {
         return (
@@ -176,17 +184,30 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({
                         Added
                     </span>
                 ) : user?.user?.role !== "provider" ? (
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onAddClient(user);
-                        }}
-                        className="p-2  text-textGreyColor hover:text-white cursor-pointer  hover:bg-primaryColorDark rounded-md transition-colors duration-200 group"
-                        title="Add to your list"
-                    >
-                        <LuCirclePlus />
-                    </button>
+                    isAddLocked ? (
+                        // Locked state — keep the slot the same size as the +
+                        // button so result rows don't jump when toggling between
+                        // trial / paid users in the list.
+                        <span
+                            className="flex items-center gap-x-1 text-[11px] font-medium px-2 py-1.5 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
+                            title="Upgrade your plan to add another provider's client"
+                        >
+                            <LuLock />
+                            Upgrade
+                        </span>
+                    ) : (
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onAddClient(user);
+                            }}
+                            className="p-2  text-textGreyColor hover:text-white cursor-pointer  hover:bg-primaryColorDark rounded-md transition-colors duration-200 group"
+                            title="Add to your list"
+                        >
+                            <LuCirclePlus />
+                        </button>
+                    )
                 ) : null}
             </div>
         </Link>

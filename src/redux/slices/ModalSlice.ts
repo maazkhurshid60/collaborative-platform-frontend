@@ -17,6 +17,12 @@ const initialState = {
   isInviteProviderModal: false,
   isCancelSubscriptionModal: false,
   isInviteToGroupModalShow: false,
+
+  // Multi-client share modal (provider-side "Document Sharing" tab)
+  isMultiClientDocShareModal: false,
+
+  // Per-document recipients modal — shows which clients have a doc shared/signed
+  isDocumentRecipientsModal: false,
 };
 
 const modalSlice = createSlice({
@@ -67,6 +73,12 @@ const modalSlice = createSlice({
     isInviteToGroupModalShowReducer: (state, action) => {
       state.isInviteToGroupModalShow = action.payload;
     },
+    isMultiClientDocShareModalReducer: (state, action) => {
+      state.isMultiClientDocShareModal = action.payload;
+    },
+    isDocumentRecipientsModalReducer: (state, action) => {
+      state.isDocumentRecipientsModal = action.payload;
+    },
   },
 });
 
@@ -87,6 +99,8 @@ export const {
   isInviteProviderModalShowReducser,
   isCancelSubscriptionModalShowReducer,
   isInviteToGroupModalShowReducer,
+  isMultiClientDocShareModalReducer,
+  isDocumentRecipientsModalReducer,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

@@ -54,6 +54,7 @@ const ClientProfile = lazy(() => import("../pages/providerPages/clients/clientPr
 const AdminInvoices = lazy(() => import("../pages/adminPages/invoices/AdminInvoices"));
 const NotFound = lazy(() => import("../pages/errorPages/NotFound"));
 const InviteProvider = lazy(() => import("../pages/providerPages/inviteProvider/InviteProvider"));
+const DocumentSharing = lazy(() => import("../pages/providerPages/documentSharing/DocumentSharing"));
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -209,6 +210,13 @@ const Routing = () => {
                 <Route path="/setting/change-password" element={<WrappedRoute ><ChangePassword /></WrappedRoute>} />
                 <Route path="/chat" element={<WrappedRoute><Chat /></WrappedRoute>} />
                 <Route path="/clients" element={<WrappedRoute ><Clients /></WrappedRoute>} />
+                <Route path="/document-sharing" element={
+                    <WrappedRoute>
+                        <SubscriptionGuard fallback={<UpgradePrompt message="Upgrade to share documents with clients" showFullScreen={true} />}>
+                            <DocumentSharing />
+                        </SubscriptionGuard>
+                    </WrappedRoute>
+                } />
 
 
                 {

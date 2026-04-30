@@ -53,13 +53,13 @@ const SubscriptionCanceledModal: React.FC<SubscriptionCanceledModalProps> = ({ o
                 <div className="flex flex-row gap-6 w-full mt-auto">
                     <button
                         onClick={handleClose}
-                        className="flex-1 h-[60px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all"
+                        className="flex-1 h-[50px] border-2 border-[#E2E8F0] text-[#101828] rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-gray-50 transition-all"
                     >
                         Close
                     </button>
                     <button
                         onClick={handleViewPlans}
-                        className="flex-1 h-[60px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
+                        className="flex-1 h-[50px] bg-[#2C9993] text-white rounded-[10px] font-medium text-[20px] font-[Poppins] cursor-pointer hover:bg-[#2C9993]/90 transition-all shadow-xl"
                     >
                         View Plans
                     </button>

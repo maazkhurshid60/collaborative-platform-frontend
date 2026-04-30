@@ -86,6 +86,8 @@ import {
   isshowSignedDocumentModalClientPortalReducer,
   isInviteProviderModalShowReducser, // ✅ ADD THIS
   isCancelSubscriptionModalShowReducer,
+  isMultiClientDocShareModalReducer,
+  isDocumentRecipientsModalReducer,
 } from "../../../redux/slices/ModalSlice";
 
 interface ModalLayoutProps {
@@ -111,6 +113,8 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
     dispatch(isshowSignedDocumentModalClientPortalReducer(false));
     dispatch(isInviteProviderModalShowReducser(false)); // ✅ CRITICAL FIX
     dispatch(isCancelSubscriptionModalShowReducer(false));
+    dispatch(isMultiClientDocShareModalReducer(false));
+    dispatch(isDocumentRecipientsModalReducer(false));
   };
 
   const handleClose = () => {
@@ -124,7 +128,7 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
       <div className="w-[90%] md:w-[60%] lg:w-[45%] max-h-[95vh] flex flex-col">
         <div className="bg-white w-full p-5 pb-15  rounded-[20px] overflow-y-auto">
           {/* HEADER */}
-          <div className={`flex items-center pt-5   ${props.heading ? 'pb-4 border-b border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>
+          <div className={`flex items-center pt-5  ${props.heading ? 'pb-4 border-b border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>
             {props.heading && (
               <div className="w-full text-center">
                 <p className="text-center font-semibold text-[18px]">{props.heading}</p>

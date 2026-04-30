@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, Check, Crown, DollarSign, Download, FileText, RefreshCcw, Repeat, Search, SquarePen } from "lucide-react";
+import { ArrowRight, Calendar, Check, Crown, DollarSign, Download, FileText, Lock, RefreshCcw, Repeat, Search, SquarePen } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionApiService } from "../../../services/subscriptionApiService";
+import { useSubscription } from "../../../hooks/useSubscription";
 
 export const SubscriptionSettingPage = () => {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
@@ -19,9 +20,16 @@ export const SubscriptionSettingPage = () => {
     const userEmail = useSelector((state: RootState) => state.LoginUserDetail.userDetails.email);
     const userSubscription = user?.subscription;
 
+    // `useSubscription` does the proper trial check — it verifies both
+    // `status === 'TRIALING'` AND that the trial-end date hasn't passed.
+    // Using it here avoids a known foot-gun: when the redux store is loading
+    // or the subscription hasn't been fetched yet, the local fallback
+    // `subscription?.status || 'ACTIVE'` would mark a real trial user as
+    // "Active" and accidentally label them as a paid Standard subscriber.
+    const { isTrialActive: isTrialing, daysUntilTrialEnd } = useSubscription();
+
     const currentPlanName = userSubscription?.plan || 'STANDARD';
     const subscriptionStatus = userSubscription?.status || 'ACTIVE';
-    const isTrialing = subscriptionStatus === 'TRIALING';
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "-";
@@ -180,15 +188,54 @@ export const SubscriptionSettingPage = () => {
         activePlan: activePlan,
         nextBillingDate: formatDate(userSubscription?.currentPeriodEnd || userSubscription?.trialEnd),
         billingCycle: isAnnual ? "Yearly" : (userSubscription?.currentPeriodEnd ? "Monthly" : "Trial"),
-        amountDue: isAnnual ? `$${activePlan.annualPrice}/yr` : `$${activePlan.monthlyPrice}/mo`,
+        amountDue: isTrialing ? "$0.00" : (isAnnual ? `$${activePlan.annualPrice}/yr` : `$${activePlan.monthlyPrice}/mo`),
         billingEmail: resolvedBillingEmail,
         billingAddress: user?.address || "-",
         billingHistory: transformedHistory
     };
 
 
+    // Restrictions that apply during the free trial. These mirror what the
+    // backend / UI actually enforce today (see Navbar add-existing-client gate
+    // and the addExistingClientToProvider controller). Keep this list accurate
+    // when new trial gates are introduced so users aren't surprised.
+    const trialRestrictions = [
+        "Adding clients created by other providers (collaboration is paid-only)",
+        "Starting new group chats (you can still join when invited)",
+    ];
+
     return (
         <div className="flex flex-col gap-6 pb-10">
+            {/* Free-trial banner — only shown while the trial is active.
+                Sits above everything else so the user can't miss the state. */}
+            {/* {isTrialing && (
+                <div className="rounded-[16px] border border-[#FFA500]/30 bg-gradient-to-r from-[#FFF7E6] to-[#FFFBF0] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#FFA500]/15 text-[#FFA500] flex items-center justify-center flex-shrink-0">
+                            <Crown size={20} />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[15px] font-semibold text-[#101828] font-[Poppins]">
+                                You're on the 14-day Free Trial
+                                {daysUntilTrialEnd > 0 && (
+                                    <span className="text-[#FFA500]"> · {daysUntilTrialEnd} day{daysUntilTrialEnd === 1 ? "" : "s"} left</span>
+                                )}
+                            </p>
+                            <p className="text-[13px] text-[#666666] font-[Poppins] mt-0.5">
+                                Your subscription will move to the {currentPlanName.charAt(0) + currentPlanName.slice(1).toLowerCase()} plan when the trial ends.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/select-plan')}
+                        className="self-start md:self-center px-4 h-[40px] rounded-[10px] bg-[#2C9993] text-white text-[14px] font-medium font-[Poppins] hover:bg-[#2C9993]/90 transition-colors cursor-pointer flex-shrink-0"
+                    >
+                        Upgrade now
+                    </button>
+                </div>
+            )} */}
+
             <div className={` bg-white relative  w-full p-3  pt-5 rounded-lg space-y-7
         font-[Poppins] text-textColor  pb-[33px]
         `}>
@@ -288,6 +335,9 @@ export const SubscriptionSettingPage = () => {
                             </div>
                             {/* Features */}
                             <div className={`  p-6 rounded-[16px]  bg-white mt-5`}>
+                                <p className="text-[14px] font-semibold text-[#101828] mb-3">
+                                    {isTrialing ? "Included in your trial" : "What's included"}
+                                </p>
                                 <ul className="space-y-4">
                                     {activePlan.features.map((feature, i) => (
                                         <li key={i} className="flex items-start gap-3">
@@ -300,6 +350,30 @@ export const SubscriptionSettingPage = () => {
                                         </li>
                                     ))}
                                 </ul>
+
+                                {/* Trial restrictions — explicit list of what's locked
+                                    during the trial. Keeps the user from being surprised
+                                //     when the API rejects an "add existing client" call. */}
+                                {/* {isTrialing && (
+                                //     <div className="mt-6 pt-5 border-t border-[#E2E8F0]">
+                                //         <p className="text-[14px] font-semibold text-[#101828] mb-3">
+                                //             Locked during free trial
+                                //         </p>
+                                //         <ul className="space-y-3">
+                                //             {trialRestrictions.map((restriction, i) => (
+                                //                 <li key={i} className="flex items-start gap-3">
+                                //                     <div className="mt-1 shrink-0 text-[#A0AEC0]">
+                                //                         <Lock size={16} strokeWidth={2.5} />
+                                //                     </div>
+                                //                     <span className="text-[14px] text-[#666666]">
+                                //                         {restriction}
+                                //                     </span>
+                                //                 </li>
+                                //             ))}
+                                //         </ul>
+                                //     </div>
+                                // ) */}
+
                             </div>
                         </div>
 

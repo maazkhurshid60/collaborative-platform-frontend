@@ -199,6 +199,7 @@ function App() {
     socketInstance.on("subscription_updated", () => {
       console.log("🔄 Subscription updated");
       fetchUserData();
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
     });
 
     return () => {
