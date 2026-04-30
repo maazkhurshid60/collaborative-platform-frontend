@@ -137,9 +137,9 @@ const DashboardLayout = () => {
             {!isPaymentFlow && (
                 <>
                     {showPaymentOverdue && (
-                        <PaymentOverDueModal 
-                            onClose={() => setShowPaymentOverdue(false)} 
-                            plan={loginUserDetail?.user?.subscription?.plan}
+                        <PaymentOverDueModal
+                            onClose={() => setShowPaymentOverdue(false)}
+                            billingCycle={loginUserDetail?.user?.subscription?.billingCycle}
                         />
                     )}
 

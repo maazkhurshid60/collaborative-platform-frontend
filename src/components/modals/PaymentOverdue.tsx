@@ -6,15 +6,16 @@ import { subscriptionApiService } from '../../services/subscriptionApiService';
 
 interface PaymentOverDueModalProps {
     onClose?: () => void;
-    plan?: string;
+    billingCycle?: string;
 }
 
-const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose, plan }) => {
+const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose, billingCycle }) => {
     const [isVisible, setIsVisible] = useState(true);
     const navigate = useNavigate();
 
-    // Determine price based on plan (Default to Standard $29 if unknown)
-    const price = plan === 'PRO' ? '49.99' : '29.00';
+    const isYearly = billingCycle === 'YEARLY';
+    const price = isYearly ? '95.90' : '9.99';
+    const periodLabel = isYearly ? 'year' : 'month';
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [invoiceData, setInvoiceData] = useState<any>(null);
 
@@ -39,7 +40,7 @@ const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose, plan
                     items: [
                         {
                             description: `${latestPayment.plan || 'Standard'} Subscription`,
-                            subtext: "Monthly subscription",
+                            subtext: `${isYearly ? 'Yearly' : 'Monthly'} subscription`,
                             qty: "01",
                             price: `${latestPayment.amount}`,
                             amount: `${latestPayment.amount}`,
@@ -140,7 +141,7 @@ const PaymentOverDueModal: React.FC<PaymentOverDueModalProps> = ({ onClose, plan
                                 Payment Overdue
                             </h2>
                             <p className="text-[16px] text-[#667085] font-normal font-[Poppins] mb-8 text-center">
-                                Your payment of ${price} is overdue. Please update your payment method to continue enjoying access to everything you need to succeed.
+                                Your payment of ${price}/{periodLabel} is overdue. Please update your payment method to continue enjoying access to everything you need to succeed.
                             </p>
                             {/* Footer Buttons */}
                             <div className="flex flex-row gap-6 w-full mt-auto">
