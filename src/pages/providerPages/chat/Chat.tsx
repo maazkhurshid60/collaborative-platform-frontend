@@ -18,6 +18,8 @@ import {
   isNewGroupChatModalShowReducser,
   isInviteProviderModalShowReducser,
   isInviteToGroupModalShowReducer,
+  isAddMembersToGroupModalReducer,
+  isGroupSettingsModalReducer,
 } from '../../../redux/slices/ModalSlice';
 import { toast } from 'react-toastify';
 import { ChatChannelType } from '../../../types/chatType/ChatChannelType';
@@ -32,6 +34,8 @@ import SpinnerLoader from '../../../components/loader/SpinnerLoader';
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
 import InviteToGroupModalBody from '../../../components/modals/providerModal/chatModal/InviteToGroupModalBody';
+import AddMembersToGroupModalBody from '../../../components/modals/providerModal/chatModal/AddMembersToGroupModalBody';
+import GroupSettingsModalBody from '../../../components/modals/providerModal/chatModal/GroupSettingsModalBody';
 import { useSubscription } from '../../../hooks/useSubscription';
 
 const Chat = () => {
@@ -46,6 +50,8 @@ const Chat = () => {
 
   const isInviteProviderModal = useSelector((state: RootState) => state?.modalSlice?.isInviteProviderModal);
   const isInviteToGroupModalShow = useSelector((state: RootState) => state?.modalSlice?.isInviteToGroupModalShow);
+  const isAddMembersToGroupModal = useSelector((state: RootState) => state?.modalSlice?.isAddMembersToGroupModal);
+  const isGroupSettingsModal = useSelector((state: RootState) => state?.modalSlice?.isGroupSettingsModal);
 
   const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
   const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
@@ -307,6 +313,32 @@ const Chat = () => {
           heading="Invite to Group"
           onClose={() => dispatch(isInviteToGroupModalShowReducer(false))}
           modalBodyContent={<InviteToGroupModalBody id={activeChatObject?.id} />}
+        />
+      )}
+
+      {isAddMembersToGroupModal && (
+        <ModalLayout
+          heading="Add Members to Group"
+          onClose={() => dispatch(isAddMembersToGroupModalReducer(false))}
+          modalBodyContent={
+            <AddMembersToGroupModalBody
+              groupId={activeChatObject?.id}
+              currentMembers={(activeChatObject as GroupChat)?.members}
+            />
+          }
+        />
+      )}
+
+      {isGroupSettingsModal && (
+        <ModalLayout
+          heading="Group Settings"
+          onClose={() => dispatch(isGroupSettingsModalReducer(false))}
+          modalBodyContent={
+            <GroupSettingsModalBody
+              groupId={activeChatObject?.id}
+              membersCanInvite={(activeChatObject as any)?.membersCanInvite}
+            />
+          }
         />
       )}
 

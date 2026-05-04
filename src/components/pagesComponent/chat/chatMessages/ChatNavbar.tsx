@@ -3,7 +3,7 @@ import Button from '../../../button/Button';
 import { FaRegShareFromSquare } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../redux/store';
-import { isDeleteChannelModalShowReducer, isInviteToGroupModalShowReducer, isModalShowReducser } from '../../../../redux/slices/ModalSlice';
+import { isAddMembersToGroupModalReducer, isDeleteChannelModalShowReducer, isGroupSettingsModalReducer, isInviteToGroupModalShowReducer, isModalShowReducser } from '../../../../redux/slices/ModalSlice';
 import UserIcon from '../../../icons/user/User';
 import { useState } from 'react';
 import { GroupCreatedBy, GroupDelete, GroupMember } from '../../../../types/chatType/GroupType';
@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import messageApiService from '../../../../apiServices/chatApi/messagesApi/MessagesApi';
 import { getSocket } from '../../../../socket/Socket';
 import { HiMiniUserCircle } from 'react-icons/hi2';
-import { FiArchive } from 'react-icons/fi';
+import { FiArchive, FiSettings, FiUserPlus } from 'react-icons/fi';
 import ToolTip from '../../../toolTip/ToolTip';
 
 
@@ -25,6 +25,8 @@ interface chatNavbarProps {
     groupMembers: GroupMember[]
     id: string
     groupCreatedBy?: GroupCreatedBy
+    /** When false, only the creator can add/invite members. Defaults true. */
+    membersCanInvite?: boolean
 }
 
 const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
@@ -195,16 +197,51 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                         </div>
                     }
 
+                    {/* Settings gear — visible only to the group creator. Lets
+                        them open the permissions modal to lock/unlock invites. */}
+                    {props.groupMembers?.length > 0 && loginUserId === props.groupCreatedBy?.id && (
+                        <div className="relative group flex items-center justify-center">
+                            <FiSettings
+                                onClick={() => dispatch(isGroupSettingsModalReducer(true))}
+                                className="text-xl text-textGreyColor hover:text-[#2C9993] cursor-pointer"
+                            />
+                            <ToolTip toolTipText="Group settings" />
+                        </div>
+                    )}
+
                     <div className='flex items-center gap-x-2'>
 
-                        {/* New Invite Button for Group Chats */}
-                        {props.groupMembers?.length > 0 && (
-                            <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
-                                <Button text='Invite' icon={<HiMiniUserCircle />} sm onclick={() => {
-                                    dispatch(isInviteToGroupModalShowReducer(true))
-                                }} />
-                            </div>
-                        )}
+                        {/* Invite buttons (Add Member + Invite) are gated by
+                            two rules:
+                            - Only meaningful for groups (groupMembers > 0)
+                            - When the creator has set `membersCanInvite=false`,
+                              hide them for everyone except the creator. The
+                              backend enforces the same rule, so this is purely
+                              UX — keeps the chat header tidy. */}
+                    {(() => {
+                        const isCreator = loginUserId === props.groupCreatedBy?.id;
+                        const canInvite = props.membersCanInvite !== false || isCreator;
+                        const showInviteButtons = props.groupMembers?.length > 0 && canInvite;
+                        return showInviteButtons ? (
+                            <>
+                                {/* Add platform-providers button — direct add, no email.
+                                    Sits next to "Invite" so the two ways to grow a group
+                                    are visible side-by-side. */}
+                                <div className='w-[80px] md:w-[100px] lg:w-[130px]'>
+                                    <Button text='Add Member' icon={<FiUserPlus />} sm onclick={() => {
+                                        dispatch(isAddMembersToGroupModalReducer(true))
+                                    }} />
+                                </div>
+
+                                {/* Existing Invite-via-email button for Group Chats */}
+                                <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
+                                    <Button text='Invite' icon={<HiMiniUserCircle />} sm onclick={() => {
+                                        dispatch(isInviteToGroupModalShowReducer(true))
+                                    }} />
+                                </div>
+                            </>
+                        ) : null;
+                    })()}
                         {/* Share Button (renamed from Invite)
                         <div className='w-[60px] md:w-[70px] lg:w-[100px]'>
                             <Button text='Share' icon={<FaRegShareFromSquare />} sm onclick={() => {

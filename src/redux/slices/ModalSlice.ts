@@ -23,6 +23,12 @@ const initialState = {
 
   // Per-document recipients modal — shows which clients have a doc shared/signed
   isDocumentRecipientsModal: false,
+
+  // Direct-add platform-providers-to-existing-group modal (chat header)
+  isAddMembersToGroupModal: false,
+
+  // Group settings modal (creator-only) — toggles invite permission
+  isGroupSettingsModal: false,
 };
 
 const modalSlice = createSlice({
@@ -79,6 +85,12 @@ const modalSlice = createSlice({
     isDocumentRecipientsModalReducer: (state, action) => {
       state.isDocumentRecipientsModal = action.payload;
     },
+    isAddMembersToGroupModalReducer: (state, action) => {
+      state.isAddMembersToGroupModal = action.payload;
+    },
+    isGroupSettingsModalReducer: (state, action) => {
+      state.isGroupSettingsModal = action.payload;
+    },
   },
 });
 
@@ -101,6 +113,8 @@ export const {
   isInviteToGroupModalShowReducer,
   isMultiClientDocShareModalReducer,
   isDocumentRecipientsModalReducer,
+  isAddMembersToGroupModalReducer,
+  isGroupSettingsModalReducer,
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

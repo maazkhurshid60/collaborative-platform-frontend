@@ -338,7 +338,7 @@ export const SubscriptionSettingPage = () => {
                                 <p className="text-[14px] font-semibold text-[#101828] mb-3">
                                     {isTrialing ? "Included in your trial" : "What's included"}
                                 </p>
-                                <ul className="space-y-4">
+                                <ul className="space-y-2">
                                     {activePlan.features.map((feature, i) => (
                                         <li key={i} className="flex items-start gap-3">
                                             <div className="mt-1 shrink-0">

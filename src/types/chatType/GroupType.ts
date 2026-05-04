@@ -47,7 +47,11 @@ export interface GroupChat {
     unreadCount?: number
     updatedAt?: string
     provider?: Provider
-
+    /** Provider record id of the creator. Used by the frontend to derive
+     *  the "is current user the creator" check that gates settings UI. */
+    providerId?: string
+    /** When false, only the creator may invite/add members. */
+    membersCanInvite?: boolean
 }
 
 export interface GroupCreatedBy {

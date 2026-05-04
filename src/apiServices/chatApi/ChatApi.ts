@@ -101,6 +101,38 @@ class ChatApiService {
         }
     }
 
+    /**
+     * Direct-add of existing platform providers to an existing group chat —
+     * no email invite, no token. Used by the AddMembersToGroupModal.
+     *
+     * `providerIds` are Provider record ids (the same ids used by createGroup).
+     * Returns the response payload so callers can craft a friendly toast that
+     * names the providers that were actually added.
+     */
+    async addProvidersToGroup(data: { groupId: string; providerIds: string[] }) {
+        try {
+            const response = await this.api.patch("/chat-group/add-members", data);
+            return response?.data;
+        } catch (error) {
+            // Caller (the modal) owns the error toast so it can build a
+            // message that lists providers by name. We just rethrow.
+            throw error;
+        }
+    }
+
+    /**
+     * Toggle the per-group "members can invite" permission. Only the creator
+     * may call this; backend will return 403 for anyone else.
+     */
+    async updateGroupPermissions(data: { groupId: string; membersCanInvite: boolean }) {
+        try {
+            const response = await this.api.patch("/chat-group/permissions", data);
+            return response?.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 
 }
 

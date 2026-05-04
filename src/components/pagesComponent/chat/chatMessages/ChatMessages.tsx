@@ -534,6 +534,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                     id={activeChatObject.id}
                     groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
                     groupCreatedBy={groupCreatedBy}
+                    membersCanInvite={(activeChatObject as any)?.membersCanInvite}
                 />            <hr className="my-4 border-inputBgColor" />
 
                 <div className="flex-1 overflow-y-auto mb-4" ref={messageContainerRef} >

@@ -88,6 +88,8 @@ import {
   isCancelSubscriptionModalShowReducer,
   isMultiClientDocShareModalReducer,
   isDocumentRecipientsModalReducer,
+  isAddMembersToGroupModalReducer,
+  isGroupSettingsModalReducer,
 } from "../../../redux/slices/ModalSlice";
 
 interface ModalLayoutProps {
@@ -115,6 +117,8 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
     dispatch(isCancelSubscriptionModalShowReducer(false));
     dispatch(isMultiClientDocShareModalReducer(false));
     dispatch(isDocumentRecipientsModalReducer(false));
+    dispatch(isAddMembersToGroupModalReducer(false));
+    dispatch(isGroupSettingsModalReducer(false));
   };
 
   const handleClose = () => {
