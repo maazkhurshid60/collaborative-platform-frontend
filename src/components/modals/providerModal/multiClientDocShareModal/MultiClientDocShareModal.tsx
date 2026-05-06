@@ -48,6 +48,8 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
     const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    const hasUnapprovedClients = clients.some((c) => c.user?.isApprove !== "APPROVED");
+
     /**
      * For each client, count how many of the selected docs fall in each status.
      * Used to drive the per-row badges and disable the checkbox when there's
@@ -215,6 +217,12 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
                 Documents already shared with a client are skipped automatically.
             </p>
 
+            {hasUnapprovedClients && (
+                <p className="text-[12px] text-yellow-700 bg-yellow-50 px-3 py-2 rounded mb-3">
+                    Some clients are pending admin approval and cannot receive documents yet.
+                </p>
+            )}
+
             <div className="flex flex-col gap-y-2 max-h-[320px] overflow-y-auto pr-1">
                 {clients.map((client) => {
                     const cid = client.id ?? "";
@@ -223,21 +231,24 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
                     const sharedCount = summary?.sharedCount ?? 0;
                     const signedCount = summary?.signedCount ?? 0;
 
-                    const isFullyAlreadyShared = needShareCount === 0;
+                    const approveStatus = client.user?.isApprove;
+                    const isApproved = approveStatus === "APPROVED";
+                    const isFullyAlreadyShared = isApproved && needShareCount === 0;
+                    const isDisabled = !isApproved || isFullyAlreadyShared;
                     const isChecked = selectedClientIds.includes(cid);
 
                     return (
                         <label
                             key={cid}
-                            className={`flex items-center gap-x-3 p-3 rounded-md border border-lightGreyColor transition-colors ${isFullyAlreadyShared
+                            className={`flex items-center gap-x-3 p-3 rounded-md border border-lightGreyColor transition-colors ${isDisabled
                                 ? "bg-gray-50 cursor-not-allowed opacity-70"
                                 : "hover:bg-primaryColorDark/5 cursor-pointer"
                                 }`}
                         >
                             <Checkbox
-                                checked={isChecked && !isFullyAlreadyShared}
+                                checked={isChecked && !isDisabled}
                                 onChange={(e) =>
-                                    !isFullyAlreadyShared && toggleClient(cid, e.target.checked)
+                                    !isDisabled && toggleClient(cid, e.target.checked)
                                 }
                             />
 
@@ -252,25 +263,39 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
                             </div>
 
                             <div className="flex items-center gap-x-2 flex-wrap justify-end">
-                                {needShareCount > 0 && (
-                                    <span className="px-2 py-1 rounded text-[11px] font-medium bg-primaryColorDark/10 text-primaryColorDark">
-                                        {needShareCount} to share
-                                    </span>
-                                )}
-                                {sharedCount > 0 && (
-                                    <span className="px-2 py-1 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700">
-                                        {sharedCount} already shared
-                                    </span>
-                                )}
-                                {signedCount > 0 && (
-                                    <span className="px-2 py-1 rounded text-[11px] font-medium bg-green-50 text-green-700">
-                                        {signedCount} signed
-                                    </span>
-                                )}
-                                {isFullyAlreadyShared && (
-                                    <span className="px-2 py-1 rounded text-[11px] font-medium text-textGreyColor">
-                                        All up to date
-                                    </span>
+                                {!isApproved ? (
+                                    approveStatus === "REJECTED" ? (
+                                        <span className="px-2 py-1 rounded text-[11px] font-medium bg-red-50 text-red-700">
+                                            Rejected
+                                        </span>
+                                    ) : (
+                                        <span className="px-2 py-1 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700">
+                                            Pending Approval
+                                        </span>
+                                    )
+                                ) : (
+                                    <>
+                                        {needShareCount > 0 && (
+                                            <span className="px-2 py-1 rounded text-[11px] font-medium bg-primaryColorDark/10 text-primaryColorDark">
+                                                {needShareCount} to share
+                                            </span>
+                                        )}
+                                        {sharedCount > 0 && (
+                                            <span className="px-2 py-1 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700">
+                                                {sharedCount} already shared
+                                            </span>
+                                        )}
+                                        {signedCount > 0 && (
+                                            <span className="px-2 py-1 rounded text-[11px] font-medium bg-green-50 text-green-700">
+                                                {signedCount} signed
+                                            </span>
+                                        )}
+                                        {isFullyAlreadyShared && (
+                                            <span className="px-2 py-1 rounded text-[11px] font-medium text-textGreyColor">
+                                                All up to date
+                                            </span>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </label>
