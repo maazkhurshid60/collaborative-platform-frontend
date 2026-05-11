@@ -148,7 +148,7 @@ const Providers = () => {
 
                     {/* Gender */}
                     <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
-                      {data?.user?.gender || "-"}
+                      {data?.user?.gender === "PREFER_NOT_TO_SAY" ? "Prefer not to say" : data?.user?.gender || "-"}
                     </td>
 
                     {/* Email */}

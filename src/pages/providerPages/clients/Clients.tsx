@@ -224,7 +224,7 @@ const Clients = () => {
                     <td className="px-2 py-3 align-middle whitespace-nowrap">{data?.clientId ?? '-'}</td>
 
                     {/* Gender */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">{data?.user?.gender}</td>
+                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">{data?.user?.gender === "PREFER_NOT_TO_SAY" ? "Prefer not to say" : String(data?.user?.gender).toLowerCase()}</td>
 
                     {/* Email (truncate) */}
                     <td className="px-2 py-3 align-middle">
@@ -235,7 +235,7 @@ const Clients = () => {
 
                     {/* Status (pill) */}
                     <td className="px-2 py-4">
-                      <span className={`px-3 py-1 rounded-md text-sm font-medium ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'bg-redColor text-white'}`}>
+                      <span className={`px-3 py-1 rounded-md text-sm font-medium ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'text-redColor'}`}>
                         {data?.user?.status?.toLowerCase()}
                       </span>
                     </td>

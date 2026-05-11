@@ -169,10 +169,10 @@ const ClientList = () => {
 
                                         <td className="px-4 py-4">{data?.user?.fullName}</td>
                                         <td className="px-4 py-4">{data?.clientId}</td>
-                                        <td className="px-4 py-4 capitalize">{data?.user?.gender}</td>
+                                        <td className="px-4 py-4 capitalize">{data?.user?.gender === "PREFER_NOT_TO_SAY" ? "Prefer not to say" : String(data?.user?.gender).toLocaleLowerCase()}</td>
                                         <td className="px-4 py-4 lowercase">{data?.user?.email}</td>
                                         <td className="px-4 py-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-semibold ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : 'bg-red-100 text-red-800'}`}>
+                                            <span className={`px-2 py-1 rounded text-xs  ${data?.user?.status?.toLowerCase() === 'active' ? ' text-primaryColorDark' : ' text-red-800'}`}>
                                                 {data?.user?.status?.toLowerCase()}
                                             </span>
                                         </td>

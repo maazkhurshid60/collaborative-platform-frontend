@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addDataNewJoinUserReducer, emptyDataNewJoinUserReducer } from '../../../redux/slices/JoinNowUserSlice';
 import { saveDecryptedPrivateKey, saveLoginUserDetailsReducer } from '../../../redux/slices/LoginUserDetailSlice';
 import messageApiService, { updateGroupApiType } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
+import HipaaModal from '../../../components/modals/HipaaModal/HipaaModal';
 
 export const specialityOptions = [
     { value: "Psychiatry", label: "Psychiatry" },
@@ -55,6 +56,7 @@ const ProviderSignup = () => {
     const joinUser = useSelector((state: RootState) => state?.joinUserSlice?.data)
     const [invitedByName, setInvitedByName] = useState<string | null>(null);
     const [isVerified, setIsVerified] = useState(false);
+    const [showHipaaModal, setShowHipaaModal] = useState(false);
 
     const methods = useForm<FormFields>({
         resolver: zodResolver(ProviderSignupSchema),
@@ -195,6 +197,7 @@ const ProviderSignup = () => {
     return (
         <>
             {isLoading && <Loader />}
+            {showHipaaModal && <HipaaModal onClose={() => setShowHipaaModal(false)} />}
             <AuthLayout heading="Sign up" currentStep={1} totalSteps={2}>
                 <FormProvider {...methods}>
 
@@ -286,10 +289,49 @@ const ProviderSignup = () => {
                             </p>
                         </div>
 
-                        <div className='mb-1.5'>
+                        <div className='mb-3.5'>
                             <InputField required label='Confirm Password' type='password' register={register("confirmPassword")} placeHolder='Enter Confirm Password.' error={errors.confirmPassword?.message} />
                         </div>
-                        <div className='mt-10'>
+
+                        {/* ── HIPAA Consent ── */}
+                        <div className="mt-4 mb-2">
+                            <label htmlFor="provider-hipaa-consent" className="flex items-start gap-3 cursor-pointer">
+                                <span className="relative flex-shrink-0 mt-0.5">
+                                    <input
+                                        id="provider-hipaa-consent"
+                                        type="checkbox"
+                                        className="peer sr-only"
+                                        {...register("hipaaConsent")}
+                                    />
+                                    <span className="block w-5 h-5 rounded-[5px] border-2 border-gray-300 bg-white peer-checked:bg-[#0d9488] peer-checked:border-[#0d9488] transition-all shadow-sm">
+                                        <svg className="w-full h-full text-white opacity-0 peer-checked:opacity-100 transition-opacity p-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </span>
+                                </span>
+                                <span className="text-sm text-gray-600 leading-relaxed select-none">
+                                    I consent to and agree with the{" "}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowHipaaModal(true)}
+                                        className="text-[#0d9488] font-semibold underline underline-offset-2 hover:text-teal-700 transition-colors"
+                                    >
+                                        HIPAA Compliance Terms
+                                    </button>
+                                    . I understand my obligations regarding protected health information (PHI).
+                                </span>
+                            </label>
+                            {errors.hipaaConsent && (
+                                <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    {errors.hipaaConsent.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className='mt-6'>
 
                             <Button text='sign up' />
                         </div>

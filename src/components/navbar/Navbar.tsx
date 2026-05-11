@@ -17,6 +17,10 @@ import Loader from "../loader/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { LuSearch } from "react-icons/lu";
 import { useSubscription } from "../../hooks/useSubscription";
+import { disconnectSocket } from "../../socket/Socket";
+import authService from "../../apiServices/authApi/AuthApi";
+import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
+import { ArrowRight } from "lucide-react";
 
 const Navbar = () => {
   const { isTrialActive } = useSubscription();
@@ -216,6 +220,35 @@ const Navbar = () => {
     }
   }
 
+  const logoutFunction = async () => {
+    try {
+      // Call backend to clear cookies
+      await authService.logout();
+    } catch (error) {
+      console.error("Backend logout failed", error);
+    }
+
+    disconnectSocket();
+
+    // Comprehensive cleanup
+    localStorage.clear();
+    sessionStorage.clear();
+
+    const clearCaches = 'caches' in window
+      ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
+      : Promise.resolve();
+
+    const unregisterServiceWorkers = 'serviceWorker' in navigator
+      ? navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister())))
+      : Promise.resolve();
+
+    Promise.all([clearCaches, unregisterServiceWorkers]).then(() => {
+      dispatch(emptyResult());
+      navigate("/");
+      window.location.reload();
+    });
+  };
+
   const isSuperAdmin = loginUserDetail?.user?.role === "superAdmin";
   const isProvider = loginUserDetail?.user?.role === "provider";
   const isClient = loginUserDetail?.user?.role === "client";
@@ -362,6 +395,16 @@ const Navbar = () => {
               >
                 Help & Support
               </Link>
+              <li
+                onClick={() => {
+                  setIsDropDownOpen(false);
+                  logoutFunction();
+                }}
+                className="cursor-pointer py-2 px-3 rounded-[10px] hover:bg-red-200 list-none flex items-start gap-x-8"
+              >
+                <p>Logout</p>
+                <ArrowRight className="text-red-900" />
+              </li>
             </ul>
           </div>
         )}

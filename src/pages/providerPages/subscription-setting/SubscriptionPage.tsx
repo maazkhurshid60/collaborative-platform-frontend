@@ -101,7 +101,7 @@ export const SubscriptionSettingPage = () => {
 
     const activePlan = plans.find(p => p.isActive) || plans[0];
 
-    const { data: billingHistory, isLoading: isLoadingPayments } = useQuery({
+    const { data: billingHistory, } = useQuery({
         queryKey: ['payments'],
         queryFn: subscriptionApiService.getAllPayments
     });

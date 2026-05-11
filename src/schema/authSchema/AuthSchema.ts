@@ -58,6 +58,9 @@ export const ClientSignupSchema = z
     state: z.string().nonempty("State must be selected"),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
+    hipaaConsent: z.literal(true, {
+      errorMap: () => ({ message: "You must agree to the HIPAA compliance terms to continue." }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
@@ -81,6 +84,9 @@ export const ProviderSignupSchema = z
     licenseNo: licenseNoValidator,
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
+    hipaaConsent: z.literal(true, {
+      errorMap: () => ({ message: "You must agree to the HIPAA compliance terms to continue." }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
