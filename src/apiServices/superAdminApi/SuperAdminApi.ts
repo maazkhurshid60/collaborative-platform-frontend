@@ -116,6 +116,22 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async getAllAuditLogs(params: any = {}) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.get("/audit-logs/all", {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching all audit logs:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();

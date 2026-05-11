@@ -55,6 +55,8 @@ const AdminInvoices = lazy(() => import("../pages/adminPages/invoices/AdminInvoi
 const NotFound = lazy(() => import("../pages/errorPages/NotFound"));
 const InviteProvider = lazy(() => import("../pages/providerPages/inviteProvider/InviteProvider"));
 const DocumentSharing = lazy(() => import("../pages/providerPages/documentSharing/DocumentSharing"));
+const AuditLogs = lazy(() => import("../pages/superadminPages/auditLogs/AuditLogs"));
+
 
 const Routing = () => {
     const loginUserRole = useSelector((state: RootState) => state.LoginUserDetail.userDetails?.user?.role)
@@ -187,6 +189,11 @@ const Routing = () => {
                 {
                     loginUserRole === "superAdmin" && (
                         <Route path="/invoices" element={<WrappedRoute><AdminInvoices /></WrappedRoute>} />
+                    )
+                }
+                {
+                    loginUserRole === "superAdmin" && (
+                        <Route path="/audit-logs" element={<WrappedRoute><AuditLogs /></WrappedRoute>} />
                     )
                 }
 
