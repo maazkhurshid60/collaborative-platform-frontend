@@ -1,4 +1,3 @@
-// src/components/navbar/Navbar.tsx  (your Navbar with navigation added)
 import { useEffect, useMemo, useRef, useState } from "react";
 import SearchBar from "../searchBar/SearchBar";
 import SearchResults from "../searchBar/SearchResults";
@@ -296,11 +295,8 @@ const Navbar = () => {
                 emptyMessage={searchQuery ? `No users found for "${searchQuery}"` : "Start typing to search users..."}
               />
             </div>
-
           )}
-
         </div>
-
         {(screenWidth >= 768 || (screenWidth < 768 && !isSearchbarClose)) && (
           <div
             className={`flex items-center relative gap-x-2 bg-white ${isSuperAdmin ? "cursor-pointer" : "cursor-pointer"}`}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IoAttachSharp } from "react-icons/io5";
 import { IoIosSend } from "react-icons/io";
 import UserIcon from '../../../icons/user/User';
@@ -19,6 +19,7 @@ import { FaRegCircle } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import DeleteIcon from '../../../icons/delete/DeleteIcon';
+import PhiAttestationModal from '../../../modals/PhiAttestationModal/PhiAttestationModal';
 
 
 
@@ -57,6 +58,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [showPhiModal, setShowPhiModal] = useState(false);
+    const userRole = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role);
+    const clientList = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.clientList);
+
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -87,7 +92,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
 
             setUnreadCounts({});
         } catch (error) {
-            console.error("❌ Failed to mark messages as read:", error);
+            console.error(" Failed to mark messages as read:", error);
         }
     };
 
@@ -179,8 +184,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         }
     }, [messages.length, unreadCounts]);
 
-    const sendMessage = async () => {
+    const sendMessage = async (phiData?: { isPhi: boolean; phiClientId?: string }) => {
         if ((!sendMessageText.trim() && selectedFiles.length === 0) || !activeChatObject) return;
+
+        // If provider and modal not shown yet, show it (case-insensitive role check)
+        const normalizedRole = String(userRole || '').toLowerCase();
+        if (normalizedRole === 'provider' && !phiData) {
+            setShowPhiModal(true);
+            return;
+        }
 
         const tempId = `temp-${Date.now()}`;
         const tempMsg: Message = {
@@ -207,6 +219,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                 formData.append("chatChannelId", activeChatObject.id);
             } else {
                 formData.append("groupId", activeChatObject.id);
+            }
+
+            if (phiData) {
+                formData.append("isPhi", String(phiData.isPhi));
+                if (phiData.phiClientId) {
+                    formData.append("phiClientId", phiData.phiClientId);
+                }
             }
 
             if (sendMessageText.trim()) {
@@ -529,6 +548,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
         <>
 
             <div className="bg-white p-3 rounded-lg h-full flex flex-col">
+                {showPhiModal && (
+                    <PhiAttestationModal
+                        onClose={() => setShowPhiModal(false)}
+                        isMedia={selectedFiles.length > 0}
+                        clients={(clientList || []).map((item: any) => ({
+                            id: item?.client?.id || item?.clientId,
+                            user: { fullName: item?.client?.user?.fullName || 'Unknown Client' }
+                        }))}
+                        onConfirm={(data) => {
+                            setShowPhiModal(false);
+                            sendMessage(data);
+                        }}
+                    />
+                )}
                 <ChatNavbar
                     name={otherName}
                     id={activeChatObject.id}
@@ -755,7 +788,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messageData, activeChatObje
                                     <IoAttachSharp size={30} className="rotate-45 cursor-pointer text-textGreyColor" onClick={() => fileInputRef.current?.click()} />
                                     <button
                                         className="h-[38px] w-[38px] bg-primaryColorDark rounded-full flex items-center justify-center text-white"
-                                        onClick={sendMessage}
+                                        onClick={() => sendMessage()}
                                     >
                                         <IoIosSend size={24} className='cursor-pointer' />
                                     </button>

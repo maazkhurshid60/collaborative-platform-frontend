@@ -8,7 +8,6 @@ const strongPassword = z
   .regex(/[0-9]/, { message: "One sohuld be numeric number" })
   .regex(/[^A-Za-z0-9]/, { message: "One sohuld be special character" });
 
-// ✅ Put validators FIRST (before schemas that use them)
 export const fullNameValidator = z
   .string()
   .trim()
@@ -24,7 +23,6 @@ export const licenseNoValidator = z
   .trim()
   .min(1, "License number is required.");
 
-// ✅ Schemas AFTER validators
 export const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().nonempty("Password is required"),
@@ -51,10 +49,9 @@ export const ClientIdSchema = z.object({
 export const ClientSignupSchema = z
   .object({
     email: z.string().email(),
-    fullName: fullNameValidator,      // ✅ use here too (optional but recommended)
+    fullName: fullNameValidator,
     gender: z.string().nonempty("Gender is required"),
-    // licenseNo is not needed for clients
-    //   country: z.literal("US", { message: "Only United States is supported" }),
+
     state: z.string().nonempty("State must be selected"),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -75,9 +72,8 @@ interface ClientIdData {
 export const ProviderSignupSchema = z
   .object({
     email: z.string().email("Email is required"),
-    //   country: z.literal("US", { message: "Only United States is supported" }),
     state: z.string().nonempty("State is required"),
-    fullName: fullNameValidator,      // ✅ now no error
+    fullName: fullNameValidator,
     gender: z.string().nonempty("Gender is required"),
     speciality: z.string().min(1, "Speciality is required"),
     otherSpeciality: z.string().optional(),
