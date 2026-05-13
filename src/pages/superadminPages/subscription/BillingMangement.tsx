@@ -5,8 +5,7 @@ import { GoDotFill } from "react-icons/go"
 import { Download as DownloadIcon, User2, User2Icon, UserCircle2, UserIcon } from "lucide-react"
 import ViewIcon from "../../../components/icons/view/View"
 import DeleteIcon from "../../../components/icons/delete/DeleteIcon"
-import DownloadIconComponent from "../../../components/icons/download/Download"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice"
 import { useDispatch, useSelector } from "react-redux"
@@ -17,6 +16,7 @@ import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf"
 import { RootState } from "../../../redux/store"
 import { toast } from "react-toastify"
 import DeleteProviderModal from "../../../components/modals/DeleteProviderModal"
+import { useDebounce } from "../../../hook/useDebounce"
 
 
 const SubscriptionPage = () => {
@@ -25,6 +25,7 @@ const SubscriptionPage = () => {
     const isDeleteModalOpen = useSelector((state: RootState) => state.modalSlice.isModalDelete);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
     const [activeFilter, setActiveFilter] = useState("All");
     const [selectedSubscriptionForDelete, setSelectedSubscriptionForDelete] = useState("");
     const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -156,21 +157,23 @@ const SubscriptionPage = () => {
 
     const filterOptions = ["All", "Trial", "Paid", "Failed", "Canceled"];
 
-    const filteredRecords = subscriptions.filter((record) => {
-        const fullName = record.user?.fullName || "";
-        const email = record.user?.email || "";
-        const matchesSearch = fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            email.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredRecords = useMemo(() => {
+        return subscriptions.filter((record) => {
+            const fullName = record.user?.fullName || "";
+            const email = record.user?.email || "";
+            const matchesSearch = fullName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                email.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
-        const displayStatus = formatStatus(record.status);
-        const matchesFilter = activeFilter === "All" || displayStatus === activeFilter;
+            const displayStatus = formatStatus(record.status);
+            const matchesFilter = activeFilter === "All" || displayStatus === activeFilter;
 
-        return matchesSearch && matchesFilter;
-    });
+            return matchesSearch && matchesFilter;
+        });
+    }, [subscriptions, debouncedSearchTerm, activeFilter]);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, activeFilter]);
+    }, [debouncedSearchTerm, activeFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filteredRecords.length / recordsPerPage));
 

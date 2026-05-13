@@ -9,10 +9,12 @@ import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi"
 import InvoiceModal from "../../../components/modals/InvoiceModal"
 import DownloadIcon from "../../../components/icons/download/Download"
 import { downloadInvoicePdf } from "../../../utils/downloadInvoicePdf"
+import { useDebounce } from "../../../hook/useDebounce"
 
 const TransactionDetail = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
     const [activeFilter, setActiveFilter] = useState("All");
     const [payments, setPayments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -71,16 +73,16 @@ const TransactionDetail = () => {
     const filteredRecords = useMemo(() => payments.filter((record) => {
         const fullName = record.user?.fullName || "";
         const email = record.user?.email || "";
-        const matchesSearch = fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = fullName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            email.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
         const matchesFilter = activeFilter === "All" || formatStatus(record.status) === activeFilter;
         return matchesSearch && matchesFilter;
-    }), [payments, searchTerm, activeFilter]);
+    }), [payments, debouncedSearchTerm, activeFilter]);
 
     // Reset to page 1 whenever search or filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, activeFilter]);
+    }, [debouncedSearchTerm, activeFilter]);
 
     const paginatedRecords = useMemo(() => filteredRecords.slice(
         (currentPage - 1) * recordsPerPage,

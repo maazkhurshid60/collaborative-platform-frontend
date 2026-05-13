@@ -313,6 +313,7 @@ import { IoMdAdd } from "react-icons/io";
 import ViewAddDocumentModal from "../../components/modals/superAdminModal/deleteAccountModal/ViewAddDocumentModal";
 import DeleteDocumentModal from "../../components/modals/superAdminModal/deleteAccountModal/deleteDocumentModal/DeleteDocumentModal";
 
+import { useDebounce } from "../../hook/useDebounce";
 import { filterDocuments } from "../../utils/FilteredDocuments";
 
 type PreviewType = "image" | "pdf" | "docx" | "unsupported";
@@ -375,6 +376,7 @@ const AllDocuments = () => {
   const clientId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // NEW: preview mode state
   const [previewKind, setPreviewKind] = useState<PreviewKind>("html");
@@ -414,8 +416,8 @@ const AllDocuments = () => {
 
 
   const filteredDocuments = useMemo(() => {
-    return filterDocuments(Array.isArray(documentData) ? documentData : [], searchTerm);
-  }, [documentData, searchTerm]);
+    return filterDocuments(Array.isArray(documentData) ? documentData : [], debouncedSearchTerm);
+  }, [documentData, debouncedSearchTerm]);
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } = usePaginationHook({
     data: filteredDocuments,
