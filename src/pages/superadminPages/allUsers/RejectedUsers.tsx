@@ -5,7 +5,7 @@ import ViewIcon from "../../../components/icons/view/View"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
 import UserIcon from "../../../components/icons/user/User"
 import { GoDotFill } from "react-icons/go";
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "../../../redux/store"
 
@@ -24,6 +24,7 @@ import { toast } from "react-toastify"
 import RestoreAccountModal from "../../../components/modals/superAdminModal/deleteAccountModal/RestoreAccountModal"
 import SearchBar from "../../../components/searchBar/SearchBar"
 import { filterUsers } from "../../../utils/FilteredUsers"
+import { useDebounce } from "../../../hook/useDebounce"
 
 
 const RejectedUsers = () => {
@@ -37,6 +38,7 @@ const RejectedUsers = () => {
     const dispatch = useDispatch<AppDispatch>()
     const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
     const [isRestoreLoading, setIsRestoreLoading] = useState(false);
 
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
@@ -62,7 +64,9 @@ const RejectedUsers = () => {
         }
 
     })
-    const filteredUsers = filterUsers(allUsers || [], searchTerm);
+    const filteredUsers = useMemo(() => {
+        return filterUsers(allUsers || [], debouncedSearchTerm);
+    }, [allUsers, debouncedSearchTerm]);
 
     const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
         usePaginationHook({ data: Array.isArray(filteredUsers) ? filteredUsers : [], recordPerPage: 7 });

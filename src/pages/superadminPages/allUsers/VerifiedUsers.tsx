@@ -34,6 +34,7 @@ import DeleteAccountModal from "../../../components/modals/clientModal/deleteAcc
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import SearchBar from "../../../components/searchBar/SearchBar";
 import { filterUsers } from "../../../utils/FilteredUsers";
+import { useDebounce } from "../../../hook/useDebounce";
 
 const VerifiedUsers = () => {
   const heading = [
@@ -75,6 +76,7 @@ const VerifiedUsers = () => {
 
   // Search term is controlled by state but initialized/synced from URL
   const [searchTerm, setSearchTerm] = useState<string>(qFromUrl);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // ✅ Keep searchTerm synced if user lands directly with ?q=
   useEffect(() => {
@@ -104,8 +106,8 @@ const VerifiedUsers = () => {
   });
 
   const filteredUsers = useMemo(() => {
-    return filterUsers(allUsers || [], searchTerm);
-  }, [allUsers, searchTerm]);
+    return filterUsers(allUsers || [], debouncedSearchTerm);
+  }, [allUsers, debouncedSearchTerm]);
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
     usePaginationHook({
@@ -121,6 +123,22 @@ const VerifiedUsers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageFromUrl]);
 
+  // Update URL when debouncedSearchTerm changes
+  useEffect(() => {
+    setSearchParams((prev) => {
+      // If we are initializing from URL, don't reset page unless it's a real search change
+      if (debouncedSearchTerm !== qFromUrl) {
+          prev.set("page", "1");
+          handlePageChange(1);
+      }
+      
+      if (debouncedSearchTerm) prev.set("q", debouncedSearchTerm);
+      else prev.delete("q");
+      return prev;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
+
   // ✅ Keep URL updated when user changes page
   const onPageChange = (page: number) => {
     handlePageChange(page);
@@ -135,13 +153,6 @@ const VerifiedUsers = () => {
   // ✅ Keep URL updated when user types search (reset to page 1)
   const onSearchChange = (value: string) => {
     setSearchTerm(value);
-    handlePageChange(1);
-    setSearchParams((prev) => {
-      prev.set("page", "1");
-      if (value) prev.set("q", value);
-      else prev.delete("q");
-      return prev;
-    });
   };
 
   useEffect(() => {

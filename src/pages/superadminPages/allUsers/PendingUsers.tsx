@@ -5,7 +5,7 @@ import ViewIcon from "../../../components/icons/view/View"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
 import UserIcon from "../../../components/icons/user/User"
 import { GoDotFill } from "react-icons/go"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "../../../redux/store"
 import { toast } from "react-toastify"
@@ -25,6 +25,7 @@ import RejectIcon from "../../../components/icons/reject/Reject"
 import RejectAccountModal from "../../../components/modals/superAdminModal/deleteAccountModal/RejectAccountModal"
 import { filterUsers } from "../../../utils/FilteredUsers"
 import SearchBar from "../../../components/searchBar/SearchBar"
+import { useDebounce } from "../../../hook/useDebounce"
 
 const PendingUsers = () => {
     const heading = ["#", "Name", "License/Client ID",
@@ -37,6 +38,7 @@ const PendingUsers = () => {
     const [selectedUserForReject, setSelectedUserForReject] = useState<User | null>(null);
     const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
     const [isApproveLoading, setIsApproveLoading] = useState(false);
     const [isRejectLoading, setIsRejectLoading] = useState(false);
 
@@ -60,7 +62,9 @@ const PendingUsers = () => {
             }
         }
     });
-    const filteredUsers = filterUsers(allUsers || [], searchTerm);
+    const filteredUsers = useMemo(() => {
+        return filterUsers(allUsers || [], debouncedSearchTerm);
+    }, [allUsers, debouncedSearchTerm]);
 
     const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
         usePaginationHook({ data: filteredUsers || [], recordPerPage: 7 });
