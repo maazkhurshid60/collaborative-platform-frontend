@@ -12,8 +12,13 @@ import ModalLayout from "../../../components/modals/modalLayout/ModalLayout";
 import ViewIcon from "../../../components/icons/view/View";
 import { useDebounce } from "../../../hook/useDebounce";
 import * as XLSX from "xlsx";
-import { Download } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import Button from "../../../components/button/Button";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
+import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
+import DeleteLogModal from "../../../components/modals/superAdminModal/DeleteLogModal";
+import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 
 const AuditLogs = () => {
     const heading = ["User", "Action", "Resource", "Timestamp", "Action"];
@@ -21,17 +26,24 @@ const AuditLogs = () => {
     const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce search for 500ms
     const [page, setPage] = useState(1);
     const [selectedLog, setSelectedLog] = useState<any>(null);
+    const [logToDelete, setLogToDelete] = useState<string | null>(null);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const isDeleteModalOpen = useSelector((state: RootState) => state.modalSlice.isModalDelete);
+    const dispatch = useDispatch<AppDispatch>();
+    const [selectedResource, setSelectedResource] = useState("All");
     const limit = 10;
 
+    const resourceTypes = ["All", "AUTH", "USER", "CHAT", "DOCUMENT", "CLIENT", "SUBSCRIPTION"];
     const { data, isLoading } = useQuery({
-        // Include debounced search term in queryKey to trigger fetch when it changes
-        queryKey: ["auditLogs", page, debouncedSearchTerm],
+        // Include debounced search term and selected resource in queryKey to trigger fetch when they change
+        queryKey: ["auditLogs", page, debouncedSearchTerm, selectedResource],
         queryFn: async () => {
             const response = await superAdminApi.getAllAuditLogs({
                 page,
                 limit,
                 search: debouncedSearchTerm, // Pass debounced search term to API
+                resource: selectedResource === "All" ? undefined : selectedResource, // Pass selected resource to API
             });
             return response?.data;
         },
@@ -58,7 +70,8 @@ const AuditLogs = () => {
             const response = await superAdminApi.getAllAuditLogs({
                 page: 1,
                 limit: 2000, // Reasonable limit for a single CSV export
-                search: debouncedSearchTerm
+                search: debouncedSearchTerm,
+                resource: selectedResource === "All" ? undefined : selectedResource
             });
 
             const logsToExport = response?.data?.logs || [];
@@ -96,6 +109,17 @@ const AuditLogs = () => {
     return (
         <OutletLayout heading="Audit Logs">
             {(isLoading) && <Loader text="Syncing Audit Trail..." />}
+
+            {isDeleteModalOpen && (logToDelete || selectedIds.length > 0) && (
+                <DeleteLogModal
+                    logId={logToDelete}
+                    logIds={logToDelete ? undefined : selectedIds}
+                    onSuccess={() => {
+                        setSelectedIds([]);
+                        setLogToDelete(null);
+                    }}
+                />
+            )}
 
             {isModalOpen && selectedLog && (
                 <ModalLayout
@@ -147,22 +171,56 @@ const AuditLogs = () => {
                 />
             )}
 
-            <div className="flex items-center justify-end mt-4 gap-x-4">
-                <div className="w-[150px]">
-                    <Button
-                        text="Export CSV"
-                        onclick={handleDownloadCSV}
-                        icon={<Download size={18} />}
-                        borderButton
-                        sm
-                    />
+            <div className="flex flex-col md:flex-row items-center justify-between mt-8 gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-gray-500 mr-2">Filter by Resource:</span>
+                    {resourceTypes.map((type) => (
+                        <button
+                            key={type}
+                            onClick={() => {
+                                setSelectedResource(type);
+                                setPage(1); // Reset to first page when filter changes
+                            }}
+                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${selectedResource === type
+                                ? "bg-primaryColorDark text-white border-primaryColorDark shadow-md"
+                                : "bg-white text-gray-600 border-gray-200 hover:border-primaryColorDark hover:text-primaryColorDark"
+                                }`}
+                        >
+                            {type}
+                        </button>
+                    ))}
                 </div>
-                <div className="w-[40%]">
-                    <SearchBar
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search logs by user, action, or resource..."
-                    />
+
+                <div className="flex items-center gap-x-4 w-full md:w-auto">
+                    {selectedIds.length > 0 && (
+                        <div className="w-[150px]">
+                            <Button
+                                text={`Delete (${selectedIds.length})`}
+                                onclick={() => {
+                                    setLogToDelete(null); // Clear single delete ID
+                                    dispatch(isModalDeleteReducer(true));
+                                }}
+                                icon={<Trash2 size={18} />}
+                                sm
+                            />
+                        </div>
+                    )}
+                    <div className="w-[150px]">
+                        <Button
+                            text="Export CSV"
+                            onclick={handleDownloadCSV}
+                            icon={<Download size={18} />}
+                            borderButton
+                            sm
+                        />
+                    </div>
+                    <div className="w-full md:w-[300px] ">
+                        <SearchBar
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search logs..."
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -171,9 +229,39 @@ const AuditLogs = () => {
                     <NoRecordFound />
                 ) : (
                     <>
-                        <Table heading={heading}>
+                        <Table
+                            heading={[
+                                <input
+                                    type="checkbox"
+                                    className="cursor-pointer"
+                                    checked={filteredLogs.length > 0 && selectedIds.length === filteredLogs.length}
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedIds(filteredLogs.map((log: any) => log.id));
+                                        } else {
+                                            setSelectedIds([]);
+                                        }
+                                    }}
+                                />,
+                                "User", "Action", "Resource", "Timestamp", "Action"
+                            ]}
+                        >
                             {filteredLogs.map((log: any) => (
                                 <tr key={log.id} className="border-b border-b-solid border-b-lightGreyColor pb-4 hover:bg-gray-50 transition-colors">
+                                    <td className="px-4 py-3">
+                                        <input
+                                            type="checkbox"
+                                            className="cursor-pointer"
+                                            checked={selectedIds.includes(log.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedIds(prev => [...prev, log.id]);
+                                                } else {
+                                                    setSelectedIds(prev => prev.filter(id => id !== log.id));
+                                                }
+                                            }}
+                                        />
+                                    </td>
                                     <td className="px-4 py-3">
                                         <div className="flex flex-col">
                                             <span className="font-semibold text-gray-800">{log.user?.fullName || "System"}</span>
@@ -197,8 +285,14 @@ const AuditLogs = () => {
                                         {format(new Date(log.timestamp), "MMM dd, yyyy hh:mm:ss a")}
                                     </td>
                                     <td className="px-4 py-3">
-                                        <div className="flex justify-start">
+                                        <div className="flex justify-start gap-x-2">
                                             <ViewIcon onClick={() => handleViewDetails(log)} />
+                                            <DeleteIcon
+                                                onClick={() => {
+                                                    setLogToDelete(log.id);
+                                                    dispatch(isModalDeleteReducer(true));
+                                                }}
+                                            />
                                         </div>
                                     </td>
                                 </tr>

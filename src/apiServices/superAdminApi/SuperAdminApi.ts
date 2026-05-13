@@ -132,6 +132,36 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async deleteAuditLog(id: string) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.delete(`/audit-logs/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error deleting audit log:", error);
+            throw error;
+        }
+    }
+
+    async bulkDeleteAuditLogs(ids: string[]) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post("/audit-logs/bulk-delete", { ids }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error bulk deleting audit logs:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();

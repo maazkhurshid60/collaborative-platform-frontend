@@ -1,10 +1,8 @@
 
 interface TableProps {
-  heading?: string[];
+  heading?: React.ReactNode[];
   children?: React.ReactNode;
-
 }
-
 
 const Table: React.FC<TableProps> = ({
   heading,
@@ -12,15 +10,13 @@ const Table: React.FC<TableProps> = ({
 }) => {
   return (
     <div className="container mx-auto w-full overflow-x-auto ">
-
       <div className=" overflow-x-auto ">
         <div className=" px-4 sm:px-0 overflow-x-auto ">
-
           <table className="min-w-full text-primaryColor">
             <thead className="bg-inputBgColor capitalize tracking-wider font-normal text-[14px] font-[Poppins]">
               <tr>
-                {heading?.map((heading: string) => (
-                  <th className="px-4 py-3 text-left font-semibold" key={heading}>{heading}</th>
+                {heading?.map((item: React.ReactNode, index: number) => (
+                  <th className="px-4 py-3 text-left font-semibold" key={index}>{item}</th>
                 ))}
               </tr>
             </thead>
