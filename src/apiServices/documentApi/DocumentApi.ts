@@ -51,6 +51,26 @@ class DocumentApiService {
             toast.error(errMsg);
         }
     }
+    /**
+     * Paginated recipients for a single form template, scoped to a provider.
+     */
+    async getFormTemplateRecipients(
+        templateId: string,
+        providerId: string,
+        page: number = 1,
+        limit: number = 10,
+        status?: "signed" | "awaiting"
+    ) {
+        try {
+            const response = await this.api.get(`/form/templates/${templateId}/recipients`, {
+                params: { providerId, page, limit, ...(status ? { status } : {}) },
+            });
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to load form recipients";
+            toast.error(errMsg);
+        }
+    }
     async getAllSharedDocumentWithClientApi(clientId: string) {
         try {
             const response = await this.api.post("/document/get-all-shared-document", { clientId }); // prepend /provider here

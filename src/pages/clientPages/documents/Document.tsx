@@ -7,7 +7,7 @@ import DownloadIcon from "../../../components/icons/download/Download";
 import UserIcon from "../../../components/icons/user/User";
 import { GoDotFill } from "react-icons/go";
 import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store";
 import {
@@ -17,6 +17,7 @@ import {
 import { toast } from "react-toastify";
 import documentApiService from "../../../apiServices/documentApi/DocumentApi";
 import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "../../../apiServices/axiosInstance/AxiosInstance";
 
 import * as mammoth from "mammoth";
 import {
@@ -30,8 +31,20 @@ import SearchBar from "../../../components/searchBar/SearchBar";
 import { filterDocuments } from "../../../utils/FilteredDocuments";
 import SignedDocModal from "../../../components/modals/clientModal/viewDocModal/SignedDocModal";
 
+const heading = ["document", "type", "status", "date", "Shared by", "action"];
+
 const Document = () => {
-  const heading = ["document", "type", "status", "date", "Shared by", "action"];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDoc, setSelectedDoc] = useState("");
+  const [previewKind, setPreviewKind] = useState<
+    "html" | "pdf" | "image" | undefined
+  >(undefined);
+  const [pdfUrl, setPdfUrl] = useState<string | undefined>(undefined);
+  const [dataSendToSignedDocModal, setDataSendToSignedDocModal] = useState<
+    DocumentType | undefined
+  >(undefined);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const showModal = useSelector(
     (state: RootState) => state.modalSlice.isModalShow,
   );
@@ -43,27 +56,55 @@ const Document = () => {
     (state: RootState) => state.LoginUserDetail.userDetails.id,
   );
 
-  const [searchTerm, setSearchTerm] = useState("");
-
   const { data: documentData, isLoading: isDocLoading } = useQuery<
     DocumentType[]
   >({
     queryKey: ["documents"],
     queryFn: async () => {
-      try {
-        const response =
-          await documentApiService.getAllSharedDocumentWithClientApi(clientId);
-
-        return response?.data?.data; // Ensure it always returns an array
-      } catch (error) {
-        console.error("Error fetching client:", error);
-        return []; // Return an empty array in case of an error
-      }
+      const response =
+        await documentApiService.getAllSharedDocumentWithClientApi(clientId);
+      return response?.data?.data || [];
     },
     retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Auto-refresh when client returns to the tab
   });
-  const filteredDocuments = filterDocuments(documentData || [], searchTerm);
+
+  const { data: formsData = [] } = useQuery({
+    queryKey: ["shared-forms", clientId],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/form/client/${clientId}`);
+      return response.data.data.shares || [];
+    },
+    enabled: Boolean(clientId),
+    retry: 1,
+    refetchOnWindowFocus: true, // Auto-refresh when client returns to the tab
+  });
+
+  const combinedDocuments = useMemo(() => {
+    const docs = Array.isArray(documentData)
+      ? documentData.map((d) => ({ ...d, isForm: false }))
+      : [];
+    const frms = Array.isArray(formsData)
+      ? formsData.map((f: any) => ({
+          ...f,
+          isForm: true,
+          document: {
+            name: f.template?.title || "Form Template",
+            type: "Form Template",
+            url: f.submission?.pdfUrl || "",
+          },
+          isAgree: f.status === "SUBMITTED", // "SUBMITTED" is the locked status set by the backend
+          createdAt: f.createdAt,
+          token: f.token,
+        }))
+      : [];
+    return [...docs, ...frms];
+  }, [documentData, formsData]);
+
+  const filteredDocuments = filterDocuments(
+    combinedDocuments || ([] as any),
+    searchTerm,
+  );
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
     usePaginationHook({
@@ -71,7 +112,9 @@ const Document = () => {
       recordPerPage: 7,
     });
 
-  const handleDownload = async (fileUrl: string, fileName: string) => {
+  const handleDownload = async (fileUrl: string, fileName: string, docId: string) => {
+    if (downloadingId) return;
+    setDownloadingId(docId);
     try {
       const response = await fetch(fileUrl, {
         credentials: "include",
@@ -88,19 +131,13 @@ const Document = () => {
       document.body.removeChild(anchor);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error("Download failed: File not found or server error.");
-      console.error(err);
+      console.error("Direct download failed, falling back to opening in a new tab:", err);
+      window.open(fileUrl, "_blank");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
-  const [selectedDoc, setSelectedDoc] = useState("");
-  const [previewKind, setPreviewKind] = useState<
-    "html" | "pdf" | "image" | undefined
-  >(undefined);
-  const [pdfUrl, setPdfUrl] = useState<string | undefined>(undefined);
-  const [dataSendToSignedDocModal, setDataSendToSignedDocModal] = useState<
-    DocumentType | undefined
-  >(undefined);
   const [dataSendToViewDocModal, setDataSendToViewDocModal] =
     useState<DocModalData>({
       clientId: "",
@@ -131,9 +168,7 @@ const Document = () => {
 
   const callFun = async (value: DocumentType) => {
     if (value.isAgree) {
-      setDataSendToSignedDocModal(
-        getCurrentRecords()?.find((data) => data?.id === value?.id),
-      );
+      setDataSendToSignedDocModal(value);
       dispatch(isshowSignedDocumentModalClientPortalReducer(true));
       return;
     } else {
@@ -221,7 +256,7 @@ const Document = () => {
         ) : (
           <>
             <Table heading={heading}>
-              {getCurrentRecords()?.map((data: DocumentType, id: number) => (
+              {getCurrentRecords()?.map((data: any, id: number) => (
                 <tr
                   key={id}
                   className={`border-b border-b-solid border-b-lightGreyColor pb-4`}
@@ -278,51 +313,41 @@ const Document = () => {
                   <td className="py-2 h-full align-middle">
                     <div className="flex items-center justify-center gap-x-2 h-full">
                       <ViewIcon
-                        onClick={() => callFun(data)}
-                        // async () => {
-                        //     const isAgree = data?.isAgree === true;
-                        // if (!isAgree) {
-
-                        //     console.log("getCurrentRecords()?.find(data => data?.id === data?.id)", data);
-                        //     setDataSendToSignedDocModal(getCurrentRecords()?.find(data => data?.id === data?.id))
-                        //     dispatch(isshowSignedDocumentModalClientPortalReducer(true));
-                        //     return toast.warn(".");
-                        // } else {
-
-                        //         toast.warn("..")
-                        // try {
-                        //     const fileUrl = data?.document?.url && data?.document?.url.startsWith("http") && data?.document?.url;
-
-                        //     if (fileUrl) {
-                        //         const response = await fetch(fileUrl);
-                        //         if (!response.ok) throw new Error("File not found");
-
-                        //         const arrayBuffer = await response.arrayBuffer();
-
-                        //         const result = await mammoth.convertToHtml({ arrayBuffer });
-                        //         const htmlContent = result.value; // this is safe HTML
-
-                        //         setSelectedDoc(htmlContent);
-                        //         setDataSendToViewDocModal({ clientId: data?.clientId, providerId: data?.providerId, documentId: data?.id, recipientId: data?.provider?.userId })
-                        //         dispatch(isModalShowReducser(true));
-                        //     }
-                        // } catch (err) {
-                        //     toast.error("Unable to preview document.");
-                        //     console.error(err);
-                        // }
-                        //     }
-
-                        // }}
-                      />
-                      {!data?.isAgree && (
-                        <DownloadIcon
-                          onClick={() =>
-                            handleDownload(
-                              data?.document?.url ?? "",
-                              data?.document?.name ?? "",
-                            )
+                        onClick={() => {
+                          if (data.isForm) {
+                            if (data.isAgree) {
+                              callFun(data);
+                            } else {
+                              window.open(
+                                `/public/forms/${data.token}`,
+                                "_blank",
+                              );
+                            }
+                          } else {
+                            callFun(data);
                           }
-                        />
+                        }}
+                      />
+
+                      {((!data.isForm && !data.isAgree) || (data.isForm && data.isAgree)) && (
+                        downloadingId === data.id ? (
+                          <div className="flex items-center justify-center w-[16px] h-[16px]">
+                            <div className="w-4 h-4 rounded-full border-2 border-primaryColorDark border-t-transparent animate-spin" />
+                          </div>
+                        ) : (
+                          <div className={downloadingId ? "opacity-35 pointer-events-none" : ""}>
+                            <DownloadIcon
+                              onClick={() => {
+                                if (downloadingId) return;
+                                handleDownload(
+                                  data?.document?.url ?? "",
+                                  data?.document?.name ?? "",
+                                  data.id,
+                                );
+                              }}
+                            />
+                          </div>
+                        )
                       )}
                     </div>
                   </td>

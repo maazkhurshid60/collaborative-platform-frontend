@@ -3,20 +3,10 @@ import ModalLayout from '../../modalLayout/ModalLayout';
 import mammoth from 'mammoth';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import Button from '../../../button/Button';
-import { MdOutlineFileDownload } from 'react-icons/md';
-import Checkbox from '../../../checkbox/Checkbox';
+
 import { DocumentType } from '../../../../types/documentType/DocumentType';
-
-
-// interface Document {
-//     url: string;
-//     sharedRecords?: {
-//         id: string;
-//         clientId: string;
-//         eSignature?: string;
-//     }[];
-// }
+import { generateSubmittedFormHtml } from '../../../../utils/formUtils';
+import { HiDocumentDownload } from 'react-icons/hi';
 
 interface SignedDocModalProps {
     completedDoc?: DocumentType | undefined;
@@ -27,25 +17,33 @@ interface SignedDocModalProps {
 const SignedDocModal: React.FC<SignedDocModalProps> = ({
     completedDoc,
     clientId,
-    showDownloadButton = false
+    showDownloadButton = false,
 }) => {
     const [docContent, setDocContent] = useState<string>('');
     const contentRef = useRef<HTMLDivElement>(null);
-    console.log("COMPLETED DOCUMENT", completedDoc);
-
-    // Support both direct and nested signature structures
-    const rawRecords = (completedDoc as any)?.sharedWith || (completedDoc as any)?.sharedRecord || (completedDoc as any)?.sharedRecords || [];
-    const filteredRecords = Array.isArray(rawRecords)
-        ? rawRecords.filter((r: any) => !clientId || String(r?.clientId) === String(clientId))
-        : [];
-
-    const directSignature = (completedDoc as any)?.eSignature;
-    const hasAnySignature = filteredRecords.some((r: any) => r.eSignature && r.eSignature !== "null") || (directSignature && directSignature !== "null");
-
     const [previewKind, setPreviewKind] = useState<'html' | 'pdf' | 'image' | undefined>(undefined);
+
+
 
     useEffect(() => {
         const loadDoc = async () => {
+            if (!completedDoc) return;
+
+            if ((completedDoc as any).isForm) {
+                const submission = (completedDoc as any).submission;
+                const template = (completedDoc as any).template;
+                if (template && submission) {
+                    try {
+                        const html = generateSubmittedFormHtml(template, submission.data, submission.signature);
+                        setDocContent(html);
+                        setPreviewKind('html');
+                        return;
+                    } catch (err) {
+                        console.error('Error generating form preview HTML:', err);
+                    }
+                }
+            }
+
             if (!completedDoc?.document?.url) return;
 
             const fileUrl = completedDoc.document.url;
@@ -78,6 +76,30 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
 
 
     const handleDownloadPDF = async () => {
+        if (previewKind === 'pdf' && completedDoc?.document?.url) {
+            try {
+                const fileUrl = completedDoc.document.url;
+                const fileName = completedDoc.document.name || "completed_form";
+
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error("File not found");
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                anchor.download = fileName.endsWith(".pdf") ? fileName : `${fileName}_signed.pdf`;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                window.URL.revokeObjectURL(url);
+                return;
+            } catch (err) {
+                console.error("Direct PDF download failed, falling back to opening in a new tab:", err);
+                window.open(completedDoc.document.url, '_blank');
+                return;
+            }
+        }
 
         if (!contentRef.current) return;
 
@@ -107,13 +129,15 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
         });
 
         // Style clone for accurate rendering
+        clone.id = 'signed-doc-clone';
         clone.style.maxHeight = 'unset';
         clone.style.overflow = 'visible';
         clone.style.position = 'fixed'; // Use fixed to stay relative to viewport
         clone.style.top = '0';
-        clone.style.left = '-10000px'; // Truly off-screen
+        clone.style.left = '0';
+        clone.style.opacity = '0';
         clone.style.zIndex = '-9999';
-        clone.style.width = `${original.offsetWidth}px`;
+        clone.style.width = `${original.offsetWidth || 800}px`;
         clone.style.background = '#ffffff';
 
         document.body.appendChild(clone);
@@ -164,6 +188,11 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                     scale: 2,
                     backgroundColor: '#ffffff',
                     onclone: (clonedDoc) => {
+                        const clonedElement = clonedDoc.getElementById('signed-doc-clone');
+                        if (clonedElement) {
+                            clonedElement.style.opacity = '1';
+                        }
+
                         // Aggressive sanitization
                         const styleTags = clonedDoc.getElementsByTagName('style');
                         for (let i = 0; i < styleTags.length; i++) {
@@ -217,25 +246,22 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
         }
     };
 
-    console.log("completedDoc?.eSignature", completedDoc?.eSignature);
 
     return (
         <ModalLayout
             heading="Signed Document"
             modalBodyContent={
                 <div className="mt-4 ">
-                    {showDownloadButton &&
-                        <div className="text-right flex items-center justify-end">
-
-                            <div className='w-[120px]'
+                    {showDownloadButton && previewKind === 'html' && (
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primaryColorDark hover:bg-[#0B786B] rounded-lg shadow-sm transition-colors cursor-pointer border-none"
                             >
-                                <Button text='Download'
-                                    sm onclick={handleDownloadPDF}
-                                    icon={<MdOutlineFileDownload />} />
-                            </div>
+                                <HiDocumentDownload /> Download
+                            </button>
                         </div>
-                    }
-
+                    )}
                     {/* Scrollable content in modal */}
                     <div
                         className="max-h-[500px] overflow-y-auto  rounded p-4 bg-white "
@@ -243,7 +269,6 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                     >
                         {/* Document Content */}
                         <div>
-                            <p className="font-semibold text-[14px] mb-2">Document Content:</p>
                             {previewKind === 'pdf' ? (
                                 <div className="w-full flex flex-col gap-2">
                                     <iframe
@@ -261,13 +286,12 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                         >
                                             Open in new tab ↗
                                         </a>
-                                        <a
-                                            href={completedDoc?.document?.url}
-                                            download
-                                            className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+                                        <button
+                                            onClick={handleDownloadPDF}
+                                            className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors bg-transparent border-none p-0 cursor-pointer"
                                         >
                                             Download PDF ⬇
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             ) : previewKind === 'image' ? (
@@ -287,8 +311,8 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                             )}
                         </div>
 
-                        <div id="footer-section">
-                            {/* Agreed checkbox */}
+                        {/* <div id="footer-section">
+
                             <div className='mt-4 mb-4'>
                                 <div className='flex items-center gap-x-2.5'>
                                     <Checkbox
@@ -298,7 +322,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                 </div>
                             </div>
 
-                            {/* Deduplicated e-signatures */}
+
                             {(() => {
                                 const allSigs: { url: string; label?: string }[] = [];
                                 const seenUrls = new Set<string>();
@@ -319,7 +343,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                 if (allSigs.length === 0) {
                                     return (
                                         <div className="mt-6 flex items-center gap-2 text-gray-400 text-sm italic border-t pt-4">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                                             This document has not been signed yet.
                                         </div>
                                     );
@@ -329,7 +353,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                     <div className="mt-6 border-t border-dashed border-gray-300 pt-6">
                                         <div className="flex items-center gap-2 mb-4">
                                             <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                                                 <span className="font-semibold text-[14px]">Digitally Signed</span>
                                             </div>
                                         </div>
@@ -339,30 +363,48 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                                         </p>
 
                                         <div className="flex flex-wrap gap-6">
-                                            {allSigs.map((sig, idx) => (
-                                                <div key={idx} className="flex flex-col items-center gap-1">
-                                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white shadow-sm">
-                                                        <img
-                                                            src={sig.url}
-                                                            alt={`eSignature${sig.label ? ` - ${sig.label}` : ''}`}
-                                                            crossOrigin="use-credentials"
-                                                            className="w-[300px] h-[120px] object-contain"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                            }}
-                                                        />
+                                            {allSigs.map((sig, idx) => {
+                                                const isImage = sig.url.startsWith("data:") || sig.url.startsWith("http://") || sig.url.startsWith("https://");
+                                                return (
+                                                    <div key={idx} className="flex flex-col items-center gap-1">
+                                                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white shadow-sm w-[320px] h-[140px] flex items-center justify-center">
+                                                            {isImage ? (
+                                                                <img
+                                                                    src={sig.url}
+                                                                    alt={`eSignature${sig.label ? ` - ${sig.label}` : ''}`}
+                                                                    crossOrigin="use-credentials"
+                                                                    className="w-full h-full object-contain"
+                                                                    onError={(e) => {
+                                                                        (e.target as HTMLImageElement).style.display = 'none';
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <span
+                                                                    style={{
+                                                                        fontFamily: "'Great Vibes', 'Playball', 'Georgia', cursive",
+                                                                        fontSize: "32px",
+                                                                        fontWeight: "normal",
+                                                                        color: "#1e293b",
+                                                                        fontStyle: "italic",
+                                                                    }}
+                                                                    className="block break-all text-center select-none"
+                                                                >
+                                                                    {sig.url}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {sig.label && (
+                                                            <p className="text-xs text-gray-500 font-medium">{sig.label}</p>
+                                                        )}
+                                                        <p className="text-xs text-gray-400">Signature {idx + 1}</p>
                                                     </div>
-                                                    {sig.label && (
-                                                        <p className="text-xs text-gray-500 font-medium">{sig.label}</p>
-                                                    )}
-                                                    <p className="text-xs text-gray-400">Signature {idx + 1}</p>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 );
                             })()}
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>

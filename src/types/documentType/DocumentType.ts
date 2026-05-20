@@ -86,6 +86,7 @@ export interface documentSignByClientType {
     recipientId: string,
     providerId: string
     senderId: string
+    pdfUrl?: string
 }
 
 
@@ -126,6 +127,7 @@ export interface MasterDocument {
     createdAt: string;
     updatedAt: string;
     sharedWith: DocumentShareRow[];
+    isForm?: boolean;
 }
 
 /** Per-(document, client) status used by the multi-client share modal. */

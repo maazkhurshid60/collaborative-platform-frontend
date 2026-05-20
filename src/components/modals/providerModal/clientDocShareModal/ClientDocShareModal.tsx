@@ -5,11 +5,8 @@ import documentApiService from '../../../../apiServices/documentApi/DocumentApi'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../../../redux/store'
 import { isModalShowReducser } from '../../../../redux/slices/ModalSlice'
-import { useState } from 'react'
-import Loader from '../../../loader/Loader'
 import InputFieldOnlyRead from '../../../inputField/InputFieldOnlyRead'
-import { useQueryClient } from '@tanstack/react-query'
-
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface ClientDocShareModalProps {
     sharedDocs?: string[] | undefined
@@ -18,12 +15,18 @@ interface ClientDocShareModalProps {
     sharedDocsId: string[]
     recipientId: string
     clientEmail?: string
-
 }
 
-export const modalBodyContent = (docs: string[], providerId: string, clientId: string, sharedDocsId: string[], dispatch: AppDispatch, recipientId: string, senderId: string, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-    , clientEmail?: string, isLoading?: boolean) => {
-
+const ClientDocShareModal: React.FC<ClientDocShareModalProps> = ({
+    sharedDocs,
+    providerId,
+    clientId,
+    sharedDocsId,
+    recipientId,
+    clientEmail
+}) => {
+    const dispatch = useDispatch<AppDispatch>()
+    const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
     const queryClient = useQueryClient()
 
     const dataSendToBackend = {
@@ -36,64 +39,46 @@ export const modalBodyContent = (docs: string[], providerId: string, clientId: s
         title: "Document has shared"
     }
 
-
-    const docShareFunction = async () => {
-        setIsLoading(true)
-        try {
-            await documentApiService.documentSharedWithClientApi(dataSendToBackend)
+    const shareMutation = useMutation({
+        mutationFn: () => documentApiService.documentSharedWithClientApi(dataSendToBackend),
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["documents"] })
-            // Send notification to client
-            // const notificationSendToBackend = {
-            //     recipientId: recipientId, // userId of client
-            //     title: "Document Shared",
-            //     type: "DOCUMENT_SHARED",
-            //     senderId: senderId
-            // }
-            // await notificationApiService.sendNotification(notificationSendToBackend);
             dispatch(isModalShowReducser(false))
-
-        } catch (error) {
-            console.error(error);
+        },
+        onError: (error) => {
+            console.error("Error sharing document:", error)
         }
-        finally {
-            setIsLoading(false)
-        }
+    })
 
-
-    }
-
-    return <div className='mt-4'>
-        <p className='text-[14px] text-textGreyColor  mb-4'>Documents can be shared with clients via email for review and consent</p>
-        <InputFieldOnlyRead placeHolder='user@gmail.com' value={clientEmail} />
-        <p className='font-semibold text-[14px] mt-4 mb-4'>Selected Documents</p>
-        <div className='grid grid-cols-1 gap-3 mb-4'>
-            {docs?.map(data => (
-                <div key={data} className='flex items-center gap-x-3 font-medium text-[14px] min-w-0'>
-                    <IoDocumentTextOutline className='text-primaryColorDark text-2xl flex-shrink-0' />
-                    <span className='truncate'>{data}</span>
-                </div>
-            ))}
+    const modalBody = (
+        <div className='mt-4'>
+            <p className='text-[14px] text-textGreyColor mb-4'>
+                Documents can be shared with clients via email for review and consent
+            </p>
+            <InputFieldOnlyRead placeHolder='user@gmail.com' value={clientEmail} />
+            <p className='font-semibold text-[14px] mt-4 mb-4'>Selected Documents</p>
+            <div className='grid grid-cols-1 gap-3 mb-4'>
+                {sharedDocs?.map(data => (
+                    <div key={data} className='flex items-center gap-x-3 font-medium text-[14px] min-w-0'>
+                        <IoDocumentTextOutline className='text-primaryColorDark text-2xl flex-shrink-0' />
+                        <span className='truncate'>{data}</span>
+                    </div>
+                ))}
+            </div>
+            <Button
+                text='Send'
+                sm
+                onclick={() => shareMutation.mutate()}
+                isLoading={shareMutation.isPending}
+                disabled={shareMutation.isPending}
+            />
         </div>
-        <Button
-            text='Send'
-            sm
-            onclick={docShareFunction}
-            isLoading={isLoading}
-            disabled={isLoading}
-        />
-    </div>
-}
-
-const ClientDocShareModal: React.FC<ClientDocShareModalProps> = ({ sharedDocs, providerId, clientId, sharedDocsId, recipientId, clientEmail }) => {
-    const dispatch = useDispatch<AppDispatch>()
-    const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-
+    )
 
     return (
         <ModalLayout
             heading='Share the documents with clients'
-            modalBodyContent={modalBodyContent(sharedDocs ?? [], providerId, clientId, sharedDocsId, dispatch, recipientId, senderId, setIsLoading, clientEmail, isLoading)}
+            modalBodyContent={modalBody}
         />
     )
 }

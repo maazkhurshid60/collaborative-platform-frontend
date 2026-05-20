@@ -76,6 +76,27 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
     const directSignature = (completedDoc as any)?.eSignature;
 
     const handleDownloadPDF = async () => {
+        if (previewKind === 'pdf' && completedDoc?.url) {
+            try {
+                const response = await fetch(completedDoc.url);
+                if (!response.ok) throw new Error("File not found");
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                const fileName = completedDoc.name ? `${completedDoc.name}_signed.pdf` : "completed_document_signed.pdf";
+                anchor.download = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                window.URL.revokeObjectURL(url);
+                return;
+            } catch (err) {
+                console.error("Direct PDF download failed, falling back to opening in a new tab:", err);
+                window.open(completedDoc.url, '_blank');
+                return;
+            }
+        }
 
         if (!contentRef.current) return;
 
@@ -105,13 +126,15 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
         });
 
         // Style clone for accurate rendering
+        clone.id = 'complete-doc-clone';
         clone.style.maxHeight = 'unset';
         clone.style.overflow = 'visible';
         clone.style.position = 'fixed';
         clone.style.top = '0';
-        clone.style.left = '-10000px';
+        clone.style.left = '0';
+        clone.style.opacity = '0';
         clone.style.zIndex = '-9999';
-        clone.style.width = `${original.offsetWidth}px`;
+        clone.style.width = `${original.offsetWidth || 800}px`;
         clone.style.background = '#ffffff';
 
         document.body.appendChild(clone);
@@ -189,7 +212,13 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                     useCORS: true,
                     scale: 2,
                     backgroundColor: '#ffffff',
-                    onclone: (clonedDoc) => sanitizeClonedDoc(clonedDoc)
+                    onclone: (clonedDoc) => {
+                        const clonedElement = clonedDoc.getElementById('complete-doc-clone');
+                        if (clonedElement) {
+                            clonedElement.style.opacity = '1';
+                        }
+                        sanitizeClonedDoc(clonedDoc);
+                    }
                 });
 
                 if (canvas.width > 0 && canvas.height > 0) {
@@ -262,13 +291,12 @@ const ClientCompleteDocShareModal: React.FC<ClientCompleteDocShareModalProps> = 
                                     >
                                         Open in new tab ↗
                                     </a>
-                                    <a
-                                        href={completedDoc.url}
-                                        download
-                                        className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors bg-transparent border-none p-0 cursor-pointer"
                                     >
                                         Download PDF ⬇
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         ) : previewKind === "image" && completedDoc?.url ? (

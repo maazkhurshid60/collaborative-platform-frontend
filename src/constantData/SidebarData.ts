@@ -5,7 +5,7 @@ import ProvidersIcon from "../components/icons/dashboardIcons/providersPortalIco
 import { RiUserLine } from "react-icons/ri";
 import DocumentIcon from "../components/icons/dashboardIcons/clientsPortalIcons/document/Document";
 import SettingIcon from "../components/icons/dashboardIcons/clientsPortalIcons/setting/Setting";
-import { ClipboardList, CornerLeftDownIcon, Crown, CrownIcon, FileText, ShieldCheck, SubscriptIcon, Verified } from "lucide-react"
+import { ClipboardList, CornerLeftDownIcon, Crown, CrownIcon, FileText, ShieldCheck, SubscriptIcon, Verified, PenTool } from "lucide-react"
 import BillingIcon from "../components/BillingIcon";
 import InviteProvider from "../components/icons/dashboardIcons/providersPortalIcons/clients/InviteProvider";
 import InvoiceIcon from "../components/icons/Invocies/InvociesIcon";

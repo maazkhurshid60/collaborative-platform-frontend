@@ -172,7 +172,7 @@
 
 import ModalLayout from "../../modalLayout/ModalLayout";
 import Button from "../../../button/Button";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { isModalShowReducser } from "../../../../redux/slices/ModalSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -185,6 +185,9 @@ import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../loader/Loader";
 import PdfViewer from "../../../pdfViewer/PdfViewer";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { MdOutlineFileDownload } from "react-icons/md";
 
 type PreviewKind = "html" | "pdf" | "image";
 
@@ -196,6 +199,7 @@ interface ViewDocModalProps {
   // NEW
   previewKind?: PreviewKind;
   pdfUrl?: string;
+  heading?: string;
 }
 
 const ModalBodyContent: React.FC<{
@@ -204,7 +208,8 @@ const ModalBodyContent: React.FC<{
   isOnlyRead: boolean;
   previewKind: PreviewKind;
   pdfUrl?: string;
-}> = ({ docs, data, isOnlyRead, previewKind, pdfUrl }) => {
+  heading?: string;
+}> = ({ docs, data, isOnlyRead, previewKind, pdfUrl, heading }) => {
   const [isAgree, setIsAgree] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
@@ -213,6 +218,107 @@ const ModalBodyContent: React.FC<{
   const senderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id);
   const isESignature = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.eSignature);
   const navigate = useNavigate();
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = async () => {
+    if (!contentRef.current) return;
+
+    // Temporary monkeypatch to prevent console noise
+    const originalGetContext = HTMLCanvasElement.prototype.getContext;
+    (HTMLCanvasElement.prototype as any).getContext = function (type: string, attributes: any) {
+      if (type === '2d') {
+        attributes = { ...attributes, willReadFrequently: true };
+      }
+      return originalGetContext.call(this, type, attributes);
+    };
+
+    const original = contentRef.current;
+    const clone = original.cloneNode(true) as HTMLElement;
+
+    // style clone for perfect sizing in PDF
+    // style clone for perfect sizing in PDF
+    clone.id = 'view-doc-clone';
+    clone.style.maxHeight = 'unset';
+    clone.style.overflow = 'visible';
+    clone.style.position = 'fixed';
+    clone.style.top = '0';
+    clone.style.left = '0';
+    clone.style.opacity = '0';
+    clone.style.zIndex = '-9999';
+    clone.style.width = '800px';
+    clone.style.background = '#ffffff';
+    clone.style.padding = '40px';
+
+    document.body.appendChild(clone);
+
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const canvas = await html2canvas(clone, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('view-doc-clone');
+          if (clonedElement) {
+            clonedElement.style.opacity = '1';
+          }
+
+          const styleTags = clonedDoc.getElementsByTagName('style');
+          for (let i = 0; i < styleTags.length; i++) {
+            styleTags[i].innerHTML = styleTags[i].innerHTML.replace(/oklch\([^)]+\)/g, '#000000');
+          }
+        }
+      });
+
+      if (canvas.width > 0 && canvas.height > 0) {
+        const imgData = canvas.toDataURL('image/png');
+        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        while (heightLeft > 0) {
+          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+          heightLeft -= pageHeight;
+          if (heightLeft > 0) {
+            pdf.addPage();
+            position -= pageHeight;
+          }
+        }
+      }
+
+      pdf.save(`${heading || 'completed_form'}_signed.pdf`);
+    } catch (error) {
+      console.error("PDF Export failed:", error);
+      toast.error("Failed to generate PDF download.");
+    } finally {
+      HTMLCanvasElement.prototype.getContext = originalGetContext;
+      document.body.removeChild(clone);
+    }
+  };
+
+  const handleDownloadPDFUrl = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("File not found");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      const fileName = heading ? `${heading}_signed.pdf` : "completed_form_signed.pdf";
+      anchor.download = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Direct PDF download failed, falling back to opening in a new tab:", err);
+      window.open(url, "_blank");
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (formData: {
@@ -265,6 +371,20 @@ const ModalBodyContent: React.FC<{
       {isLoading && <Loader />}
 
       <div className="mt-4">
+        {/* DOWNLOAD BUTTON FOR HTML CONTENT (COMPLETED FORMS) */}
+        {isOnlyRead && previewKind === "html" && (
+          <div className="text-right flex items-center justify-end mb-3">
+            <div className="w-[120px]">
+              <Button
+                text="Download"
+                sm
+                onclick={handleDownloadPDF}
+                icon={<MdOutlineFileDownload />}
+              />
+            </div>
+          </div>
+        )}
+
         {/* CONTENT AREA */}
         {previewKind === "pdf" && pdfUrl ? (
           <div className="flex flex-col gap-2">
@@ -285,13 +405,12 @@ const ModalBodyContent: React.FC<{
               >
                 Open in new tab ↗
               </a>
-              <a
-                href={pdfUrl}
-                download
-                className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
+              <button
+                onClick={() => handleDownloadPDFUrl(pdfUrl)}
+                className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors bg-transparent border-none p-0 cursor-pointer"
               >
                 Download PDF ⬇
-              </a>
+              </button>
             </div>
           </div>
         ) : previewKind === "image" && pdfUrl ? (
@@ -299,8 +418,8 @@ const ModalBodyContent: React.FC<{
             <img src={pdfUrl} alt="Document Preview" className="max-w-full h-auto object-contain" />
           </div>
         ) : (
-          <div className="max-h-[400px] overflow-auto border rounded">
-            <div className="p-4 text-textColor prose max-w-none" dangerouslySetInnerHTML={{ __html: docs }} />
+          <div className="max-h-[480px] overflow-auto border rounded bg-white shadow-inner" ref={contentRef}>
+            <div className="p-6 text-textColor prose max-w-none" dangerouslySetInnerHTML={{ __html: docs }} />
           </div>
         )}
 
@@ -354,10 +473,11 @@ const ViewDocModal: React.FC<ViewDocModalProps> = ({
   isOnlyRead = false,
   previewKind = "html",
   pdfUrl,
+  heading = "Privacy Policy Consent",
 }) => {
   return (
     <ModalLayout
-      heading="Privacy Policy Consent"
+      heading={heading}
       modalBodyContent={
         <ModalBodyContent
           docs={sharedDocs ?? ""}
@@ -365,6 +485,7 @@ const ViewDocModal: React.FC<ViewDocModalProps> = ({
           isOnlyRead={isOnlyRead}
           previewKind={previewKind}
           pdfUrl={pdfUrl}
+          heading={heading}
         />
       }
     />

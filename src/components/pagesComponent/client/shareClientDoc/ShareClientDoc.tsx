@@ -37,7 +37,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({ clientId, recipientId, 
             setSharedDocsId(prev => [...(prev ?? []), id])
         } else {
             setSharedDocs(prev => (prev ?? []).filter(doc => doc !== docName));
-            setSharedDocsId(prev => (prev ?? []).filter(id => id !== id));
+            setSharedDocsId(prev => (prev ?? []).filter(item => item !== id));
         }
     };
 

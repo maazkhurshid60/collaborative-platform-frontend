@@ -1,14 +1,16 @@
+import { useState, useMemo } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { GoDotFill } from "react-icons/go"
+import { toast } from "react-toastify"
+
+
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout"
 import usePaginationHook from "../../../hook/usePaginationHook"
 import Table from "../../../components/table/Table"
 import ViewIcon from "../../../components/icons/view/View"
 import CustomPagination from "../../../components/customPagination/CustomPagination"
 import UserIcon from "../../../components/icons/user/User"
-import { GoDotFill } from "react-icons/go"
-import { useState, useMemo } from "react"
-import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "../../../redux/store"
-import { toast } from "react-toastify"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound"
 import Loader from "../../../components/loader/Loader"
@@ -20,17 +22,16 @@ import VerifyAccountModal from "../../../components/modals/superAdminModal/delet
 import { isModalDeleteReducer, isModalShowReducser, isModalShowRejectReducer } from "../../../redux/slices/ModalSlice"
 import { useNavigate } from "react-router-dom"
 import DeleteAccountModal from "../../../components/modals/clientModal/deleteAccountModal/DeleteAccountModal"
-import { getCountryNameFromCode } from "../../../utils/GetCountryName"
 import RejectIcon from "../../../components/icons/reject/Reject"
 import RejectAccountModal from "../../../components/modals/superAdminModal/deleteAccountModal/RejectAccountModal"
 import { filterUsers } from "../../../utils/FilteredUsers"
 import SearchBar from "../../../components/searchBar/SearchBar"
 import { useDebounce } from "../../../hook/useDebounce"
 
+const heading = ["#", "Name", "License/Client ID", "State", "status", "Role", "date", "action"];
+
+
 const PendingUsers = () => {
-    const heading = ["#", "Name", "License/Client ID",
-        //  "Country",
-        "State", "status", "Role", "date", "action"];
     const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow);
     const showRejectModal = useSelector((state: RootState) => state.modalSlice.isShowRejectModal);
     const isDeleteAccountShowModal = useSelector((state: RootState) => state.modalSlice.isModalDelete);
@@ -60,7 +61,9 @@ const PendingUsers = () => {
             } finally {
                 setIsAllUsersLoading(false);
             }
-        }
+        },
+        retry: 1,
+        refetchOnWindowFocus: false,
     });
     const filteredUsers = useMemo(() => {
         return filterUsers(allUsers || [], debouncedSearchTerm);
@@ -107,7 +110,7 @@ const PendingUsers = () => {
             setIsRejectLoading(false);
         }
     };
-    console.log("PENDING USERS", getCurrentRecords());
+
 
     return (
         <OutletLayout heading="All Pending Users">
