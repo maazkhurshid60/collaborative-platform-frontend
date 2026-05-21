@@ -48,6 +48,7 @@ export default function FormBuilder() {
     else if (type === "date") { newField.label = "Select Date"; }
     else if (type === "boolean") { newField.label = "Consent check agreement"; }
     else if (type === "checkbox-group") { newField.label = "Select options"; newField.options = ["Option A", "Option B"]; }
+    else if (type === "radio-group") { newField.label = "Select an option"; newField.options = ["Option 1", "Option 2"]; }
     else if (type === "signature") { newField.label = "Legal E-Signature"; newField.required = true; }
 
     setFields((prev) => [...prev, newField]);

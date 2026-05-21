@@ -121,6 +121,17 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
                     </div>
                   )}
 
+                  {field.type === "radio-group" && (
+                    <div className="grid grid-cols-2 gap-2 border p-3 rounded-lg bg-gray-50">
+                      {field.options?.map((opt, i) => (
+                        <div key={i} className="flex items-center space-x-2">
+                          <input type="radio" disabled className="h-3.5 w-3.5" />
+                          <span className="text-[11px] text-gray-500">{opt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {field.type === "signature" && (
                     <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
                       <div>

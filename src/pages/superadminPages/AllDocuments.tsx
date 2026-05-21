@@ -37,7 +37,7 @@ import DeleteDocumentModal from "../../components/modals/superAdminModal/deleteA
 
 import { useDebounce } from "../../hook/useDebounce";
 import { filterDocuments } from "../../utils/FilteredDocuments";
-import { generateFormHtml } from "../../utils/formUtils";
+import { generateFormPdfUrl } from "../../pdf/utils/pdfHelpers";
 
 type PreviewType = "image" | "pdf" | "docx" | "unsupported";
 type PreviewKind = "html" | "pdf";
@@ -253,17 +253,13 @@ const AllDocuments = () => {
     }
   };
 
-  const handleViewForm = (doc: any) => {
+  const handleViewForm = async (doc: any) => {
     try {
-      const html = generateFormHtml(doc);
-      if (html.startsWith("<p>Error:")) {
-        toast.error("Invalid form schema.");
-        return;
-      }
+      const url = await generateFormPdfUrl(doc);
 
-      setPreviewKind("html");
-      setSelectedPdfUrl("");
-      setSelectedDocHtml(html);
+      setPreviewKind("pdf");
+      setSelectedPdfUrl(url);
+      setSelectedDocHtml("");
 
       setDataSendToViewDocModal({
         clientId: "",

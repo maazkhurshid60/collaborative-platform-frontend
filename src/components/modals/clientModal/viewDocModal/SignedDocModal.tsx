@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 import { DocumentType } from '../../../../types/documentType/DocumentType';
-import { generateSubmittedFormHtml } from '../../../../utils/formUtils';
+import { generateFormPdfUrl } from '../../../../pdf/utils/pdfHelpers';
 import { HiDocumentDownload } from 'react-icons/hi';
 
 interface SignedDocModalProps {
@@ -20,6 +20,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
     showDownloadButton = false,
 }) => {
     const [docContent, setDocContent] = useState<string>('');
+    const [previewUrl, setPreviewUrl] = useState<string>('');
     const contentRef = useRef<HTMLDivElement>(null);
     const [previewKind, setPreviewKind] = useState<'html' | 'pdf' | 'image' | undefined>(undefined);
 
@@ -34,12 +35,12 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                 const template = (completedDoc as any).template;
                 if (template && submission) {
                     try {
-                        const html = generateSubmittedFormHtml(template, submission.data, submission.signature);
-                        setDocContent(html);
-                        setPreviewKind('html');
+                        const url = await generateFormPdfUrl(template, submission.data, submission.signature);
+                        setPreviewUrl(url);
+                        setPreviewKind('pdf');
                         return;
                     } catch (err) {
-                        console.error('Error generating form preview HTML:', err);
+                        console.error('Error generating form preview PDF:', err);
                     }
                 }
             }
@@ -47,6 +48,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
             if (!completedDoc?.document?.url) return;
 
             const fileUrl = completedDoc.document.url;
+            setPreviewUrl(fileUrl);
             const extension = fileUrl.split('.').pop()?.toLowerCase();
 
             if (extension === 'pdf') {
@@ -76,12 +78,11 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
 
 
     const handleDownloadPDF = async () => {
-        if (previewKind === 'pdf' && completedDoc?.document?.url) {
+        if (previewKind === 'pdf' && previewUrl) {
             try {
-                const fileUrl = completedDoc.document.url;
-                const fileName = completedDoc.document.name || "completed_form";
+                const fileName = completedDoc?.document?.name || (completedDoc as any).template?.title || "completed_form";
 
-                const response = await fetch(fileUrl);
+                const response = await fetch(previewUrl);
                 if (!response.ok) throw new Error("File not found");
 
                 const blob = await response.blob();
@@ -96,7 +97,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                 return;
             } catch (err) {
                 console.error("Direct PDF download failed, falling back to opening in a new tab:", err);
-                window.open(completedDoc.document.url, '_blank');
+                window.open(previewUrl, '_blank');
                 return;
             }
         }
@@ -272,14 +273,14 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                             {previewKind === 'pdf' ? (
                                 <div className="w-full flex flex-col gap-2">
                                     <iframe
-                                        src={completedDoc?.document?.url}
+                                        src={previewUrl}
                                         title="PDF Document Preview"
                                         className="w-full rounded-lg border border-gray-200 bg-gray-50"
                                         style={{ height: '55vh', minHeight: '380px' }}
                                     />
                                     <div className="flex justify-end gap-3">
                                         <a
-                                            href={completedDoc?.document?.url}
+                                            href={previewUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-sm font-medium text-primaryColorDark underline hover:text-[#0B786B] transition-colors"
@@ -297,7 +298,7 @@ const SignedDocModal: React.FC<SignedDocModalProps> = ({
                             ) : previewKind === 'image' ? (
                                 <div className="flex justify-center border rounded p-2">
                                     <img
-                                        src={completedDoc?.document?.url}
+                                        src={previewUrl}
                                         alt="Document"
                                         className="max-w-full h-auto object-contain"
                                         crossOrigin="anonymous"

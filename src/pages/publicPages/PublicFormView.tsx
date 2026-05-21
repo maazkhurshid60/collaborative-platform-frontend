@@ -6,9 +6,14 @@ import { RootState } from "../../redux/store";
 import axiosInstance from "../../apiServices/axiosInstance/AxiosInstance";
 import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { generateSubmittedFormHtml } from "../../utils/formUtils";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import {
+  generateFormPdfBlob,
+  normalizeCheckboxGroups,
+  savePdfLocally,
+} from "../../pdf/utils/pdfHelpers";
+import DocLock from "./DocLock";
+import FormSubmitted from "./FormSubmitted";
+import Loader from "@/components/loader/Loader";
 
 interface FormField {
   id: string;
@@ -19,6 +24,7 @@ interface FormField {
     | "text"
     | "date"
     | "checkbox-group"
+    | "radio-group"
     | "boolean"
     | "signature";
   label?: string;
@@ -95,78 +101,34 @@ export default function PublicFormView() {
     }
     setIsGeneratingPdf(true);
 
-    const sigField = formSchema.schema.fields.find(
-      (f) => f.type === "signature",
-    );
-    const sig = sigField ? submittedValues[sigField.id] : null;
-
-    const htmlContent = generateSubmittedFormHtml(
-      formSchema,
-      submittedValues,
-      sig,
-    );
-
-    // Create temporary container in DOM to render this HTML
-    const tempContainer = document.createElement("div");
-    tempContainer.id = "pdf-temp-container-download";
-    tempContainer.style.position = "fixed";
-    tempContainer.style.top = "0";
-    tempContainer.style.left = "0";
-    tempContainer.style.opacity = "0";
-    tempContainer.style.zIndex = "-9999";
-    tempContainer.style.width = "800px";
-    tempContainer.style.background = "#ffffff";
-    tempContainer.style.padding = "40px";
-    tempContainer.style.fontFamily =
-      "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-    tempContainer.style.lineHeight = "1.5";
-    tempContainer.innerHTML = htmlContent;
-    document.body.appendChild(tempContainer);
-
     try {
-      // Wait for styling, reflow, and web fonts (like cursive signature font) to fully load
-      await document.fonts.ready;
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const sigField = formSchema.schema.fields.find(
+        (f) => f.type === "signature",
+      );
+      const sig = sigField ? submittedValues[sigField.id] : null;
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Compile pixel-perfect React PDF in memory
+      const pdfBlob = await generateFormPdfBlob(
+        formSchema,
+        submittedValues,
+        sig,
+      );
+      const blobUrl = URL.createObjectURL(pdfBlob);
 
-      const canvas = await html2canvas(tempContainer, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: "#ffffff",
-        onclone: (clonedDoc) => {
-          const clonedContainer = clonedDoc.getElementById("pdf-temp-container-download");
-          if (clonedContainer) {
-            clonedContainer.style.opacity = "1";
-          }
-        }
-      });
+      // Trigger standard native file download
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = `${formSchema.title || "completed_form"}_signed.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(blobUrl);
 
-      if (canvas.width > 0 && canvas.height > 0) {
-        const imgData = canvas.toDataURL("image/png");
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        while (heightLeft > 0) {
-          pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
-          heightLeft -= pageHeight;
-          if (heightLeft > 0) {
-            pdf.addPage();
-            position -= pageHeight;
-          }
-        }
-      }
-
-      pdf.save(`${formSchema.title || "completed_form"}_signed.pdf`);
       toast.success("Completed PDF downloaded successfully!");
     } catch (err) {
       console.error("PDF generation failed:", err);
       toast.error("Failed to generate PDF.");
     } finally {
-      document.body.removeChild(tempContainer);
       setIsGeneratingPdf(false);
     }
   };
@@ -237,6 +199,35 @@ export default function PublicFormView() {
   const onSubmit = async (values: any) => {
     if (!token || !formSchema) return;
 
+    // Validate required checkbox-groups (Checklists)
+    const missingFields: string[] = [];
+    formSchema.schema.fields.forEach((field) => {
+      if (
+        (field.type === "checkbox-group" || field.type === "radio-group") &&
+        field.required
+      ) {
+        const val = values[field.id];
+        let hasSelection = false;
+        if (val && typeof val === "object") {
+          hasSelection = Object.values(val).some((v) => !!v);
+        } else if (Array.isArray(val)) {
+          hasSelection = val.length > 0;
+        } else if (typeof val === "string") {
+          hasSelection = val.trim() !== "";
+        }
+        if (!hasSelection) {
+          missingFields.push(field.label || "Check List");
+        }
+      }
+    });
+
+    if (missingFields.length > 0) {
+      toast.error(
+        `Please select at least one option for: ${missingFields.join(", ")}`,
+      );
+      return;
+    }
+
     const sigField = formSchema.schema.fields.find(
       (f) => f.type === "signature",
     );
@@ -248,69 +239,27 @@ export default function PublicFormView() {
     }
 
     setCustomSubmitting(true);
-    setSubmittedValues(values);
+    const normalizeValues = normalizeCheckboxGroups(values, formSchema);
+    setSubmittedValues(normalizeValues);
 
     let pdfUrl = null;
 
     try {
       const sig = sigField ? values[sigField.id] : null;
-      const htmlContent = generateSubmittedFormHtml(formSchema, values, sig);
 
-      // Create temporary container in DOM to render this HTML
-      const tempContainer = document.createElement("div");
-      tempContainer.id = "pdf-temp-container-submit";
-      tempContainer.style.position = "fixed";
-      tempContainer.style.top = "0";
-      tempContainer.style.left = "0";
-      tempContainer.style.opacity = "1";
-      tempContainer.style.zIndex = "-9999";
-      tempContainer.style.width = "800px";
-      tempContainer.style.background = "#ffffff";
-      tempContainer.style.padding = "40px";
-      tempContainer.style.fontFamily =
-        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-      tempContainer.style.lineHeight = "1.5";
-      tempContainer.innerHTML = htmlContent;
-      document.body.appendChild(tempContainer);
-
-      // Wait for styling, reflow, and web fonts (like cursive signature font) to fully load
-      await document.fonts.ready;
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const canvas = await html2canvas(tempContainer, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      document.body.removeChild(tempContainer);
-
-      if (canvas.width > 0 && canvas.height > 0) {
-        const imgData = canvas.toDataURL("image/png");
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        while (heightLeft > 0) {
-          pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
-          heightLeft -= pageHeight;
-          if (heightLeft > 0) {
-            pdf.addPage();
-            position -= pageHeight;
-          }
-        }
-      }
-
-      const pdfBlob = pdf.output("blob");
+      // Compile signed PDF completely in memory (virtual thread)
+      const pdfBlob = await generateFormPdfBlob(
+        formSchema,
+        normalizeValues,
+        sig,
+      );
       const pdfFile = new File(
         [pdfBlob],
         `${formSchema.title || "completed_form"}_signed.pdf`,
         { type: "application/pdf" },
       );
+
+      // savePdfLocally(pdfFile);
 
       const formData = new FormData();
       formData.append("file", pdfFile);
@@ -331,6 +280,10 @@ export default function PublicFormView() {
       pdfUrl,
     };
 
+    // setCustomSubmitting(false);
+
+    // return;
+
     try {
       await mutation.mutateAsync(payload);
     } catch (err) {
@@ -341,139 +294,22 @@ export default function PublicFormView() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-        <p className="text-gray-600 font-medium">
-          Securing and loading document template...
-        </p>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (errorState) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center">
-          {errorState.status === 423 ? (
-            <div className="mb-6 flex justify-center text-amber-500">
-              {/* Locked Icon */}
-              <svg
-                className="w-16 h-16"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-          ) : (
-            <div className="mb-6 flex justify-center text-red-500">
-              {/* Warn Icon */}
-              <svg
-                className="w-16 h-16"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-          )}
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">
-            {errorState.status === 423
-              ? "Form Already Completed"
-              : "Form Access Denied"}
-          </h2>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            {errorState.message}
-          </p>
-          <div className="border-t border-gray-100 pt-6">
-            <span className="text-xs text-gray-400 font-mono">
-              HIPAA Transaction Code: {errorState.status}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
+    return <DocLock errorState={errorState} />;
   }
 
   if (isCompleted || !formSchema) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-green-100 text-center">
-          <div className="mb-6 flex justify-center text-green-500">
-            <svg
-              className="w-16 h-16"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Form Locked & Submitted
-          </h2>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Thank you, {formSchema?.clientName || "Client"}. Your record has
-            been legally sealed, encrypted, and locked to prevent tampering in
-            compliance with HIPAA privacy acts.
-          </p>
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-100 text-left">
-            <div className="text-xs text-gray-400 uppercase font-semibold mb-1">
-              Confirmation Lock ID
-            </div>
-            <div className="text-sm font-mono text-gray-700 break-all select-all">
-              {submittedId || "LOCKED_RECORD_OK"}
-            </div>
-          </div>
-
-          {submittedValues && (
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPdf}
-              className="mb-6 w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl shadow-md text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 transition duration-150 cursor-pointer"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                />
-              </svg>
-              {isGeneratingPdf
-                ? "Generating PDF..."
-                : "Download Completed PDF Copy"}
-            </button>
-          )}
-
-          <div className="text-xs text-gray-400 font-mono">
-            Transaction Sealed: {new Date().toLocaleString()}
-          </div>
-        </div>
-      </div>
+      <FormSubmitted
+        submittedValues={submittedValues}
+        submittedId={submittedId}
+        clientName={formSchema?.clientName}
+        isGeneratingPdf={isGeneratingPdf}
+        handleDownloadPDF={handleDownloadPDF}
+      />
     );
   }
 
@@ -592,6 +428,65 @@ export default function PublicFormView() {
                           I declare my agreement and assent.
                         </span>
                       </div>
+                    </div>
+                  )}
+                  {field.type === "checkbox-group" && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 border border-gray-200 p-4 rounded-xl bg-gray-50/50">
+                      {field.options?.map((opt) => {
+                        const selected = watch(field.id) || [];
+
+                        return (
+                          <label
+                            key={opt}
+                            className="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-white rounded-lg border border-transparent hover:border-gray-100 transition duration-150 bg-white/40 shadow-xs"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selected?.includes(opt)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setValue(field.id, [...selected, opt]);
+                                } else {
+                                  setValue(
+                                    field.id,
+                                    selected.filter((v: string) => v !== opt),
+                                  );
+                                }
+                              }}
+                              className="focus:ring-indigo-500 h-4.5 w-4.5 text-indigo-600 border-gray-300 rounded cursor-pointer transition duration-150"
+                            />
+
+                            <span className="text-sm font-semibold text-gray-700 select-none">
+                              {opt}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {field.type === "radio-group" && (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 border border-gray-200 p-4 rounded-xl bg-gray-50/50">
+                      {field.options?.map((opt) => {
+                        return (
+                          <label
+                            key={opt}
+                            className="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-white rounded-lg border border-transparent hover:border-gray-100 transition duration-150 bg-white/40 shadow-xs"
+                          >
+                            <input
+                              type="radio"
+                              value={opt}
+                              {...register(field.id, {
+                                required: field.required,
+                              })}
+                              className="focus:ring-indigo-500 h-4.5 w-4.5 text-indigo-600 border-gray-300 cursor-pointer transition duration-150"
+                            />
+                            <span className="text-sm font-semibold text-gray-700 select-none">
+                              {opt}
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
 

@@ -30,7 +30,7 @@ import { ClientType } from "../../../types/clientType/ClientType";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../apiServices/axiosInstance/AxiosInstance";
 import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal";
-import { generateFormHtml, generateSubmittedFormHtml } from "../../../utils/formUtils";
+import { generateFormPdfUrl } from "../../../pdf/utils/pdfHelpers";
 import DocumentItem from "./DocumentItem";
 import { summarize } from "../../../utils/documentUtils";
 
@@ -213,18 +213,14 @@ const DocumentSharing = () => {
     window.open(doc.url, "_blank", "noopener,noreferrer");
   };
 
-  const handleViewForm = (doc: any) => {
+  const handleViewForm = async (doc: any) => {
     try {
-      const html = generateFormHtml(doc);
-      if (html.startsWith("<p>Error:")) {
-        toast.error("Invalid form schema.");
-        return;
-      }
+      const url = await generateFormPdfUrl(doc);
 
       setModalData((prev) => ({
         ...prev,
         docForRecipients: doc,
-        selectedDocHtml: html,
+        selectedDocHtml: "",
         dataSendToViewDocModal: {
           clientId: "",
           providerId: "",
@@ -233,6 +229,7 @@ const DocumentSharing = () => {
           sharedDocumentId: "",
           eSignature: "",
           isAgree: false,
+          pdfUrl: url,
         },
       }));
       dispatch(isModalShowReducser(true));
@@ -252,17 +249,17 @@ const DocumentSharing = () => {
     dispatch(isDocumentRecipientsModalReducer(true));
   };
 
-  const handleViewSigned = (clientId: string, submission?: any) => {
+  const handleViewSigned = async (clientId: string, submission?: any) => {
     dispatch(isDocumentRecipientsModalReducer(false));
     if (modalData.docForRecipients?.isForm) {
       try {
         const submissionData = submission?.data || {};
         const signature = submission?.signature || null;
-        const html = generateSubmittedFormHtml(modalData.docForRecipients, submissionData, signature);
+        const url = await generateFormPdfUrl(modalData.docForRecipients, submissionData, signature);
 
         setModalData((prev) => ({
           ...prev,
-          selectedDocHtml: html,
+          selectedDocHtml: "",
           dataSendToViewDocModal: {
             clientId: clientId,
             providerId: providerId || "",
@@ -271,7 +268,7 @@ const DocumentSharing = () => {
             sharedDocumentId: "",
             eSignature: signature || "",
             isAgree: true,
-            pdfUrl: submission?.pdfUrl || "",
+            pdfUrl: url,
           },
         }));
         dispatch(isModalShowReducser(true));
@@ -342,7 +339,7 @@ const DocumentSharing = () => {
           sharedDocs={modalData.selectedDocHtml}
           isOnlyRead
           data={modalData.dataSendToViewDocModal as documentSignByClientType}
-          previewKind={modalData.docForRecipients?.isForm ? "html" : (modalData.dataSendToViewDocModal?.pdfUrl ? "pdf" : "html")}
+          previewKind={modalData.docForRecipients?.isForm ? "pdf" : (modalData.dataSendToViewDocModal?.pdfUrl ? "pdf" : "html")}
           pdfUrl={modalData.dataSendToViewDocModal?.pdfUrl}
           heading={modalData.docForRecipients?.isForm ? (modalData.docForRecipients.name || "Form Template") : "Document Preview"}
         />

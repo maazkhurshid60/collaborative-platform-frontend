@@ -7,6 +7,7 @@ export interface FormField {
   | "text"
   | "date"
   | "checkbox-group"
+  | "radio-group"
   | "boolean"
   | "signature";
   label?: string;

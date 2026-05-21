@@ -172,8 +172,8 @@ export default function FieldEditor({
             </div>
           </div>
 
-          {/* Checkbox group options */}
-          {field.type === "checkbox-group" && (
+          {/* Checkbox / Radio group options */}
+          {(field.type === "checkbox-group" || field.type === "radio-group") && (
             <div className="space-y-2 mt-2 border-t pt-2">
               <label className="block text-[10px] font-semibold text-gray-400 mb-1">SELECT OPTIONS</label>
               <div className="space-y-1.5">

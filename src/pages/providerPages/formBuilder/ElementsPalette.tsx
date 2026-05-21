@@ -6,6 +6,7 @@ import {
   Calendar,
   CheckSquare,
   Check,
+  CircleDot,
   PenTool,
 } from "lucide-react";
 import { FormField } from "./formBuilder.types";
@@ -24,6 +25,7 @@ export default function ElementsPalette({ onAddField }: ElementsPaletteProps) {
     { type: "date",           label: "Date Input",    icon: <Calendar  className="w-4 h-4 text-emerald-600" />, color: "hover:bg-emerald-50 hover:border-emerald-200" },
     { type: "boolean",        label: "Checkbox",      icon: <CheckSquare className="w-4 h-4 text-emerald-600" />, color: "hover:bg-emerald-50 hover:border-emerald-200" },
     { type: "checkbox-group", label: "Check List",    icon: <Check     className="w-4 h-4 text-emerald-600" />, color: "hover:bg-emerald-50 hover:border-emerald-200" },
+    { type: "radio-group",    label: "Single Select", icon: <CircleDot className="w-4 h-4 text-emerald-600" />, color: "hover:bg-emerald-50 hover:border-emerald-200" },
     { type: "signature",      label: "E-Signature",   icon: <PenTool   className="w-4 h-4 text-rose-600"    />, color: "hover:bg-rose-50 hover:border-rose-200" },
   ];
 
