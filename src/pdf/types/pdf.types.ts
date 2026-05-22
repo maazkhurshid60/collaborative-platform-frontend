@@ -42,3 +42,34 @@ export interface FieldRendererProps {
   signature?: string | null;
   isSubmitted: boolean;
 }
+
+export interface PDFFormViewField {
+  id: string;
+  type:
+    | "heading"
+    | "paragraph"
+    | "list"
+    | "text"
+    | "date"
+    | "checkbox-group"
+    | "radio-group"
+    | "boolean"
+    | "signature";
+  label?: string;
+  required?: boolean;
+  options?: string[];
+  validation?: any;
+  level?: number;
+  text?: string;
+  items?: string[];
+}
+
+export interface PDFFormViewSchema {
+  title: string;
+  description?: string;
+  schema: {
+    fields: FormField[];
+  };
+  clientId?: string;
+  clientName?: string;
+}

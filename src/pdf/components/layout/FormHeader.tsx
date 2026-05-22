@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { pdfStyles } from "../../styles/pdfStyles";
+import logo from "@/assets/images/main-logo.png";
 
 interface FormHeaderProps {
   title?: string;
@@ -15,15 +16,20 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
 }) => {
   return (
     <View style={pdfStyles.header} fixed>
-      <Text style={pdfStyles.title}>{title || "Form Template"}</Text>
-      {description ? (
-        <Text style={pdfStyles.description}>{description}</Text>
-      ) : null}
-      {clientName ? (
-        <View style={pdfStyles.badgeContainer}>
-          <Text style={pdfStyles.badge}>Authorized Recipient: {clientName}</Text>
-        </View>
-      ) : null}
+      <View style={pdfStyles.headerDetails}>
+        <Text style={pdfStyles.title}>{title || "Form Template"}</Text>
+        {description ? (
+          <Text style={pdfStyles.description}>{description}</Text>
+        ) : null}
+        {clientName ? (
+          <View style={pdfStyles.badgeContainer}>
+            <Text style={pdfStyles.badge}>
+              Authorized Recipient: {clientName}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      <Image src={logo} style={pdfStyles.logo} />
     </View>
   );
 };

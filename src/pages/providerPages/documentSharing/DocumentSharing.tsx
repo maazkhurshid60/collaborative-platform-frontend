@@ -39,6 +39,7 @@ import DocumentRecipientsModal from "../../../components/modals/providerModal/do
 import ClientCompleteDocShareModal from "../../../components/modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal";
 
 const recordPerPage = 10;
+const heading = ["", "#", "Document", "Type", "Status", "Created", "Action"];
 
 const DocumentSharing = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -139,11 +140,11 @@ const DocumentSharing = () => {
       : [];
     const frms = Array.isArray(forms)
       ? forms.map((f: any) => ({
-        ...f,
-        isForm: true,
-        name: f.title, // Map title to name for display consistency
-        type: "Form Template",
-      }))
+          ...f,
+          isForm: true,
+          name: f.title, // Map title to name for display consistency
+          type: "Form Template",
+        }))
       : [];
     return [...docs, ...frms];
   }, [documents, forms]);
@@ -238,9 +239,10 @@ const DocumentSharing = () => {
       toast.error("Unable to view form.");
     }
   };
-
-  /** Show the per-client signed/awaiting breakdown for a single document. */
-  const handleViewRecipients = (doc: MasterDocument, filterStatus?: "signed" | "awaiting") => {
+  const handleViewRecipients = (
+    doc: MasterDocument,
+    filterStatus?: "signed" | "awaiting",
+  ) => {
     setModalData((prev) => ({
       ...prev,
       docForRecipients: doc,
@@ -255,7 +257,11 @@ const DocumentSharing = () => {
       try {
         const submissionData = submission?.data || {};
         const signature = submission?.signature || null;
-        const url = await generateFormPdfUrl(modalData.docForRecipients, submissionData, signature);
+        const url = await generateFormPdfUrl(
+          modalData.docForRecipients as any,
+          submissionData,
+          signature,
+        );
 
         setModalData((prev) => ({
           ...prev,
@@ -284,8 +290,6 @@ const DocumentSharing = () => {
 
   if (docsLoading) return <Loader text="Loading..." />;
   if (docsError) return <p>something went wrong</p>;
-
-  const heading = ["", "#", "Document", "Type", "Status", "Created", "Action"];
 
   const pageRecords = getCurrentRecords() ?? [];
   const allOnPageSelected =
@@ -339,9 +343,19 @@ const DocumentSharing = () => {
           sharedDocs={modalData.selectedDocHtml}
           isOnlyRead
           data={modalData.dataSendToViewDocModal as documentSignByClientType}
-          previewKind={modalData.docForRecipients?.isForm ? "pdf" : (modalData.dataSendToViewDocModal?.pdfUrl ? "pdf" : "html")}
+          previewKind={
+            modalData.docForRecipients?.isForm
+              ? "pdf"
+              : modalData.dataSendToViewDocModal?.pdfUrl
+                ? "pdf"
+                : "html"
+          }
           pdfUrl={modalData.dataSendToViewDocModal?.pdfUrl}
-          heading={modalData.docForRecipients?.isForm ? (modalData.docForRecipients.name || "Form Template") : "Document Preview"}
+          heading={
+            modalData.docForRecipients?.isForm
+              ? modalData.docForRecipients.name || "Form Template"
+              : "Document Preview"
+          }
         />
       )}
 
@@ -358,7 +372,6 @@ const DocumentSharing = () => {
           />
         </div>
       </div>
-
 
       <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
         <Checkbox

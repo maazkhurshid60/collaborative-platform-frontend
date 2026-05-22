@@ -73,9 +73,9 @@ export const pdfStyles = StyleSheet.create({
     color: colors.body,
     backgroundColor: colors.paper,
     // Slightly more generous margins — standard for printable legal/medical
-    paddingTop: 56,
-    paddingBottom: 72,
-    paddingHorizontal: 54,
+    paddingTop: 40,
+    paddingBottom: 40,
+    paddingHorizontal: 40,
   },
 
   /* ---------- Document Header ---------- */
@@ -83,22 +83,35 @@ export const pdfStyles = StyleSheet.create({
   accentBar: {
     height: 3,
     backgroundColor: colors.brand,
-    marginBottom: 14,
+    marginBottom: 10,
   },
 
   // Optional secondary rule for a layered, formal feel
   accentBarThin: {
     height: 0.75,
     backgroundColor: colors.brandDark,
-    marginBottom: 18,
+    marginBottom: 10,
   },
 
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomWidth: 0.75,
     borderBottomColor: colors.hairline,
     borderBottomStyle: "solid",
     paddingBottom: 14,
-    marginBottom: 18,
+    marginBottom: 10,
+  },
+
+  headerDetails: {
+    flex: 1,
+    paddingRight: 16,
+  },
+
+  logo: {
+    width: 120,
+    objectFit: "contain",
   },
 
   // Small uppercase eyebrow — "NOTICE OF PRIVACY PRACTICES", "AUTHORIZATION", etc.
@@ -160,18 +173,18 @@ export const pdfStyles = StyleSheet.create({
 
   // Optional pill — "EFFECTIVE: Jan 1, 2026", "VERSION 2.1"
   badgeContainer: {
-    marginTop: 10,
+    marginTop: 6,
     flexDirection: "row",
     gap: 6,
   },
   badge: {
-    backgroundColor: colors.brandSoft,
+    // backgroundColor: colors.brandSoft,
     color: colors.brandDark,
     fontSize: 8.5,
     fontWeight: "bold",
-    paddingVertical: 3,
-    paddingHorizontal: 9,
-    borderRadius: 3,
+    // paddingVertical: 3,
+    // paddingHorizontal: 9,
+    // borderRadius: 3,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -220,6 +233,7 @@ export const pdfStyles = StyleSheet.create({
     color: colors.muted,
     marginTop: 8,
     marginBottom: 4,
+    lineHeight: type.headingLeading,
   },
   h5: {
     fontSize: 9,
@@ -229,6 +243,7 @@ export const pdfStyles = StyleSheet.create({
     letterSpacing: 0.7,
     marginTop: 8,
     marginBottom: 4,
+    lineHeight: type.headingLeading,
   },
   h6: {
     fontSize: 8,
@@ -238,6 +253,7 @@ export const pdfStyles = StyleSheet.create({
     letterSpacing: 1,
     marginTop: 8,
     marginBottom: 4,
+    lineHeight: type.headingLeading,
   },
 
   paragraph: {
