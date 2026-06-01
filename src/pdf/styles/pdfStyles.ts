@@ -672,8 +672,8 @@ export const pdfStyles = StyleSheet.create({
     fontStyle: "italic",
   },
   signatureImage: {
-    maxWidth: 220,
-    maxHeight: 48,
+    width: 220,
+    height: 80,
     objectFit: "contain",
   },
   // Caption under the signature line — "Signature of Patient or Legal Representative"

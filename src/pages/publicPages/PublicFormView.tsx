@@ -196,7 +196,7 @@ function PublicFormView() {
         { type: "application/pdf" },
       );
 
-      // savePdfLocally(pdfFile);
+      savePdfLocally(pdfFile);
 
       const formData = new FormData();
       formData.append("file", pdfFile);
@@ -217,9 +217,9 @@ function PublicFormView() {
       pdfUrl,
     };
 
-    // setCustomSubmitting(false);
+    setCustomSubmitting(false);
 
-    // return;
+    return;
 
     try {
       await mutation.mutateAsync(payload);

@@ -24,35 +24,33 @@ export const SignatureField: React.FC<FieldRendererProps> = ({
         {field.required ? <Text style={pdfStyles.fieldRequired}>*</Text> : null}
       </Text>
       
-      <View style={pdfStyles.signatureCard}>
-        <View style={pdfStyles.signatureContainer}>
-          <View style={pdfStyles.signatureWrapper}>
-            {isSubmitted && sigValue ? (
-              isImage ? (
-                // Image signature
-                <Image src={sigValue} style={pdfStyles.signatureImage} />
-              ) : (
-                // Typed text signature
-                <Text style={pdfStyles.signatureText}>{sigValue}</Text>
-              )
-            ) : isSubmitted ? (
-              // Submitted but signature was not provided
-              <Text style={pdfStyles.signatureEmpty}>Signature (Not Provided)</Text>
+      <View style={pdfStyles.signatureContainer}>
+        <View style={pdfStyles.signatureWrapper}>
+          {isSubmitted && sigValue ? (
+            isImage ? (
+              // Image signature
+              <Image src={sigValue} style={pdfStyles.signatureImage} />
             ) : (
-              // Blank template signature preview
-              <Text style={pdfStyles.signatureEmpty}>Signature Preview</Text>
-            )}
+              // Typed text signature
+              <Text style={pdfStyles.signatureText}>{sigValue}</Text>
+            )
+          ) : isSubmitted ? (
+            // Submitted but signature was not provided
+            <Text style={pdfStyles.signatureEmpty}>Signature (Not Provided)</Text>
+          ) : (
+            // Blank template signature preview
+            <Text style={pdfStyles.signatureEmpty}>Signature Preview</Text>
+          )}
 
-            {isSubmitted && sigValue ? (
-              <View style={pdfStyles.signatureStamp}>
-                <Text style={pdfStyles.signatureStampText}>Certified E-Signature</Text>
-              </View>
-            ) : (
-              <View style={pdfStyles.signatureStamp}>
-                <Text style={pdfStyles.signatureStampText}>Certified E-Signature Preview</Text>
-              </View>
-            )}
-          </View>
+          {isSubmitted && sigValue ? (
+            <View style={pdfStyles.signatureStamp}>
+              <Text style={pdfStyles.signatureStampText}>Certified E-Signature</Text>
+            </View>
+          ) : (
+            <View style={pdfStyles.signatureStamp}>
+              <Text style={pdfStyles.signatureStampText}>Certified E-Signature Preview</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>

@@ -1,12 +1,3 @@
-// VerifiedUsers.tsx
-// Preserves pagination + search when navigating to ViewUser and coming back.
-//
-// What changed (high level):
-// 1) We store page + search in the URL: /verified-users?page=3&q=ali
-// 2) When the component loads, it reads page/q from the URL and initializes state.
-// 3) When user paginates or searches, we update both React state AND the URL.
-// 4) When navigating to ViewUser, we include the same page/q in the link.
-
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import usePaginationHook from "../../../hook/usePaginationHook";
 import Table from "../../../components/table/Table";
@@ -48,23 +39,29 @@ const VerifiedUsers = () => {
     "Action",
   ];
 
-  const showModal = useSelector((state: RootState) => state.modalSlice.isModalShow);
+  const showModal = useSelector(
+    (state: RootState) => state.modalSlice.isModalShow,
+  );
   const isDeleteAccountShowModal = useSelector(
-    (state: RootState) => state.modalSlice.isModalDelete
+    (state: RootState) => state.modalSlice.isModalDelete,
   );
 
   const [isDocLoading, setIsDocLoading] = useState(false);
-  const [selectedUserForDelete, setSelectedUserForDelete] = useState<{ id: string, role: string } | null>(null);
+  const [selectedUserForDelete, setSelectedUserForDelete] = useState<{
+    id: string;
+    role: string;
+  } | null>(null);
   const [selectedDoc, setSelectedDoc] = useState("");
-  const [dataSendToViewDocModal, setDataSendToViewDocModal] = useState<DocModalData>({
-    clientId: "",
-    providerId: "",
-    documentId: "",
-    sharedDocumentId: "",
-    eSignature: "",
-    isAgree: false,
-    recipientId: "",
-  });
+  const [dataSendToViewDocModal, setDataSendToViewDocModal] =
+    useState<DocModalData>({
+      clientId: "",
+      providerId: "",
+      documentId: "",
+      sharedDocumentId: "",
+      eSignature: "",
+      isAgree: false,
+      recipientId: "",
+    });
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -92,7 +89,8 @@ const VerifiedUsers = () => {
 
         const approvedUsers =
           response.user?.filter(
-            (u: User) => u?.role !== "superAdmin" && u?.isApprove === "APPROVED"
+            (u: User) =>
+              u?.role !== "superAdmin" && u?.isApprove === "APPROVED",
           ) ?? [];
 
         return approvedUsers;
@@ -118,24 +116,28 @@ const VerifiedUsers = () => {
   // ✅ When coming back from ViewUser, apply page from URL
   useEffect(() => {
     // If pageFromUrl is invalid, fallback to 1
-    const safePage = Number.isFinite(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1;
+    const safePage =
+      Number.isFinite(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1;
     handlePageChange(safePage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageFromUrl]);
 
   // Update URL when debouncedSearchTerm changes
   useEffect(() => {
-    setSearchParams((prev) => {
-      // If we are initializing from URL, don't reset page unless it's a real search change
-      if (debouncedSearchTerm !== qFromUrl) {
+    setSearchParams(
+      (prev) => {
+        // If we are initializing from URL, don't reset page unless it's a real search change
+        if (debouncedSearchTerm !== qFromUrl) {
           prev.set("page", "1");
           handlePageChange(1);
-      }
-      
-      if (debouncedSearchTerm) prev.set("q", debouncedSearchTerm);
-      else prev.delete("q");
-      return prev;
-    }, { replace: true });
+        }
+
+        if (debouncedSearchTerm) prev.set("q", debouncedSearchTerm);
+        else prev.delete("q");
+        return prev;
+      },
+      { replace: true },
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm]);
 
@@ -177,7 +179,10 @@ const VerifiedUsers = () => {
       {isDocLoading && <Loader text="Loading Verified Users..." />}
 
       {isDeleteAccountShowModal && selectedUserForDelete && (
-        <DeleteAccountModal userId={selectedUserForDelete.id} role={selectedUserForDelete.role} />
+        <DeleteAccountModal
+          userId={selectedUserForDelete.id}
+          role={selectedUserForDelete.role}
+        />
       )}
 
       {showModal && (
@@ -208,12 +213,15 @@ const VerifiedUsers = () => {
                   key={data?.id ?? idx}
                   className="border-b border-b-solid border-b-lightGreyColor"
                 >
-                  <td className="px-4 py-3 align-middle">{(currentPage - 1) * 7 + (idx + 1)}</td>
+                  <td className="px-4 py-3 align-middle">
+                    {(currentPage - 1) * 7 + (idx + 1)}
+                  </td>
                   {/* Name */}
                   <td className="px-4 py-3 align-middle">
                     <div className="flex items-center gap-x-4">
                       <div className="w-10 h-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
-                        {data?.profileImage !== null && data?.profileImage !== "null" ? (
+                        {data?.profileImage !== null &&
+                        data?.profileImage !== "null" ? (
                           <img
                             className="w-10 h-10 object-cover"
                             src={data?.profileImage || undefined}
@@ -249,8 +257,11 @@ const VerifiedUsers = () => {
 
                   <td className="px-4 py-3 align-middle whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${data.isApprove ? "bg-primaryColorDark/20" : "bg-inputBgColor"
-                        }`}
+                      className={`inline-flex items-center gap-x-2 rounded-md px-2 py-1 text-sm ${
+                        data.isApprove
+                          ? "bg-primaryColorDark/20"
+                          : "bg-inputBgColor"
+                      }`}
                     >
                       <GoDotFill
                         className={`text-base ${data.isApprove ? "text-textColor" : ""}`}
@@ -273,14 +284,17 @@ const VerifiedUsers = () => {
                         onClick={() =>
                           navigate(
                             `/verified-users/view-user/${data?.id}?page=${currentPage}&q=${encodeURIComponent(
-                              searchTerm
-                            )}`
+                              searchTerm,
+                            )}`,
                           )
                         }
                       />
                       <DeleteIcon
                         onClick={() => {
-                          setSelectedUserForDelete({ id: data?.id ?? "", role: data?.role ?? "" });
+                          setSelectedUserForDelete({
+                            id: data?.id ?? "",
+                            role: data?.role ?? "",
+                          });
                           dispatch(isModalDeleteReducer(true));
                         }}
                       />
