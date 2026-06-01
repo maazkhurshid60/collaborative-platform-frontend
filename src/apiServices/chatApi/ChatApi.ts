@@ -43,6 +43,16 @@ class ChatApiService {
             toast.error(errMsg);
         }
     }
+
+    async getAllUsersForChat(loginUserId: string) {
+        try {
+            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId });
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get users";
+            toast.error(errMsg);
+        }
+    }
     async deleteChatChannels(id: string) {
         try {
 
