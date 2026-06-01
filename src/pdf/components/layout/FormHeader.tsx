@@ -17,6 +17,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
   return (
     <View style={pdfStyles.header} fixed>
       <View style={pdfStyles.headerDetails}>
+        <Text style={pdfStyles.eyebrow}>Release of Information</Text>
         <Text style={pdfStyles.title}>{title || "Form Template"}</Text>
         {description ? (
           <Text style={pdfStyles.description}>{description}</Text>

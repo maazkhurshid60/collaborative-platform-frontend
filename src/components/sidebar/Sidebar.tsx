@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import logo from "../../../public/assets/logo.png";
 import {
   ClientSidebarData,
@@ -10,11 +10,7 @@ import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { SVGProps, useEffect, useState } from "react";
-import { disconnectSocket } from "../../socket/Socket";
-import authService from "../../apiServices/authApi/AuthApi";
-import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
-import Logout from "../icons/logout/Logout";
-import Button from "../button/Button";
+import LogoutButton from "../ui/LogoutButton";
 
 interface sideBarDataType {
   name?: string;
@@ -22,7 +18,6 @@ interface sideBarDataType {
   icon?: React.ComponentType<SVGProps<SVGSVGElement>>;
 }
 const Sidebar = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const isSideBarClose = useSelector(
     (state: RootState) => state.sideBarSlice.isSideBarClose,
@@ -31,42 +26,6 @@ const Sidebar = () => {
     (state: RootState) => state.LoginUserDetail.userDetails?.user?.role,
   );
   const [sideBarData, setSideBarData] = useState<sideBarDataType[]>();
-
-  const logoutFunction = async () => {
-    try {
-      // Call backend to clear cookies
-      await authService.logout();
-    } catch (error) {
-      console.error("Backend logout failed", error);
-    }
-
-    disconnectSocket();
-
-    // Comprehensive cleanup
-    localStorage.clear();
-    sessionStorage.clear();
-
-    const clearCaches =
-      "caches" in window
-        ? caches
-            .keys()
-            .then((names) =>
-              Promise.all(names.map((name) => caches.delete(name))),
-            )
-        : Promise.resolve();
-
-    const unregisterServiceWorkers =
-      "serviceWorker" in navigator
-        ? navigator.serviceWorker
-            .getRegistrations()
-            .then((regs) => Promise.all(regs.map((reg) => reg.unregister())))
-        : Promise.resolve();
-
-    Promise.all([clearCaches, unregisterServiceWorkers]).then(() => {
-      dispatch(emptyResult());
-      navigate("/");
-    });
-  };
 
   useEffect(() => {
     if (loginUserRole === "client") {
@@ -79,6 +38,7 @@ const Sidebar = () => {
 
     dispatch(isSideBarCloseReducser(false));
   }, [loginUserRole]);
+
   return (
     <div className="p-6 border-r flex flex-col border-[#D9D9D9] w-screen md:w-[260px] h-screen overflow-y-auto">
       {/* Logo */}
@@ -129,15 +89,7 @@ const Sidebar = () => {
             );
           })}
       </div>
-
-      {/* Logout — always pinned to bottom */}
-      <div className="px-2 mx-9 mt-auto md:mt-2">
-        <Button
-          text="Logout"
-          icon={<Logout stroke="#fff" className="" />}
-          onclick={logoutFunction}
-        />
-      </div>
+      <LogoutButton />
     </div>
   );
 };
