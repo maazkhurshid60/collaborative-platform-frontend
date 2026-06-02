@@ -403,6 +403,16 @@ const Routing = () => {
             }
           />
         )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/edit-template/:id"
+            element={
+              <WrappedRoute>
+                <FormBuilder />
+              </WrappedRoute>
+            }
+          />
+        )}
         <Route
           path="/verified-users"
           element={

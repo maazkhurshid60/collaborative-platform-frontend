@@ -22,6 +22,7 @@ import NoRecordFound from "../../components/noRecordFound/NoRecordFound";
 import Table from "../../components/table/Table";
 import ViewIcon from "../../components/icons/view/View";
 import DeleteIcon from "../../components/icons/delete/DeleteIcon";
+import EditIcon from "../../components/icons/edit/Edit";
 import CustomPagination from "../../components/customPagination/CustomPagination";
 import Button from "../../components/button/Button";
 import SearchBar from "../../components/searchBar/SearchBar";
@@ -360,6 +361,7 @@ const AllDocuments = () => {
                       ) : (
                         <>
                           <ViewIcon onClick={() => handleViewForm(doc)} />
+                          <EditIcon onClick={() => navigate(`/edit-template/${doc.id}`)} />
                           <DeleteIcon
                             onClick={() => {
                               setDocumentIdToDelete(doc?.id);

@@ -1,16 +1,20 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { GoDotFill } from "react-icons/go";
+
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import usePaginationHook from "../../../hook/usePaginationHook";
 import Table from "../../../components/table/Table";
 import ViewIcon from "../../../components/icons/view/View";
 import CustomPagination from "../../../components/customPagination/CustomPagination";
 import UserIcon from "../../../components/icons/user/User";
-import { GoDotFill } from "react-icons/go";
 import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store";
 
-import { useQuery } from "@tanstack/react-query";
+import Dropdown from "../../../components/dropdown/Dropdown";
 import {
   DocModalData,
   documentSignByClientType,
@@ -20,25 +24,24 @@ import Loader from "../../../components/loader/Loader";
 import loginUserApiService from "../../../apiServices/loginUserApi/LoginUserApi";
 import { User } from "../../../types/providerType/ProviderType";
 import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import DeleteAccountModal from "../../../components/modals/clientModal/deleteAccountModal/DeleteAccountModal";
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import SearchBar from "../../../components/searchBar/SearchBar";
 import { filterUsers } from "../../../utils/FilteredUsers";
 import { useDebounce } from "../../../hook/useDebounce";
 
-const VerifiedUsers = () => {
-  const heading = [
-    "#",
-    "Name",
-    "License No/Client ID",
-    "State",
-    "Status",
-    "Role",
-    "Date",
-    "Action",
-  ];
+const heading = [
+  "#",
+  "Name",
+  "License No/Client ID",
+  "State",
+  "Status",
+  "Role",
+  "Date",
+  "Action",
+];
 
+const VerifiedUsers = () => {
   const showModal = useSelector(
     (state: RootState) => state.modalSlice.isModalShow,
   );
@@ -46,7 +49,6 @@ const VerifiedUsers = () => {
     (state: RootState) => state.modalSlice.isModalDelete,
   );
 
-  const [isDocLoading, setIsDocLoading] = useState(false);
   const [selectedUserForDelete, setSelectedUserForDelete] = useState<{
     id: string;
     role: string;
@@ -66,46 +68,53 @@ const VerifiedUsers = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  // ✅ URL state for preserving pagination/search
   const [searchParams, setSearchParams] = useSearchParams();
   const pageFromUrl = Number(searchParams.get("page") || "1");
   const qFromUrl = searchParams.get("q") || "";
+  const roleFromUrl = searchParams.get("role") || "all";
 
   // Search term is controlled by state but initialized/synced from URL
   const [searchTerm, setSearchTerm] = useState<string>(qFromUrl);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // ✅ Keep searchTerm synced if user lands directly with ?q=
-  useEffect(() => {
-    setSearchTerm(qFromUrl);
-  }, [qFromUrl]);
+  // Role filter state
+  const [roleFilter, setRoleFilter] = useState<string>(roleFromUrl);
 
-  const { data: allUsers = [] } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: async () => {
-      try {
-        setIsDocLoading(true);
-        const response = await loginUserApiService.getAllUsersApi();
-
-        const approvedUsers =
-          response.user?.filter(
-            (u: User) =>
-              u?.role !== "superAdmin" && u?.isApprove === "APPROVED",
-          ) ?? [];
-
-        return approvedUsers;
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        return [];
-      } finally {
-        setIsDocLoading(false);
-      }
+  const { control, setValue } = useForm({
+    defaultValues: {
+      roleFilter: roleFromUrl,
     },
   });
 
+  // Keep searchTerm and roleFilter synced if user lands directly with ?q= or ?role=
+  useEffect(() => {
+    setSearchTerm(qFromUrl);
+    setRoleFilter(roleFromUrl);
+    setValue("roleFilter", roleFromUrl);
+  }, [qFromUrl, roleFromUrl, setValue]);
+
+  const { data: allUsers = [], isLoading } = useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await loginUserApiService.getAllUsersApi();
+
+      const approvedUsers =
+        response.user?.filter(
+          (u: User) => u?.role !== "superAdmin" && u?.isApprove === "APPROVED",
+        ) ?? [];
+
+      return approvedUsers;
+    },
+    refetchOnWindowFocus: false,
+  });
+
   const filteredUsers = useMemo(() => {
-    return filterUsers(allUsers || [], debouncedSearchTerm);
-  }, [allUsers, debouncedSearchTerm]);
+    let users = allUsers || [];
+    if (roleFilter !== "all") {
+      users = users.filter((u) => u.role === roleFilter);
+    }
+    return filterUsers(users, debouncedSearchTerm);
+  }, [allUsers, debouncedSearchTerm, roleFilter]);
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
     usePaginationHook({
@@ -122,24 +131,28 @@ const VerifiedUsers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageFromUrl]);
 
-  // Update URL when debouncedSearchTerm changes
+  // Update URL when debouncedSearchTerm or roleFilter changes
   useEffect(() => {
     setSearchParams(
       (prev) => {
-        // If we are initializing from URL, don't reset page unless it's a real search change
-        if (debouncedSearchTerm !== qFromUrl) {
+        // If we are initializing from URL, don't reset page unless it's a real change
+        if (debouncedSearchTerm !== qFromUrl || roleFilter !== roleFromUrl) {
           prev.set("page", "1");
           handlePageChange(1);
         }
 
         if (debouncedSearchTerm) prev.set("q", debouncedSearchTerm);
         else prev.delete("q");
+
+        if (roleFilter !== "all") prev.set("role", roleFilter);
+        else prev.delete("role");
+
         return prev;
       },
       { replace: true },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, roleFilter]);
 
   // ✅ Keep URL updated when user changes page
   const onPageChange = (page: number) => {
@@ -148,6 +161,8 @@ const VerifiedUsers = () => {
       prev.set("page", String(page));
       if (searchTerm) prev.set("q", searchTerm);
       else prev.delete("q");
+      if (roleFilter !== "all") prev.set("role", roleFilter);
+      else prev.delete("role");
       return prev;
     });
   };
@@ -155,6 +170,10 @@ const VerifiedUsers = () => {
   // ✅ Keep URL updated when user types search (reset to page 1)
   const onSearchChange = (value: string) => {
     setSearchTerm(value);
+  };
+
+  const onRoleChange = (value: string) => {
+    setRoleFilter(value);
   };
 
   useEffect(() => {
@@ -176,7 +195,7 @@ const VerifiedUsers = () => {
 
   return (
     <OutletLayout heading="All Verified Users">
-      {isDocLoading && <Loader text="Loading Verified Users..." />}
+      {isLoading && <Loader text="Loading Verified Users..." />}
 
       {isDeleteAccountShowModal && selectedUserForDelete && (
         <DeleteAccountModal
@@ -192,7 +211,20 @@ const VerifiedUsers = () => {
         />
       )}
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between mb-4">
+        <div className="w-44 z-10 flex items-center justify-center ">
+          <Dropdown
+            name="roleFilter"
+            label=""
+            control={control}
+            options={[
+              { value: "all", label: "All Roles" },
+              { value: "provider", label: "Provider" },
+              { value: "client", label: "Client" },
+            ]}
+            onChange={(opt) => onRoleChange(opt.value)}
+          />
+        </div>
         <div className="w-[40%]">
           <SearchBar
             value={searchTerm}
