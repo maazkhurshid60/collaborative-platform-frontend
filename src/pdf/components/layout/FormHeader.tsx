@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image } from "@react-pdf/renderer";
+import Html from "react-pdf-html";
 import { pdfStyles } from "../../styles/pdfStyles";
 import logo from "@/assets/images/main-logo.png";
 
@@ -20,7 +21,9 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
         <Text style={pdfStyles.eyebrow}>Release of Information</Text>
         <Text style={pdfStyles.title}>{title || "Form Template"}</Text>
         {description ? (
-          <Text style={pdfStyles.description}>{description}</Text>
+          <Html style={{ fontSize: 10, color: "#64748b", lineHeight: 1.5, marginBottom: 12 }}>
+            {description}
+          </Html>
         ) : null}
         {clientName ? (
           <View style={pdfStyles.badgeContainer}>

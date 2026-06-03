@@ -1,6 +1,17 @@
 import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 
 import { FormField } from "./formBuilder.types";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    ["link"],
+  ],
+};
 
 interface FieldEditorProps {
   field: FormField;
@@ -39,7 +50,9 @@ export default function FieldEditor({
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
         <div className="flex items-center space-x-2">
-          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeClass}`}>
+          <span
+            className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${typeBadgeClass}`}
+          >
             {field.type}
           </span>
           <span className="text-xs text-gray-400 font-mono">#{index + 1}</span>
@@ -72,7 +85,9 @@ export default function FieldEditor({
       {field.type === "heading" && (
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
-            <label className="block text-[10px] font-semibold text-gray-400 mb-1">HEADING TEXT</label>
+            <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+              HEADING TEXT
+            </label>
             <input
               type="text"
               value={field.text || ""}
@@ -81,10 +96,14 @@ export default function FieldEditor({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold text-gray-400 mb-1">LEVEL</label>
+            <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+              LEVEL
+            </label>
             <select
               value={field.level || 2}
-              onChange={(e) => onUpdate(field.id, { level: parseInt(e.target.value) })}
+              onChange={(e) =>
+                onUpdate(field.id, { level: parseInt(e.target.value) })
+              }
               className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white"
             >
               <option value={1}>H1 (Major)</option>
@@ -101,12 +120,15 @@ export default function FieldEditor({
       {/* Paragraph config */}
       {field.type === "paragraph" && (
         <div>
-          <label className="block text-[10px] font-semibold text-gray-400 mb-1">PARAGRAPH CONTENT</label>
-          <textarea
-            rows={3}
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+            PARAGRAPH CONTENT
+          </label>
+          <ReactQuill
+            theme="snow"
             value={field.text || ""}
-            onChange={(e) => onUpdate(field.id, { text: e.target.value })}
-            className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg"
+            onChange={(val) => onUpdate(field.id, { text: val })}
+            modules={quillModules}
+            className="bg-white rounded-lg"
           />
         </div>
       )}
@@ -114,7 +136,9 @@ export default function FieldEditor({
       {/* List / bullet config */}
       {field.type === "list" && (
         <div className="space-y-2">
-          <label className="block text-[10px] font-semibold text-gray-400 mb-1">LIST ITEMS (BULLETS)</label>
+          <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+            LIST ITEMS (BULLETS)
+          </label>
           <div className="space-y-1.5">
             {field.items?.map((item, bulletIdx) => (
               <div key={bulletIdx} className="flex items-center space-x-2">
@@ -153,7 +177,9 @@ export default function FieldEditor({
         <div className="space-y-2">
           <div className="flex items-center space-x-4">
             <div className="flex-1">
-              <label className="block text-[10px] font-semibold text-gray-400 mb-1">FIELD LABEL</label>
+              <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+                FIELD LABEL
+              </label>
               <input
                 type="text"
                 value={field.label || ""}
@@ -165,17 +191,24 @@ export default function FieldEditor({
               <input
                 type="checkbox"
                 checked={field.required || false}
-                onChange={(e) => onUpdate(field.id, { required: e.target.checked })}
+                onChange={(e) =>
+                  onUpdate(field.id, { required: e.target.checked })
+                }
                 className="h-4 w-4 rounded border-gray-300 text-indigo-600"
               />
-              <label className="text-xs font-semibold text-gray-500">Required</label>
+              <label className="text-xs font-semibold text-gray-500">
+                Required
+              </label>
             </div>
           </div>
 
           {/* Checkbox / Radio group options */}
-          {(field.type === "checkbox-group" || field.type === "radio-group") && (
+          {(field.type === "checkbox-group" ||
+            field.type === "radio-group") && (
             <div className="space-y-2 mt-2 border-t pt-2">
-              <label className="block text-[10px] font-semibold text-gray-400 mb-1">SELECT OPTIONS</label>
+              <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+                SELECT OPTIONS
+              </label>
               <div className="space-y-1.5">
                 {field.options?.map((opt, optIdx) => (
                   <div key={optIdx} className="flex items-center space-x-2">

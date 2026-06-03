@@ -1,6 +1,5 @@
 import React from "react";
-import { Text } from "@react-pdf/renderer";
-import { pdfStyles } from "../../styles/pdfStyles";
+import Html from "react-pdf-html";
 import { FormField } from "../../types/pdf.types";
 
 interface ParagraphBlockProps {
@@ -8,5 +7,21 @@ interface ParagraphBlockProps {
 }
 
 export const ParagraphBlock: React.FC<ParagraphBlockProps> = ({ field }) => {
-  return <Text style={pdfStyles.paragraph}>{field.text || ""}</Text>;
+  return (
+    <Html
+      style={{
+        fontSize: 10,
+        color: "#475569",
+        lineHeight: 1.6,
+        marginBottom: 12,
+      }}
+      stylesheet={{
+        p: {
+          margin: 0,
+        }
+      }}
+    >
+      {field.text || ""}
+    </Html>
+  );
 };

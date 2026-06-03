@@ -8,10 +8,16 @@ interface FormPreviewProps {
   fullWidth?: boolean;
 }
 
-
-function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps) {
+function FormPreview({
+  title,
+  description,
+  fields,
+  fullWidth,
+}: FormPreviewProps) {
   return (
-    <div className={`${fullWidth ? "w-full" : "max-w-xl w-full"} bg-white shadow-xl rounded-2xl border border-gray-100 overflow-hidden self-start font-[Poppins]`}>
+    <div
+      className={`${fullWidth ? "w-full" : "max-w-xl w-full"} bg-white shadow-xl rounded-2xl border border-gray-100 overflow-hidden self-start font-[Poppins]`}
+    >
       <div className="h-2 bg-primaryColorDark" />
 
       <div className="p-6">
@@ -23,14 +29,20 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
           </span>
         </div>
 
-
         <div className="border-b border-gray-100 pb-4 mb-6 text-left">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
             {title || "Untitled Document Form"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">
-            {description || "No description provided."}
-          </p>
+          {description ? (
+            <div
+              className="text-sm text-gray-500 mt-1.5 leading-relaxed w-full overflow-hidden [&_*]:max-w-full [&_*]:whitespace-pre-wrap [&_*]:break-words [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h3]:text-lg [&_h3]:font-semibold [&_h4]:font-semibold"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          ) : (
+            <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">
+              No description provided.
+            </p>
+          )}
         </div>
 
         {/* Field previews */}
@@ -38,12 +50,17 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
           {fields.length === 0 ? (
             <div className="text-center py-12 text-gray-300">
               <Eye className="w-12 h-12 mx-auto mb-2 opacity-30" />
-              <p className="text-sm font-medium">Render preview will show up here</p>
+              <p className="text-sm font-medium">
+                Render preview will show up here
+              </p>
             </div>
           ) : (
             fields.map((field) => {
               if (field.type === "heading") {
-                const Tag = (["h2", "h3", "h4", "h5", "h6", "h6"] as const)[(field.level ?? 2) - 1] ?? "h3";
+                const Tag =
+                  (["h2", "h3", "h4", "h5", "h6", "h6"] as const)[
+                    (field.level ?? 2) - 1
+                  ] ?? "h3";
                 const sizeClass =
                   field.level === 1
                     ? "text-xl font-bold text-gray-900 border-b pb-1 mt-6"
@@ -65,16 +82,23 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
 
               if (field.type === "paragraph") {
                 return (
-                  <p key={field.id} className="text-xs text-gray-600 leading-relaxed text-left">
-                    {field.text}
-                  </p>
+                  <div
+                    key={field.id}
+                    className="text-xs text-gray-600 leading-relaxed text-left w-full overflow-hidden [&_*]:max-w-full [&_*]:whitespace-pre-wrap [&_*]:break-words [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h3]:text-lg [&_h3]:font-semibold [&_h4]:font-semibold"
+                    dangerouslySetInnerHTML={{ __html: field.text || "" }}
+                  />
                 );
               }
 
               if (field.type === "list") {
                 return (
-                  <ul key={field.id} className="list-disc pl-5 text-xs text-gray-600 space-y-1 text-left">
-                    {field.items?.map((bullet, i) => <li key={i}>{bullet}</li>)}
+                  <ul
+                    key={field.id}
+                    className="list-disc pl-5 text-xs text-gray-600 space-y-1 text-left"
+                  >
+                    {field.items?.map((bullet, i) => (
+                      <li key={i}>{bullet}</li>
+                    ))}
                   </ul>
                 );
               }
@@ -105,8 +129,14 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
 
                   {field.type === "boolean" && (
                     <div className="flex items-center space-x-2">
-                      <input type="checkbox" disabled className="h-4 w-4 border-gray-300 rounded" />
-                      <span className="text-[11px] text-gray-500">I declare my agreement.</span>
+                      <input
+                        type="checkbox"
+                        disabled
+                        className="h-4 w-4 border-gray-300 rounded"
+                      />
+                      <span className="text-[11px] text-gray-500">
+                        I declare my agreement.
+                      </span>
                     </div>
                   )}
 
@@ -114,8 +144,14 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
                     <div className="grid grid-cols-2 gap-2 border p-3 rounded-lg bg-gray-50">
                       {field.options?.map((opt, i) => (
                         <div key={i} className="flex items-center space-x-2">
-                          <input type="checkbox" disabled className="h-3.5 w-3.5" />
-                          <span className="text-[11px] text-gray-500">{opt}</span>
+                          <input
+                            type="checkbox"
+                            disabled
+                            className="h-3.5 w-3.5"
+                          />
+                          <span className="text-[11px] text-gray-500">
+                            {opt}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -125,8 +161,14 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
                     <div className="grid grid-cols-2 gap-2 border p-3 rounded-lg bg-gray-50">
                       {field.options?.map((opt, i) => (
                         <div key={i} className="flex items-center space-x-2">
-                          <input type="radio" disabled className="h-3.5 w-3.5" />
-                          <span className="text-[11px] text-gray-500">{opt}</span>
+                          <input
+                            type="radio"
+                            disabled
+                            className="h-3.5 w-3.5"
+                          />
+                          <span className="text-[11px] text-gray-500">
+                            {opt}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -145,10 +187,11 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
                           placeholder="Type your full name"
                         />
                       </div>
-                      <div className="border border-dashed border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-center items-center min-h-[90px]">
+                      <div className="border border-dashed border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-center items-center min-h-22.5">
                         <span
                           style={{
-                            fontFamily: "'Great Vibes', 'Playball', 'Georgia', cursive",
+                            fontFamily:
+                              "'Great Vibes', 'Playball', 'Georgia', cursive",
                             fontSize: "24px",
                             fontWeight: "normal",
                             color: "#94a3b8",
@@ -183,6 +226,5 @@ function FormPreview({ title, description, fields, fullWidth }: FormPreviewProps
     </div>
   );
 }
-
 
 export default FormPreview;

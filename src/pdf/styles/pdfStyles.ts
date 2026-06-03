@@ -61,9 +61,6 @@ const type = {
   headingLeading: 1.25,
 };
 
-/* ------------------------------------------------------------------
- * Stylesheet
- * ------------------------------------------------------------------ */
 export const pdfStyles = StyleSheet.create({
   /* ---------- Page ---------- */
   page: {
@@ -208,7 +205,7 @@ export const pdfStyles = StyleSheet.create({
     borderBottomStyle: "solid",
     paddingBottom: 5,
     marginTop: 14,
-    marginBottom: 8,
+    marginBottom: 4,
     lineHeight: type.headingLeading,
   },
   h2: {
@@ -216,7 +213,7 @@ export const pdfStyles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.ink,
     marginTop: 12,
-    marginBottom: 6,
+    marginBottom: 0,
     lineHeight: type.headingLeading,
   },
   h3: {
@@ -224,7 +221,7 @@ export const pdfStyles = StyleSheet.create({
     fontWeight: "bold",
     color: colors.body,
     marginTop: 10,
-    marginBottom: 5,
+    marginBottom: 4,
     lineHeight: type.headingLeading,
   },
   h4: {
@@ -264,7 +261,6 @@ export const pdfStyles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // For "Patient initials: ___" style emphasized sentences
   emphasis: {
     fontWeight: "bold",
     color: colors.ink,
@@ -288,9 +284,7 @@ export const pdfStyles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 6,
   },
-  // Bullet uses same fontSize + lineHeight as the text so they baseline-align.
-  // Slight negative marginTop pulls the bullet up to optically sit against
-  // the x-height of the body copy rather than the descender area.
+
   listBullet: {
     fontSize: 10,
     color: colors.brand,
@@ -381,12 +375,6 @@ export const pdfStyles = StyleSheet.create({
     columnGap: 12,
   },
   // Alignment note:
-  //   To get the box visually centered with the label, we make the label's
-  //   line-box approximately equal to the box's height by setting an
-  //   explicit lineHeight. With matching cross-axis dimensions, the default
-  //   `alignItems: "center"` then produces true optical centering.
-  //   Box: 10pt. Label: 9.5pt × 1.15 ≈ 10.9pt line-box. Close enough that
-  //   the geometric and visual centers coincide.
   checkboxItem: {
     flexDirection: "row",
     alignItems: "center",

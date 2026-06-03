@@ -1,18 +1,19 @@
-
-import { useEffect, useState } from 'react';
-import { IoIosArrowBack } from 'react-icons/io';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../../redux/store';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import chatApiService from '../../../apiServices/chatApi/ChatApi';
-import messageApiService, { getAllMessagesOfSingleChat } from '../../../apiServices/chatApi/messagesApi/MessagesApi';
-import { getSocket, initSocket } from '../../../socket/Socket';
-import ChatMessages from '../../../components/pagesComponent/chat/chatMessages/ChatMessages';
-import ModalLayout from '../../../components/modals/modalLayout/ModalLayout';
-import OutletLayout from '../../../layouts/outletLayout/OutletLayout';
+import { useEffect, useState } from "react";
+import { IoIosArrowBack } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import chatApiService from "../../../apiServices/chatApi/ChatApi";
+import messageApiService, {
+  getAllMessagesOfSingleChat,
+} from "../../../apiServices/chatApi/messagesApi/MessagesApi";
+import { getSocket } from "../../../socket/Socket";
+import ChatMessages from "../../../components/pagesComponent/chat/chatMessages/ChatMessages";
+import ModalLayout from "../../../components/modals/modalLayout/ModalLayout";
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import { MdOutlineMail } from "react-icons/md";
-import SingleChatData from '../../../components/pagesComponent/chat/singleChatMessage/SingleChatData';
-import NewChatModal from '../../../components/modals/providerModal/chatModal/NewChatModal';
+import SingleChatData from "../../../components/pagesComponent/chat/singleChatMessage/SingleChatData";
+import NewChatModal from "../../../components/modals/providerModal/chatModal/NewChatModal";
 import {
   isNewChatModalShowReducser,
   isNewGroupChatModalShowReducser,
@@ -20,44 +21,72 @@ import {
   isInviteToGroupModalShowReducer,
   isAddMembersToGroupModalReducer,
   isGroupSettingsModalReducer,
-} from '../../../redux/slices/ModalSlice';
-import { toast } from 'react-toastify';
-import { ChatChannelType } from '../../../types/chatType/ChatChannelType';
-import ChatModalBodyContent from '../../../components/modals/providerModal/chatModal/ChatModalBodyContent';
-import NewGroupChatModal from '../../../components/modals/providerModal/chatModal/NewGroupChatModal';
-import GroupChatData from '../../../components/pagesComponent/chat/groupChatData/GroupChatData';
+} from "../../../redux/slices/ModalSlice";
+import { toast } from "react-toastify";
+import { ChatChannelType } from "../../../types/chatType/ChatChannelType";
+import ChatModalBodyContent from "../../../components/modals/providerModal/chatModal/ChatModalBodyContent";
+import NewGroupChatModal from "../../../components/modals/providerModal/chatModal/NewGroupChatModal";
+import GroupChatData from "../../../components/pagesComponent/chat/groupChatData/GroupChatData";
 import { HiOutlineUserAdd } from "react-icons/hi";
-import { GroupChat, GroupCreatedBy } from '../../../types/chatType/GroupType';
-import { Group, Message, NewMessage } from '../../../types/chatType/ChatType';
-import ToolTip from '../../../components/toolTip/ToolTip';
-import SpinnerLoader from '../../../components/loader/SpinnerLoader';
+import { GroupChat, GroupCreatedBy } from "../../../types/chatType/GroupType";
+import { Group, Message, NewMessage } from "../../../types/chatType/ChatType";
+import ToolTip from "../../../components/toolTip/ToolTip";
+import SpinnerLoader from "../../../components/loader/SpinnerLoader";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
-import InviteToGroupModalBody from '../../../components/modals/providerModal/chatModal/InviteToGroupModalBody';
-import AddMembersToGroupModalBody from '../../../components/modals/providerModal/chatModal/AddMembersToGroupModalBody';
-import GroupSettingsModalBody from '../../../components/modals/providerModal/chatModal/GroupSettingsModalBody';
-import { useSubscription } from '../../../hooks/useSubscription';
+import InviteToGroupModalBody from "../../../components/modals/providerModal/chatModal/InviteToGroupModalBody";
+import AddMembersToGroupModalBody from "../../../components/modals/providerModal/chatModal/AddMembersToGroupModalBody";
+import GroupSettingsModalBody from "../../../components/modals/providerModal/chatModal/GroupSettingsModalBody";
+import { useSubscription } from "../../../hooks/useSubscription";
 
 const Chat = () => {
   const { isTrialActive } = useSubscription();
 
-  const loginUserProviderId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
-  const loginUserUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId);
+  const loginUserProviderId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
+  );
+  const loginUserUserId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
+  );
+  const loginUserRole = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role,
+  );
 
-  const isNewChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewChatModal);
-  const isNewGroupChatModal = useSelector((state: RootState) => state?.modalSlice?.isNewGroupChatModal);
-  const isModalShow = useSelector((state: RootState) => state?.modalSlice?.isModalShow);
+  const isNewChatModal = useSelector(
+    (state: RootState) => state?.modalSlice?.isNewChatModal,
+  );
+  const isNewGroupChatModal = useSelector(
+    (state: RootState) => state?.modalSlice?.isNewGroupChatModal,
+  );
+  const isModalShow = useSelector(
+    (state: RootState) => state?.modalSlice?.isModalShow,
+  );
 
-  const isInviteProviderModal = useSelector((state: RootState) => state?.modalSlice?.isInviteProviderModal);
-  const isInviteToGroupModalShow = useSelector((state: RootState) => state?.modalSlice?.isInviteToGroupModalShow);
-  const isAddMembersToGroupModal = useSelector((state: RootState) => state?.modalSlice?.isAddMembersToGroupModal);
-  const isGroupSettingsModal = useSelector((state: RootState) => state?.modalSlice?.isGroupSettingsModal);
+  const isInviteProviderModal = useSelector(
+    (state: RootState) => state?.modalSlice?.isInviteProviderModal,
+  );
+  const isInviteToGroupModalShow = useSelector(
+    (state: RootState) => state?.modalSlice?.isInviteToGroupModalShow,
+  );
+  const isAddMembersToGroupModal = useSelector(
+    (state: RootState) => state?.modalSlice?.isAddMembersToGroupModal,
+  );
+  const isGroupSettingsModal = useSelector(
+    (state: RootState) => state?.modalSlice?.isGroupSettingsModal,
+  );
 
-  const [activeChatObject, setActiveChatObject] = useState<ChatChannelType | GroupChat | undefined>(undefined);
+  const [activeChatObject, setActiveChatObject] = useState<
+    ChatChannelType | GroupChat | undefined
+  >(undefined);
   const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
   const [activeId, setActiveId] = useState<string>();
-  const [groupCreatedBy, setGroupCreatedBy] = useState<GroupCreatedBy>({ name: "", id: "" });
-  const [activeChatType, setActiveChatType] = useState<'individual' | 'group' | undefined>(undefined);
+  const [groupCreatedBy, setGroupCreatedBy] = useState<GroupCreatedBy>({
+    name: "",
+    id: "",
+  });
+  const [activeChatType, setActiveChatType] = useState<
+    "individual" | "group" | undefined
+  >(undefined);
 
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const { id } = useParams();
@@ -70,33 +99,40 @@ const Chat = () => {
   const socket = getSocket();
 
   const { data: allChannels = [], isLoading: isChannelsLoading } = useQuery({
-    queryKey: ['chatchannels'],
+    queryKey: ["chatchannels"],
     queryFn: async () => {
       const res = await chatApiService.getAllChatChannels(loginUserProviderId);
       const channels = res.data.findAllChatChannel || [];
 
       return channels.sort((a: GroupChat, b: GroupChat) => {
-        const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
-        const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+        const aTime = new Date(
+          a?.lastMessage?.createdAt || a?.updatedAt || 0,
+        ).getTime();
+        const bTime = new Date(
+          b?.lastMessage?.createdAt || b?.updatedAt || 0,
+        ).getTime();
         return bTime - aTime; // latest first
       });
     },
   });
 
   const { data: allGroups = [], isLoading: isGroupsLoading } = useQuery({
-    queryKey: ['groupChatchannels'],
+    queryKey: ["groupChatchannels"],
     queryFn: async () => {
       const res = await chatApiService.getGroupChatChannels(loginUserUserId);
       const groups = res?.data?.allgroups || [];
       return groups.sort((a: GroupChat, b: GroupChat) => {
-        const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
-        const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+        const aTime = new Date(
+          a?.lastMessage?.createdAt || a?.updatedAt || 0,
+        ).getTime();
+        const bTime = new Date(
+          b?.lastMessage?.createdAt || b?.updatedAt || 0,
+        ).getTime();
         return bTime - aTime; // latest group sabse upar
       });
     },
     staleTime: 30 * 1000, // prevent background refetch from resetting socket-updated unreadCount
   });
-
 
   useEffect(() => {
     // If there's an ID in the URL, try to find and set the active chat
@@ -109,7 +145,7 @@ const Chat = () => {
           setActiveId(group.id);
           setGroupCreatedBy({
             id: group?.provider?.id,
-            name: group?.provider?.user?.fullName
+            name: group?.provider?.user?.fullName,
           });
         }
       } else {
@@ -121,8 +157,6 @@ const Chat = () => {
         }
       }
     } else {
-      // Only clear if we are explicitly at the base /chat route with no active selection
-      // This prevents the flicker when clicking sidebar items before navigation completes
       setActiveChatObject(undefined);
       setActiveChatType(undefined);
       setActiveId(undefined);
@@ -130,7 +164,8 @@ const Chat = () => {
   }, [id, isGroup, allChannels, allGroups]);
 
   useEffect(() => {
-    if (!loginUserProviderId || (!allChannels?.length && !allGroups?.length)) return;
+    if (!loginUserProviderId || (!allChannels?.length && !allGroups?.length))
+      return;
 
     const socket = getSocket();
 
@@ -148,30 +183,36 @@ const Chat = () => {
     if (socket && socket.connected) {
       joinAllRooms();
     } else if (socket) {
-      socket.on('connect', joinAllRooms);
+      socket.on("connect", joinAllRooms);
     }
 
     return () => {
-      socket?.off('connect', joinAllRooms);
+      socket?.off("connect", joinAllRooms);
     };
   }, [loginUserProviderId, allChannels, allGroups]);
 
   const { data: allMessage = [] } = useQuery<Message[]>({
-    queryKey: ['messages', activeChatObject?.id],
+    queryKey: ["messages", activeChatObject?.id],
     queryFn: async () => {
       if (!activeChatObject?.id) {
         toast.error("Chat channel ID is missing.");
         return [];
       }
-      const dataSendToBack = { loginUserId: loginUserProviderId, chatChannelId: activeChatObject?.id };
+      const dataSendToBack = {
+        loginUserId: loginUserProviderId,
+        chatChannelId: activeChatObject?.id,
+      };
       try {
-        const response = await messageApiService.getAllMessagesOfSingleChatChannel(dataSendToBack);
+        const response =
+          await messageApiService.getAllMessagesOfSingleChatChannel(
+            dataSendToBack,
+          );
         return response?.data?.messages;
       } catch (_error) {
         return [];
       }
     },
-    enabled: !!activeChatObject?.id && activeChatType === 'individual',
+    enabled: !!activeChatObject?.id && activeChatType === "individual",
   });
 
   const { data: allGroupMessage = [] } = useQuery<Message[]>({
@@ -187,7 +228,10 @@ const Chat = () => {
       };
 
       try {
-        const response = await messageApiService.getAllMessagesOfGroupChatChannel(dataSendToBack);
+        const response =
+          await messageApiService.getAllMessagesOfGroupChatChannel(
+            dataSendToBack,
+          );
         return response?.data?.groupMessages ?? [];
       } catch (_error) {
         return [];
@@ -204,69 +248,77 @@ const Chat = () => {
 
     const handleNewMessage = (newMessage: Message) => {
       const isSameChatOpen =
-        (activeChatType === 'individual' && newMessage.chatChannelId === activeChatObject?.id) ||
-        (activeChatType === 'group' && newMessage.groupId === activeChatObject?.id);
+        (activeChatType === "individual" &&
+          newMessage.chatChannelId === activeChatObject?.id) ||
+        (activeChatType === "group" &&
+          newMessage.groupId === activeChatObject?.id);
       const isFromSelf = newMessage.senderId === loginUserUserId;
 
-      queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], (oldData) => {
-        if (!oldData) return oldData;
+      queryClient.setQueryData<ChatChannelType[]>(
+        ["chatchannels"],
+        (oldData) => {
+          if (!oldData) return oldData;
 
-        const updatedChannels = oldData.map((channel) => {
-          if (channel.id === newMessage.chatChannelId) {
-            return {
-              ...channel,
-              lastMessage: {
-                id: newMessage.id!,
-                message: newMessage.message || '📎 File',
-                createdAt: newMessage.createdAt || new Date().toISOString(),
-                mediaUrl: newMessage.mediaUrl,
-                type: newMessage.type,
-              },
-              totalUnread:
-                isFromSelf || isSameChatOpen
-                  ? channel.totalUnread
-                  : (Number(channel.totalUnread) || 0) + 1,
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return channel;
-        });
+          const updatedChannels = oldData.map((channel) => {
+            if (channel.id === newMessage.chatChannelId) {
+              return {
+                ...channel,
+                lastMessage: {
+                  id: newMessage.id!,
+                  message: newMessage.message || "📎 File",
+                  createdAt: newMessage.createdAt || new Date().toISOString(),
+                  mediaUrl: newMessage.mediaUrl,
+                  type: newMessage.type,
+                },
+                totalUnread:
+                  isFromSelf || isSameChatOpen
+                    ? channel.totalUnread
+                    : (Number(channel.totalUnread) || 0) + 1,
+                updatedAt: new Date().toISOString(),
+              };
+            }
+            return channel;
+          });
 
-        return updatedChannels;
-      });
+          return updatedChannels;
+        },
+      );
 
-      queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], (oldGroups = []) => {
-        return oldGroups.map(group => {
-          if (group?.id === newMessage.groupId) {
+      queryClient.setQueryData<GroupChat[]>(
+        ["groupChatchannels"],
+        (oldGroups = []) => {
+          return oldGroups.map((group) => {
+            if (group?.id === newMessage.groupId) {
+              return {
+                ...group,
+                lastMessage: {
+                  id: newMessage.id,
+                  message: newMessage.message || "📎 File",
+                  createdAt: newMessage.createdAt || new Date().toISOString(),
+                  mediaUrl: newMessage.mediaUrl,
+                  type: newMessage.type,
+                },
+                unreadCount:
+                  isFromSelf || isSameChatOpen
+                    ? group.unreadCount
+                    : (Number(group.unreadCount) || 0) + 1,
+                updatedAt: `${new Date().toISOString()}_${Math.random()}`,
+              };
+            }
+
             return {
               ...group,
-              lastMessage: {
-                id: newMessage.id,
-                message: newMessage.message || "📎 File",
-                createdAt: newMessage.createdAt || new Date().toISOString(),
-                mediaUrl: newMessage.mediaUrl,
-                type: newMessage.type,
-              },
-              unreadCount:
-                isFromSelf || isSameChatOpen
-                  ? group.unreadCount
-                  : (Number(group.unreadCount) || 0) + 1,
-              updatedAt: `${new Date().toISOString()}_${Math.random()}`,
+              updatedAt: `${group.updatedAt}_${Math.random()}`,
             };
-          }
-
-          return {
-            ...group,
-            updatedAt: `${group.updatedAt}_${Math.random()}`
-          };
-        });
-      });
+          });
+        },
+      );
 
       if (isSameChatOpen) {
         const messageKey =
-          activeChatType === 'individual'
-            ? ['messages', newMessage.chatChannelId]
-            : ['groupmessages', newMessage.groupId];
+          activeChatType === "individual"
+            ? ["messages", newMessage.chatChannelId]
+            : ["groupmessages", newMessage.groupId];
 
         queryClient.setQueryData<NewMessage[]>(messageKey, (old = []) => {
           if (old.some((m) => m.id === newMessage.id)) return old;
@@ -274,7 +326,7 @@ const Chat = () => {
         });
 
         // ✅ Mark as read on backend immediately if chat is open
-        if (activeChatType === 'individual') {
+        if (activeChatType === "individual") {
           messageApiService.readMessageSingleConservation({
             loginUserId: loginUserProviderId,
             chatChannelId: activeChatObject?.id,
@@ -288,23 +340,34 @@ const Chat = () => {
       }
     };
 
-    socket.off('receive_direct', handleNewMessage);
-    socket.off('receive_group', handleNewMessage);
-    socket.on('receive_group', handleNewMessage);
-    socket.on('receive_direct', handleNewMessage);
+    socket.off("receive_direct", handleNewMessage);
+    socket.off("receive_group", handleNewMessage);
+    socket.on("receive_group", handleNewMessage);
+    socket.on("receive_direct", handleNewMessage);
 
     return () => {
-      socket.off('receive_group', handleNewMessage);
-      socket.off('receive_direct', handleNewMessage);
+      socket.off("receive_group", handleNewMessage);
+      socket.off("receive_direct", handleNewMessage);
     };
-  }, [loginUserProviderId, loginUserUserId, activeChatObject?.id, activeChatType, queryClient]);
+  }, [
+    loginUserProviderId,
+    loginUserUserId,
+    activeChatObject?.id,
+    activeChatType,
+    queryClient,
+  ]);
 
   return (
     <OutletLayout isWhiteColor={false}>
       {isModalShow && (
         <ModalLayout
           heading="Share this chat by generating a link"
-          modalBodyContent={<ChatModalBodyContent id={activeChatObject?.id} chatType={activeChatType} />}
+          modalBodyContent={
+            <ChatModalBodyContent
+              id={activeChatObject?.id}
+              chatType={activeChatType}
+            />
+          }
         />
       )}
 
@@ -312,7 +375,9 @@ const Chat = () => {
         <ModalLayout
           heading="Invite to Group"
           onClose={() => dispatch(isInviteToGroupModalShowReducer(false))}
-          modalBodyContent={<InviteToGroupModalBody id={activeChatObject?.id} />}
+          modalBodyContent={
+            <InviteToGroupModalBody id={activeChatObject?.id} />
+          }
         />
       )}
 
@@ -342,8 +407,18 @@ const Chat = () => {
         />
       )}
 
-      {isNewChatModal && <ModalLayout heading="Start chat with a provider" modalBodyContent={<NewChatModal />} />}
-      {isNewGroupChatModal && <ModalLayout heading="New Chat Group" modalBodyContent={<NewGroupChatModal />} />}
+      {isNewChatModal && (
+        <ModalLayout
+          heading="Start chat with a provider"
+          modalBodyContent={<NewChatModal />}
+        />
+      )}
+      {isNewGroupChatModal && (
+        <ModalLayout
+          heading="New Chat Group"
+          modalBodyContent={<NewGroupChatModal />}
+        />
+      )}
 
       {/* ✅ Invite Provider Modal (fixed close) */}
       {isInviteProviderModal && (
@@ -360,34 +435,40 @@ const Chat = () => {
 
       <div className="flex items-start lg:justify-between relative h-[80vh]">
         <div
-          className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? 'left-0' : '-left-[200%] lg:left-0'}`}
+          className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? "left-0" : "-left-[200%] lg:left-0"}`}
         >
-          <div className='flex items-center justify-between '>
-            <p className="font-medium text-[14px] text-textGreyColor">Recent Chats</p>
+          <div className="flex items-center justify-between ">
+            <p className="font-medium text-[14px] text-textGreyColor">
+              Recent Chats
+            </p>
 
-            <div className='flex items-center gap-3'>
+            <div className="flex items-center gap-3">
               {/* Existing button */}
-              <div className='relative group'>
+              <div className="relative group">
                 <HiOutlineUserAdd
-                  className='cursor-pointer text-xl text-textGreyColor'
+                  className="cursor-pointer text-xl text-textGreyColor"
                   onClick={() => dispatch(isNewChatModalShowReducser(true))}
                 />
-                <ToolTip toolTipText='Start chat with a provider on the platform' />
+                <ToolTip toolTipText="Start chat with a provider on the platform" />
               </div>
 
               {/* ✅ Invite provider by email (icon changed) */}
-              <div className='relative group'>
+              <div className="relative group">
                 <MdOutlineMail
-                  className='cursor-pointer text-xl text-textGreyColor'
-                  onClick={() => dispatch(isInviteProviderModalShowReducser(true))}
+                  className="cursor-pointer text-xl text-textGreyColor"
+                  onClick={() =>
+                    dispatch(isInviteProviderModalShowReducser(true))
+                  }
                 />
-                <ToolTip toolTipText='Invite provider by email' />
+                <ToolTip toolTipText="Invite provider by email" />
               </div>
             </div>
           </div>
 
           <div className="min-h-[31vh] max-h-[31vh] bg- p-2 lg:p-0 overflow-auto mt-4">
-            {isChannelsLoading ? <SpinnerLoader text="Chats are Loading" /> :
+            {isChannelsLoading ? (
+              <SpinnerLoader text="Chats are Loading" />
+            ) : (
               allChannels
                 ?.sort((a: ChatChannelType, b: ChatChannelType) => {
                   const aTime = new Date(a?.updatedAt)?.getTime();
@@ -405,61 +486,80 @@ const Chat = () => {
                       setActiveChatObject(data);
                       setIsChatSideBarClose(false);
                       setActiveId(data?.id);
-                      setActiveChatType('individual');
+                      setActiveChatType("individual");
 
-                      messageApiService.readMessageSingleConservation({
-                        loginUserId: loginUserProviderId,
-                        chatChannelId: data.id,
-                      }).then(() => {
-                        queryClient.setQueryData<ChatChannelType[]>(['chatchannels'], oldData => {
-                          if (!oldData) return oldData;
+                      messageApiService
+                        .readMessageSingleConservation({
+                          loginUserId: loginUserProviderId,
+                          chatChannelId: data.id,
+                        })
+                        .then(() => {
+                          queryClient.setQueryData<ChatChannelType[]>(
+                            ["chatchannels"],
+                            (oldData) => {
+                              if (!oldData) return oldData;
 
-                          return oldData.map(channel =>
-                            channel.id === data.id
-                              ? {
-                                ...channel,
-                                totalUnread: 0,
-                                //updatedAt: new Date().toISOString()
-                              }
-                              : channel
+                              return oldData.map((channel) =>
+                                channel.id === data.id
+                                  ? {
+                                      ...channel,
+                                      totalUnread: 0,
+                                      //updatedAt: new Date().toISOString()
+                                    }
+                                  : channel,
+                              );
+                            },
                           );
+                        })
+                        .catch((_err) => {})
+                        .finally(() => {
+                          setIsMessagesLoading(false);
                         });
-
-                      }).catch((_err) => {
-                      }).finally(() => {
-                        setIsMessagesLoading(false);
-                      });
                     }}
                   />
                 ))
-            }
+            )}
           </div>
 
-          <hr className="w-full h-px text-inputBgColor" />
+          {loginUserRole !== "client" && (
+            <>
+              <hr className="w-full h-px text-inputBgColor" />
+              <div className="flex items-center justify-between mt-4">
+                <p className=" font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">
+                  Group Chats
+                </p>
 
-          <div className='flex items-center justify-between mt-4'>
-            <p className=" font-medium text-[14px] p-2 lg:p-0 text-textGreyColor">Group Chats</p>
-            <div className='relative group'>
-              <HiOutlineUserAdd
-                className='cursor-pointer text-xl text-textGreyColor'
-                onClick={() => {
-                  if (isTrialActive) {
-                    toast.info("Group chats are not available on the Free Trial. Please upgrade your plan.");
-                  } else {
-                    dispatch(isNewGroupChatModalShowReducser(true));
-                  }
-                }}
-              />
-              <ToolTip toolTipText='Add New Group' />
-            </div>
-          </div>
+                <div className="relative group">
+                  <HiOutlineUserAdd
+                    className="cursor-pointer text-xl text-textGreyColor"
+                    onClick={() => {
+                      if (isTrialActive) {
+                        toast.info(
+                          "Group chats are not available on the Free Trial. Please upgrade your plan.",
+                        );
+                      } else {
+                        dispatch(isNewGroupChatModalShowReducser(true));
+                      }
+                    }}
+                  />
+                  <ToolTip toolTipText="Add New Group" />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="min-h-[32vh] max-h-[32vh] bg- p-2 lg:p-0 overflow-auto mt-4">
-            {isGroupsLoading ?
-              <SpinnerLoader text="Group Chat are Loading" /> : allGroups
+            {isGroupsLoading ? (
+              <SpinnerLoader text="Group Chat are Loading" />
+            ) : (
+              allGroups
                 ?.sort((a: GroupChat, b: GroupChat) => {
-                  const aTime = new Date(a?.lastMessage?.createdAt || a?.updatedAt || 0).getTime();
-                  const bTime = new Date(b?.lastMessage?.createdAt || b?.updatedAt || 0).getTime();
+                  const aTime = new Date(
+                    a?.lastMessage?.createdAt || a?.updatedAt || 0,
+                  ).getTime();
+                  const bTime = new Date(
+                    b?.lastMessage?.createdAt || b?.updatedAt || 0,
+                  ).getTime();
                   return bTime - aTime; // Latest messages first
                 })
                 ?.map((data: GroupChat) => {
@@ -471,43 +571,56 @@ const Chat = () => {
                         activeId={activeId}
                         onClick={() => {
                           navigate(`/chat/group/${data.id}`);
-                          setGroupCreatedBy({ id: data?.provider?.id, name: data?.provider?.user?.fullName })
+                          setGroupCreatedBy({
+                            id: data?.provider?.id,
+                            name: data?.provider?.user?.fullName,
+                          });
                           setIsMessagesLoading(true);
                           setActiveChatObject(data);
                           setIsChatSideBarClose(false);
                           setActiveId(data?.id);
-                          setActiveChatType('group');
+                          setActiveChatType("group");
 
                           if (socket?.connected && data?.id) {
-                            socket.emit('join_channel', { chatChannelId: data.id });
+                            socket.emit("join_channel", {
+                              chatChannelId: data.id,
+                            });
                           }
 
-                          messageApiService.readMessageGroupConservation({
-                            loginUserId: loginUserProviderId,
-                            groupId: data?.id,
-                          }).then(() => {
-                            queryClient.setQueryData<GroupChat[]>(['groupChatchannels'], oldData => {
-                              if (!oldData) return oldData;
-                              return oldData?.map(group =>
-                                group?.id === data?.id
-                                  ? {
-                                    ...group,
-                                    unreadCount: 0,
-                                    // updatedAt: new Date().toISOString(),
-                                  }
-                                  : group
+                          messageApiService
+                            .readMessageGroupConservation({
+                              loginUserId: loginUserProviderId,
+                              groupId: data?.id,
+                            })
+                            .then(() => {
+                              queryClient.setQueryData<GroupChat[]>(
+                                ["groupChatchannels"],
+                                (oldData) => {
+                                  if (!oldData) return oldData;
+                                  return oldData?.map((group) =>
+                                    group?.id === data?.id
+                                      ? {
+                                          ...group,
+                                          unreadCount: 0,
+                                          // updatedAt: new Date().toISOString(),
+                                        }
+                                      : group,
+                                  );
+                                },
                               );
+                            })
+                            .catch((_err) => {
+                              toast.error("Failed to update read status");
+                            })
+                            .finally(() => {
+                              setIsMessagesLoading(false);
                             });
-                          }).catch((_err) => {
-                            toast.error('Failed to update read status');
-                          }).finally(() => {
-                            setIsMessagesLoading(false);
-                          });
                         }}
                       />
                     </div>
                   );
-                })}
+                })
+            )}
           </div>
         </div>
 
@@ -521,25 +634,36 @@ const Chat = () => {
           {isMessagesLoading ? (
             <div className="h-full flex items-center justify-center">
               <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <SpinnerLoader text='Loading messages' />
+                <SpinnerLoader text="Loading messages" />
               </div>
             </div>
+          ) : activeChatType === "individual" && allMessage ? (
+            <ChatMessages
+              messageData={allMessage}
+              activeChatObject={activeChatObject!}
+              activeChatType={activeChatType}
+            />
+          ) : activeChatType === "group" && allGroupMessage ? (
+            <ChatMessages
+              messageData={allGroupMessage}
+              activeChatObject={activeChatObject!}
+              activeChatType={activeChatType}
+              groupCreatedBy={groupCreatedBy}
+            />
           ) : (
-            activeChatType === 'individual' && allMessage ? (
-              <ChatMessages messageData={allMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} />
-            ) : activeChatType === 'group' && allGroupMessage ? (
-              <ChatMessages messageData={allGroupMessage} activeChatObject={activeChatObject!} activeChatType={activeChatType} groupCreatedBy={groupCreatedBy} />
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center px-4">
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
-                  alt="Select chat"
-                  className="w-32 h-32 opacity-70 mb-4"
-                />
-                <h2 className="text-xl font-semibold text-gray-600">No Chat Selected</h2>
-                <p className="text-gray-400 mt-2 text-sm">Please choose a conversation to start messaging.</p>
-              </div>
-            )
+            <div className="h-full flex flex-col items-center justify-center text-center px-4">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                alt="Select chat"
+                className="w-32 h-32 opacity-70 mb-4"
+              />
+              <h2 className="text-xl font-semibold text-gray-600">
+                No Chat Selected
+              </h2>
+              <p className="text-gray-400 mt-2 text-sm">
+                Please choose a conversation to start messaging.
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -548,4 +672,3 @@ const Chat = () => {
 };
 
 export default Chat;
-

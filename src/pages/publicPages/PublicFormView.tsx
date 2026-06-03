@@ -2,10 +2,11 @@ import { useMemo, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import axiosInstance from "../../apiServices/axiosInstance/AxiosInstance";
 import { toast } from "react-toastify";
 import { useQuery, useMutation } from "@tanstack/react-query";
+
+import { RootState } from "../../redux/store";
+import axiosInstance from "../../apiServices/axiosInstance/AxiosInstance";
 import {
   generateFormPdfBlob,
   normalizeCheckboxGroups,
@@ -196,7 +197,7 @@ function PublicFormView() {
         { type: "application/pdf" },
       );
 
-      savePdfLocally(pdfFile);
+      // savePdfLocally(pdfFile);
 
       const formData = new FormData();
       formData.append("file", pdfFile);
@@ -217,9 +218,9 @@ function PublicFormView() {
       pdfUrl,
     };
 
-    setCustomSubmitting(false);
+    // setCustomSubmitting(false);
 
-    return;
+    // return;
 
     try {
       await mutation.mutateAsync(payload);
@@ -262,9 +263,10 @@ function PublicFormView() {
               {formSchema.title}
             </h1>
             {formSchema.description && (
-              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
-                {formSchema.description}
-              </p>
+              <div
+                className="mt-2 text-sm text-gray-500 leading-relaxed w-full overflow-hidden [&_*]:max-w-full [&_*]:whitespace-pre-wrap [&_*]:break-words [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h3]:text-lg [&_h3]:font-semibold [&_h4]:font-semibold"
+                dangerouslySetInnerHTML={{ __html: formSchema.description }}
+              />
             )}
             {formSchema.clientName && (
               <div className="mt-4 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primaryColorLight/30 text-primaryColorDark">
@@ -294,12 +296,11 @@ function PublicFormView() {
 
               if (field.type === "paragraph") {
                 return (
-                  <p
+                  <div
                     key={field.id}
-                    className="text-sm text-gray-600 mb-4 text-left leading-relaxed"
-                  >
-                    {field.text}
-                  </p>
+                    className="text-sm text-gray-600 mb-4 text-left leading-relaxed w-full overflow-hidden [&_*]:max-w-full [&_*]:whitespace-pre-wrap [&_*]:break-words [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-5 [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h3]:text-lg [&_h3]:font-semibold [&_h4]:font-semibold"
+                    dangerouslySetInnerHTML={{ __html: field.text || "" }}
+                  />
                 );
               }
 
