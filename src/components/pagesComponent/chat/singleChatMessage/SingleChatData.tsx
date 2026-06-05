@@ -18,43 +18,46 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
   activeId,
 }) => {
   const loginUserId = useSelector(
-    (state: RootState) => state.LoginUserDetail.userDetails.userId
+    (state: RootState) => state.LoginUserDetail.userDetails.userId,
   );
 
   // Helper function to get media display info
   const getMediaDisplayInfo = (mediaUrl?: string) => {
     if (!mediaUrl) return null;
 
-    const extension = mediaUrl.split('.').pop()?.toLowerCase();
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
-    const isPdf = extension === 'pdf';
-    const isDoc = ['doc', 'docx'].includes(extension || '');
+    const extension = mediaUrl.split(".").pop()?.toLowerCase();
+    const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(
+      extension || "",
+    );
+    const isPdf = extension === "pdf";
+    const isDoc = ["doc", "docx"].includes(extension || "");
 
     if (isImage) {
-      return { icon: HiPhoto, text: 'Photo' };
+      return { icon: HiPhoto, text: "Photo" };
     } else if (isPdf || isDoc) {
-      return { icon: HiDocumentText, text: 'Document' };
+      return { icon: HiDocumentText, text: "Document" };
     } else {
-      return { icon: HiPaperClip, text: 'File' };
+      return { icon: HiPaperClip, text: "File" };
     }
   };
 
   const otherUser =
     data?.providerA?.id === loginUserId
       ? {
-        // providerA is me (User ID match), so providerB is other
-        fullName: (data?.providerB as any)?.fullName,
-        profileImage: (data?.providerB as any)?.profileImage,
-      }
+          // providerA is me (User ID match), so providerB is other
+          fullName: (data?.providerB as any)?.fullName,
+          profileImage: (data?.providerB as any)?.profileImage,
+        }
       : {
-        // providerA is not me, so providerA is other
-        fullName: (data?.providerA as any)?.fullName,
-        profileImage: (data?.providerA as any)?.profileImage,
-      };
+          // providerA is not me, so providerA is other
+          fullName: (data?.providerA as any)?.fullName,
+          profileImage: (data?.providerA as any)?.profileImage,
+        };
 
   const unreadCount = Number(data?.totalUnread ?? 0);
   const imagePath = otherUser?.profileImage;
-  const isValidImage = imagePath && imagePath !== "null" && imagePath.trim() !== "";
+  const isValidImage =
+    imagePath && imagePath !== "null" && imagePath.trim() !== "";
 
   // useEffect(() => {
   //   console.log(
@@ -68,36 +71,40 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
     <div className="">
       <div
         className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  hover:bg-primaryColorLight mt-1 transition-all duration-300 cursor-pointer hover:rounded-md 
-            ${activeId === data?.id
-            ? "bg-primaryColorLight rounded-md "
-            : "bg-white"
-          }
+            ${
+              activeId === data?.id
+                ? "bg-primaryColorLight rounded-md "
+                : "bg-white"
+            }
             `}
         onClick={onClick}
       >
-        <div className="w-[100%] flex items-start pl-2 justify-between">
+        <div className="w-full flex items-start  justify-between">
           <div className="flex items-start justify-between gap-x-6">
-            {
-              isValidImage ?
-                <img src={imagePath} className={`rounded-full w-[50px] h-[50px] `} />
-                :
-                <UserIcon size={30} className={`w-13 h-13 ml-[-8px]`} />
-            }
+            {isValidImage ? (
+              <img src={imagePath} className={`rounded-full w-12.5 h-12.5 `} />
+            ) : (
+              <UserIcon size={30} className={`w-13 h-13 -ml-2`} />
+            )}
 
             <div>
               <p
-                className={`font-bold flex mt-2 ${isValidImage ? "mt-1" : "ml-[-10px]"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
-                  }`}
+                className={`font-bold flex mt-2 ${isValidImage ? "mt-1" : "-ml-2.5"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${
+                  data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                }`}
               >
                 {otherUser?.fullName}
               </p>
               {/* Display last message - either text or media */}
               {data?.lastMessage && (
                 <div className="text-xs text-gray-500 truncate max-w-[90%]">
-                  {(data.lastMessage?.type === 'media' && data.lastMessage?.mediaUrl) ? (
+                  {data.lastMessage?.type === "media" &&
+                  data.lastMessage?.mediaUrl ? (
                     // Media message display with full info
                     (() => {
-                      const mediaInfo = getMediaDisplayInfo(data.lastMessage.mediaUrl);
+                      const mediaInfo = getMediaDisplayInfo(
+                        data.lastMessage.mediaUrl,
+                      );
                       if (mediaInfo) {
                         const IconComponent = mediaInfo.icon;
                         return (
@@ -109,7 +116,8 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
                       }
                       return null;
                     })()
-                  ) : data.lastMessage?.message && data.lastMessage.message.trim() !== '' ? (
+                  ) : data.lastMessage?.message &&
+                    data.lastMessage.message.trim() !== "" ? (
                     // Text message display
                     <p>
                       {data.lastMessage.message.length > 15
@@ -129,7 +137,7 @@ const SingleChatData: React.FC<SingleChatDataType> = ({
           </div>
         </div>
         {unreadCount > 0 && (
-          <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
+          <span className="bg-primaryColorDark text-white text-xs min-w-5 h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
             {data.totalUnread}
           </span>
         )}

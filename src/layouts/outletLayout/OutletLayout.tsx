@@ -21,7 +21,7 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
 }) => {
   return (
     <div
-      className={`${isWhiteColor ? "bg-white" : "bg-transparent"} relative  w-full p-3  pt-5 rounded-lg space-y-7   
+      className={`${isWhiteColor ? "bg-white" : "bg-transparent"} relative  w-full p-3  rounded-lg space-y-7   
         font-[Poppins] text-textColor 
         `}
     >
@@ -33,20 +33,24 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
           {backButton}
         </div>
       )}
-      <div className="flex items-center justify-between w-full">
-        <p className="headingMedium w-[150px] sm:w-[400px] mb-3">{heading}</p>
-        <div className="w-[170px] flex justify-end gap-x-2">
-          {isEdit && (
-            <button
-              onClick={onEditClick}
-              className="bg-primaryColorDark text-white px-4 py-2 rounded-md font-medium"
-            >
-              Edit
-            </button>
-          )}
-          {button}
+      {(heading || button || isEdit) && (
+        <div className="flex items-center justify-between w-full">
+          <p className="headingMedium w-37.5 sm:w-100 mb-3">{heading}</p>
+
+          <div className="w-42.5 flex justify-end gap-x-2">
+            {isEdit && (
+              <button
+                onClick={onEditClick}
+                className="bg-primaryColorDark text-white px-4 py-2 rounded-md font-medium"
+              >
+                Edit
+              </button>
+            )}
+
+            {button}
+          </div>
         </div>
-      </div>
+      )}
 
       {children}
     </div>

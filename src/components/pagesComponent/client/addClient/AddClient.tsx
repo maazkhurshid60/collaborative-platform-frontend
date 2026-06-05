@@ -1,54 +1,70 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+import type { AxiosError } from "axios";
+import type { z } from "zod";
 
 import OutletLayout from "../../../../layouts/outletLayout/OutletLayout";
 import BackIcon from "../../../icons/back/Back";
-import { useNavigate } from "react-router-dom";
 import Button from "../../../button/Button";
 import InputField from "../../../inputField/InputField";
 import Dropdown from "../../../dropdown/Dropdown";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { clientSchema } from "../../../../schema/clientSchema/ClientSchema";
 import { statusOption } from "../../../../constantData/statusOptions";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clientApiService from "../../../../apiServices/clientApi/ClientApi";
-import { useMemo, useState } from "react";
 import Loader from "../../../loader/Loader";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 import Checkbox from "../../../checkbox/Checkbox";
 import CountryStateSelect from "../../../dropdown/CountryStateSelect";
-import type { AxiosError } from "axios";
-import type { z } from "zod";
 
 type FormFields = z.infer<typeof clientSchema>;
 
 type BackendFieldErrors =
   | Record<string, string>
   | Record<string, string[]>
-  | Array<{ field?: string; property?: string; message?: string; constraints?: Record<string, string> }>;
+  | Array<{
+      field?: string;
+      property?: string;
+      message?: string;
+      constraints?: Record<string, string>;
+    }>;
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
-function normalizeBackendErrors(payload: unknown): Array<{ field?: string; message: string }> {
+function normalizeBackendErrors(
+  payload: unknown,
+): Array<{ field?: string; message: string }> {
   if (!payload) return [];
 
   // Case: { statusCode: 400, data: { error: [{ message: "...", path: ["fullName"] }] }, ... }
-  if (isObject(payload) && isObject((payload as any).data) && Array.isArray((payload as any).data?.error)) {
+  if (
+    isObject(payload) &&
+    isObject((payload as any).data) &&
+    Array.isArray((payload as any).data?.error)
+  ) {
     const errors = (payload as any).data.error;
-    return errors.map((e: any) => ({
-      field: Array.isArray(e.path) ? e.path[0] : e.field || e.property,
-      message: e.message
-    })).filter((e: any) => e.message);
+    return errors
+      .map((e: any) => ({
+        field: Array.isArray(e.path) ? e.path[0] : e.field || e.property,
+        message: e.message,
+      }))
+      .filter((e: any) => e.message);
   }
 
   // Case: { message: ["email must be an email", ...], error: "Bad Request", statusCode: 400 }
   if (isObject(payload) && Array.isArray(payload.message)) {
-    const msgs = payload.message.filter((m) => typeof m === "string") as string[];
+    const msgs = payload.message.filter(
+      (m) => typeof m === "string",
+    ) as string[];
     return msgs.map((m) => ({ message: m }));
   }
 
@@ -60,9 +76,7 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
         .map((e) => {
           const field = (e as any).field ?? (e as any).property;
           const msg =
-            (e as any).message ||
-              (e as any).msg ||
-              (e as any)?.constraints
+            (e as any).message || (e as any).msg || (e as any)?.constraints
               ? Object.values((e as any).constraints || {}).join(", ")
               : "";
           return msg ? { field, message: msg } : null;
@@ -77,7 +91,8 @@ function normalizeBackendErrors(payload: unknown): Array<{ field?: string; messa
     const out: Array<{ field?: string; message: string }> = [];
     for (const [k, v] of Object.entries(errObj)) {
       if (typeof v === "string") out.push({ field: k, message: v });
-      else if (Array.isArray(v)) out.push({ field: k, message: (v as any[]).join(", ") });
+      else if (Array.isArray(v))
+        out.push({ field: k, message: (v as any[]).join(", ") });
     }
     return out;
   }
@@ -126,19 +141,11 @@ const AddClient = () => {
   const [isLoader, setIsLoader] = useState(false);
   const [wantToBeSeen, setWantToBeSeen] = useState(true);
 
-  // ✅ Make this consistent with the rest of your app:
-  // const providerId =
-  //   useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id) ||
-  //   useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
-
-  const providerId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.id);
-
+  const providerId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
+  );
 
   const handleCheckboxChange = () => setWantToBeSeen((prev) => !prev);
-
-
-  console.log("Redux userDetails:", useSelector((s: RootState) => s.LoginUserDetail?.userDetails));
-  console.log("providerId being sent:", providerId);
 
   const mutation = useMutation({
     mutationFn: async (data: FormFields) => {
@@ -204,8 +211,6 @@ const AddClient = () => {
         const extra = Math.max(0, normalized.length - 1);
         toast.error(extra ? `${firstMsg} (+${extra} more)` : firstMsg);
 
-
-
         return;
       }
 
@@ -227,7 +232,10 @@ const AddClient = () => {
   };
 
   return (
-    <OutletLayout heading="Add Client" backButton={<BackIcon onClick={() => navigate(-1)} />}>
+    <OutletLayout
+      heading="Add Client"
+      backButton={<BackIcon onClick={() => navigate(-1)} />}
+    >
       {isLoader && <Loader text="Adding..." />}
 
       <FormProvider {...methods}>
@@ -314,7 +322,9 @@ const AddClient = () => {
 
           <div className="flex items-center justify-end">
             {/* Button component has no disabled prop, so we disable via wrapper */}
-            <div className={`mt-10 w-[120px] ${mutation.isPending ? "opacity-60 pointer-events-none" : ""}`}>
+            <div
+              className={`mt-10 w-30 ${mutation.isPending ? "opacity-60 pointer-events-none" : ""}`}
+            >
               <Button text={mutation.isPending ? "Saving..." : "Save"} />
             </div>
           </div>

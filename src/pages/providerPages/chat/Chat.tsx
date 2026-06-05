@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../redux/store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
+
+import { AppDispatch, RootState } from "../../../redux/store";
 import chatApiService from "../../../apiServices/chatApi/ChatApi";
 import messageApiService, {
   getAllMessagesOfSingleChat,
@@ -22,7 +25,6 @@ import {
   isAddMembersToGroupModalReducer,
   isGroupSettingsModalReducer,
 } from "../../../redux/slices/ModalSlice";
-import { toast } from "react-toastify";
 import { ChatChannelType } from "../../../types/chatType/ChatChannelType";
 import ChatModalBodyContent from "../../../components/modals/providerModal/chatModal/ChatModalBodyContent";
 import NewGroupChatModal from "../../../components/modals/providerModal/chatModal/NewGroupChatModal";
@@ -32,7 +34,6 @@ import { GroupChat, GroupCreatedBy } from "../../../types/chatType/GroupType";
 import { Group, Message, NewMessage } from "../../../types/chatType/ChatType";
 import ToolTip from "../../../components/toolTip/ToolTip";
 import SpinnerLoader from "../../../components/loader/SpinnerLoader";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
 import InviteProviderModal from "../../../components/modals/providerModal/chatModal/InviteProviderModal";
 import InviteToGroupModalBody from "../../../components/modals/providerModal/chatModal/InviteToGroupModalBody";
 import AddMembersToGroupModalBody from "../../../components/modals/providerModal/chatModal/AddMembersToGroupModalBody";
@@ -78,7 +79,7 @@ const Chat = () => {
   const [activeChatObject, setActiveChatObject] = useState<
     ChatChannelType | GroupChat | undefined
   >(undefined);
-  const [isChatSideBarClose, setIsChatSideBarClose] = useState<boolean>(false);
+  const [isChatSideBarOpen, setIsChatSideBarOpen] = useState<boolean>(true);
   const [activeId, setActiveId] = useState<string>();
   const [groupCreatedBy, setGroupCreatedBy] = useState<GroupCreatedBy>({
     name: "",
@@ -160,6 +161,7 @@ const Chat = () => {
       setActiveChatObject(undefined);
       setActiveChatType(undefined);
       setActiveId(undefined);
+      setIsChatSideBarOpen(true);
     }
   }, [id, isGroup, allChannels, allGroups]);
 
@@ -433,9 +435,9 @@ const Chat = () => {
         />
       )}
 
-      <div className="flex items-start lg:justify-between relative h-[80vh]">
+      <div className="flex items-start lg:justify-between relative h-[80vh] ">
         <div
-          className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarClose ? "left-0" : "-left-[200%] lg:left-0"}`}
+          className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarOpen ? "left-0" : "-left-[200%] lg:left-0"}`}
         >
           <div className="flex items-center justify-between ">
             <p className="font-medium text-[14px] text-textGreyColor">
@@ -484,7 +486,7 @@ const Chat = () => {
                       navigate(`/chat/individual/${data.id}`);
                       setIsMessagesLoading(true);
                       setActiveChatObject(data);
-                      setIsChatSideBarClose(false);
+                      setIsChatSideBarOpen(false);
                       setActiveId(data?.id);
                       setActiveChatType("individual");
 
@@ -577,7 +579,7 @@ const Chat = () => {
                           });
                           setIsMessagesLoading(true);
                           setActiveChatObject(data);
-                          setIsChatSideBarClose(false);
+                          setIsChatSideBarOpen(false);
                           setActiveId(data?.id);
                           setActiveChatType("group");
 
@@ -628,7 +630,7 @@ const Chat = () => {
           <IoIosArrowBack
             size={24}
             className="mb-2 text-textGreyColor lg:hidden"
-            onClick={() => setIsChatSideBarClose(true)}
+            onClick={() => setIsChatSideBarOpen(true)}
           />
 
           {isMessagesLoading ? (

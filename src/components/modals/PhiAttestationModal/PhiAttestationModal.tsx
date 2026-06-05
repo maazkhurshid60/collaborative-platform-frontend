@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 
 interface PhiAttestationModalProps {
@@ -51,7 +51,7 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-amber-500 to-amber-600 rounded-t-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-linear-to-r from-amber-500 to-amber-600 rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
               <span className="text-white text-lg">⚠️</span>
@@ -71,7 +71,10 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
         <div className="p-6 space-y-4">
           <p className="text-sm text-gray-600">
             Does this message or attachment contain{" "}
-            <strong className="text-gray-900">Protected Health Information (PHI)</strong>?
+            <strong className="text-gray-900">
+              Protected Health Information (PHI)
+            </strong>
+            ?
           </p>
 
           <div className="flex gap-4">
@@ -82,7 +85,9 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
                 onChange={() => setIsPhi(true)}
                 className="w-4 h-4 text-amber-600"
               />
-              <span className="text-sm font-medium text-gray-700">Yes, it contains PHI</span>
+              <span className="text-sm font-medium text-gray-700">
+                Yes, it contains PHI
+              </span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -113,7 +118,8 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
                 ))}
               </select>
               <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg leading-tight">
-                By selecting a client, you attest that a valid **Release of Information (ROI)** is in place for this disclosure.
+                By selecting a client, you attest that a valid **Release of
+                Information (ROI)** is in place for this disclosure.
               </p>
             </div>
           )}

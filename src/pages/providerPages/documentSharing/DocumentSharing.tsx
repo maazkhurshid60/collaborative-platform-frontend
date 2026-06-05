@@ -364,7 +364,7 @@ const DocumentSharing = () => {
           Pick documents from the library, then choose which clients to share
           them with. Already-shared documents are skipped automatically.
         </p>
-        <div className="w-[40%] min-w-[260px]">
+        <div className="w-[40%] min-w-65">
           <SearchBar
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
