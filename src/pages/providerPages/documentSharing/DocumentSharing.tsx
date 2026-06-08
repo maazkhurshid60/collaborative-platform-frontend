@@ -400,7 +400,7 @@ const DocumentSharing = () => {
               {pageRecords.map((doc: any, rowIndex: number) => {
                 const serialNo =
                   (currentPage - 1) * recordPerPage + rowIndex + 1;
-                const { signed, sharedOnly } = summarize(doc);
+                const { signed, sharedOnly } = summarize(doc, providerId);
                 const isSelected = selectedDocIds.includes(doc.id);
 
                 return (

@@ -29,12 +29,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [sendMessageText, setSendMessageText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPhiModal, setShowPhiModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loginUserProviderId = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
-  );
   const loginUserUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
   );
@@ -299,8 +296,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
       ) : (
         <div className="flex items-center justify-between">
           <textarea
-            className="outline-none pl-4 py-2 w-full bg-white rounded-lg resize-none overflow-hidden"
-            placeholder="Type here..."
+            className="outline-none pl-4 p-2 w-full bg-gray-100 rounded-lg resize-none overflow-hidden"
+            placeholder="Type your message..."
             value={sendMessageText}
             onChange={(e) => {
               setSendMessageText(e.target.value);

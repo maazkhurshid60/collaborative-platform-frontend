@@ -53,9 +53,7 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({
   const isClientCompleteDocModal = useSelector(
     (state: RootState) => state.modalSlice.isClientCompleteDocModal,
   );
-  const isClientShareDocModal = useSelector(
-    (state: RootState) => state.modalSlice.isClientShareDocModal,
-  );
+
   const providerId = useSelector(
     (state: RootState) => state.LoginUserDetail.userDetails.id,
   );
@@ -139,7 +137,12 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({
         ]);
 
         const templates = templatesRes.data?.data?.templates || [];
-        const shares = sharesRes.data?.data?.shares || [];
+        const allShares = sharesRes.data?.data?.shares || [];
+
+        // Filter shares to only show forms shared by the current provider
+        const shares = allShares.filter(
+          (s: any) => s.providerId === providerId,
+        );
 
         const uncompleted: any[] = [];
         const shared: any[] = [];

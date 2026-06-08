@@ -27,17 +27,18 @@ interface MultiClientDocShareModalProps {
 const statusFor = (
   doc: any,
   clientId: string | undefined,
+  providerId: string | undefined,
 ): DocClientStatus => {
-  if (!clientId) return "NEED_SHARE";
+  if (!clientId || !providerId) return "NEED_SHARE";
 
   if (doc.isForm) {
-    const row = doc.shares?.find((s: any) => s.clientId === clientId);
+    const row = doc.shares?.find((s: any) => s.clientId === clientId && s.providerId === providerId);
     if (!row) return "NEED_SHARE";
     if (row.status === "SUBMITTED") return "SIGNED";
     return "SHARED";
   }
 
-  const row = doc.sharedWith?.find((sw: any) => sw.clientId === clientId);
+  const row = doc.sharedWith?.find((sw: any) => sw.clientId === clientId && sw.providerId === providerId);
   if (!row) return "NEED_SHARE";
   if (row.eSignature) return "SIGNED";
   return "SHARED";
@@ -74,7 +75,7 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
         signedCount: 0,
       };
       for (const doc of selectedDocs) {
-        const s = statusFor(doc, cid);
+        const s = statusFor(doc, cid, providerId);
         if (s === "NEED_SHARE") summary.needShareIds.push(doc.id);
         else if (s === "SHARED") summary.sharedCount++;
         else if (s === "SIGNED") summary.signedCount++;
