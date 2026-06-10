@@ -184,7 +184,7 @@ const ConfirmFreeAccount = () => {
                             </div>
                         </div>
                         <p className="text-[12px] mt-4 text-[#64748B] text-center max-w-[450px]">
-                            By starting your free trial, you agree to our <a href="https://kolabme.com/terms-and-conditions" className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</a> and <a href="https://kolabme.com/privacy-policy/" className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</a>
+                            By starting your free plan, you agree to our <a href="https://kolabme.com/terms-and-conditions" className="text-[#2C9993] hover:underline cursor-pointer">Terms of Service</a> and <a href="https://kolabme.com/privacy-policy/" className="text-[#2C9993] hover:underline cursor-pointer">Privacy Policy</a>
                         </p>
 
                         <div className='w-full mt-6 border border-[#E5E7EB]' />
@@ -265,8 +265,8 @@ const ConfirmFreeAccount = () => {
                                     }
 
                                     const successMessage = planType === 'FREE'
-                                        ? "14-day free trial activated!"
-                                        : "Free 14-day trial plan activated!";
+                                        ? "Free plan activated!"
+                                        : "Free plan activated!";
                                     toast.success(successMessage);
                                     navigate('/dashboard');
                                 } catch (error: any) {
@@ -290,7 +290,7 @@ const ConfirmFreeAccount = () => {
                             className="bg-[#2C9993] text-white cursor-pointer hover:bg-[#2C9993]/90 px-4 py-2 rounded-lg disabled:opacity-50"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Processing...' : (location.state?.planType === 'FREE' ? 'Start 14-Day Free Trial' : 'Confirm Free Plan')}
+                            {isLoading ? 'Processing...' : (location.state?.planType === 'FREE' ? 'Start Free Plan' : 'Confirm Free Plan')}
                         </button>
                     </div>
                 </div>

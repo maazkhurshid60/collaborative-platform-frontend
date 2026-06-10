@@ -537,7 +537,7 @@ const Chat = () => {
                     onClick={() => {
                       if (isTrialActive) {
                         toast.info(
-                          "Group chats are not available on the Free Trial. Please upgrade your plan.",
+                          "Group chats are not available on the Free Version. Please upgrade your plan.",
                         );
                       } else {
                         dispatch(isNewGroupChatModalShowReducser(true));
