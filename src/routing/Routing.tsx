@@ -1,7 +1,8 @@
+import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { lazy } from "react";
+
 import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import PublicRoute from "./PublicRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
@@ -111,6 +112,9 @@ const PublicFormView = lazy(
 );
 const FormBuilder = lazy(
   () => import("../pages/providerPages/formBuilder/FormBuilder"),
+);
+const ChatWithAI = lazy(
+  () => import("../pages/providerPages/chatWithAI/ChatWithAI"),
 );
 
 const Routing = () => {
@@ -461,6 +465,26 @@ const Routing = () => {
             </WrappedRoute>
           }
         />
+        {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+          <Route
+            path="/chat-with-ai"
+            element={
+              <WrappedRoute>
+                <SubscriptionGuard
+                  blockTrial={true}
+                  fallback={
+                    <UpgradePrompt
+                      message="Upgrade to chat with AI"
+                      showFullScreen={true}
+                    />
+                  }
+                >
+                  <ChatWithAI />
+                </SubscriptionGuard>
+              </WrappedRoute>
+            }
+          />
+        )}
         <Route
           path="/clients"
           element={

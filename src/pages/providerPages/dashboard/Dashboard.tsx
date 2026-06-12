@@ -1,15 +1,16 @@
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import CardDashboardLayout from "../../../layouts/dashboardLayout/CardDashboardLayout";
 import Collaboration from "../../../components/pagesComponent/dashboard/collaboration/Collaboration";
 import ClientList from "../../../components/pagesComponent/dashboard/clientList/ClientList";
 import ProviderList from "../../../components/pagesComponent/dashboard/providerList/ProviderList";
 import TrialBanner from "../../../components/pagesComponent/dashboard/trialBanner/TrialBanner";
-import { useQuery } from "@tanstack/react-query";
 import providerApiService from "../../../apiServices/providerApi/ProviderApi";
-import { useEffect, useState } from "react";
 import clientApiService from "../../../apiServices/clientApi/ClientApi";
 import { ClientType } from "../../../types/clientType/ClientType";
-import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import ProvidersIcon from "../../../components/icons/dashboardIcons/providersPortalIcons/providers/Providers";
 import SubscriptionHistoryCard from "../../../components/pagesComponent/dashboard/subscriptionHistory/SubscriptionHistoryCard";
@@ -130,7 +131,7 @@ const Dashboard = () => {
             {cardData?.map((data, id: number) => {
               const Icon = data?.icon;
               return (
-                <div className=" h-[120px] " key={id}>
+                <div className=" h-30 " key={id}>
                   <CardDashboardLayout>
                     {/* {data.isLoading && <Loader text="12232" />} */}
                     <div key={id} className="">
@@ -165,7 +166,7 @@ const Dashboard = () => {
                 </CardDashboardLayout>
               </div>
             </div>
-            <div className="w-[110%] min-h-screen  lg:w-[31.5%] overflow-y-auto">
+            <div className="w-[110%] min-h-screen  lg:w-[32%] overflow-y-auto">
               <CardDashboardLayout heading="Conversations">
                 <Collaboration />
               </CardDashboardLayout>

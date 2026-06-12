@@ -1,15 +1,17 @@
 import { NavLink } from "react-router-dom";
+import { RxCross2 } from "react-icons/rx";
+import { useDispatch, useSelector } from "react-redux";
+import { SVGProps, useEffect, useState } from "react";
+
 import logo from "../../../public/assets/logo.png";
 import {
   ClientSidebarData,
   ProviderSidebarData,
   SuperAdminSidebarData,
 } from "../../constantData/SidebarData";
-import { RxCross2 } from "react-icons/rx";
+
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
-import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
-import { SVGProps, useEffect, useState } from "react";
 import LogoutButton from "../ui/LogoutButton";
 
 interface sideBarDataType {
@@ -40,10 +42,10 @@ const Sidebar = () => {
   }, [loginUserRole]);
 
   return (
-    <div className="p-6 border-r flex flex-col border-[#D9D9D9] w-screen md:w-[260px] h-screen overflow-y-auto">
+    <div className="py-6 px-4 border-r flex flex-col border-[#D9D9D9] w-screen md:w-65 h-screen overflow-y-auto">
       {/* Logo */}
       <div className="flex items-center ml-10 justify-between">
-        <img src={logo} alt="logo" className="w-[200px] md:w-[120px]" />
+        <img src={logo} alt="logo" className="w-50 md:w-30" />
         <div className="md:hidden">
           {isSideBarClose === true && (
             <RxCross2
@@ -55,7 +57,7 @@ const Sidebar = () => {
       </div>
 
       {/* Nav items */}
-      <div className="mt-8 flex flex-col gap-y-4 flex-1">
+      <div className="mt-8 flex flex-col gap-y-2 flex-1">
         {sideBarData &&
           sideBarData.map((data, id: number) => {
             return (

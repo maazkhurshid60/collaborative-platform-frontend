@@ -169,8 +169,6 @@ export const SubscriptionSettingPage = () => {
     billingHistory: transformedHistory,
   };
 
-  console.log("user subs ", userSubscription);
-
   return (
     <div className="flex flex-col gap-6 pb-10">
       <div

@@ -1,4 +1,4 @@
-import { ClipboardList, FileText } from "lucide-react";
+import { ClipboardList, FileText, Bot } from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
 import DashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/dashboard/Dashboard";
@@ -57,6 +57,11 @@ export const ProviderSidebarData = [
     name: "Invoices",
     url: "/invoices",
     icon: InvoiceIcon,
+  },
+  {
+    name: "Chat with AI",
+    url: "/chat-with-ai",
+    icon: Bot,
   },
   {
     name: "User Profile",

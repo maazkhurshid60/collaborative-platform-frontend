@@ -1,35 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
-import { RiArrowLeftSLine } from "react-icons/ri";
-import LabelData from "../../../components/labelText/LabelData";
-import Button from "../../../components/button/Button";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { RiArrowLeftSLine } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Country } from "country-state-city";
+import { GoDotFill } from "react-icons/go";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import LabelData from "../../../components/labelText/LabelData";
+import Button from "../../../components/button/Button";
 import InputField from "../../../components/inputField/InputField";
 import Dropdown from "../../../components/dropdown/Dropdown";
-import { toast } from "react-toastify";
 import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
-import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { providerSchema } from "../../../schema/providerSchema/ProviderSchema";
 import UserIcon from "../../../components/icons/user/User";
 import BackIcon from "../../../components/icons/back/Back";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProviderType } from "../../../types/providerType/ProviderType";
 import Loader from "../../../components/loader/Loader";
 import loginUserApiService from "../../../apiServices/loginUserApi/LoginUserApi";
 import { saveLoginUserDetailsReducer } from "../../../redux/slices/LoginUserDetailSlice";
-import { GoDotFill } from "react-icons/go";
 import FileUploader from "../../../components/uploader/fileUploader/FileUploader";
 import CrossIcon from "../../../components/icons/cross/Cross";
-import { getCountryNameFromCode } from "../../../utils/GetCountryName";
 import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
-
-import { Country } from "country-state-city";
-import { NavLink, useNavigate } from "react-router-dom";
 
 type FormFields = z.infer<typeof providerSchema>;
 
@@ -45,7 +43,10 @@ export const specialityOptions = [
   { value: "Dermatology", label: "Dermatology" },
   { value: "Neurology", label: "Neurology" },
   { value: "Pediatrics", label: "Pediatrics" },
-  { value: "Obstetrics & Gynecology (OB/GYN)", label: "Obstetrics & Gynecology (OB/GYN)" },
+  {
+    value: "Obstetrics & Gynecology (OB/GYN)",
+    label: "Obstetrics & Gynecology (OB/GYN)",
+  },
   { value: "Nutrition / Dietetics", label: "Nutrition / Dietetics" },
   { value: "Physical Therapy", label: "Physical Therapy" },
   { value: "Occupational Therapy", label: "Occupational Therapy" },
@@ -53,24 +54,17 @@ export const specialityOptions = [
   { value: "Other", label: "Other" },
 ];
 
-function normalizeSpecialtyValue(dep?: string | null) {
-  if (!dep) return "";
-  const trimmed = dep.trim();
-  const match = specialityOptions.find(
-    (o) => o.value.toLowerCase() === trimmed.toLowerCase()
-  );
-  return match?.value ?? trimmed;
-}
-
 // Helper to find ISO2 code from name or code (e.g. "USA" -> "US")
 function getCountryIsoCode(val?: string | null) {
   if (!val) return "";
   const countries = Country.getAllCountries();
-  const exact = countries.find(c => c.isoCode === val);
+  const exact = countries.find((c) => c.isoCode === val);
   if (exact) return exact.isoCode;
 
   // Try matching by name
-  const byName = countries.find(c => c.name.toLowerCase() === val.toLowerCase());
+  const byName = countries.find(
+    (c) => c.name.toLowerCase() === val.toLowerCase(),
+  );
   if (byName) return byName.isoCode;
 
   // Handle specific "USA" case if "United States" is the name
@@ -79,18 +73,29 @@ function getCountryIsoCode(val?: string | null) {
   return val; // Fallback
 }
 
+function normalizeSpecialtyValue(dep?: string | null) {
+  if (!dep) return "";
+  const trimmed = dep.trim();
+  const match = specialityOptions.find(
+    (o) => o.value.toLowerCase() === trimmed.toLowerCase(),
+  );
+  return match?.value ?? trimmed;
+}
+
 const UserProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
   const navigate = useNavigate();
 
   const isShowDeleteModal = useSelector(
-    (state: RootState) => state.modalSlice.isModalDelete
+    (state: RootState) => state.modalSlice.isModalDelete,
   );
   const loginUserDetail = useSelector(
-    (state: RootState) => state.LoginUserDetail.userDetails
+    (state: RootState) => state.LoginUserDetail.userDetails,
   );
 
-  const [getMeDetail, setGetMeDetail] = useState<ProviderType | undefined>(undefined);
+  const [getMeDetail, setGetMeDetail] = useState<ProviderType | undefined>(
+    undefined,
+  );
 
   const [isLoader, setIsLoader] = useState(false);
 
@@ -128,13 +133,16 @@ const UserProfile = () => {
     formState: { errors, isValid },
     control,
     reset,
-    getValues,
     watch,
   } = methods;
 
   const loginUserId = loginUserDetail?.user?.id ?? loginUserDetail?.id;
 
-  const { data: getMeData, isLoading, isError } = useQuery<ProviderType>({
+  const {
+    data: getMeData,
+    isLoading,
+    isError,
+  } = useQuery<ProviderType>({
     queryKey: ["loginUser"],
     queryFn: async () => {
       const dataSendToBackend = {
@@ -153,8 +161,14 @@ const UserProfile = () => {
 
     return {
       fullName: getMeData?.user?.fullName ?? "",
-      licenseNo: getMeData?.user?.role === "provider" ? (getMeData?.user?.licenseNo ?? "") : "",
-      clientId: getMeData?.user?.role === "client" ? (getMeData?.client?.clientId ?? getMeData?.user?.licenseNo) : "",
+      licenseNo:
+        getMeData?.user?.role === "provider"
+          ? (getMeData?.user?.licenseNo ?? "")
+          : "",
+      clientId:
+        getMeData?.user?.role === "client"
+          ? (getMeData?.client?.clientId ?? getMeData?.user?.licenseNo)
+          : "",
       age: Number(getMeData?.user?.age ?? 0) || 0,
       contactNo: getMeData?.user?.contactNo ?? "",
       email: getMeData?.user?.email ?? "",
@@ -231,9 +245,10 @@ const UserProfile = () => {
         ? data.speciality
         : normalizeSpecialtyValue(getMeData?.speciality)) || "";
 
-    const userSelectedSpecialty = safeSpecialty === "Other" && data.otherSpeciality 
-      ? data.otherSpeciality 
-      : safeSpecialty;
+    const userSelectedSpecialty =
+      safeSpecialty === "Other" && data.otherSpeciality
+        ? data.otherSpeciality
+        : safeSpecialty;
 
     // const safeCountry =
     //   (data?.country && String(data.country).trim() !== ""
@@ -255,7 +270,10 @@ const UserProfile = () => {
     formData.append("age", data?.age?.toString() ?? "0");
     formData.append("speciality", userSelectedSpecialty);
     formData.append("loginUserId", getMeData?.user?.id ?? loginUserId ?? "");
-    formData.append("role", getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "");
+    formData.append(
+      "role",
+      getMeData?.user?.role ?? loginUserDetail?.user?.role ?? "",
+    );
     formData.append("state", safeState);
     //   formData.append("country", safeCountry);
     formData.append("contactNo", String(data?.contactNo ?? ""));
@@ -321,8 +339,11 @@ const UserProfile = () => {
 
       {isEdit ? (
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(updateFunction)} className="mt-6 space-y-5">
-            <div>
+          <form
+            onSubmit={handleSubmit(updateFunction)}
+            className="mt-4 space-y-5"
+          >
+            <div className="">
               <LabelData label="User Image" />
               <div className="relative w-32 h-32">
                 {!showUploader ? (
@@ -359,7 +380,7 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-[33px] mt-5 md:mt-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-8.25 mt-5 ">
               <InputField
                 required
                 label="Full Name"
@@ -378,7 +399,15 @@ const UserProfile = () => {
                   error={errors.licenseNo?.message}
                 />
               ) : (
-                <InputField disabled label="Client ID" value={getMeData?.client?.clientId || getMeData?.user?.licenseNo || "-"} />
+                <InputField
+                  disabled
+                  label="Client ID"
+                  value={
+                    getMeData?.client?.clientId ||
+                    getMeData?.user?.licenseNo ||
+                    "-"
+                  }
+                />
               )}
 
               <InputField
@@ -482,7 +511,7 @@ const UserProfile = () => {
             {/* ✅ Update is disabled until required fields are valid/filled */}
             <div className="flex items-center justify-end -mt-8">
               <div
-                className="w-[120px]"
+                className="w-30"
                 title={
                   !canSubmitUpdate
                     ? "Fill all required fields to enable Update"
@@ -527,16 +556,30 @@ const UserProfile = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 lg:grid-cols-3 gap-y-5 sm:gap-y-6 md:gap-y-10 mt-5 md:mt-10">
               <LabelData label="Full Name" data={getMeData?.user?.fullName} />
               {getMeData?.user?.role === "provider" ? (
-                <LabelData label="License Number" data={getMeData?.user?.licenseNo} />
+                <LabelData
+                  label="License Number"
+                  data={getMeData?.user?.licenseNo}
+                />
               ) : (
-                <LabelData label="Client ID" data={getMeData?.client?.clientId || getMeData?.user?.licenseNo} />
+                <LabelData
+                  label="Client ID"
+                  data={
+                    getMeData?.client?.clientId || getMeData?.user?.licenseNo
+                  }
+                />
               )}
               <LabelData label="Age" data={getMeData?.user?.age ?? ""} />
               <LabelData label="Speciality" data={getMeData?.speciality} />
               <LabelData label="Email" data={getMeData?.user?.email} />
-              <LabelData label="Contact Number" data={getMeData?.user?.contactNo ?? ""} />
+              <LabelData
+                label="Contact Number"
+                data={getMeData?.user?.contactNo ?? ""}
+              />
               <LabelData label="Gender" data={getMeData?.user?.gender ?? "-"} />
-              <LabelData label="Address" data={getMeData?.user?.address ?? "-"} />
+              <LabelData
+                label="Address"
+                data={getMeData?.user?.address ?? "-"}
+              />
               {/* <LabelData
                 label="Country"
                 data={getCountryNameFromCode(getMeData?.user?.country ?? "")}
@@ -546,7 +589,8 @@ const UserProfile = () => {
               <div className="">
                 <LabelData label="List of Active Verified Clients" />
                 <ul className="text-[14px] font-medium text-textGreyColor">
-                  {getMeDetail?.clientList && getMeDetail?.clientList?.length > 0 ? (
+                  {getMeDetail?.clientList &&
+                  getMeDetail?.clientList?.length > 0 ? (
                     getMeDetail?.clientList?.map((c, index) => (
                       <li key={index}>
                         <div className="flex items-center gap-x-3">
@@ -564,27 +608,27 @@ const UserProfile = () => {
               </div>
             </div>
             <div className="flex items-center justify-end w-full mt-8">
-              <div className="w-[100px]">
+              <div className="w-25">
                 <Button text="Edit" sm onclick={handleEditClick} />
               </div>
             </div>
 
             {getMeData?.user?.role === "admin" && (
               <>
-                <div className='flex items-center justify-between mt-10'>
+                <div className="flex items-center justify-between mt-10">
                   <div>
-                    <p className='text-[16px] font-medium'>Change Password</p>
-                    <p className='text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%] sm:w-[80%] md:w-[100%]'>Change password to secure your account</p>
+                    <p className="text-[16px] font-medium">Change Password</p>
+                    <p className="text-textGreyColor text-[12px] md:text-[14px] mt-0.5 w-[90%] sm:w-[80%] md:w-full">
+                      Change password to secure your account
+                    </p>
                   </div>
                   <NavLink to="/setting/change-password">
-                    <RiArrowLeftSLine className='rotate-[180deg] text-textGreyColor cursor-pointer text-4xl md:text-2xl' />
+                    <RiArrowLeftSLine className="rotate-180 text-textGreyColor cursor-pointer text-4xl md:text-2xl" />
                   </NavLink>
                 </div>
-                <hr className='h-[1px] text-textGreyColor mt-4' />
+                <hr className="h-px text-textGreyColor mt-4" />
               </>
             )}
-
-
           </div>
         </>
       )}
