@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { FiCheckCircle, FiClock, FiExternalLink } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiExternalLink,
+  FiTrash2,
+} from "react-icons/fi";
 
 import ModalLayout from "../../modalLayout/ModalLayout";
 import CustomPagination from "../../../customPagination/CustomPagination";
@@ -16,15 +21,8 @@ const RECORDS_PER_PAGE = 8;
 
 interface DocumentRecipientsModalProps {
   document: MasterDocument;
-  /** Provider whose shares we're viewing — required by the recipients endpoint. */
   providerId: string;
-  /**
-   * Called when the provider clicks "View signed" or "View submitted" on a completed row.
-   * Parent is responsible for opening the signed-doc viewer modal
-   * (ClientCompleteDocShareModal or ViewDocModal) filtered to that client.
-   */
   onViewSigned?: (clientId: string, submission?: any) => void;
-  /** Initial filter status passed from the Status column pill click */
   initialStatus?: "signed" | "awaiting";
 }
 
@@ -38,6 +36,45 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
   const [filterStatus, setFilterStatus] = useState<
     "signed" | "awaiting" | undefined
   >(initialStatus);
+  const queryClient = useQueryClient();
+
+  const isFormUpdated =
+    document.isForm &&
+    document.updatedAt &&
+    document.createdAt &&
+    new Date(document.updatedAt).getTime() -
+      new Date(document.createdAt).getTime() >
+      1000;
+
+  const docUpdatedTime = document.updatedAt
+    ? new Date(document.updatedAt).getTime()
+    : 0;
+  const rows = document.shares || [];
+
+  const hasPreviousSubmissions = rows.some((r: any) => {
+    if (r.status === "SUBMITTED" && r.updatedAt) {
+      const shareUpdated = new Date(r.updatedAt).getTime();
+      console.log("Checking submission:", {
+        shareUpdated: new Date(r.updatedAt).toISOString(),
+        docUpdated: new Date(docUpdatedTime).toISOString(),
+        isBefore: shareUpdated < docUpdatedTime,
+      });
+      return shareUpdated < docUpdatedTime;
+    }
+    return false;
+  });
+
+  const showDeleteWarning = isFormUpdated && hasPreviousSubmissions;
+
+  const deleteSubmissionsMutation = useMutation({
+    mutationFn: () =>
+      documentApiService.deleteProviderFormSubmissions(document.id, providerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["document-recipients"] });
+      queryClient.invalidateQueries({ queryKey: ["master-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["form-templates"] });
+    },
+  });
 
   const { data, isLoading, isError } = useQuery<DocumentRecipientsResponse>({
     queryKey: [
@@ -50,19 +87,19 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
     queryFn: async () => {
       const response = document.isForm
         ? await documentApiService.getFormTemplateRecipients(
-          document.id,
-          providerId,
-          currentPage,
-          RECORDS_PER_PAGE,
-          filterStatus,
-        )
+            document.id,
+            providerId,
+            currentPage,
+            RECORDS_PER_PAGE,
+            filterStatus,
+          )
         : await documentApiService.getDocumentRecipients(
-          document.id,
-          providerId,
-          currentPage,
-          RECORDS_PER_PAGE,
-          filterStatus,
-        );
+            document.id,
+            providerId,
+            currentPage,
+            RECORDS_PER_PAGE,
+            filterStatus,
+          );
       // ApiResponse wraps the payload — see notes in DocumentSharing.tsx
       return (
         response?.data?.data ?? {
@@ -117,7 +154,7 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
           </button>
         </div>
       ) : (
-        <span className="flex items-center gap-x-1 px-2.5 py-1 rounded text-[11px] font-bold bg-yellow-50 text-yellow-700 flex-shrink-0">
+        <span className="flex items-center gap-x-1 px-2.5 py-1 rounded text-[11px] font-bold bg-yellow-50 text-yellow-700 shrink-0">
           <FiClock />
           {document.isForm ? "Awaiting submission" : "Awaiting signature"}
         </span>
@@ -138,7 +175,7 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
     <div className="mt-2">
       {/* Document header — shows the doc and a prominent "View document" action */}
       <div className="flex items-center gap-x-3 mb-4">
-        <IoDocumentTextOutline className="text-primaryColorDark text-2xl flex-shrink-0" />
+        <IoDocumentTextOutline className="text-primaryColorDark text-2xl shrink-0" />
         <div className="min-w-0 flex-1">
           <p
             className="font-semibold text-[14px] truncate"
@@ -146,25 +183,56 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
           >
             {document.name}
           </p>
+
           <p className="text-[12px] text-textGreyColor capitalize">
             {document.type ?? "Document"}
           </p>
         </div>
-        {!document.isForm && (
+        {!document.isForm ? (
           <button
             type="button"
             onClick={() =>
               window.open(document.url, "_blank", "noopener,noreferrer")
             }
-            className="flex items-center gap-x-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium border border-primaryColorDark text-primaryColorDark hover:bg-primaryColorDark/5 transition-colors cursor-pointer flex-shrink-0"
+            className="flex items-center gap-x-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium border border-primaryColorDark text-primaryColorDark hover:bg-primaryColorDark/5 transition-colors cursor-pointer shrink-0"
           >
             <FiExternalLink />
             View document
           </button>
+        ) : (
+          showDeleteWarning && (
+            <button
+              type="button"
+              disabled={deleteSubmissionsMutation.isPending}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Are you sure you want to delete all previous submissions for this form? This action cannot be undone.",
+                  )
+                ) {
+                  deleteSubmissionsMutation.mutate();
+                }
+              }}
+              className="flex items-center gap-x-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium border border-red-500 text-red-500 hover:bg-red-50 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+            >
+              <FiTrash2 />
+              {deleteSubmissionsMutation.isPending
+                ? "Deleting..."
+                : "Delete Submissions"}
+            </button>
+          )
         )}
       </div>
 
-      <hr className="text-textGreyColor/30 h-[2px] mb-4" />
+      <hr className="text-textGreyColor/30 h-0.5 mb-4" />
+
+      {showDeleteWarning && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-[12px] text-red-700 leading-relaxed font-medium">
+          Document is updated. Do you want to delete the previous submissions?
+          If not, the document will not share with clients who already submit
+          the form.
+        </div>
+      )}
 
       {/* Premium Filter Tabs */}
       <div className="flex gap-x-2 mb-4 bg-gray-100 p-1 rounded-lg">
@@ -178,10 +246,11 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
                 setFilterStatus(t.value);
                 setCurrentPage(1);
               }}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer border-0 outline-none ${isActive
+              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer border-0 outline-none ${
+                isActive
                   ? "bg-primaryColorDark text-white shadow-sm"
                   : "text-textGreyColor hover:bg-gray-200/50"
-                }`}
+              }`}
             >
               {t.label}
             </button>
@@ -189,8 +258,6 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
         })}
       </div>
 
-      {/* Counts header — useful context once a paginated list breaks
-                across the awaiting/signed boundary. */}
       {pagination && pagination.total > 0 && (
         <p className="text-[12px] text-textGreyColor mb-3">
           Showing {(pagination.page - 1) * pagination.limit + 1}–

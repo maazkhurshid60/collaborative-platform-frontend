@@ -1,42 +1,26 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { FaRegShareFromSquare } from "react-icons/fa6";
+import { toast } from "react-toastify";
 
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import Button from "../../../components/button/Button";
-import SearchBar from "../../../components/searchBar/SearchBar";
 import Table from "../../../components/table/Table";
-import Checkbox from "../../../components/checkbox/Checkbox";
 import Loader from "../../../components/loader/Loader";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import CustomPagination from "../../../components/customPagination/CustomPagination";
 import usePaginationHook from "../../../hook/usePaginationHook";
 
-import documentApiService from "../../../apiServices/documentApi/DocumentApi";
-import clientApiService from "../../../apiServices/clientApi/ClientApi";
-import {
-  isMultiClientDocShareModalReducer,
-  isDocumentRecipientsModalReducer,
-  isClientCompleteDocModalReducer,
-  isModalShowReducser,
-} from "../../../redux/slices/ModalSlice";
+import { isMultiClientDocShareModalReducer } from "../../../redux/slices/ModalSlice";
 import { AppDispatch, RootState } from "../../../redux/store";
-import {
-  MasterDocument,
-  documentSignByClientType,
-} from "../../../types/documentType/DocumentType";
-import { ClientType } from "../../../types/clientType/ClientType";
-import { toast } from "react-toastify";
-import axiosInstance from "../../../apiServices/axiosInstance/AxiosInstance";
-import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal";
-import { generateFormPdfUrl } from "../../../pdf/utils/pdfHelpers";
+import { MasterDocument } from "../../../types/documentType/DocumentType";
 import DocumentItem from "./DocumentItem";
 import { summarize } from "../../../utils/documentUtils";
 
-import MultiClientDocShareModal from "../../../components/modals/providerModal/multiClientDocShareModal/MultiClientDocShareModal";
-import DocumentRecipientsModal from "../../../components/modals/providerModal/documentRecipientsModal/DocumentRecipientsModal";
-import ClientCompleteDocShareModal from "../../../components/modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal";
+import { useDocumentData } from "../../../hooks/useDocumentData";
+import { useDocumentModals } from "../../../hooks/useDocumentModals";
+import { DocumentSharingModals } from "./components/DocumentSharingModals";
+import { DocumentSharingToolbar } from "./components/DocumentSharingToolbar";
 
 const recordPerPage = 10;
 const heading = ["", "#", "Document", "Type", "Status", "Created", "Action"];
@@ -50,104 +34,25 @@ const DocumentSharing = () => {
   const providerId = loginUserDetail?.id;
   const loginUserId = loginUserDetail?.user?.id;
 
-  const isMultiClientDocShareModal = useSelector(
-    (state: RootState) => state.modalSlice.isMultiClientDocShareModal,
-  );
-  const isDocumentRecipientsModal = useSelector(
-    (state: RootState) => state.modalSlice.isDocumentRecipientsModal,
-  );
-  // Reuses the existing per-client signed-doc viewer modal flag.
-  const isClientCompleteDocModal = useSelector(
-    (state: RootState) => state.modalSlice.isClientCompleteDocModal,
-  );
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
-  const [modalData, setModalData] = useState<{
-    docForRecipients: MasterDocument | null;
-    recipientsFilterStatus?: "signed" | "awaiting";
-    signedViewClientId: string | null;
-    selectedDocHtml: string;
-    dataSendToViewDocModal: any;
-  }>({
-    docForRecipients: null,
-    recipientsFilterStatus: undefined,
-    signedViewClientId: null,
-    selectedDocHtml: "",
-    dataSendToViewDocModal: {
-      clientId: "",
-      providerId: "",
-      documentId: "",
-    },
-  });
 
-  const showModal = useSelector(
-    (state: RootState) => state.modalSlice.isModalShow,
+  const { combinedDocs, myClients, docsLoading, docsError } = useDocumentData(
+    providerId,
+    loginUserId,
   );
 
   const {
-    data: documents,
-    isLoading: docsLoading,
-    isError: docsError,
-  } = useQuery<MasterDocument[]>({
-    queryKey: ["master-documents", providerId],
-    queryFn: async () => {
-      const response =
-        await documentApiService.getAllMasterDocuments(providerId);
-      return response?.data?.data?.documents || [];
-    },
-    enabled: Boolean(providerId),
-  });
-
-  const { data: forms = [] } = useQuery({
-    queryKey: ["form-templates"],
-    queryFn: async () => {
-      const response = await axiosInstance.get("/form/templates");
-      return response.data.data.templates || [];
-    },
-    retry: 1,
-    refetchOnWindowFocus: false,
-  });
-
-  // ----- Provider's clients (for the modal) -----
-  const { data: clients } = useQuery<ClientType[]>({
-    queryKey: ["clients", loginUserId],
-    queryFn: async () => {
-      const response = await clientApiService.getAllClient(loginUserId);
-      return response?.data?.clients || [];
-    },
-    enabled: Boolean(loginUserId),
-  });
-
-  // Match the existing logic in Clients.tsx for "my clients"
-  const myClients = useMemo(() => {
-    return (
-      clients?.filter(
-        (client) =>
-          client?.providerList?.some(
-            (p) => p?.provider?.user?.id === loginUserId,
-          ) ||
-          client?.createdByProviderId === loginUserDetail?.id ||
-          client?.createdByProviderId === loginUserId,
-      ) || []
-    );
-  }, [clients, loginUserId, loginUserDetail?.id]);
-
-  // ----- Combine documents and forms -----
-  const combinedDocs = useMemo(() => {
-    const docs = Array.isArray(documents)
-      ? documents.map((d) => ({ ...d, isForm: false }))
-      : [];
-    const frms = Array.isArray(forms)
-      ? forms.map((f: any) => ({
-          ...f,
-          isForm: true,
-          name: f.title, // Map title to name for display consistency
-          type: "Form Template",
-        }))
-      : [];
-    return [...docs, ...frms];
-  }, [documents, forms]);
+    isMultiClientDocShareModal,
+    isDocumentRecipientsModal,
+    isClientCompleteDocModal,
+    showModal,
+    modalData,
+    activeDocForModal,
+    handleViewDocument,
+    handleViewRecipients,
+    handleViewSigned,
+  } = useDocumentModals(providerId, combinedDocs);
 
   // ----- Filtering + pagination -----
   const filteredDocs = useMemo(() => {
@@ -202,92 +107,6 @@ const DocumentSharing = () => {
     dispatch(isMultiClientDocShareModalReducer(true));
   };
 
-  const handleViewDocument = (doc: any) => {
-    if (doc.isForm) {
-      handleViewForm(doc);
-      return;
-    }
-    if (!doc.url) {
-      toast.error("This document has no preview URL");
-      return;
-    }
-    window.open(doc.url, "_blank", "noopener,noreferrer");
-  };
-
-  const handleViewForm = async (doc: any) => {
-    try {
-      const url = await generateFormPdfUrl(doc);
-
-      setModalData((prev) => ({
-        ...prev,
-        docForRecipients: doc,
-        selectedDocHtml: "",
-        dataSendToViewDocModal: {
-          clientId: "",
-          providerId: "",
-          documentId: doc.id,
-          recipientId: "",
-          sharedDocumentId: "",
-          eSignature: "",
-          isAgree: false,
-          pdfUrl: url,
-        },
-      }));
-      dispatch(isModalShowReducser(true));
-    } catch (error) {
-      console.error("Error in handleViewForm:", error);
-      toast.error("Unable to view form.");
-    }
-  };
-  const handleViewRecipients = (
-    doc: MasterDocument,
-    filterStatus?: "signed" | "awaiting",
-  ) => {
-    setModalData((prev) => ({
-      ...prev,
-      docForRecipients: doc,
-      recipientsFilterStatus: filterStatus,
-    }));
-    dispatch(isDocumentRecipientsModalReducer(true));
-  };
-
-  const handleViewSigned = async (clientId: string, submission?: any) => {
-    dispatch(isDocumentRecipientsModalReducer(false));
-    if (modalData.docForRecipients?.isForm) {
-      try {
-        const submissionData = submission?.data || {};
-        const signature = submission?.signature || null;
-        const url = await generateFormPdfUrl(
-          modalData.docForRecipients as any,
-          submissionData,
-          signature,
-        );
-
-        setModalData((prev) => ({
-          ...prev,
-          selectedDocHtml: "",
-          dataSendToViewDocModal: {
-            clientId: clientId,
-            providerId: providerId || "",
-            documentId: modalData.docForRecipients?.id || "",
-            recipientId: "",
-            sharedDocumentId: "",
-            eSignature: signature || "",
-            isAgree: true,
-            pdfUrl: url,
-          },
-        }));
-        dispatch(isModalShowReducser(true));
-      } catch (error) {
-        console.error("Error displaying submitted form:", error);
-        toast.error("Failed to display form submission.");
-      }
-    } else {
-      setModalData((prev) => ({ ...prev, signedViewClientId: clientId }));
-      dispatch(isClientCompleteDocModalReducer(true));
-    }
-  };
-
   if (docsLoading) return <Loader text="Loading..." />;
   if (docsError) return <p>something went wrong</p>;
 
@@ -307,89 +126,28 @@ const DocumentSharing = () => {
         />
       }
     >
-      {isMultiClientDocShareModal && (
-        <MultiClientDocShareModal
-          selectedDocs={selectedDocs}
-          clients={myClients}
-          providerId={providerId}
-          senderId={loginUserId}
-          onShared={() => setSelectedDocIds([])}
-        />
-      )}
+      <DocumentSharingModals
+        isMultiClientDocShareModal={isMultiClientDocShareModal}
+        isDocumentRecipientsModal={isDocumentRecipientsModal}
+        isClientCompleteDocModal={isClientCompleteDocModal}
+        showModal={showModal}
+        modalData={modalData}
+        activeDocForModal={activeDocForModal}
+        myClients={myClients}
+        providerId={providerId}
+        loginUserId={loginUserId}
+        selectedDocs={selectedDocs}
+        handleViewSigned={handleViewSigned}
+        onShared={() => setSelectedDocIds([])}
+      />
 
-      {isDocumentRecipientsModal &&
-        modalData.docForRecipients &&
-        providerId && (
-          <DocumentRecipientsModal
-            document={modalData.docForRecipients}
-            providerId={providerId}
-            onViewSigned={handleViewSigned}
-            initialStatus={modalData.recipientsFilterStatus}
-          />
-        )}
-
-      {isClientCompleteDocModal &&
-        modalData.docForRecipients &&
-        modalData.signedViewClientId && (
-          <ClientCompleteDocShareModal
-            showDownloadButton
-            completedDoc={modalData.docForRecipients as any}
-            clientId={modalData.signedViewClientId}
-          />
-        )}
-
-      {showModal && (
-        <ViewDocModal
-          sharedDocs={modalData.selectedDocHtml}
-          isOnlyRead
-          data={modalData.dataSendToViewDocModal as documentSignByClientType}
-          previewKind={
-            modalData.docForRecipients?.isForm
-              ? "pdf"
-              : modalData.dataSendToViewDocModal?.pdfUrl
-                ? "pdf"
-                : "html"
-          }
-          pdfUrl={modalData.dataSendToViewDocModal?.pdfUrl}
-          heading={
-            modalData.docForRecipients?.isForm
-              ? modalData.docForRecipients.name || "Form Template"
-              : "Document Preview"
-          }
-        />
-      )}
-
-      <div className="flex items-center justify-between mt-6 gap-4 flex-wrap">
-        <p className="text-[14px] text-textGreyColor">
-          Pick documents from the library, then choose which clients to share
-          them with. Already-shared documents are skipped automatically.
-        </p>
-        <div className="w-[40%] min-w-65">
-          <SearchBar
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by document name or type..."
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
-        <Checkbox
-          checked={allOnPageSelected}
-          onChange={(e) => toggleSelectAllOnPage(e.target.checked)}
-          text={
-            allOnPageSelected
-              ? "Deselect all on this page"
-              : "Select all on this page"
-          }
-        />
-        {selectedDocIds.length > 0 && (
-          <p className="text-[13px] text-textGreyColor">
-            {selectedDocIds.length} document
-            {selectedDocIds.length === 1 ? "" : "s"} selected
-          </p>
-        )}
-      </div>
+      <DocumentSharingToolbar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        allOnPageSelected={allOnPageSelected}
+        toggleSelectAllOnPage={toggleSelectAllOnPage}
+        selectedDocIdsLength={selectedDocIds.length}
+      />
 
       <div className="mt-4 w-full">
         {pageRecords.length === 0 ? (

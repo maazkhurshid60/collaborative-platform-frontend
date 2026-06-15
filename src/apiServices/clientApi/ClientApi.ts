@@ -109,6 +109,16 @@ class ClientApiService {
 
         }
     }
+    async searchUsers(query: string) {
+        try {
+            const response = await this.api.get(`${getApiBaseUrl()}/auth/search-users?q=${encodeURIComponent(query)}`);
+            return response.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to search users";
+            toast.error(errMsg);
+            return { data: { users: [] } };
+        }
+    }
 }
 
 const clientApiService = new ClientApiService()

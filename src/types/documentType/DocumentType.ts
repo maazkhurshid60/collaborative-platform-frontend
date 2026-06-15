@@ -128,6 +128,7 @@ export interface MasterDocument {
     updatedAt: string;
     sharedWith: DocumentShareRow[];
     isForm?: boolean;
+    shares?: any[];
 }
 
 /** Per-(document, client) status used by the multi-client share modal. */

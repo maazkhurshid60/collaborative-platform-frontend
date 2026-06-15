@@ -4,188 +4,230 @@ import { documentSharedWithClientType } from "../../types/documentType/DocumentT
 import axios from "axios"; // make sure this is imported
 
 class DocumentApiService {
-    private api = axiosInstance
-    async getAllDocuments(clientId: string, providerId?: string) {
-        try {
-            const response = await this.api.post("/document/get-all-document", { clientId, providerId });
-            return response?.data;
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : "Failed to get total provider";
-            toast.error(errMsg);
-        }
+  private api = axiosInstance;
+  async getAllDocuments(clientId: string, providerId?: string) {
+    try {
+      const response = await this.api.post("/document/get-all-document", {
+        clientId,
+        providerId,
+      });
+      return response?.data;
+    } catch (error) {
+      const errMsg =
+        error instanceof Error ? error.message : "Failed to get total provider";
+      toast.error(errMsg);
     }
-    /**
-     * Master document catalog (used by the provider-side "Document Sharing" tab).
-     * When `providerId` is passed, the returned `sharedWith` rows are scoped
-     * to that provider so per-(doc, client) status can be derived on the client.
-     */
-    async getAllMasterDocuments(providerId?: string) {
-        try {
-            const response = await this.api.get("/document/list-all", {
-                params: providerId ? { providerId } : undefined,
-            });
-            return response?.data;
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : "Failed to get documents";
-            toast.error(errMsg);
-        }
+  }
+
+  async getAllMasterDocuments(providerId?: string) {
+    try {
+      const response = await this.api.get("/document/list-all", {
+        params: providerId ? { providerId } : undefined,
+      });
+      return response?.data;
+    } catch (error) {
+      const errMsg =
+        error instanceof Error ? error.message : "Failed to get documents";
+      toast.error(errMsg);
     }
-    /**
-     * Paginated recipients for a single document, scoped to a provider.
-     * Powers the "Document Recipients" modal.
-     */
-    async getDocumentRecipients(
-        documentId: string,
-        providerId: string,
-        page: number = 1,
-        limit: number = 10,
-        status?: "signed" | "awaiting"
-    ) {
-        try {
-            const response = await this.api.get(`/document/${documentId}/recipients`, {
-                params: { providerId, page, limit, ...(status ? { status } : {}) },
-            });
-            return response?.data;
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : "Failed to load recipients";
-            toast.error(errMsg);
-        }
+  }
+
+  async getDocumentRecipients(
+    documentId: string,
+    providerId: string,
+    page: number = 1,
+    limit: number = 10,
+    status?: "signed" | "awaiting",
+  ) {
+    try {
+      const response = await this.api.get(
+        `/document/${documentId}/recipients`,
+        {
+          params: { providerId, page, limit, ...(status ? { status } : {}) },
+        },
+      );
+      return response?.data;
+    } catch (error) {
+      const errMsg =
+        error instanceof Error ? error.message : "Failed to load recipients";
+      toast.error(errMsg);
     }
-    /**
-     * Paginated recipients for a single form template, scoped to a provider.
-     */
-    async getFormTemplateRecipients(
-        templateId: string,
-        providerId: string,
-        page: number = 1,
-        limit: number = 10,
-        status?: "signed" | "awaiting"
-    ) {
-        try {
-            const response = await this.api.get(`/form/templates/${templateId}/recipients`, {
-                params: { providerId, page, limit, ...(status ? { status } : {}) },
-            });
-            return response?.data;
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : "Failed to load form recipients";
-            toast.error(errMsg);
-        }
+  }
+
+  async getFormTemplateRecipients(
+    templateId: string,
+    providerId: string,
+    page: number = 1,
+    limit: number = 10,
+    status?: "signed" | "awaiting",
+  ) {
+    try {
+      const response = await this.api.get(
+        `/form/templates/${templateId}/recipients`,
+        {
+          params: { providerId, page, limit, ...(status ? { status } : {}) },
+        },
+      );
+      return response?.data;
+    } catch (error) {
+      const errMsg =
+        error instanceof Error
+          ? error.message
+          : "Failed to load form recipients";
+      toast.error(errMsg);
     }
-    async getAllSharedDocumentWithClientApi(clientId: string) {
-        try {
-            const response = await this.api.post("/document/get-all-shared-document", { clientId }); // prepend /provider here
-            return response?.data;
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : "Failed to get total provider";
-            toast.error(errMsg);
-        }
+  }
+  async getAllSharedDocumentWithClientApi(clientId: string) {
+    try {
+      const response = await this.api.post(
+        "/document/get-all-shared-document",
+        { clientId },
+      ); // prepend /provider here
+      return response?.data;
+    } catch (error) {
+      const errMsg =
+        error instanceof Error ? error.message : "Failed to get total provider";
+      toast.error(errMsg);
     }
-    /**
-     * Share documents with a single client.
-     *
-     * @param options.silent  When true, suppresses the built-in success toast.
-     *                        Used by callers that share with multiple clients
-     *                        in one batch and want to render a single summary
-     *                        toast themselves (e.g. MultiClientDocShareModal).
-     *                        Errors still toast normally so failures aren't swallowed.
-     */
-    async documentSharedWithClientApi(
-        data: documentSharedWithClientType,
-        options?: { silent?: boolean }
-    ) {
-        try {
-            const response = await this.api.post("/document/document-shared-by-provider", data); // prepend /provider here
-            if (!options?.silent) {
-                toast.success(`${response?.data?.data?.message}`)
-            }
-            return response?.data;
-        } catch (error: unknown) {
-            let errMsg = "Something went wrong";
+  }
+  /**
+   * Share documents with a single client.
+   *
+   * @param options.silent  When true, suppresses the built-in success toast.
+   *                        Used by callers that share with multiple clients
+   *                        in one batch and want to render a single summary
+   *                        toast themselves (e.g. MultiClientDocShareModal).
+   *                        Errors still toast normally so failures aren't swallowed.
+   */
+  async documentSharedWithClientApi(
+    data: documentSharedWithClientType,
+    options?: { silent?: boolean },
+  ) {
+    try {
+      const response = await this.api.post(
+        "/document/document-shared-by-provider",
+        data,
+      ); // prepend /provider here
+      if (!options?.silent) {
+        toast.success(`${response?.data?.data?.message}`);
+      }
+      return response?.data;
+    } catch (error: unknown) {
+      let errMsg = "Something went wrong";
 
-            if (axios.isAxiosError(error)) {
-                errMsg = error.response?.data?.error || "Failed to share document";
-            }
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.error || "Failed to share document";
+      }
 
-            if (!options?.silent) {
-                toast.error(errMsg);
-                return; // preserve legacy behaviour for non-silent callers
-            }
-            // Silent callers (batch sharers) need to detect per-call failures
-            // so they can build an accurate summary toast.
-            throw error;
-        }
+      if (!options?.silent) {
+        toast.error(errMsg);
+        return; // preserve legacy behaviour for non-silent callers
+      }
+      // Silent callers (batch sharers) need to detect per-call failures
+      // so they can build an accurate summary toast.
+      throw error;
     }
-    async documentSignByClientApi(formData: {
-        isAgree: boolean;
-        eSignature: string;
-        clientId?: string;
-        sharedDocumentId?: string;
-        senderId?: string;
-    }) {
-        try {
-            const response = await this.api.patch("/document/document-sign-by-client", formData);
+  }
+  async documentSignByClientApi(formData: {
+    isAgree: boolean;
+    eSignature: string;
+    clientId?: string;
+    sharedDocumentId?: string;
+    senderId?: string;
+  }) {
+    try {
+      const response = await this.api.patch(
+        "/document/document-sign-by-client",
+        formData,
+      );
 
-            return response?.data;
-        } catch (error: unknown) {
-            console.log("ERROR", error);
+      return response?.data;
+    } catch (error: unknown) {
+      console.log("ERROR", error);
 
-            let errMsg = "Something went wrong";
+      let errMsg = "Something went wrong";
 
-            if (axios.isAxiosError(error)) {
-                errMsg = error.response?.data?.error || "Failed to share document";
-            }
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.error || "Failed to share document";
+      }
 
-            toast.error(errMsg);
-        }
+      toast.error(errMsg);
     }
-    async addDocumentApi(formData: FormData) {
-        try {
-            const response = await this.api.post("/document/create-document", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-                validateStatus: () => true // prevent axios from throwing automatically
-            });
+  }
+  async addDocumentApi(formData: FormData) {
+    try {
+      const response = await this.api.post(
+        "/document/create-document",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          validateStatus: () => true, // prevent axios from throwing automatically
+        },
+      );
 
-            // If not 201, treat it as an error
-            if (response.status !== 201) {
-                throw new Error(response?.data?.error || "Failed to add document");
-            }
+      // If not 201, treat it as an error
+      if (response.status !== 201) {
+        throw new Error(response?.data?.error || "Failed to add document");
+      }
 
-            return response?.data;
-        } catch (error: unknown) {
-            let errMsg = "Something went wrong";
+      return response?.data;
+    } catch (error: unknown) {
+      let errMsg = "Something went wrong";
 
-            if (axios.isAxiosError(error)) {
-                errMsg = error.response?.data?.error || "Failed to add document";
-            } else if (error instanceof Error) {
-                errMsg = error.message;
-            }
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.error || "Failed to add document";
+      } else if (error instanceof Error) {
+        errMsg = error.message;
+      }
 
-            toast.error(errMsg);
-            throw new Error(errMsg); // 💥 force trigger onError in useMutation
-        }
+      toast.error(errMsg);
+      throw new Error(errMsg); // 💥 force trigger onError in useMutation
     }
+  }
 
-    async deleteDocumentApi(id: string) {
-        try {
-            const response = await this.api.delete(
-                "/document/delete-document",
-                { data: { id } }
-            );
+  async deleteDocumentApi(id: string) {
+    try {
+      const response = await this.api.delete("/document/delete-document", {
+        data: { id },
+      });
 
-            return response?.data;
-        } catch (error: unknown) {
-            let errMsg = "Something went wrong";
+      return response?.data;
+    } catch (error: unknown) {
+      let errMsg = "Something went wrong";
 
-            if (axios.isAxiosError(error)) {
-                errMsg = error.response?.data?.error || "Failed to add document";
-            }
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.error || "Failed to add document";
+      }
 
-            toast.error(errMsg);
-        }
+      toast.error(errMsg);
     }
+  }
+  async deleteProviderFormSubmissions(templateId: string, providerId: string) {
+    try {
+      const response = await this.api.delete(
+        `/form/templates/${templateId}/provider-submissions`,
+        {
+          data: { providerId },
+        },
+      );
+      toast.success(
+        response?.data?.message || "Submissions deleted successfully",
+      );
+      return response?.data;
+    } catch (error: unknown) {
+      let errMsg = "Something went wrong";
+
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.error || "Failed to delete submissions";
+      }
+
+      toast.error(errMsg);
+      throw error;
+    }
+  }
 }
 
-const documentApiService = new DocumentApiService()
-export default documentApiService
+const documentApiService = new DocumentApiService();
+export default documentApiService;

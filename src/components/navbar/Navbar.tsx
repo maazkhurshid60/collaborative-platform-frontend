@@ -1,47 +1,73 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import SearchBar from "../searchBar/SearchBar";
-import SearchResults from "../searchBar/SearchResults";
-import { IoIosArrowDown } from "react-icons/io";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IoMdMenu } from "react-icons/io";
+import { LuSearch } from "react-icons/lu";
+import { Bell } from "lucide-react";
+import { toast } from "react-toastify";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import SearchBar from "../searchBar/SearchBar";
+import SearchResults from "../searchBar/SearchResults";
 import { AppDispatch, RootState } from "../../redux/store";
 import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
-import UserIcon from "../icons/user/User";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClientType } from "../../types/clientType/ClientType";
 import clientApiService from "../../apiServices/clientApi/ClientApi";
-import providerApiService from "../../apiServices/providerApi/ProviderApi";
-import { toast } from "react-toastify";
 import Loader from "../loader/Loader";
-import { Link, useNavigate } from "react-router-dom";
-import { LuSearch } from "react-icons/lu";
 import { useSubscription } from "../../hooks/useSubscription";
-import { disconnectSocket } from "../../socket/Socket";
-import authService from "../../apiServices/authApi/AuthApi";
-import { emptyResult } from "../../redux/slices/LoginUserDetailSlice";
-import { ArrowRight } from "lucide-react";
+
+import { getSocket } from "../../socket/Socket";
+import notificationApiService from "../../apiServices/notification/NotificationApi";
+import UserProfileDropdown from "./UserProfileDropdown";
+import { useDebounce } from "@/hook/useDebounce";
 
 const Navbar = () => {
   const { isTrialActive } = useSubscription();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState<ClientType[]>();
+  const [isSearchbarClose, setIsSearchbarClose] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-  const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose);
-  const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails);
+  const isSideBarClose = useSelector(
+    (state: RootState) => state.sideBarSlice.isSideBarClose,
+  );
+  const loginUserDetail = useSelector(
+    (state: RootState) => state.LoginUserDetail.userDetails,
+  );
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState<ClientType[]>();
-  const [isSearchbarClose, setIsSearchbarClose] = useState(false);
-  const [isLoader, setIsLoader] = useState(false);
-  const [showSearchResults, setShowSearchResults] = useState(false);
   const queryClient = useQueryClient();
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { data: unreadCountData } = useQuery({
+    queryKey: ["unreadNotificationCount", loginUserDetail?.user?.id],
+    queryFn: async () => {
+      if (!loginUserDetail?.user?.id) return null;
+      const res = await notificationApiService.getUnreadCount(
+        loginUserDetail.user.id,
+      );
+      return res;
+    },
+    enabled: !!loginUserDetail?.user?.id,
+  });
+
+  const unreadCount = unreadCountData?.data?.unreadCount || 0;
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+    const handleNewNotification = () => {
+      queryClient.invalidateQueries({ queryKey: ["unreadNotificationCount"] });
+    };
+    socket.on("new_notification", handleNewNotification);
+    return () => {
+      socket.off("new_notification", handleNewNotification);
+    };
+  }, [queryClient]);
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
@@ -49,84 +75,24 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const userspeciality = useMemo(() => {
-    const specialtyName = loginUserDetail?.speciality;
-    if (!specialtyName) return "";
-
-    return specialtyName
-      .split(" ")
-      .map((word) => {
-        if (!word) return "";
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .join(" ");
-  }, [loginUserDetail?.speciality]);
-
-  const { data: clientData } = useQuery<ClientType[]>({
-    queryKey: ["allclients"],
+  const { data: searchResults = [], isFetching: isSearching } = useQuery({
+    queryKey: ["global-search", debouncedSearchQuery],
     queryFn: async () => {
-      try {
-        const response = await clientApiService.getAllTotalClient();
-        const verifiedUsers = response?.data?.clients;
-        return verifiedUsers || [];
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-        return [];
-      }
+      const response = await clientApiService.searchUsers(debouncedSearchQuery);
+      return response?.data?.users || [];
     },
+    enabled: debouncedSearchQuery.trim().length > 0,
   });
 
-  const { data: providerData } = useQuery<ClientType[]>({
-    queryKey: ["allproviders"],
-    queryFn: async () => {
-      try {
-        const response = await providerApiService.getAllTotalProviders();
-        const verifiedProviders = response?.data?.providers;
-        return verifiedProviders || [];
-      } catch (error) {
-        console.error("Error fetching providers:", error);
-        return [];
-      }
-    },
-  });
-
-  const allUsers = useMemo(() => [...(clientData || []), ...(providerData || [])], [clientData, providerData]);
-
   useEffect(() => {
-    if (searchQuery.trim() !== "") {
-      const searchTerm = searchQuery.toLowerCase();
-      const loginUserId = loginUserDetail?.user?.id;
-      const timeoutId = setTimeout(() => {
-        const filtered = allUsers.filter((user) => {
-          // Exclude the logged-in user from results
-          if (user.user?.id === loginUserId || user.id === loginUserId) return false;
-          return (
-            user.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
-            user.clientId?.toLowerCase().includes(searchTerm) ||
-            user.user?.fullName?.toLowerCase().includes(searchTerm) ||
-            user.user?.email?.toLowerCase().includes(searchTerm) ||
-            user.email?.toLowerCase().includes(searchTerm) ||
-            user.user?.role?.toLowerCase().includes(searchTerm)
-          );
-        });
-
-        setFilteredUsers(filtered);
-        setShowSearchResults(true);
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
-    }
-    setFilteredUsers([]);
-    setShowSearchResults(false);
-  }, [searchQuery, allUsers]);
-
-  useEffect(() => {
-    if (loginUserDetail?.user?.profileImage !== "null") {
-      setPreviewUrl(loginUserDetail?.user?.profileImage);
+    if (debouncedSearchQuery.trim() !== "") {
+      setFilteredUsers(searchResults || []);
+      setShowSearchResults(true);
     } else {
-      setPreviewUrl(null);
+      setFilteredUsers([]);
+      setShowSearchResults(false);
     }
-  }, [loginUserDetail]);
+  }, [debouncedSearchQuery, searchResults]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -139,13 +105,12 @@ const Navbar = () => {
   };
 
   const addClientFun = (data: ClientType) => {
-    // Trial providers can re-add their own clients (rare edge case — backend
-    // also allows it) but not attach another provider's. Match the backend
-    // gate so the UI doesn't reject something the API would have accepted.
     const currentUserId = loginUserDetail?.id;
     const isOwnClient = data?.createdByProviderId === currentUserId;
     if (isTrialActive && !isOwnClient) {
-      toast.info("Adding another provider's client is a premium feature. Please upgrade your plan.");
+      toast.info(
+        "Adding another provider's client is a premium feature. Please upgrade your plan.",
+      );
       return;
     }
     updateMutation.mutate(data);
@@ -161,8 +126,14 @@ const Navbar = () => {
       localFormData.append("email", data?.user?.email || "");
       localFormData.append("contactNo", data?.user?.contactNo || "0000000000");
       localFormData.append("address", data?.user?.address || "No Address");
-      localFormData.append("gender", (data?.user?.gender || "male").toLowerCase());
-      localFormData.append("status", (data?.user?.status || "active").toLowerCase());
+      localFormData.append(
+        "gender",
+        (data?.user?.gender || "male").toLowerCase(),
+      );
+      localFormData.append(
+        "status",
+        (data?.user?.status || "active").toLowerCase(),
+      );
       // localFormData.append("country", data?.user?.country || "");
       localFormData.append("state", data?.user?.state || "");
       localFormData.append("role", "client");
@@ -171,27 +142,24 @@ const Navbar = () => {
       localFormData.append("profileImage", data?.user?.profileImage || "");
       await clientApiService.addExistingClientToProvider(localFormData);
     },
-    onMutate: () => setIsLoader(true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["allclients"] });
       queryClient.invalidateQueries({ queryKey: ["allproviders"] });
       toast.success("User has been added successfully");
       handleClearSearch();
-      setIsLoader(false);
     },
     onError: () => {
       toast.error("Failed to add the client!");
-      setIsLoader(false);
     },
   });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropDownOpen(false);
-      }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSearchResults(false);
       }
     };
@@ -199,72 +167,30 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // // ✅ Navigate to super admin page when clicking the profile area (only for superadmin)
-  // const goToSuperAdmin = () => {
-  //   if (loginUserDetail?.user?.role === "superAdmin") {
-  //     navigate("/super-admin");
-  //   }
-  // };
-
-  // Navigate to client and provider as well 
-  const goToClientAndProviderAndSuperAdmin = () => {
-    if (loginUserDetail?.user?.role === "client") {
-      navigate("/settings")
-    }
-    if (loginUserDetail?.user?.role === "provider") {
-      navigate("/user-profile")
-    }
-    if (loginUserDetail?.user?.role === "superAdmin") {
-      navigate("/super-admin")
-    }
-  }
-
-  const logoutFunction = async () => {
-    try {
-      // Call backend to clear cookies
-      await authService.logout();
-    } catch (error) {
-      console.error("Backend logout failed", error);
-    }
-
-    disconnectSocket();
-
-    // Comprehensive cleanup
-    localStorage.clear();
-    sessionStorage.clear();
-
-    const clearCaches = 'caches' in window
-      ? caches.keys().then(names => Promise.all(names.map(name => caches.delete(name))))
-      : Promise.resolve();
-
-    const unregisterServiceWorkers = 'serviceWorker' in navigator
-      ? navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister())))
-      : Promise.resolve();
-
-    Promise.all([clearCaches, unregisterServiceWorkers]).then(() => {
-      dispatch(emptyResult());
-      navigate("/");
-      window.location.reload();
-    });
-  };
-
-  const isSuperAdmin = loginUserDetail?.user?.role === "superAdmin";
   const isProvider = loginUserDetail?.user?.role === "provider";
-  const isClient = loginUserDetail?.user?.role === "client";
 
   return (
     <div className="bg-white">
-      {isLoader && <Loader text="Adding..." />}
+      {updateMutation.isPending && <Loader text="Adding..." />}
 
       <div className="flex w-full items-center justify-between xl:justify-between xl:gap-x-96 bg-white px-3 py-3">
-
         <div className="block md:hidden">
-          {isSideBarClose === false && <IoMdMenu size={24} onClick={() => dispatch(isSideBarCloseReducser(true))} />}
+          {isSideBarClose === false && (
+            <IoMdMenu
+              size={24}
+              onClick={() => dispatch(isSideBarCloseReducser(true))}
+            />
+          )}
         </div>
 
         <div
-          className={`relative transition-all duration-300 ease-in-out  ${screenWidth < 768 ? (isSearchbarClose ? "w-[280px]" : "w-[35px]") : " md:w-full md:max-w-[280px] lg:max-w-[450px] xl:max-w-[500px]"
-            }`}
+          className={`relative transition-all duration-300 ease-in-out  ${
+            screenWidth < 768
+              ? isSearchbarClose
+                ? "w-70"
+                : "w-8.75"
+              : " md:w-full md:max-w-70 lg:max-w-112.5 xl:max-w-125"
+          }`}
           ref={searchRef}
         >
           {isProvider && (
@@ -291,117 +217,35 @@ const Navbar = () => {
                 onAddClient={addClientFun}
                 currentUserId={loginUserDetail.id}
                 isVisible={showSearchResults}
+                isLoading={isSearching || searchQuery !== debouncedSearchQuery}
                 onResultClick={handleClearSearch}
-                emptyMessage={searchQuery ? `No users found for "${searchQuery}"` : "Start typing to search users..."}
+                emptyMessage={
+                  searchQuery
+                    ? `No users found for "${searchQuery}"`
+                    : "Start typing to search users..."
+                }
               />
             </div>
           )}
         </div>
         {(screenWidth >= 768 || (screenWidth < 768 && !isSearchbarClose)) && (
-          <div
-            className={`flex items-center relative gap-x-2 bg-white ${isSuperAdmin ? "cursor-pointer" : "cursor-pointer"}`}
-            ref={dropdownRef}
-            role={isSuperAdmin ? "button" : undefined}
-            tabIndex={isSuperAdmin ? 0 : undefined}
-            onClick={goToClientAndProviderAndSuperAdmin}
-            onKeyDown={(e) => {
-              if (isSuperAdmin && e.key === "Enter") goToClientAndProviderAndSuperAdmin();
-            }}
-          >
-            {isProvider && (
-              <div>
-                <span
-                  title={`Your account is ${loginUserDetail?.user?.isApprove === "APPROVED" ? "Verified" : "Unverified"}`}
-                  className={`px-2 py-0.5 text-[10px] sm:text-xs font-semibold rounded-full ${loginUserDetail?.user?.isApprove === "APPROVED"
-                    ? "bg-green-100 text-green-700 border border-green-200"
-                    : "bg-red-100 text-red-700 border border-red-200"
-                    }`}
-                >
-                  {loginUserDetail?.user?.isApprove === "APPROVED" ? "Verified" : "Unverified"}
+          <div className="flex items-center gap-x-4 md:gap-x-6">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/notification")}
+            >
+              <Bell
+                size={24}
+                className="text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-1"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                  {unreadCount}
                 </span>
-              </div>
-            )}
-            {previewUrl ? (
-              <img src={previewUrl} alt="User" className="w-12 h-12 rounded-full object-cover" />
-            ) : (
-              <UserIcon className="text-[32px] w-12 h-12 md:text-[40px] lg:text-[48px]" />
-            )}
-
-
-            <div className="flex items-center lg:gap-x-4 bg-white z-20">
-              <div className="font-[Montserrat]">
-                <p className="text-gray-800 font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize">
-                  {isSuperAdmin
-                    ? (() => {
-                      const fullName = loginUserDetail?.user?.fullName || "";
-                      const words = fullName.split(" ");
-                      const firstName = words[0];
-                      return firstName ? `${firstName}...` : "";
-                    })()
-                    : `${loginUserDetail?.user?.fullName?.slice(0, 6)}${loginUserDetail?.user?.fullName && loginUserDetail.user.fullName.length > 6 ? "..." : ""
-                    }`}
-                </p>
-
-                <p className="text-gray-500 font-medium text-sm -mt-1.5">
-                  {isSuperAdmin ? "Super Admin" : loginUserDetail?.speciality ? userspeciality : "Client"}
-                </p>
-              </div>
-
-              {/* dropdown only for provider (as you had it) */}
-              {isProvider && (
-                <div className="p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                  <IoIosArrowDown
-                    className={`text-textColor transition-all duration-700 ease-in-out ${isDropDownOpen ? "rotate-180" : "rotate-0"
-                      } cursor-pointer`}
-                    size={22}
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent click bubbling to profile area
-                      setIsDropDownOpen(!isDropDownOpen);
-                    }}
-                  />
-                </div>
               )}
             </div>
 
-
-            <ul
-              onClick={(e) => e.stopPropagation()}
-              className={`bg-white shadow-[0_0_10px_0_rgba(0,0,0,0.1)] -z-10 p-1 mt-0.5 rounded-[10px] flex flex-col font-[Poppins] text-[12px] md:text-[14px] lg:text-[16px] absolute right-0 transition-all duration-700 ease-in-out 
-              ${isDropDownOpen ? "opacity-100 translate-y-2 top-[45px] md:top-[50px] z-20" : "opacity-0 hidden z-0 -translate-y-3 pointer-events-none top-[-80px]"
-                }`}
-            >
-              <Link
-                onClick={() => setIsDropDownOpen(false)}
-                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
-                to="/notification"
-              >
-                Notifications
-              </Link>
-              <Link
-                onClick={() => setIsDropDownOpen(false)}
-                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
-                to="/setting"
-              >
-                Settings
-              </Link>
-              <Link
-                onClick={() => setIsDropDownOpen(false)}
-                className="cursor-pointer py-2 px-3 rounded-[10px] hoverCLass"
-                to="/help-and-support"
-              >
-                Help & Support
-              </Link>
-              <li
-                onClick={() => {
-                  setIsDropDownOpen(false);
-                  logoutFunction();
-                }}
-                className="cursor-pointer py-2 px-3 rounded-[10px] hover:bg-red-200 list-none flex items-start gap-x-8"
-              >
-                <p>Logout</p>
-                <ArrowRight className="text-red-900" />
-              </li>
-            </ul>
+            <UserProfileDropdown />
           </div>
         )}
       </div>
