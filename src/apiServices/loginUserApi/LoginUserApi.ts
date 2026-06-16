@@ -25,7 +25,7 @@ class LoginUserApiService {
     async blockUserApi(dataa: blockUserApiType) {
 
         try {
-            const response = await this.api.post("/auth/block-user", dataa)
+            const response = await this.api.post("/user/block-user", dataa)
 
 
             return response.data
@@ -39,7 +39,7 @@ class LoginUserApiService {
     async unBlockUserApi(dataa: blockUserApiType) {
 
         try {
-            const response = await this.api.post("/auth/unblock-user", dataa)
+            const response = await this.api.post("/user/unblock-user", dataa)
 
 
             return response.data
@@ -52,7 +52,7 @@ class LoginUserApiService {
     async deleteMeApi(id: string) {
 
         try {
-            const response = await this.api.delete("/auth/delete-me-account", { data: { loginUserId: id } })
+            const response = await this.api.delete("/profile/delete-me-account", { data: { loginUserId: id } })
 
 
             return response.data
@@ -65,7 +65,7 @@ class LoginUserApiService {
 
     async deleteUserByAdminApi(targetUserId: string) {
         try {
-            const response = await this.api.delete("/auth/admin/delete-user", { data: { targetUserId } });
+            const response = await this.api.delete("/user/admin/delete-user", { data: { targetUserId } });
             return response.data;
         } catch (error: any) {
             console.log("error deleting user by admin", error);
@@ -75,7 +75,7 @@ class LoginUserApiService {
     async updateMeApi(data: unknown) {
 
         try {
-            const response = await this.api.patch("/auth/update-me", data, {
+            const response = await this.api.patch("/profile/update-me", data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -93,7 +93,7 @@ class LoginUserApiService {
 
 
         try {
-            const response = await this.api.post("/auth/get-me", data)
+            const response = await this.api.post("/profile/get-me", data)
 
 
             return response.data
@@ -106,7 +106,7 @@ class LoginUserApiService {
 
     async getAllValidUsersApi() {
         try {
-            const response = await this.api.get("/auth/get-all-valid-users")
+            const response = await this.api.get("/user/get-all-valid-users")
             return response.data
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to block this user.";
@@ -115,7 +115,7 @@ class LoginUserApiService {
     }
     async getAllUsersApi() {
         try {
-            const response = await this.api.get("/auth/get-all-users")
+            const response = await this.api.get("/user/get-all-users")
 
             return response.data.data
         } catch (error) {
@@ -125,7 +125,7 @@ class LoginUserApiService {
     }
     async approveUsersApi(data: approveUserData) {
         try {
-            const response = await this.api.patch("/auth/approve-user", data)
+            const response = await this.api.patch("/user/approve-user", data)
 
             return response.data
         } catch (error) {
@@ -137,7 +137,7 @@ class LoginUserApiService {
     }
     async rejectUsersApi(data: approveUserData) {
         try {
-            const response = await this.api.patch("/auth/reject-user", data)
+            const response = await this.api.patch("/user/reject-user", data)
 
             return response.data
         } catch (error) {
@@ -150,7 +150,7 @@ class LoginUserApiService {
 
     async restoreUsersApi(data: approveUserData) {
         try {
-            const response = await this.api.patch("/auth/restore-user", data)
+            const response = await this.api.patch("/user/restore-user", data)
 
             return response.data
         } catch (error) {

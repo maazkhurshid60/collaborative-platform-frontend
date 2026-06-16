@@ -146,15 +146,15 @@ const UserProfileDropdown = () => {
         <img
           src={previewUrl}
           alt="User"
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover"
         />
       ) : (
-        <UserIcon className="text-[32px] w-12 h-12 md:text-[40px] lg:text-[48px]" />
+        <UserIcon className="text-[28px] w-10 h-10 md:text-[32px] lg:text-[36px]" />
       )}
 
       <div className="flex items-center lg:gap-x-4 bg-white z-20">
         <div className="font-[Montserrat]">
-          <p className="text-gray-800 font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize">
+          <p className="text-gray-800 font-bold text-[12px] md:text-[14px] lg:text-[16px] capitalize">
             {isSuperAdmin
               ? (() => {
                   const fullName = loginUserDetail?.user?.fullName || "";
@@ -162,9 +162,9 @@ const UserProfileDropdown = () => {
                   const firstName = words[0];
                   return firstName ? `${firstName}...` : "";
                 })()
-              : `${loginUserDetail?.user?.fullName?.slice(0, 6) || ""}${
+              : `${loginUserDetail?.user?.fullName?.slice(0, 8) || ""}${
                   loginUserDetail?.user?.fullName &&
-                  loginUserDetail.user.fullName.length > 6
+                  loginUserDetail.user.fullName.length > 8
                     ? "..."
                     : ""
                 }`}

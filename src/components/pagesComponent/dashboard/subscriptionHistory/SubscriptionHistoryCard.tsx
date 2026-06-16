@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../redux/store";
+
 import { subscriptionApiService } from "../../../../services/subscriptionApiService";
 import Table from "../../../table/Table";
 import CustomPagination from "../../../customPagination/CustomPagination";
@@ -8,20 +8,13 @@ import usePaginationHook from "../../../../hook/usePaginationHook";
 import ViewIcon from "../../../icons/view/View";
 import Loader from "../../../loader/Loader";
 import NoRecordFound from "../../../noRecordFound/NoRecordFound";
-import { useState } from "react";
 import InvoiceModal from "../../../modals/InvoiceModal";
 import DownloadIcon from "../../../icons/download/Download";
 import { downloadInvoicePdf } from "../../../../utils/downloadInvoicePdf";
 
+const heading = ["Name", "Plan", "Price", "Next Billing", "Status", "Actions"];
+
 const SubscriptionHistoryCard = () => {
-  const heading = [
-    "Name",
-    "Plan",
-    "Price",
-    "Next Billing",
-    "Status",
-    "Actions",
-  ];
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -129,7 +122,7 @@ const SubscriptionHistoryCard = () => {
                       onClick={() => handleDownloadInvoice(data)}
                       className=" text-primaryColorDark cursor-pointer"
                     >
-                      <DownloadIcon className="w-[18px] h-[18px] object-cover" />
+                      <DownloadIcon className="w-4.5 h-4.5 object-cover" />
                     </button>
                   </div>
                 </td>

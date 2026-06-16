@@ -60,7 +60,7 @@ class AuthService {
 
 
         try {
-            const response = await this.api.post("/license-found", data);
+            const response = await axios.post(`${baseUrl}/user/license-found`, data);
             return response.data;
         } catch (error: unknown) {
             throw error || "Sign up failed";
@@ -102,7 +102,7 @@ class AuthService {
     async getMe(loginUserId: string, role: string) {
         try {
             const token = localStorage.getItem("token");
-            const response = await this.api.post("/get-me",
+            const response = await axios.post(`${baseUrl}/profile/get-me`,
                 { loginUserId, role },
                 {
                     headers: {

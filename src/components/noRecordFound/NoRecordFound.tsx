@@ -1,6 +1,6 @@
 const NoRecordFound = () => {
   return (
-    <div className="flex flex-1 w-full h-full min-h-[calc(100vh-300px)] flex-col items-center justify-center p-6">
+    <div className="flex flex-1 w-full h-full min-h-[calc(100vh-280px)] flex-col items-center justify-center p-6">
       <div className="relative mb-12">
         {/* Minimalist Background Circle */}
         <div className="absolute inset-0 -m-8 bg-primaryColorDark/5 rounded-full blur-3xl animate-pulse" />

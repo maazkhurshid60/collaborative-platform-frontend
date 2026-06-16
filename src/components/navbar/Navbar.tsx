@@ -43,6 +43,7 @@ const Navbar = () => {
 
   const queryClient = useQueryClient();
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const { data: unreadCountData } = useQuery({
     queryKey: ["unreadNotificationCount", loginUserDetail?.user?.id],
     queryFn: async () => {
@@ -75,7 +76,7 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { data: searchResults = [], isFetching: isSearching } = useQuery({
+  const { data: searchResults, isFetching: isSearching } = useQuery({
     queryKey: ["global-search", debouncedSearchQuery],
     queryFn: async () => {
       const response = await clientApiService.searchUsers(debouncedSearchQuery);

@@ -1,47 +1,28 @@
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
+import { Eye, Users, Activity, Clock } from "lucide-react";
 
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
-import CardDashboardLayout from "../../../layouts/dashboardLayout/CardDashboardLayout";
-import Collaboration from "../../../components/pagesComponent/dashboard/collaboration/Collaboration";
-import ClientList from "../../../components/pagesComponent/dashboard/clientList/ClientList";
-import ProviderList from "../../../components/pagesComponent/dashboard/providerList/ProviderList";
-import TrialBanner from "../../../components/pagesComponent/dashboard/trialBanner/TrialBanner";
+// import CardDashboardLayout from "../../../layouts/dashboardLayout/CardDashboardLayout";
+// import Collaboration from "../../../components/pagesComponent/dashboard/collaboration/Collaboration";
+// import ClientList from "../../../components/pagesComponent/dashboard/clientList/ClientList";
+// import ProviderList from "../../../components/pagesComponent/dashboard/providerList/ProviderList";
+// import TrialBanner from "../../../components/pagesComponent/dashboard/trialBanner/TrialBanner";
 import providerApiService from "../../../apiServices/providerApi/ProviderApi";
 import clientApiService from "../../../apiServices/clientApi/ClientApi";
 import { ClientType } from "../../../types/clientType/ClientType";
 import { RootState } from "../../../redux/store";
-import ProvidersIcon from "../../../components/icons/dashboardIcons/providersPortalIcons/providers/Providers";
 import SubscriptionHistoryCard from "../../../components/pagesComponent/dashboard/subscriptionHistory/SubscriptionHistoryCard";
-import ClientsIconForDashboard from "../../../components/icons/dashboardIcons/providersPortalIcons/clients/ClientIconForDashboard";
+import RecentActivities from "./RecentActivities";
+import DashboardActionCardSection from "./DashboardActionCardSection";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const Dashboard = () => {
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id,
   );
+  const { plan } = useSubscription();
 
-  const [cardData, setCardData] = useState([
-    {
-      icon: ClientsIconForDashboard,
-      heading: "Total Providers & Clients",
-      numbers: 200,
-    },
-    {
-      icon: ClientsIconForDashboard,
-      heading: "Clients",
-      numbers: 1034,
-      isLoading: true,
-      error: "",
-    },
-    {
-      icon: ProvidersIcon,
-      heading: "Providers on the platform",
-      numbers: 1024,
-      isLoading: true,
-      error: "",
-    },
-  ]);
   // Fetch total provider using React Query
   const {
     data: totalNoOfProvider = 0,
@@ -82,73 +63,97 @@ const Dashboard = () => {
     refetchOnWindowFocus: false,
   });
 
-  useEffect(() => {
-    setCardData((prev) =>
-      prev.map((item) => {
-        if (item.heading === "Providers on the platform") {
-          return {
-            ...item,
-            numbers: totalNoOfProvider,
-            isLoading: isLoadingProviders,
-            error: isErrorProviders ? "Error loading providers" : "",
-          };
-        } else if (item.heading === "Clients") {
-          return {
-            ...item,
-            numbers: totalNoOfClient,
-            isLoading: isLoadingClients,
-            error: isErrorClients ? "Error loading clients" : "",
-          };
-        } else if (item.heading === "Total Providers & Clients") {
-          return {
-            ...item,
-            numbers: totalNoOfClient + totalNoOfProvider,
-            isLoading: isLoadingClients || isLoadingProviders,
-            error:
-              isErrorClients || isErrorProviders
-                ? "Error loading total users"
-                : "",
-          };
-        }
-        return item;
-      }),
-    );
-  }, [
-    totalNoOfProvider,
-    totalNoOfClient,
-    isLoadingClients,
-    isLoadingProviders,
-    isErrorClients,
-    isErrorProviders,
-  ]);
+  const cardData = [
+    {
+      icon: Eye,
+      heading: "Total Providers & Clients",
+      numbers: totalNoOfClient + totalNoOfProvider,
+      isLoading: isLoadingClients || isLoadingProviders,
+      error:
+        isErrorClients || isErrorProviders ? "Error loading total users" : "",
+      className: "",
+    },
+    {
+      icon: Users,
+      heading: "Clients",
+      numbers: totalNoOfClient,
+      isLoading: isLoadingClients,
+      error: isErrorClients ? "Error loading clients" : "",
+      className: "",
+    },
+    {
+      icon: Activity,
+      heading: "Providers on the platform",
+      numbers: totalNoOfProvider,
+      isLoading: isLoadingProviders,
+      error: isErrorProviders ? "Error loading providers" : "",
+      className: "",
+    },
+    {
+      icon: Clock,
+      heading: "Current Plan",
+      numbers: plan,
+      isLoading: false,
+      error: "",
+      className: "text-lg font-bold mt-4",
+    },
+  ];
 
   return (
-    <div className="flex flex-col w-full h-full p-3 overflow-y-auto rounded-lg pt-5 bg-white">
-      <TrialBanner />
+    <div className="flex flex-col w-full  h-full p-3 overflow-y-auto rounded-lg  bg-white">
+      {/* <TrialBanner /> */}
       <OutletLayout heading="Dashboard">
-        <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {cardData?.map((data, id: number) => {
-              const Icon = data?.icon;
-              return (
-                <div className=" h-30 " key={id}>
-                  <CardDashboardLayout>
-                    {/* {data.isLoading && <Loader text="12232" />} */}
-                    <div key={id} className="">
-                      <div className="flex items-center gap-x-3 font-[Montserrat] font-semibold text-textGreyColor">
-                        <Icon className="text-primaryColorDark w-10 h-10" />
-                        <p>{data?.heading}</p>
-                      </div>
-                      <p className="font-[Poppins] font-semibold text-textColor text-[32px] mt-3">
-                        {data?.numbers}
-                      </p>
+        <div className="flex flex-col gap-6 ">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-bold text-gray-800 font-[Montserrat]">
+              Your Statistics
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {cardData?.map((data, id: number) => {
+                const Icon = data?.icon;
+                return (
+                  <div
+                    className="bg-slate-50 p-6 rounded-xl flex flex-col justify-center border border-gray-100"
+                    key={id}
+                  >
+                    <div className="flex items-center gap-x-2 text-slate-500 font-medium">
+                      <Icon className="w-5 h-5 text-teal-600" />
+                      <p className="text-sm">{data?.heading}</p>
                     </div>
-                  </CardDashboardLayout>
-                </div>
-              );
-            })}
+                    <p
+                      className={`font-semibold text-gray-800 text-3xl mt-3 ${data.className}`}
+                    >
+                      {data?.numbers}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap">
+
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-bold text-gray-800 font-[Montserrat]">
+              Overview
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Recent Activity */}
+              <RecentActivities />
+
+              {/* Action Cards */}
+              <DashboardActionCardSection />
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-bold text-gray-800 font-[Montserrat]">
+              Subscription History
+            </h2>
+            <div>
+              {/* Recent Activity */}
+              <SubscriptionHistoryCard />
+            </div>
+          </div>
+
+          {/* <div className="flex flex-col gap-3 lg:gap-0 lg:flex-row items-start justify-evenly flex-wrap mt-2">
             <div className=" flex flex-col gap-2 flex-wrap w-full lg:w-[68%] ">
               <div className=" w-full  max-h-screen lg:w-[98%] overflow-x-auto rounded-md">
                 <CardDashboardLayout heading="Clients List">
@@ -171,7 +176,7 @@ const Dashboard = () => {
                 <Collaboration />
               </CardDashboardLayout>
             </div>
-          </div>
+          </div> */}
         </div>
       </OutletLayout>
     </div>
