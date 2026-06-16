@@ -117,7 +117,7 @@ const Login = () => {
     const role = data?.user?.role;
 
     if (role === "client") return navigate("/documents");
-    if (role === "superAdmin") return navigate("/pending-users");
+    if (role === "superAdmin") return navigate("/admin-dashboard");
 
     if (role === "provider") {
       return navigate("/dashboard");

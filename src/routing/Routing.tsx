@@ -1,12 +1,11 @@
 import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
 
+import { RootState } from "../redux/store";
 import WrappedRoute from "../components/wrappedRoute/WrappedRoute";
 import PublicRoute from "./PublicRoute";
 import SuperAdminMePage from "../pages/superadminPages/SuperAdminMePage/SuperAdminMePage";
-import RejectedUsers from "../pages/superadminPages/allUsers/RejectedUsers";
 import TransactionDetail from "../pages/superadminPages/transaction-detail/TransactionDetail";
 import ProviderDetail from "../pages/superadminPages/providerDetail/ProviderBillingDetail";
 import SubscriptionPage from "../pages/superadminPages/subscription/BillingMangement";
@@ -82,11 +81,8 @@ const ChangePassword = lazy(
 );
 const Settings = lazy(() => import("../pages/clientPages/settings/Settings"));
 const Document = lazy(() => import("../pages/clientPages/documents/Document"));
-const PendingUsers = lazy(
-  () => import("../pages/superadminPages/allUsers/PendingUsers"),
-);
-const VerifiedUsers = lazy(
-  () => import("../pages/superadminPages/allUsers/VerifiedUsers"),
+const AllUsers = lazy(
+  () => import("../pages/superadminPages/allUsers/AllUsers"),
 );
 const AllDocuments = lazy(
   () => import("../pages/superadminPages/AllDocuments"),
@@ -115,6 +111,9 @@ const FormBuilder = lazy(
 );
 const ChatWithAI = lazy(
   () => import("../pages/providerPages/chatWithAI/ChatWithAI"),
+);
+const SuperAdminDashboard = lazy(
+  () => import("../pages/superadminPages/dashboard/SuperAdminDashboard"),
 );
 
 const Routing = () => {
@@ -251,10 +250,21 @@ const Routing = () => {
 
         {loginUserRole === "superAdmin" && (
           <Route
-            path="/pending-users"
+            path="/all-users"
             element={
               <WrappedRoute>
-                <PendingUsers />
+                <AllUsers />
+              </WrappedRoute>
+            }
+          />
+        )}
+
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/admin-dashboard"
+            element={
+              <WrappedRoute>
+                <SuperAdminDashboard />
               </WrappedRoute>
             }
           />
@@ -366,23 +376,7 @@ const Routing = () => {
           }
         />
         <Route
-          path="/pending-users/view-user/:id"
-          element={
-            <WrappedRoute>
-              <ViewUser />
-            </WrappedRoute>
-          }
-        />
-        <Route
-          path="/verified-users/view-user/:id"
-          element={
-            <WrappedRoute>
-              <ViewUser />
-            </WrappedRoute>
-          }
-        />
-        <Route
-          path="/rejected-users/view-user/:id"
+          path="/all-users/view-user/:id"
           element={
             <WrappedRoute>
               <ViewUser />
@@ -417,22 +411,7 @@ const Routing = () => {
             }
           />
         )}
-        <Route
-          path="/verified-users"
-          element={
-            <WrappedRoute>
-              <VerifiedUsers />
-            </WrappedRoute>
-          }
-        />
-        <Route
-          path="/rejected-users"
-          element={
-            <WrappedRoute>
-              <RejectedUsers />
-            </WrappedRoute>
-          }
-        />
+
         <Route
           path="/notification"
           element={

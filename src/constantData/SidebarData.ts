@@ -90,19 +90,14 @@ export const ClientSidebarData = [
 
 export const SuperAdminSidebarData = [
   {
-    name: "Pending Users",
-    url: "/pending-users",
-    icon: PendingIcon,
+    name: "Dashboard",
+    url: "/admin-dashboard",
+    icon: DashboardIcon,
   },
   {
-    name: "Verified Users",
-    url: "/verified-users",
+    name: "All Users",
+    url: "/all-users",
     icon: VerifiedIcon,
-  },
-  {
-    name: "Rejected Users",
-    url: "/rejected-users",
-    icon: RejectedIcon,
   },
   {
     name: "Documents",

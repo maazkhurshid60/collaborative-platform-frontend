@@ -10,7 +10,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
         if (role === "client") {
             return <Navigate to="/documents" replace />;
         } else if (role === "superAdmin") {
-            return <Navigate to="/pending-users" replace />;
+            return <Navigate to="/admin-dashboard" replace />;
         } else {
             return <Navigate to="/dashboard" replace />;
         }

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IoIosArrowDown } from "react-icons/io";
-import { ArrowRight, UserIcon, BadgeCheck } from "lucide-react";
+import { ArrowRight, UserIcon, BadgeCheck, BadgeAlert } from "lucide-react";
 
 import { AppDispatch, RootState } from "@/redux/store";
 import authService from "@/apiServices/authApi/AuthApi";
@@ -122,7 +122,7 @@ const UserProfileDropdown = () => {
           goToClientAndProviderAndSuperAdmin();
       }}
     >
-      {isProvider && loginUserDetail?.user?.isApprove !== "APPROVED" && (
+      {/* {isProvider && loginUserDetail?.user?.isApprove !== "APPROVED" && (
         <div>
           <span
             title="Your account is Unverified"
@@ -131,7 +131,7 @@ const UserProfileDropdown = () => {
             Unverified
           </span>
         </div>
-      )}
+      )} */}
       {previewUrl ? (
         <img
           src={previewUrl}
@@ -160,8 +160,10 @@ const UserProfileDropdown = () => {
                       : ""
                   }`}
             </p>
-            {isProvider && loginUserDetail?.user?.isApprove === "APPROVED" && (
+            {isProvider && loginUserDetail?.user?.isApprove === "APPROVED" ? (
               <BadgeCheck className="w-4 h-4 md:w-5 md:h-5 text-white fill-blue-500" />
+            ) : isSuperAdmin ? null : (
+              <BadgeAlert className="w-4 h-4 md:w-5 md:h-5 text-orange-500" />
             )}
           </div>
 
