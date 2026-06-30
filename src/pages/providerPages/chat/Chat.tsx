@@ -39,42 +39,27 @@ import InviteToGroupModalBody from "../../../components/modals/providerModal/cha
 import AddMembersToGroupModalBody from "../../../components/modals/providerModal/chatModal/AddMembersToGroupModalBody";
 import GroupSettingsModalBody from "../../../components/modals/providerModal/chatModal/GroupSettingsModalBody";
 import { useSubscription } from "../../../hooks/useSubscription";
+import { useDebounce } from "../../../hook/useDebounce";
 
 const Chat = () => {
   const { isTrialActive } = useSubscription();
 
-  const loginUserProviderId = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
-  );
-  const loginUserUserId = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
-  );
-  const loginUserRole = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role,
-  );
+  const {
+    LoginUserDetail: { userDetails },
+    modalSlice: {
+      isNewChatModal,
+      isNewGroupChatModal,
+      isModalShow,
+      isInviteProviderModal,
+      isInviteToGroupModalShow,
+      isAddMembersToGroupModal,
+      isGroupSettingsModal,
+    },
+  } = useSelector((state: RootState) => state);
 
-  const isNewChatModal = useSelector(
-    (state: RootState) => state?.modalSlice?.isNewChatModal,
-  );
-  const isNewGroupChatModal = useSelector(
-    (state: RootState) => state?.modalSlice?.isNewGroupChatModal,
-  );
-  const isModalShow = useSelector(
-    (state: RootState) => state?.modalSlice?.isModalShow,
-  );
-
-  const isInviteProviderModal = useSelector(
-    (state: RootState) => state?.modalSlice?.isInviteProviderModal,
-  );
-  const isInviteToGroupModalShow = useSelector(
-    (state: RootState) => state?.modalSlice?.isInviteToGroupModalShow,
-  );
-  const isAddMembersToGroupModal = useSelector(
-    (state: RootState) => state?.modalSlice?.isAddMembersToGroupModal,
-  );
-  const isGroupSettingsModal = useSelector(
-    (state: RootState) => state?.modalSlice?.isGroupSettingsModal,
-  );
+  const loginUserProviderId = userDetails?.id;
+  const loginUserUserId = userDetails?.userId;
+  const loginUserRole = userDetails?.user?.role;
 
   const [activeChatObject, setActiveChatObject] = useState<
     ChatChannelType | GroupChat | undefined
@@ -88,6 +73,8 @@ const Chat = () => {
   const [activeChatType, setActiveChatType] = useState<
     "individual" | "group" | undefined
   >(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const { id } = useParams();
@@ -100,9 +87,12 @@ const Chat = () => {
   const socket = getSocket();
 
   const { data: allChannels = [], isLoading: isChannelsLoading } = useQuery({
-    queryKey: ["chatchannels"],
+    queryKey: ["chatchannels", debouncedSearch],
     queryFn: async () => {
-      const res = await chatApiService.getAllChatChannels(loginUserProviderId);
+      const res = await chatApiService.getAllChatChannels(
+        loginUserProviderId,
+        debouncedSearch,
+      );
       const channels = res.data.findAllChatChannel || [];
 
       return channels.sort((a: GroupChat, b: GroupChat) => {
@@ -118,9 +108,12 @@ const Chat = () => {
   });
 
   const { data: allGroups = [], isLoading: isGroupsLoading } = useQuery({
-    queryKey: ["groupChatchannels"],
+    queryKey: ["groupChatchannels", debouncedSearch],
     queryFn: async () => {
-      const res = await chatApiService.getGroupChatChannels(loginUserUserId);
+      const res = await chatApiService.getGroupChatChannels(
+        loginUserUserId,
+        debouncedSearch,
+      );
       const groups = res?.data?.allgroups || [];
       return groups.sort((a: GroupChat, b: GroupChat) => {
         const aTime = new Date(
@@ -439,35 +432,47 @@ const Chat = () => {
         <div
           className={`w-full border-r h-full border-r-solid border-r-inputBgColor p-4 lg:w-[35%] xl:w-[25%] bg-white rounded-[10px] absolute z-30 lg:relative ${isChatSideBarOpen ? "left-0" : "-left-[200%] lg:left-0"}`}
         >
-          <div className="flex items-center justify-between ">
-            <p className="font-medium text-[14px] text-textGreyColor">
-              Recent Chats
-            </p>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between ">
+              <p className="font-medium text-[14px] text-textGreyColor">
+                Recent Chats
+              </p>
 
-            <div className="flex items-center gap-3">
-              {/* Existing button */}
-              <div className="relative group">
-                <HiOutlineUserAdd
-                  className="cursor-pointer text-xl text-textGreyColor"
-                  onClick={() => dispatch(isNewChatModalShowReducser(true))}
-                />
-                <ToolTip toolTipText="Start chat with a provider on the platform" />
-              </div>
+              <div className="flex items-center gap-3">
+                {/* Existing button */}
+                <div className="relative group">
+                  <HiOutlineUserAdd
+                    className="cursor-pointer text-xl text-textGreyColor"
+                    onClick={() => dispatch(isNewChatModalShowReducser(true))}
+                  />
+                  <ToolTip toolTipText="Start chat with a provider on the platform" />
+                </div>
 
-              {/* ✅ Invite provider by email (icon changed) */}
-              <div className="relative group">
-                <MdOutlineMail
-                  className="cursor-pointer text-xl text-textGreyColor"
-                  onClick={() =>
-                    dispatch(isInviteProviderModalShowReducser(true))
-                  }
-                />
-                <ToolTip toolTipText="Invite provider by email" />
+                {/* ✅ Invite provider by email (icon changed) */}
+                <div className="relative group">
+                  <MdOutlineMail
+                    className="cursor-pointer text-xl text-textGreyColor"
+                    onClick={() =>
+                      dispatch(isInviteProviderModalShowReducser(true))
+                    }
+                  />
+                  <ToolTip toolTipText="Invite provider by email" />
+                </div>
               </div>
+            </div>
+
+            <div className="w-full">
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-inputBgColor rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+              />
             </div>
           </div>
 
-          <div className="min-h-[31vh] max-h-[31vh] bg- p-2 lg:p-0 overflow-auto mt-4">
+          <div className="min-h-[26vh] max-h-[26vh] bg- p-2 lg:p-0 overflow-auto mt-4">
             {isChannelsLoading ? (
               <SpinnerLoader text="Chats are Loading" />
             ) : (
@@ -537,7 +542,7 @@ const Chat = () => {
                     onClick={() => {
                       if (isTrialActive) {
                         toast.info(
-                          "Group chats are not available on the Free Version. Please upgrade your plan.",
+                          "Group chats are not available on the Standard plan. Please upgrade your plan.",
                         );
                       } else {
                         dispatch(isNewGroupChatModalShowReducser(true));
@@ -550,7 +555,7 @@ const Chat = () => {
             </>
           )}
 
-          <div className="min-h-[32vh] max-h-[32vh] bg- p-2 lg:p-0 overflow-auto mt-4">
+          <div className="min-h-[26vh] max-h-[26vh] bg- p-2 lg:p-0 overflow-auto mt-4">
             {isGroupsLoading ? (
               <SpinnerLoader text="Group Chat are Loading" />
             ) : (

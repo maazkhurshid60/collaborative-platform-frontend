@@ -18,12 +18,12 @@ interface CreateGroupChannel {
 class ChatApiService {    
     private api = axiosInstance
     //SINGLE CONSERVATION APIS
-    async getAllChatChannels(loginUserId: string) {
+    async getAllChatChannels(loginUserId: string, search?: string) {
         try {
             // send the correct key
             const response = await this.api.post(
                 "/chat-channel/get-all-chat-channel",
-                { loginUserId }
+                { loginUserId, search }
             );
             return response.data;
         } catch (error) {
@@ -83,11 +83,11 @@ class ChatApiService {
             throw error;
         }
     }
-    async getGroupChatChannels(loginUserId: string) {
+    async getGroupChatChannels(loginUserId: string, search?: string) {
         try {
 
             const response = await this.api.post("/chat-group/get-all-group",
-                { loginUserId })
+                { loginUserId, search })
             return response?.data
         } catch (error) {
             console.log("getGroupChatChannels ERROR", error);

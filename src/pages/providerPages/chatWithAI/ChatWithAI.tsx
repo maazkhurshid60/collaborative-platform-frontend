@@ -63,6 +63,7 @@ const ChatWithAI = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  /*
   return (
     <OutletLayout heading="Chat with AI" isWhiteColor={false}>
       <div className="flex h-[calc(100vh-200px)] gap-4 -mt-7 relative">
@@ -73,7 +74,7 @@ const ChatWithAI = () => {
           onToggle={toggleSidebar}
         />
 
-        {/* Chat Area */}
+        // Chat Area
         <div className="flex-1 flex flex-col  rounded-2xl p-6 shadow-sm border bg-white border-gray-100 min-w-0 relative">
           {!isSidebarOpen && (
             <button
@@ -136,6 +137,19 @@ const ChatWithAI = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </OutletLayout>
+  );
+  */
+
+  return (
+    <OutletLayout heading="Chat with AI" isWhiteColor={false}>
+      <div className="flex items-center justify-center h-[calc(100vh-200px)] bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center">
+          <Bot size={48} className="mx-auto text-[#2C9993] mb-4 opacity-50" />
+          <h2 className="text-2xl font-semibold text-gray-700 font-[Poppins]">Coming Soon</h2>
+          <p className="text-gray-500 mt-2 font-[Poppins]">We are working hard to bring you the Chat with AI feature.</p>
         </div>
       </div>
     </OutletLayout>

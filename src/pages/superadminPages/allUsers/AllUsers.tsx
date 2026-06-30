@@ -255,8 +255,8 @@ const AllUsers = () => {
         />
       )}
 
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-4 z-10 w-full max-w-125">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <div className="flex items-center gap-4 z-10 w-full md:max-w-125">
           <div className="w-1/2">
             <Dropdown
               name="statusFilter"
@@ -285,7 +285,7 @@ const AllUsers = () => {
             />
           </div>
         </div>
-        <div className="w-[40%]">
+        <div className="w-full md:w-[40%]">
           <SearchBar
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
