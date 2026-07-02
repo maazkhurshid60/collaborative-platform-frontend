@@ -22,7 +22,7 @@ export const DocumentSharingToolbar: React.FC<DocumentSharingToolbarProps> = ({
       <div className="flex items-center justify-between mt-6 gap-4 flex-wrap">
         <p className="text-[14px] text-textGreyColor">
           Pick documents from the library, then choose which clients to share
-          them with. Already-shared documents are skipped automatically.
+          them with. Documents can be shared multiple times.
         </p>
         <div className="w-[40%] min-w-65">
           <SearchBar

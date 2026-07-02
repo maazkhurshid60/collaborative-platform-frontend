@@ -9,7 +9,8 @@ export interface FormField {
   | "checkbox-group"
   | "radio-group"
   | "boolean"
-  | "signature";
+  | "signature"
+  | "provider-section";
   label?: string;
   required?: boolean;
   options?: string[];

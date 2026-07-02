@@ -7,6 +7,7 @@ import { SignatureField } from "../components/fields/SignatureField";
 import { HeadingBlock } from "../components/blocks/HeadingBlock";
 import { ParagraphBlock } from "../components/blocks/ParagraphBlock";
 import { ListBlock } from "../components/blocks/ListBlock";
+import { ProviderSectionBlock } from "../components/blocks/ProviderSectionBlock";
 
 export const fieldRenderers: Record<string, React.ComponentType<any>> = {
   text: TextField,
@@ -18,5 +19,6 @@ export const fieldRenderers: Record<string, React.ComponentType<any>> = {
   heading: HeadingBlock,
   paragraph: ParagraphBlock,
   list: ListBlock,
+  "provider-section": ProviderSectionBlock,
 };
 export type FieldRenderersKey = keyof typeof fieldRenderers;

@@ -1,22 +1,26 @@
 import React from "react";
 import { UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Check } from "lucide-react";
+
 import { PDFFormViewField } from "@/pdf/types/pdf.types";
 
 interface CheckboxFormViewProps {
   field: PDFFormViewField;
   watch: UseFormWatch<any>;
   setValue: UseFormSetValue<any>;
+  disabled?: boolean;
 }
 
 const CheckboxFormView: React.FC<CheckboxFormViewProps> = ({
   field,
   watch,
   setValue,
+  disabled = false,
 }) => {
   const selected: string[] = watch(field.id) || [];
 
   const toggle = (opt: string, checked: boolean) => {
+    if (disabled) return;
     setValue(
       field.id,
       checked ? [...selected, opt] : selected.filter((v) => v !== opt),
@@ -33,8 +37,10 @@ const CheckboxFormView: React.FC<CheckboxFormViewProps> = ({
           <label
             key={opt}
             className={[
-              "group relative flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer",
-              "border transition-all duration-150 ease-out",
+              "group relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150 ease-out border",
+              disabled
+                ? "opacity-70 cursor-not-allowed pointer-events-none"
+                : "cursor-pointer",
               isChecked
                 ? "border-primaryColorDark bg-primaryColorLight/20 shadow-sm"
                 : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50",
@@ -43,6 +49,7 @@ const CheckboxFormView: React.FC<CheckboxFormViewProps> = ({
             <input
               type="checkbox"
               checked={isChecked}
+              disabled={disabled}
               onChange={(e) => toggle(opt, e.target.checked)}
               className="sr-only"
             />

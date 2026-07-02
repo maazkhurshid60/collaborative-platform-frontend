@@ -7,7 +7,8 @@ export type FieldType =
   | "checkbox-group"
   | "radio-group"
   | "boolean"
-  | "signature";
+  | "signature"
+  | "provider-section";
 
 export interface FormField {
   id: string;
@@ -45,16 +46,7 @@ export interface FieldRendererProps {
 
 export interface PDFFormViewField {
   id: string;
-  type:
-    | "heading"
-    | "paragraph"
-    | "list"
-    | "text"
-    | "date"
-    | "checkbox-group"
-    | "radio-group"
-    | "boolean"
-    | "signature";
+  type: FieldType;
   label?: string;
   required?: boolean;
   options?: string[];
@@ -72,4 +64,5 @@ export interface PDFFormViewSchema {
   };
   clientId?: string;
   clientName?: string;
+  providerData?: Record<string, any>;
 }

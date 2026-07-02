@@ -150,11 +150,12 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({
 
         templates.forEach((template: any) => {
           const share = shares.find((s: any) => s.templateId === template.id);
-          if (!share) {
-            uncompleted.push(template);
-          } else if (share.status === "PENDING") {
+          // Always push to uncompleted so it can be shared again
+          uncompleted.push(template);
+          
+          if (share?.status === "PENDING") {
             shared.push({ ...template, shareId: share.id });
-          } else if (share.status === "SUBMITTED") {
+          } else if (share?.status === "SUBMITTED") {
             completed.push({
               ...template,
               shareId: share.id,

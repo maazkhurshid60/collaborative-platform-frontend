@@ -52,7 +52,11 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
   const rows = document.shares || [];
 
   const hasPreviousSubmissions = rows.some((r: any) => {
-    if (r.status === "SUBMITTED" && r.updatedAt) {
+    if (
+      r.providerId === providerId &&
+      r.status === "SUBMITTED" &&
+      r.updatedAt
+    ) {
       const shareUpdated = new Date(r.updatedAt).getTime();
       console.log("Checking submission:", {
         shareUpdated: new Date(r.updatedAt).toISOString(),
@@ -114,7 +118,6 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
       );
     },
     enabled: Boolean(document?.id && providerId),
-    // Smoother pagination — keep showing previous page while next loads
     placeholderData: (prev) => prev,
   });
 
@@ -173,7 +176,6 @@ const ModalBody: React.FC<DocumentRecipientsModalProps> = ({
 
   return (
     <div className="mt-2">
-      {/* Document header — shows the doc and a prominent "View document" action */}
       <div className="flex items-center gap-x-3 mb-4">
         <IoDocumentTextOutline className="text-primaryColorDark text-2xl shrink-0" />
         <div className="min-w-0 flex-1">

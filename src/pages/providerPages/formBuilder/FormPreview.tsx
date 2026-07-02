@@ -56,11 +56,22 @@ function FormPreview({
             </div>
           ) : (
             fields.map((field) => {
-              if (field.type === "heading") {
+              if (field.type === "heading" || field.type === "provider-section") {
                 const Tag =
                   (["h2", "h3", "h4", "h5", "h6", "h6"] as const)[
                     (field.level ?? 2) - 1
                   ] ?? "h3";
+                
+                if (field.type === "provider-section") {
+                   return (
+                     <div key={field.id} className="mt-8 mb-4 border-l-4 border-amber-400 pl-4 py-2 bg-amber-50/50 rounded-r-lg">
+                       <Tag className="text-sm font-bold text-amber-800 uppercase tracking-wider text-left">
+                         {field.text || "Provider Use Only"}
+                       </Tag>
+                     </div>
+                   );
+                }
+
                 const sizeClass =
                   field.level === 1
                     ? "text-xl font-bold text-gray-900 border-b pb-1 mt-6"

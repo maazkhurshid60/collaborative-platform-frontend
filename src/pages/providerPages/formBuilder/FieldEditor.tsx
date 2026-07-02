@@ -39,7 +39,7 @@ export default function FieldEditor({
   onAddCheckboxOption,
   onRemoveCheckboxOption,
 }: FieldEditorProps) {
-  const typeBadgeClass = ["heading", "paragraph", "list"].includes(field.type)
+  const typeBadgeClass = ["heading", "paragraph", "list", "provider-section"].includes(field.type)
     ? "bg-indigo-50 text-indigo-700"
     : field.type === "signature"
       ? "bg-rose-50 text-rose-700"
@@ -82,7 +82,7 @@ export default function FieldEditor({
       </div>
 
       {/* Heading config */}
-      {field.type === "heading" && (
+      {(field.type === "heading" || field.type === "provider-section") && (
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <label className="block text-[10px] font-semibold text-gray-400 mb-1">
