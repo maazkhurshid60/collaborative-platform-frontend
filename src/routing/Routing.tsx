@@ -56,6 +56,9 @@ const NotificationPage = lazy(
   () => import("../pages/notification/Notification"),
 );
 const UserSetting = lazy(() => import("../pages/userSetting/UserSetting"));
+const TwoFactorSettings = lazy(
+  () => import("../pages/userSetting/TwoFactorSettings"),
+);
 const HelpAndSupport = lazy(
   () => import("../pages/providerPages/helpAndSupport/HelpAndSupport"),
 );
@@ -428,6 +431,22 @@ const Routing = () => {
             </WrappedRoute>
           }
         />
+        <Route
+          path="/setting/two-factor"
+          element={
+            <WrappedRoute>
+              <TwoFactorSettings />
+            </WrappedRoute>
+          }
+        />
+        {/* <Route
+          path="/setting/two-factor"
+          element={
+            <WrappedRoute>
+              <TwoFactorSettings />
+            </WrappedRoute>
+          }
+        /> */}
         <Route
           path="/setting/change-password"
           element={

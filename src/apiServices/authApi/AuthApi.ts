@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { baseUrl } from "../baseUrl/BaseUrl";
+import axiosInstance from "../axiosInstance/AxiosInstance";
 
 interface LoginData {
     email?: string;
@@ -21,6 +22,43 @@ class AuthService {
             },
         });
     }
+
+    async generate2FA() {
+        try {
+            const response = await axiosInstance.post("/auth/2fa/generate");
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async enable2FA(token: string) {
+        try {
+            const response = await axiosInstance.post("/auth/2fa/enable", { token });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async verify2FA(userId: string, token: string, isRecoveryCode?: boolean) {
+        try {
+            const response = await this.api.post("/2fa/verify", { userId, token, isRecoveryCode });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async disable2FA(token: string, isRecoveryCode?: boolean) {
+        try {
+            const response = await axiosInstance.post("/auth/2fa/disable", { token, isRecoveryCode });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async login(data: LoginData) {
 
         try {
