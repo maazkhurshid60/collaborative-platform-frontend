@@ -96,6 +96,7 @@ interface ModalLayoutProps {
   modalBodyContent: React.ReactNode;
   heading: string;
   onClose?: () => void;
+  widthClass?: string;
 }
 
 const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
@@ -129,7 +130,7 @@ const ModalLayout: React.FC<ModalLayoutProps> = (props) => {
 
   return (
     <div className="fixed left-0 top-0 bg-textColor/70 w-screen h-screen z-50 flex items-center justify-center">
-      <div className="w-[90%] md:w-[60%] lg:w-[45%] max-h-[95vh] flex flex-col">
+      <div className={`${props.widthClass || "w-[90%] md:w-[60%] lg:w-[45%]"} max-h-[95vh] flex flex-col`}>
         <div className="bg-white w-full p-5 pb-15  rounded-[20px] overflow-y-auto">
           {/* HEADER */}
           <div className={`flex items-center pt-5  ${props.heading ? 'pb-4 border-b border-b-greyColor border-b-solid mb-4' : 'justify-end'}`}>

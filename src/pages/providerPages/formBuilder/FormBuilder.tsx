@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -35,6 +35,7 @@ function FormBuilder() {
     "split" | "editor" | "preview"
   >("split");
   const [isDataSynced, setIsDataSynced] = useState(false);
+  const lastAddedFieldIdRef = useRef<string | null>(null);
 
   const saveTemplateMutation = useMutation({
     mutationFn: async (payload: any) => {
@@ -100,12 +101,32 @@ function FormBuilder() {
     }
   }, [templateData, id]);
 
-  const addField = (type: FormField["type"]) => {
-    const id = `${type}_${Math.random().toString(36).substr(2, 9)}`;
-    const newField: FormField = { id, type, required: false };
+  const fieldLabelMap: Partial<Record<FormField["type"], string>> = {
+    heading: "Section Title",
+    "provider-section": "Provider Only Section",
+    "client-section": "Client Only Section",
+    paragraph: "Text Block",
+    list: "Bullet List",
+    text: "Text Input",
+    date: "Date Input",
+    boolean: "Checkbox",
+    "checkbox-group": "Check List",
+    "radio-group": "Single Select",
+    signature: "E-Signature",
+  };
+
+  const addField = useCallback((type: FormField["type"]) => {
+    const newId = `${type}_${Math.random().toString(36).substr(2, 9)}`;
+    const newField: FormField = { id: newId, type, required: false };
 
     if (type === "heading") {
       newField.text = "Section Title";
+      newField.level = 2;
+    } else if (type === "provider-section") {
+      newField.text = "Provider Only Section";
+      newField.level = 2;
+    } else if (type === "client-section") {
+      newField.text = "Client Only Section";
       newField.level = 2;
     } else if (type === "paragraph") {
       newField.text = "Enter disclosure or instruction text here.";
@@ -128,8 +149,31 @@ function FormBuilder() {
       newField.required = true;
     }
 
+    lastAddedFieldIdRef.current = newId;
     setFields((prev) => [...prev, newField]);
-  };
+
+    const label = fieldLabelMap[type] ?? type;
+    toast.success(`"${label}" added to form`, {
+      position: "bottom-right",
+      autoClose: 2000,
+      hideProgressBar: true,
+    });
+  }, []);
+
+  // Auto-scroll to the newly added field after render
+  useEffect(() => {
+    const newId = lastAddedFieldIdRef.current;
+    if (!newId) return;
+    lastAddedFieldIdRef.current = null;
+    // Small timeout to allow DOM to paint the new field
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`field-${newId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [fields]);
 
   const removeField = (id: string) =>
     setFields((prev) => prev.filter((f) => f.id !== id));

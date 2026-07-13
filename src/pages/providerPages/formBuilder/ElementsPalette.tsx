@@ -9,6 +9,7 @@ import {
   CircleDot,
   PenTool,
   Shield,
+  User,
 } from "lucide-react";
 import { FormField } from "./formBuilder.types";
 
@@ -33,6 +34,12 @@ const elements: {
     label: "Provider Only Section",
     icon: <Shield className="w-4 h-4 text-amber-600" />,
     color: "hover:bg-amber-50 hover:border-amber-200",
+  },
+  {
+    type: "client-section",
+    label: "Client Only Section",
+    icon: <User className="w-4 h-4 text-blue-600" />,
+    color: "hover:bg-blue-50 hover:border-blue-200",
   },
   {
     type: "paragraph",

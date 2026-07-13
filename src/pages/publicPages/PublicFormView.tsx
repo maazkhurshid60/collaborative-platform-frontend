@@ -293,6 +293,15 @@ function PublicFormView() {
                   return (
                     <ProviderSectionFormView key={field.id} field={field} />
                   );
+                } else if (field.type === "client-section") {
+                  inProvider = false; // reset
+                  return (
+                    <div key={field.id} className="mt-8 mb-4 border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-lg">
+                      <h3 className="text-sm font-bold text-blue-800 uppercase tracking-wider text-left">
+                        {field.text || "Client Only Section"}
+                      </h3>
+                    </div>
+                  );
                 } else if (field.type === "heading") {
                   inProvider = false; // reset
                   const Tag =

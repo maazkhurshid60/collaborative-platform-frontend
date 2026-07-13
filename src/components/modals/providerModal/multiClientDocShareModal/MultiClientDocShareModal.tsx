@@ -47,21 +47,25 @@ const statusFor = (
   return "NEED_SHARE";
 };
 
-const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
+interface ModalBodyProps extends MultiClientDocShareModalProps {
+  step: "SELECT_CLIENTS" | "FILL_FORMS";
+  setStep: React.Dispatch<React.SetStateAction<"SELECT_CLIENTS" | "FILL_FORMS">>;
+}
+
+const ModalBody: React.FC<ModalBodyProps> = ({
   selectedDocs,
   clients,
   providerId,
   senderId,
   onShared,
+  step,
+  setStep,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const queryClient = useQueryClient();
 
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<"SELECT_CLIENTS" | "FILL_FORMS">(
-    "SELECT_CLIENTS",
-  );
 
   const hasUnapprovedClients = clients.some(
     (c) => c.user?.isApprove !== "APPROVED",
@@ -397,10 +401,15 @@ const ModalBody: React.FC<MultiClientDocShareModalProps> = ({
 const MultiClientDocShareModal: React.FC<MultiClientDocShareModalProps> = (
   props,
 ) => {
+  const [step, setStep] = useState<"SELECT_CLIENTS" | "FILL_FORMS">(
+    "SELECT_CLIENTS",
+  );
+
   return (
     <ModalLayout
       heading="Share Documents with Clients"
-      modalBodyContent={<ModalBody {...props} />}
+      modalBodyContent={<ModalBody {...props} step={step} setStep={setStep} />}
+      widthClass={step === "FILL_FORMS" ? "w-[95%] max-w-4xl" : "w-[90%] md:w-[60%] lg:w-[45%]"}
     />
   );
 };

@@ -8,6 +8,7 @@ interface OutletLayoutProps {
   backButton?: React.ReactNode;
   isEdit?: boolean;
   onEditClick?: () => void;
+  buttonContainerClass?: string;
 }
 
 const OutletLayout: React.FC<OutletLayoutProps> = ({
@@ -18,6 +19,7 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
   backButton,
   isEdit,
   onEditClick,
+  buttonContainerClass,
 }) => {
   return (
     <div
@@ -37,7 +39,9 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
         <div className="flex items-center justify-between w-full">
           <p className="headingMedium w-37.5 sm:w-100 mb-3">{heading}</p>
 
-          <div className="w-42.5 flex justify-end gap-x-2">
+          <div
+            className={`${buttonContainerClass || "w-42.5"} flex justify-end gap-x-2`}
+          >
             {isEdit && (
               <button
                 onClick={onEditClick}

@@ -8,7 +8,8 @@ export type FieldType =
   | "radio-group"
   | "boolean"
   | "signature"
-  | "provider-section";
+  | "provider-section"
+  | "client-section";
 
 export interface FormField {
   id: string;

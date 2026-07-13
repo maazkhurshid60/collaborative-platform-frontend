@@ -11,21 +11,19 @@ import Button from "../../../components/button/Button";
 import usePaginationHook from "../../../hook/usePaginationHook";
 import Table from "../../../components/table/Table";
 import CustomPagination from "../../../components/customPagination/CustomPagination";
-import EditIcon from "../../../components/icons/edit/Edit";
-import DeleteIcon from "../../../components/icons/delete/DeleteIcon";
 import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
-import ViewIcon from "../../../components/icons/view/View";
 
 import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
 import { AppDispatch, RootState } from "../../../redux/store";
 import Loader from "../../../components/loader/Loader";
 
 import clientApiService from "../../../apiServices/clientApi/ClientApi";
-import { ClientType, Provider } from "../../../types/clientType/ClientType";
-import ShareDocumentIcon from "../../../components/icons/share/ShareDocument";
+import { ClientType } from "../../../types/clientType/ClientType";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import SearchBar from "../../../components/searchBar/SearchBar";
 import { filterClients } from "../../../utils/FilteredUsers";
+import AddExistingClientModal from "../../../components/modals/providerModal/addExistingClientModal/AddExistingClientModal";
+import ClientItem from "./ClientItem";
 
 export interface selectedClientIdType {
   clientId: string;
@@ -51,6 +49,7 @@ const Clients = () => {
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddExistingModalOpen, setIsAddExistingModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -173,12 +172,21 @@ const Clients = () => {
   return (
     <OutletLayout
       heading="Client List"
+      buttonContainerClass="sm:w-[350px] w-full flex-shrink-0"
       button={
-        <Button
-          text="Add New"
-          onclick={() => navigate("add-client")}
-          icon={<IoMdAdd />}
-        />
+        <>
+          <Button
+            text="Add Existing"
+            onclick={() => setIsAddExistingModalOpen(true)}
+            icon={<IoMdAdd />}
+            borderButton
+          />
+          <Button
+            text="Add New"
+            onclick={() => navigate("add-client")}
+            icon={<IoMdAdd />}
+          />
+        </>
       }
     >
       {isModalDelete && selectedClientId?.clientId && (
@@ -186,6 +194,13 @@ const Clients = () => {
           onDeleteConfirm={handleDeleteConfirm}
           isLoading={deleteMutation.isPending}
           text={modalConfig.text}
+        />
+      )}
+
+      {isAddExistingModalOpen && (
+        <AddExistingClientModal
+          onClose={() => setIsAddExistingModalOpen(false)}
+          myClients={myClients}
         />
       )}
 
@@ -207,169 +222,16 @@ const Clients = () => {
             <Table heading={heading}>
               {getCurrentRecords()?.map(
                 (data: ClientType, rowIndex: number) => {
-                  const serialNo =
-                    (currentPage - 1) * recordPerPage + rowIndex + 1;
-
-                  // ✅ permission check (fix: correct boolean grouping)
-                  const canEditDelete =
-                    loginUserId?.user?.role === "superAdmin" ||
-                    data?.createdByProviderId === loginUserId?.id ||
-                    data?.createdByProviderId === loginUserId?.user?.id;
-
                   return (
-                    <tr
-                      key={data?.id ?? rowIndex}
-                      className="border-b border-b-solid border-b-lightGreyColor"
-                    >
-                      {/* S.No */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        {serialNo}
-                      </td>
-
-                      {/* Name */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        {data?.user?.fullName}
-                      </td>
-
-                      {/* Client ID */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        {data?.clientId ?? "-"}
-                      </td>
-
-                      {/* Gender */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
-                        {data?.user?.gender === "PREFER_NOT_TO_SAY"
-                          ? "Prefer not to say"
-                          : String(data?.user?.gender).toLowerCase()}
-                      </td>
-
-                      {/* Email (truncate) */}
-                      <td className="px-2 py-3 align-middle">
-                        <span
-                          className="block max-w-60 truncate lowercase"
-                          title={data?.user?.email}
-                        >
-                          {data?.user?.email}
-                        </span>
-                      </td>
-
-                      {/* Status (pill) */}
-                      <td className="px-2 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-md text-sm font-medium ${data?.user?.status?.toLowerCase() === "active" ? " text-primaryColorDark" : "text-redColor"}`}
-                        >
-                          {data?.user?.status?.toLowerCase()}
-                        </span>
-                      </td>
-
-                      {/* Country */}
-                      {/* <td className="px-2 py-3 align-middle whitespace-nowrap">
-                      {getCountryNameFromCode(data?.user?.country ?? "")}
-                    </td> */}
-
-                      {/* State */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        {data?.user?.state}
-                      </td>
-
-                      {/* Is Verified (pill) */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        <span
-                          className={[
-                            "inline-block rounded-md px-3 py-1 text-sm",
-                            data?.user?.isApprove === "APPROVED"
-                              ? "text-primaryColorDark"
-                              : "text-redColor",
-                          ].join(" ")}
-                        >
-                          {data?.user?.isApprove === "APPROVED"
-                            ? "Verified"
-                            : "Pending"}
-                        </span>
-                      </td>
-
-                      {/* Providers (stable) */}
-                      <td className="px-2 py-3 align-middle">
-                        {data?.providerList?.length ? (
-                          <div className="min-w-0">
-                            {data?.providerList
-                              ?.slice()
-                              ?.sort((a, b) => {
-                                const isA =
-                                  a?.provider?.user?.id ===
-                                  loginUserId?.user?.id;
-                                const isB =
-                                  b?.provider?.user?.id ===
-                                  loginUserId?.user?.id;
-                                return isA === isB ? 0 : isA ? -1 : 1;
-                              })
-                              ?.slice(0, 2)
-                              ?.map((providerItem: Provider, index) => (
-                                <p
-                                  className="capitalize truncate max-w-55"
-                                  key={index}
-                                  title={providerItem?.provider?.user?.fullName}
-                                >
-                                  {providerItem?.provider?.user?.fullName}
-                                </p>
-                              ))}
-
-                            {(data?.providerList?.length ?? 0) > 2 && (
-                              <p
-                                className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark whitespace-nowrap"
-                                onClick={() => navigate(`/clients/${data?.id}`)}
-                              >
-                                ... View All
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="whitespace-nowrap">
-                            No Providers Found
-                          </p>
-                        )}
-                      </td>
-
-                      {/* Action (fixed padding + equal icon boxes) */}
-                      <td className="px-2 py-3 align-middle whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-x-1.5">
-                          <div className="w-5 h-5 flex items-center justify-start">
-                            <ViewIcon
-                              onClick={() => navigate(`/clients/${data?.id}`)}
-                            />
-                          </div>
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            <ShareDocumentIcon
-                              onClick={() =>
-                                navigate(`/clients/edit-client/${data?.id}`, {
-                                  state: { view: "documents" },
-                                })
-                              }
-                            />
-                          </div>
-                          {canEditDelete && (
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              <EditIcon
-                                onClick={() =>
-                                  navigate(`/clients/edit-client/${data?.id}`)
-                                }
-                              />
-                            </div>
-                          )}
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            <DeleteIcon
-                              onClick={() =>
-                                handleDeleteFun(
-                                  data?.id ?? "",
-                                  loginUserId?.id,
-                                  canEditDelete,
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
+                    <ClientItem
+                      data={data}
+                      rowIndex={rowIndex}
+                      handleDelete={handleDeleteFun}
+                      loginUserId={loginUserId?.id}
+                      navigate={navigate}
+                      currentPage={currentPage}
+                      recordPerPage={recordPerPage}
+                    />
                   );
                 },
               )}

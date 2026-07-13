@@ -1,8 +1,8 @@
 import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
-
-import { FormField } from "./formBuilder.types";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+
+import { FormField } from "./formBuilder.types";
 
 const quillModules = {
   toolbar: [
@@ -39,14 +39,24 @@ export default function FieldEditor({
   onAddCheckboxOption,
   onRemoveCheckboxOption,
 }: FieldEditorProps) {
-  const typeBadgeClass = ["heading", "paragraph", "list", "provider-section"].includes(field.type)
-    ? "bg-indigo-50 text-indigo-700"
+  const typeBadgeClass = [
+    "heading",
+    "paragraph",
+    "list",
+    "provider-section",
+    "client-section",
+  ].includes(field.type)
+    ? field.type === "provider-section"
+      ? "bg-amber-50 text-amber-700"
+      : field.type === "client-section"
+        ? "bg-blue-50 text-blue-700"
+        : "bg-indigo-50 text-indigo-700"
     : field.type === "signature"
       ? "bg-rose-50 text-rose-700"
       : "bg-emerald-50 text-emerald-700";
 
   return (
-    <div className="border border-gray-200 rounded-2xl bg-white p-4 shadow-xs relative">
+    <div id={`field-${field.id}`} className="border border-gray-200 rounded-2xl bg-white p-4 shadow-xs relative">
       {/* Card header */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
         <div className="flex items-center space-x-2">
@@ -82,7 +92,9 @@ export default function FieldEditor({
       </div>
 
       {/* Heading config */}
-      {(field.type === "heading" || field.type === "provider-section") && (
+      {(field.type === "heading" ||
+        field.type === "provider-section" ||
+        field.type === "client-section") && (
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <label className="block text-[10px] font-semibold text-gray-400 mb-1">
@@ -173,7 +185,7 @@ export default function FieldEditor({
       )}
 
       {/* Interactive input fields (text, date, boolean, checkbox-group, signature) */}
-      {!["heading", "paragraph", "list"].includes(field.type) && (
+      {!["heading", "paragraph", "list", "provider-section", "client-section"].includes(field.type) && (
         <div className="space-y-2">
           <div className="flex items-center space-x-4">
             <div className="flex-1">

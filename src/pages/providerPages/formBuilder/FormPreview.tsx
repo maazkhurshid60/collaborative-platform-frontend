@@ -56,7 +56,7 @@ function FormPreview({
             </div>
           ) : (
             fields.map((field) => {
-              if (field.type === "heading" || field.type === "provider-section") {
+              if (field.type === "heading" || field.type === "provider-section" || field.type === "client-section") {
                 const Tag =
                   (["h2", "h3", "h4", "h5", "h6", "h6"] as const)[
                     (field.level ?? 2) - 1
@@ -67,6 +67,16 @@ function FormPreview({
                      <div key={field.id} className="mt-8 mb-4 border-l-4 border-amber-400 pl-4 py-2 bg-amber-50/50 rounded-r-lg">
                        <Tag className="text-sm font-bold text-amber-800 uppercase tracking-wider text-left">
                          {field.text || "Provider Use Only"}
+                       </Tag>
+                     </div>
+                   );
+                }
+
+                if (field.type === "client-section") {
+                   return (
+                     <div key={field.id} className="mt-8 mb-4 border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-lg">
+                       <Tag className="text-sm font-bold text-blue-800 uppercase tracking-wider text-left">
+                         {field.text || "Client Only Section"}
                        </Tag>
                      </div>
                    );
