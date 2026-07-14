@@ -1,13 +1,11 @@
-import { useNavigate } from 'react-router-dom';
 import { FallbackProps } from 'react-error-boundary';
 import CrossIcon from '../icons/cross/Cross';
 
 export default function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-    const navigate = useNavigate();
 
     const handleClose = () => {
         // Navigate first
-        navigate(-1);
+        window.history.back();
         // Wait a bit before resetting the boundary to prevent re-trigger
         setTimeout(() => {
             resetErrorBoundary();

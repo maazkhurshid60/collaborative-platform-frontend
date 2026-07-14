@@ -11,6 +11,9 @@ interface InputFieldProps {
     error?: string;
     required?: boolean;
     variant?: "default" | "signup"
+    groupName?: boolean;
+    disabled?: boolean;
+    value?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -22,6 +25,8 @@ const InputField: React.FC<InputFieldProps> = ({
     error,
     required = false,
     variant = "default",
+    disabled = false,
+    value,
 }) => {
     const [isHidden, setIsHidden] = useState(true);
 
@@ -36,7 +41,10 @@ const InputField: React.FC<InputFieldProps> = ({
             <div className="relative">
                 <input
                     {...register}
-                    className="bg-inputBgColor w-[100%] p-2 outline-0 rounded-md placeholder:text-[12px]"
+                    value={value}
+                    className={` bg-inputBgColor rounded-[8px] w-full pt-2 pb-2 pl-2.5 outline-0  placeholder:text-[16px] appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-outer-spin-button]:m-0
+                        placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed
+                        `}
                     type={
                         type === "password"
                             ? isHidden
@@ -46,15 +54,16 @@ const InputField: React.FC<InputFieldProps> = ({
                     }
                     placeholder={placeHolder}
                     readOnly={readOnly}
+                    disabled={disabled}
                 />
                 {type === "password" &&
                     (isHidden ? (
-                        <HiOutlineEyeOff
+                        <HiOutlineEye
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
                             onClick={() => setIsHidden(false)}
                         />
                     ) : (
-                        <HiOutlineEye
+                        <HiOutlineEyeOff
                             onClick={() => setIsHidden(true)}
                             className="absolute top-3.5 right-2 w-[17px] h-[12px] sm:w-[20px] sm:h-[15px] cursor-pointer"
                         />

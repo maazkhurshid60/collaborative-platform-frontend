@@ -27,6 +27,7 @@ const NewGroupChatModal = () => {
     const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
     const [isCreating, setIsCreating] = useState(false);
     const [groupMembers, setGroupMembers] = useState<string[]>([])
+    const [searchQuery, setSearchQuery] = useState("")
     const dispatch = useDispatch<AppDispatch>()
     const queryClient = useQueryClient()
     const { data: allProviders, isLoading, isError } = useQuery<ProviderType[]>({
@@ -97,9 +98,6 @@ const NewGroupChatModal = () => {
     if (isError) {
         return <p>something went wrong</p>
     }
-    if (isCreating) {
-        return <Loader text="Creating Group..." />
-    }
     return (<>
 
         <form
@@ -113,25 +111,41 @@ const NewGroupChatModal = () => {
         >
             <div className='mt-4'>
 
-                <InputField required label='Group Name' register={register("name")} placeHolder='Enter Full Name.' error={errors.name?.message} />
+                <InputField
+                    required label='Group Name'
+                    register={register("name")}
+                    placeHolder='Enter Full Name.'
+                    error={errors.name?.message}
+
+                />
             </div>
             <div className='mt-4'>
 
-                <SearchBar sm bgColor='bg-inputBgColor' isBorder={false} borderRounded='rounded-[8px]' />
+                <SearchBar
+                    sm
+                    bgColor='bg-inputBgColor'
+                    isBorder={false}
+                    borderRounded='rounded-[8px]'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Users..."
+                />
             </div>
-            <div className='mt-2 mb-4'>
-                {allProviders?.map((data: ProviderType, id: number) => {
+            <div className='mt-2 mb-4 overflow-visible px-6 pt-6'>
+                {allProviders?.filter((data: ProviderType) =>
+                    data?.user?.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((data: ProviderType, id: number) => {
                     if (!data?.id || loginUserDetail?.id === data?.id) return null;  // skip if id is missing or same as logged-in user
 
                     const isMember = groupMembers.includes(data.id.toString());
 
                     return (
-                        <div className='flex items-center gap-x-0 w-auto rounded-md hover:bg-primaryColorLight p-2' key={id}>
+                        <div className='flex items-center justify-between  gap-x-0 w-auto rounded-md hover:bg-primaryColorLight p-2' key={id}>
                             <p className='capitalize w-30 text-[14px] font-medium'>
                                 {data?.user?.fullName}
                             </p>
                             {isMember ? (
-                                <div className='relative group'>
+                                <div className='relative group w-fit'>
                                     <FiMinusCircle
                                         className='cursor-pointer text-xl text-textGreyColor'
                                         onClick={() =>
@@ -141,8 +155,8 @@ const NewGroupChatModal = () => {
                                     <ToolTip toolTipText='Remove Member' />
                                 </div>
                             ) : (
-                                <div className='relative group'>
-                                    <AddIcon
+                                <div className='relative group w-fit'>
+                                    <AddIcon className='cursor-pointer'
                                         onClick={() => setGroupMembers(prev => [...prev, data.id!.toString()])}
                                     />
                                     <ToolTip toolTipText='Add Member' />
@@ -155,7 +169,12 @@ const NewGroupChatModal = () => {
 
             </div>
 
-            <Button text='Create Group' sm />
+            <Button
+                text='Create Group'
+                sm
+                isLoading={isCreating}
+                disabled={isCreating}
+            />
         </form >
     </>
     )

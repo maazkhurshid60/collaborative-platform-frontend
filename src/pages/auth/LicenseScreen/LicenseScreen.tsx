@@ -3,7 +3,7 @@ import InputField from '../../../components/inputField/InputField'
 import AuthLayout from '../../../layouts/authLayout/AuthLayout'
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LicenseNoSchema } from '../../../schema/authSchema/AuthSchema';
+import { ClientIdSchema } from '../../../schema/authSchema/AuthSchema';
 import Button from '../../../components/button/Button';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../../apiServices/authApi/AuthApi';
@@ -17,8 +17,7 @@ import { useState } from 'react';
 import Loader from '../../../components/loader/Loader';
 
 
-type FormFields = z.infer<typeof LicenseNoSchema>;
-
+type FormFields = z.infer<typeof ClientIdSchema>;
 export interface ISigninData {
     emailOrUsername: string;
     password: string;
@@ -31,74 +30,67 @@ const LicenseNo = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<FormFields>({
-        resolver: zodResolver(LicenseNoSchema),
+        resolver: zodResolver(ClientIdSchema),
     });
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
-
-
     //FUNCTIONS
-    const loginFunction = async (licenseNo: FormFields) => {
+    const loginFunction = async (identifiers: FormFields) => {
         setIsLoading(true)
-
-
         try {
-            const response = await authService.findLicenseNo(licenseNo);
+            const response = await authService.findLicenseNo({ clientId: identifiers.clientId });
             toast.success(response?.message);
-            if (response.data.data !== null) {
-                const dataSendToRedux = {
-                    email: response?.data?.data?.client?.email,
-                    licenseNo: response?.data?.data?.licenseNo,
-                    fullName: response?.data?.data?.fullName,
-                    clientId: response?.data?.data?.client?.id,
-                    isClientExist: true,
-                    gender: response?.data?.data?.gender,
-                    age: response?.data?.data?.age,
-                    contactNo: response?.data?.data?.contactNo,
-                    address: response?.data?.data?.address,
-                    status: response?.data?.data?.status,
-                    state: response?.data?.data?.state,
-                    country: response?.data?.data?.country,
-                    isApprove: response?.data?.data?.isApprove,
-                }
-                dispatch(saveLicenseNoResult(dataSendToRedux))
 
-                navigate("/client-signup")
-            } else {
-                const dataSendToRedux = {
-                    email: "",
-                    licenseNo: "",
-                    fullName: "",
-                    isClientExist: false
-                }
-                dispatch(saveLicenseNoResult(dataSendToRedux))
-                navigate("/client-signup")
+            const userData = response.data;
+            if (!userData) {
+                // This shouldn't happen if backend returns 404 for not found, but safe handling
+                toast.error("License record is empty");
+                return;
             }
+
+            const dataSendToRedux = {
+                email: userData.email,
+                clientId: userData.client?.clientId || userData.client?.id, // Use string representation
+                licenseNo: null as any,
+                fullName: userData.fullName,
+                isClientExist: true,
+                gender: userData.gender,
+                age: userData.age,
+                contactNo: userData.contactNo,
+                address: userData.address,
+                status: userData.status,
+                state: userData.state,
+                //           country: userData.country,
+                isApprove: userData.isApprove,
+                isAccountCreatedByOwnClient: userData.client?.isAccountCreatedByOwnClient ?? false
+            };
+            dispatch(saveLicenseNoResult(dataSendToRedux));
+            navigate("/client-signup", { state: { fromLicense: true } });
         } catch (error) {
-
             const err = error as AxiosError<AuthErrorResponse>;
-            toast.error(`${err?.response?.data?.data?.error}`);
+            const errorMessage = err?.response?.data?.data?.error || "Something went                   ";
+            toast.error(errorMessage);
         } finally {
-            setIsLoading(false)
-
+            setIsLoading(false);
         }
     }
     return (<>
         {isLoading && <Loader />}
-        <AuthLayout heading='sign up'>
-
+        <AuthLayout heading='Access Shared Documents'>
+            <div className="text-center mb-6">
+                <p className="text-gray-600 text-sm">
+                    To view documents shared with you, please enter the Client ID provided in your email.
+                </p>
+            </div>
             <form onSubmit={handleSubmit(loginFunction)}>
                 <div className='mb-4'>
-                    <InputField required label='License Number' register={register("licenseNo")} placeHolder='Enter licenseNo.' error={errors.licenseNo?.message} />
+                    <InputField required label='Client ID' type='text' register={register("clientId")} placeHolder='Enter Client ID' error={errors.clientId?.message} />
                 </div>
                 <div className='mt-10'>
-
                     <Button text='sign up' />
                 </div>
-
-                <p className='font-normal labelNormal  text-center mt-14'> Already have an account <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span></p>
+                <p className='font-normal labelNormal  text-center mt-14'> Already have an account?  <span className='capitalize text-greenColor underline font-bold cursor-pointer' onClick={() => { navigate("/") }}>Sign in</span> <span>Or Enter your Client ID</span></p>
             </form>
-
         </AuthLayout>
     </>
     )

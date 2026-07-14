@@ -21,6 +21,17 @@ export interface getAllMessagesOfSingleChat {
 }
 
 
+export interface DeleteMessagePayload {
+    channelId: string;
+    messageId: string;
+    loginUserId: string;
+}
+
+export interface DeleteChatChannelPayload {
+    channelId: string;
+    loginUserId: string;
+}
+
 export interface ReadMessageSingleConservationPayload {
     loginUserId: string;
     chatChannelId?: string;
@@ -37,6 +48,18 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/all-messages", data)
+            return response?.data
+
+        } catch (error) {
+
+            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
+    async getAllPublicMessagesOfSingleChatChannel(data: getAllMessagesOfSingleChatChannelType) {
+        try {
+
+            const response = await this.api.post("/public-chat/single-chat/all-messages", data)
             return response?.data
 
 
@@ -81,15 +104,41 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat/single-chat/read-message", data)
-
             return response?.data
-
-
         } catch (error) {
 
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
+        }
+    }
+
+    async deleteMessageSingleConservation(data: DeleteMessagePayload) {
+        try {
+            const response = await this.api.delete("/chat/single-chat/delete-message", { data })
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to delete message";
+            toast.error(errMsg);
+        }
+    }
+
+    async deleteChatChannelForUser(data: DeleteChatChannelPayload) {
+        try {
+            const response = await this.api.delete("/chat/single-chat/delete-channel", { data })
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to delete chat";
+            toast.error(errMsg);
+        }
+    }
+
+    async shareChatByEmail(data: { chatChannelId: string, email: string, loginUserId: string }) {
+        try {
+            const response = await this.api.post("/chat/single-chat/share-chat", data)
+            return response?.data
+        } catch (error) {
+            throw error;
         }
     }
 
@@ -114,6 +163,18 @@ class MessageApiService {
         try {
 
             const response = await this.api.post("/chat-group/get-group-messages", data)
+            return response?.data
+
+
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
+    async getAllPublicMessagesOfGroupChatChannel(data: getAllMessagesOfSingleChat) {
+        try {
+
+            const response = await this.api.post("/public-chat/get-group-messages", data)
             return response?.data
 
 
@@ -150,6 +211,15 @@ class MessageApiService {
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
+        }
+    }
+
+    async shareGroupChatByEmail(data: { groupId: string, email: string, loginUserId: string }) {
+        try {
+            const response = await this.api.post("/chat-group/share-group-chat", data)
+            return response?.data
+        } catch (error) {
+            throw error;
         }
     }
 }

@@ -5,16 +5,17 @@ import { AppDispatch } from '../../../../redux/store'
 import { isModalDeleteReducer } from '../../../../redux/slices/ModalSlice'
 
 interface VerifyAccountModalProps {
-    onConfirm: () => void
+    onConfirm: () => void | Promise<void>
     onCancel: () => void
+    isLoading?: boolean
 }
 
-const VerifyAccountModal: React.FC<VerifyAccountModalProps> = ({ onConfirm, onCancel }) => {
+const VerifyAccountModal: React.FC<VerifyAccountModalProps> = ({ onConfirm, onCancel, isLoading = false }) => {
     const dispatch = useDispatch<AppDispatch>()
 
     const modalBody = (
         <div className='w-full m-auto'>
-            <p className='text-center mt-10'>Are you sure you want to verify this account?</p>
+            <p className='text-center mt-10 '>Are you sure you want to verify this account?</p>
             <div className='flex items-center justify-center gap-x-4 mt-10'>
                 <div className='w-full'>
                     <Button
@@ -24,15 +25,17 @@ const VerifyAccountModal: React.FC<VerifyAccountModalProps> = ({ onConfirm, onCa
                             dispatch(isModalDeleteReducer(false))
                             onCancel()
                         }}
+                        disabled={isLoading}
                     />
                 </div>
                 <div className='w-full'>
                     <Button
                         text='Verify'
                         onclick={() => {
-                            dispatch(isModalDeleteReducer(false))
                             onConfirm()
                         }}
+                        isLoading={isLoading}
+                        disabled={isLoading}
                     />
                 </div>
             </div>

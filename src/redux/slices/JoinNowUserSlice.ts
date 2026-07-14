@@ -5,10 +5,7 @@ const joinUserSlice = createSlice({
     initialState: { data: { groupId: "", memberEmail: "", isNewJoin: false } },
     reducers: {
         addDataNewJoinUserReducer: ((state, action) => {
-            console.log("action", action.payload);
-
             state.data = action.payload
-
         }),
         emptyDataNewJoinUserReducer: ((state) => {
             state.data = { groupId: "", memberEmail: "", isNewJoin: false }

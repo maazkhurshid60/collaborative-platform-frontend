@@ -6,10 +6,10 @@ export interface ProviderType {
     email?: string
     password?: string
     userId?: string
-    department?: string
+    speciality?: string
     createdAt?: string
     updatedAt?: string
-    user?: User
+    user?: any
     sharedDocument?: []
     clientList?: Client[]
     // provider?:
@@ -18,6 +18,7 @@ export interface ProviderType {
 }
 export interface Client {
     id?: string
+    clientId?: string
     client?: { clientShowToOthers: boolean, user?: { fullName?: string } }
     email?: string
 }
@@ -26,6 +27,7 @@ export interface User {
     id?: string
     isApprove?: string
     fullName?: string
+    email?: string
     profileImage?: string | null
     gender?: string | null
     age?: string | null
@@ -34,7 +36,7 @@ export interface User {
     status?: string | null
     licenseNo?: string
     role?: string
-    country: string
+    // country: string
     state: string
     blockedMembers?: string
     createdAt?: string

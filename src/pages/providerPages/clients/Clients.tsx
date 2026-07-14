@@ -1,205 +1,252 @@
-;
-import OutletLayout from '../../../layouts/outletLayout/OutletLayout'
-import Button from '../../../components/button/Button'
-
-import usePaginationHook from '../../../hook/usePaginationHook';
-import Table from '../../../components/table/Table';
-import CustomPagination from '../../../components/customPagination/CustomPagination';
-import EditIcon from '../../../components/icons/edit/Edit';
-import DeleteIcon from '../../../components/icons/delete/DeleteIcon';
-import { useNavigate } from 'react-router-dom';
-import DeleteClientModal from '../../../components/modals/providerModal/deleteClientModal/DeleteClientModal';
-import { useDispatch, useSelector } from 'react-redux';
-import { isModalDeleteReducer } from '../../../redux/slices/ModalSlice';
-import { AppDispatch, RootState } from '../../../redux/store';
-import Loader from '../../../components/loader/Loader';
-import { toast } from 'react-toastify';
-import clientApiService from '../../../apiServices/clientApi/ClientApi';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ClientType, Provider } from '../../../types/clientType/ClientType';
-import { ProviderType } from '../../../types/providerType/ProviderType';
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { IoMdAdd } from "react-icons/io";
-import NoRecordFound from '../../../components/noRecordFound/NoRecordFound';
-import { getCountryNameFromCode } from '../../../utils/GetCountryName';
-import SearchBar from '../../../components/searchBar/SearchBar';
-import { filterClients } from '../../../utils/FilteredUsers';
+import { useDispatch, useSelector } from "react-redux";
+
+import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
+import Button from "../../../components/button/Button";
+
+import usePaginationHook from "../../../hook/usePaginationHook";
+import Table from "../../../components/table/Table";
+import CustomPagination from "../../../components/customPagination/CustomPagination";
+import DeleteClientModal from "../../../components/modals/providerModal/deleteClientModal/DeleteClientModal";
+
+import { isModalDeleteReducer } from "../../../redux/slices/ModalSlice";
+import { AppDispatch, RootState } from "../../../redux/store";
+import Loader from "../../../components/loader/Loader";
+
+import clientApiService from "../../../apiServices/clientApi/ClientApi";
+import { ClientType } from "../../../types/clientType/ClientType";
+import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
+import SearchBar from "../../../components/searchBar/SearchBar";
+import { filterClients } from "../../../utils/FilteredUsers";
+import AddExistingClientModal from "../../../components/modals/providerModal/addExistingClientModal/AddExistingClientModal";
+import ClientItem from "./ClientItem";
+
 export interface selectedClientIdType {
-    clientId: string, providerId: string
+  clientId: string;
+  providerId: string;
 }
+
+const recordPerPage = 6;
+
+const heading = [
+  "#",
+  "Name",
+  "Client ID",
+  "Gender",
+  "Email",
+  "Status",
+  "State",
+  "Verified Status",
+  "Provider Name",
+  "Action",
+];
 
 const Clients = () => {
-    const navigate = useNavigate()
-    const heading = ["S.No", "name", "License Number", "gender", "email", "status", "country", "state", "is verified", "providers", "action"]
-    const [isLoader, setIsLoader] = useState(false)
-    const queryClient = useQueryClient()
-    const dispatch = useDispatch<AppDispatch>()
-    const loginUserId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails)
-    const isModalDelete = useSelector((state: RootState) => state?.modalSlice?.isModalDelete)
-    const [selectedClientId, setSelectedClientId] = useState<selectedClientIdType>({ clientId: "", providerId: "" })
-    const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
-    const { data: clientData, isLoading, isError } = useQuery<ClientType[]>({
-        queryKey: ["clients"],
-        queryFn: async () => {
-            try {
-                const response = await clientApiService.getAllClient(loginUserId?.user?.id);
-                const matchedClient = response?.data?.clients?.filter((client: ClientType) =>
-                    client?.providerList?.some(provider => provider?.provider?.user?.id === loginUserId?.user?.id)
-                );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAddExistingModalOpen, setIsAddExistingModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch<AppDispatch>();
 
-                return matchedClient; // Ensure it always returns an array
+  const loginUserId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails,
+  );
+  const isModalDelete = useSelector(
+    (state: RootState) => state?.modalSlice?.isModalDelete,
+  );
 
-
-            } catch (error) {
-                console.error("Error fetching client:", error);
-                return []; // Return an empty array in case of an error
-            }
-        }
-
-    })
-
-
-
-    const deleteMutation = useMutation({
-        mutationFn: async (id: selectedClientIdType) => {
-            await clientApiService.deleteClientApi(id);
-        },
-        onMutate: () => {
-            setIsLoader(true);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['clients'] });
-            queryClient.invalidateQueries({ queryKey: ['totalclients'] });
-            toast.success("Account has deleted successfully")
-
-            setIsLoader(false)
-        },
-        onError: () => {
-            toast.error('Failed to delete the department!');
-            setIsLoader(false)
-        },
-
+  const [selectedClientId, setSelectedClientId] =
+    useState<selectedClientIdType>({
+      clientId: "",
+      providerId: "",
     });
 
-    const filteredSearchProviders = filterClients(clientData || [], searchTerm);
+  const {
+    data: clientData = [],
+    isLoading,
+    isError,
+  } = useQuery<ClientType[]>({
+    queryKey: ["clients", loginUserId?.user?.id],
+    queryFn: async () => {
+      const response = await clientApiService.getAllClient(
+        loginUserId?.user?.id,
+      );
+      return response?.data?.clients || [];
+    },
+    enabled: Boolean(loginUserId?.user?.id),
+  });
 
-    const { totalPages,
-        getCurrentRecords,
-        handlePageChange, currentPage,
-    } = usePaginationHook({ data: filteredSearchProviders ?? [], recordPerPage: 6 })
+  const deleteMutation = useMutation({
+    mutationFn: async (id: selectedClientIdType) => {
+      await clientApiService.deleteClientApi(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["providers"] });
+      queryClient.invalidateQueries({ queryKey: ["allclients"] });
+      queryClient.invalidateQueries({ queryKey: ["allproviders"] });
+      toast.success("Client has been deleted successfully");
+      dispatch(isModalDeleteReducer(false));
+    },
+    onError: () => {
+      toast.error("Failed to delete the client!");
+      dispatch(isModalDeleteReducer(false));
+    },
+  });
 
-    const handleDeleteFun = (id: string, loginUserId: string) => {
-        dispatch(isModalDeleteReducer(true))
-        setSelectedClientId({ clientId: id, providerId: loginUserId })
-    }
-    const handleDeleteConfirm = () => {
-        deleteMutation.mutate(selectedClientId);
-        dispatch(isModalDeleteReducer(false))
-    }
-
-
-    if (isLoading) {
-        return <Loader text='Loading...' />
-    }
-    if (isError) {
-        return <p>somethingwent wrong</p>
-    }
-
+  const myClients = useMemo(() => {
     return (
-        <OutletLayout heading='Client List' button={<Button text='Add New' onclick={() => navigate("add-client")} icon={<IoMdAdd />} />}>
-            {isLoader && <Loader text='Deleting...' />}
-            {isModalDelete && selectedClientId && <DeleteClientModal onDeleteConfirm={handleDeleteConfirm} text={<div>By Deleting this you account you won’t be able to track record of your signed Documents. Are you sure that you want to <span className='font-semibold'>Delete your Account</span>?</div>}
-            />}
+      clientData?.filter(
+        (client: ClientType) =>
+          client?.providerList?.some(
+            (p) => p?.provider?.user?.id === loginUserId?.user?.id,
+          ) ||
+          client?.createdByProviderId === loginUserId?.id ||
+          client?.createdByProviderId === loginUserId?.user?.id,
+      ) || []
+    );
+  }, [clientData, loginUserId?.user?.id, loginUserId?.id]);
 
-            <div className="flex items-center justify-end mt-6">
+  const filteredSearchClients = useMemo(() => {
+    return filterClients(myClients, searchTerm);
+  }, [myClients, searchTerm]);
 
-                <div className="w-[40%] ">
+  const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
+    usePaginationHook({
+      data: filteredSearchClients ?? [],
+      recordPerPage,
+    });
 
-                    <SearchBar
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by name, email, state, role, etc..."
-                    />                </div>
-            </div>
-            <div className='mt-10 w-[100%]'>
-                {getCurrentRecords()?.length === 0 ? <NoRecordFound /> : <>
-                    <Table heading={heading} >
-                        {getCurrentRecords()
-                            .map((data: ClientType, id: number) => (
+  const [modalConfig, setModalConfig] = useState<{
+    heading: string;
+    text: React.ReactNode;
+    confirmText: string;
+  }>({
+    heading: "Delete Client",
+    text: "",
+    confirmText: "Delete",
+  });
 
-                                <tr key={id} className={`border-b-[1px] border-b-solid border-b-lightGreyColor pb-4s`}>
-                                    <td className="px-2 py-2">{id + 1}</td>
-                                    <td className="px-2 py-2">{data?.user?.fullName}</td>
-                                    <td className="px-2 py-2">{data?.user?.licenseNo}</td>
-                                    <td className="px-2 py-2">{data?.user?.gender}</td>
-                                    <td className="px-2 py-2 lowercase">{data?.email}</td>
-                                    <td className="px-2 py-2">
-                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.status === "active" ? "text-primaryColorDark" : " text-redColor "}`}>
+  const handleDeleteFun = (
+    clientId: string,
+    providerId: string,
+    isCreator: boolean,
+  ) => {
+    const isDetach = !isCreator && loginUserId?.user?.role !== "superAdmin";
 
-                                            {data?.user?.status}
+    setModalConfig({
+      heading: isDetach ? "Detach Client" : "Delete Client",
+      confirmText: isDetach ? "Detach" : "Delete",
+      text: isDetach ? (
+        <div>
+          Are you sure you want to{" "}
+          <span className="font-semibold">detach this client</span>? They will
+          be removed from your list, but their account will remain active for
+          other providers.
+        </div>
+      ) : (
+        <div>
+          By deleting this account you won’t be able to track records of your
+          signed Documents. Are you sure that you want to
+          <span className="font-semibold">delete this account</span>?
+        </div>
+      ),
+    });
 
+    dispatch(isModalDeleteReducer(true));
+    setSelectedClientId({ clientId, providerId });
+  };
 
-                                        </p>
-                                    </td>
-                                    <td className="px-2 py-2 capitaize">{getCountryNameFromCode(data?.user?.country ?? "")}</td>
-                                    <td className="px-2 py-2 capitaize">{data?.user?.state}</td>
+  const handleDeleteConfirm = () => {
+    deleteMutation.mutate(selectedClientId);
+  };
 
-                                    <td className={`px-2 py-2`}>
-                                        <p className={`px-4 py-1 rounded-md inline-block  ${data?.user?.isApprove === "approve" ? "text-primaryColorDark" : " text-redColor "}`}>
-                                            {data?.user?.isApprove === "approve" ? "Verified" : "Pending"}
+  if (isLoading) return <Loader text="Loading..." />;
+  if (isError) return <p>something went wrong</p>;
 
+  return (
+    <OutletLayout
+      heading="Client List"
+      buttonContainerClass="sm:w-[350px] w-full flex-shrink-0"
+      button={
+        <>
+          <Button
+            text="Add Existing"
+            onclick={() => setIsAddExistingModalOpen(true)}
+            icon={<IoMdAdd />}
+            borderButton
+          />
+          <Button
+            text="Add New"
+            onclick={() => navigate("add-client")}
+            icon={<IoMdAdd />}
+          />
+        </>
+      }
+    >
+      {isModalDelete && selectedClientId?.clientId && (
+        <DeleteClientModal
+          onDeleteConfirm={handleDeleteConfirm}
+          isLoading={deleteMutation.isPending}
+          text={modalConfig.text}
+        />
+      )}
 
-                                        </p>
-                                    </td>
-                                    <td className="px-2 py-2 w-[100px]">
-                                        {
+      {isAddExistingModalOpen && (
+        <AddExistingClientModal
+          onClose={() => setIsAddExistingModalOpen(false)}
+          myClients={myClients}
+        />
+      )}
 
-                                            data?.providerList?.length === 0 || data?.providerList === undefined
-                                                ? <p>No Providers Found</p>
-                                                :
-                                                <>
-                                                    {data?.providerList?.slice(0, 2)?.map((providerList: Provider, index) => (
-                                                        <p className='flex items-center gap-x-1  capitalize' key={index}>
-                                                            {providerList?.provider?.user?.fullName}
+      <div className="flex items-center justify-end mt-6">
+        <div className="w-[40%]">
+          <SearchBar
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name, email, state, role, etc..."
+          />
+        </div>
+      </div>
 
-                                                        </p>
+      <div className="mt-10 w-full">
+        {getCurrentRecords()?.length === 0 ? (
+          <NoRecordFound />
+        ) : (
+          <>
+            <Table heading={heading}>
+              {getCurrentRecords()?.map(
+                (data: ClientType, rowIndex: number) => {
+                  return (
+                    <ClientItem
+                      data={data}
+                      rowIndex={rowIndex}
+                      handleDelete={handleDeleteFun}
+                      loginUserId={loginUserId?.id}
+                      navigate={navigate}
+                      currentPage={currentPage}
+                      recordPerPage={recordPerPage}
+                    />
+                  );
+                },
+              )}
+            </Table>
 
-                                                    ))}
+            <CustomPagination
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              hookCurrentPage={currentPage}
+            />
+          </>
+        )}
+      </div>
+    </OutletLayout>
+  );
+};
 
-                                                    {data?.providerList?.length > 2 && (
-                                                        <p className="text-primaryColor cursor-pointer mt-1 text-primaryColorDark" onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }}>... View All</p>
-                                                    )}
-                                                </>
-                                        }
-
-                                    </td>
-
-                                    <td className="py-2 h-full align-middle">
-                                        <div className="flex items-center justify-center gap-x-2 h-full">
-                                            {data?.providerList?.length !== 0 || data?.providerList !== undefined
-                                                &&
-                                                data.providerList.some((provider: ProviderType) => provider?.user?.id === loginUserId?.user?.id) ? (
-                                                <>
-                                                    <EditIcon onClick={() => { navigate(`/clients/edit-client/${data?.id}`) }} />{/* update those client which are present in logined provider list */}
-                                                    <DeleteIcon onClick={() => handleDeleteFun(data?.id ?? "", loginUserId?.id)} />{/* delete those client which are present in logined provider list */}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <EditIcon disabled />
-                                                    <DeleteIcon disabled />
-                                                </>
-                                            )
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                    </Table>
-                    <CustomPagination totalPages={totalPages} onPageChange={handlePageChange} hookCurrentPage={currentPage} />
-                </>}
-            </div>
-        </OutletLayout >)
-}
-
-export default Clients
+export default Clients;

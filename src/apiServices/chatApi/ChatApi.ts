@@ -15,15 +15,15 @@ interface CreateGroupChannel {
     membersId?: string[]
 }
 
-class ChatApiService {
+class ChatApiService {    
     private api = axiosInstance
     //SINGLE CONSERVATION APIS
-    async getAllChatChannels(loginUserId: string) {
+    async getAllChatChannels(loginUserId: string, search?: string) {
         try {
             // send the correct key
             const response = await this.api.post(
                 "/chat-channel/get-all-chat-channel",
-                { loginUserId }
+                { loginUserId, search }
             );
             return response.data;
         } catch (error) {
@@ -40,6 +40,16 @@ class ChatApiService {
         } catch (error) {
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            toast.error(errMsg);
+        }
+    }
+
+    async getAllUsersForChat(loginUserId: string) {
+        try {
+            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId });
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get users";
             toast.error(errMsg);
         }
     }
@@ -73,11 +83,11 @@ class ChatApiService {
             throw error;
         }
     }
-    async getGroupChatChannels(loginUserId: string) {
+    async getGroupChatChannels(loginUserId: string, search?: string) {
         try {
 
             const response = await this.api.post("/chat-group/get-all-group",
-                { loginUserId })
+                { loginUserId, search })
             return response?.data
         } catch (error) {
             console.log("getGroupChatChannels ERROR", error);
@@ -98,6 +108,38 @@ class ChatApiService {
 
             const errMsg = error instanceof Error ? error.message : "Failed to get total client";
             toast.error(errMsg);
+        }
+    }
+
+    /**
+     * Direct-add of existing platform providers to an existing group chat —
+     * no email invite, no token. Used by the AddMembersToGroupModal.
+     *
+     * `providerIds` are Provider record ids (the same ids used by createGroup).
+     * Returns the response payload so callers can craft a friendly toast that
+     * names the providers that were actually added.
+     */
+    async addProvidersToGroup(data: { groupId: string; providerIds: string[] }) {
+        try {
+            const response = await this.api.patch("/chat-group/add-members", data);
+            return response?.data;
+        } catch (error) {
+            // Caller (the modal) owns the error toast so it can build a
+            // message that lists providers by name. We just rethrow.
+            throw error;
+        }
+    }
+
+    /**
+     * Toggle the per-group "members can invite" permission. Only the creator
+     * may call this; backend will return 403 for anyone else.
+     */
+    async updateGroupPermissions(data: { groupId: string; membersCanInvite: boolean }) {
+        try {
+            const response = await this.api.patch("/chat-group/permissions", data);
+            return response?.data;
+        } catch (error) {
+            throw error;
         }
     }
 

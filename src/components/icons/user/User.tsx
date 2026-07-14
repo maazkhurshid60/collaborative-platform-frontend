@@ -1,16 +1,38 @@
-
 import { HiMiniUserCircle } from "react-icons/hi2";
 
 interface UserIconProps {
-    onClick?: () => void
-    size?: number
-    className?: string
-}
-const UserIcon: React.FC<UserIconProps> = ({
-    onClick, className = "text-[32px] md:text-[40px] lg:text-[40px] " }) => {
-    return (
-        <HiMiniUserCircle className={` ${className ? className : 'cursor-pointer  text-textGreyColor'}`} onClick={onClick} />
-    )
+    onClick?: () => void;
+    size?: number;
+    className?: string;
+    profileImg?: string | null
 }
 
-export default UserIcon
+const UserIcon: React.FC<UserIconProps> = ({
+    onClick,
+    className = "",
+    profileImg,
+    size
+}) => {
+
+    if (profileImg && profileImg !== "null") {
+        return (
+            <img
+                src={profileImg}
+                alt="User Profile"
+                className={`rounded-full w-[50px] h-[50px] object-cover  ${className}`}
+                onClick={onClick}
+            />
+        );
+    }
+
+    return (
+        <HiMiniUserCircle
+            size={size}
+            color="black"
+            className={`w-[60px] h-[60px] rounded-full  ${className}`}
+            onClick={onClick}
+        />
+    );
+};
+
+export default UserIcon;

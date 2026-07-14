@@ -11,11 +11,15 @@ export interface ChatChannelType {
     members?: Member[]
     lastMessage?: LastMessage
     unreadCount?: number | string
+    isPinned?: boolean
 }
 
 export interface LastMessage {
     message?: string
     createdAt: string
+    mediaUrl?: string
+    type?: string
+    id?: string
 }
 
 export interface Member {
@@ -28,14 +32,8 @@ export interface Member {
 
 export interface Provider {
     id: string;
-    email: string;
-    password: string;
-    department: string;
-    createdAt: string;
-    updatedAt: string;
-    userId: string;
-    user: ProviderUser;
-
+    fullName: string;
+    profileImage?: string | null;
 }
 
 export interface ProviderUser {

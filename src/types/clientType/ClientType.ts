@@ -2,6 +2,7 @@ import { ProviderType } from "../providerType/ProviderType"
 
 export interface ClientType {
     id?: string
+    clientId?: string  // Auto-generated unique identifier (e.g. CLT-20260224-001234)
     email?: string
     password?: string
     userId?: string
@@ -14,7 +15,8 @@ export interface ClientType {
     age?: number | string
     eSignature?: string
     clientShowToOthers?: boolean
-
+    createdByProviderId?: string
+    isAccountCreatedByOwnClient?: boolean
 }
 
 
@@ -32,6 +34,7 @@ export interface Provider {
 export interface User {
     id?: string
     fullName?: string
+    email?: string
     profileImage?: string | null
     gender?: string | null
     age?: string | null
@@ -46,7 +49,7 @@ export interface User {
     isApprove: string
     client?: ClientType
     provider?: ProviderType
-    country: string
+    //    country: string
     state: string
     clientList?: Provider[];
 }
@@ -56,6 +59,7 @@ export interface User {
 
 
 export interface GetMeType {
+    clientId: string;
     createdAt: string;
     eSignature: string | null | undefined;
     email: string;

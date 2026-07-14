@@ -1,270 +1,257 @@
-;
-import { useEffect, useRef, useState } from 'react'
-import SearchBar from '../searchBar/SearchBar'
-import { IoIosArrowDown } from "react-icons/io";
-import { useDispatch, useSelector } from 'react-redux';
-
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { IoMdMenu } from "react-icons/io";
-import { AppDispatch, RootState } from '../../redux/store';
-import { isSideBarCloseReducser } from '../../redux/slices/SideBarSlice';
-import { useNavigate } from 'react-router-dom';
-import UserIcon from '../icons/user/User';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ClientType } from '../../types/clientType/ClientType';
-import clientApiService from '../../apiServices/clientApi/ClientApi';
-import AddIcon from '../icons/add/Add';
-import { toast } from 'react-toastify';
-import Loader from '../loader/Loader';
-import { LuSearch } from 'react-icons/lu';
-import verifyBadge from "../../assets/images/verifyBadge.png"
+import { LuSearch } from "react-icons/lu";
+import { Bell } from "lucide-react";
+import { toast } from "react-toastify";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import SearchBar from "../searchBar/SearchBar";
+import SearchResults from "../searchBar/SearchResults";
+import { AppDispatch, RootState } from "../../redux/store";
+import { isSideBarCloseReducser } from "../../redux/slices/SideBarSlice";
+import { ClientType } from "../../types/clientType/ClientType";
+import clientApiService from "../../apiServices/clientApi/ClientApi";
+import Loader from "../loader/Loader";
+import { useSubscription } from "../../hooks/useSubscription";
+
+import { getSocket } from "../../socket/Socket";
+import notificationApiService from "../../apiServices/notification/NotificationApi";
+import UserProfileDropdown from "./UserProfileDropdown";
+import { useDebounce } from "@/hook/useDebounce";
 
 const Navbar = () => {
-    const isSideBarClose = useSelector((state: RootState) => state.sideBarSlice.isSideBarClose)
-    const loginUserDetail = useSelector((state: RootState) => state.LoginUserDetail.userDetails)
-    const dispatch = useDispatch<AppDispatch>()
-    const [isDropDownOpen, setIsDropDownOpen] = useState(false)
-    const dropdownRef = useRef<HTMLDivElement>(null)
-    const navigate = useNavigate()
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    const [searchByLicenseNo, setSearchByLicenseNo] = useState('')
-    const [filteredClients, setFilteredClients] = useState<ClientType[]>()
-    const [isSearchbarClose, setIsSearchbarClose] = useState(false)
-    const [isLoader, setIsLoader] = useState(false)
-    const queryClient = useQueryClient()
-    const formData = new FormData();
-    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const { isTrialActive } = useSubscription();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState<ClientType[]>();
+  const [isSearchbarClose, setIsSearchbarClose] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-    useEffect(() => {
-        const handleResize = () => setScreenWidth(window.innerWidth);
+  const isSideBarClose = useSelector(
+    (state: RootState) => state.sideBarSlice.isSideBarClose,
+  );
+  const loginUserDetail = useSelector(
+    (state: RootState) => state.LoginUserDetail.userDetails,
+  );
 
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-    const { data: clientData } = useQuery<ClientType[]>({
-        queryKey: ["allclients"],
-        queryFn: async () => {
-            try {
-                const response = await clientApiService.getAllTotalClient();
-                const verifiedUsers = response?.data?.clients?.filter((data: ClientType) => data?.user?.isApprove === "approve")
-                return verifiedUsers; // Ensure it always returns an array
-            } catch (error) {
-                console.error("Error fetching client:", error);
-                return []; // Return an empty array in case of an error
-            }
-        }
+  const searchRef = useRef<HTMLDivElement>(null);
 
-    })
-    useEffect(() => {
-        if (searchByLicenseNo !== '') {
-            const filteredClients = clientData?.filter((client) => {
-                const searchTerm = searchByLicenseNo.toLowerCase();
-                return (
-                    client.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
-                    client.user?.fullName?.toLowerCase().includes(searchTerm) ||
-                    client.email?.toLowerCase().includes(searchTerm)
-                );
-            });
-            setFilteredClients(filteredClients)
-        } else {
-            setFilteredClients([])
-        }
-    }, [searchByLicenseNo, clientData])
+  const queryClient = useQueryClient();
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-    useEffect(() => {
-        if (loginUserDetail?.user?.profileImage !== "null") {
-            setPreviewUrl(loginUserDetail?.user?.profileImage)
-        } else {
-            setPreviewUrl(null)
-        }
+  const { data: unreadCountData } = useQuery({
+    queryKey: ["unreadNotificationCount", loginUserDetail?.user?.id],
+    queryFn: async () => {
+      if (!loginUserDetail?.user?.id) return null;
+      const res = await notificationApiService.getUnreadCount(
+        loginUserDetail.user.id,
+      );
+      return res;
+    },
+    enabled: !!loginUserDetail?.user?.id,
+  });
 
-    }, [loginUserDetail])
-    const addClientFun = (data: ClientType) => {
-        updateMutation.mutate(data)
+  const unreadCount = unreadCountData?.data?.unreadCount || 0;
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+    const handleNewNotification = () => {
+      queryClient.invalidateQueries({ queryKey: ["unreadNotificationCount"] });
+    };
+    socket.on("new_notification", handleNewNotification);
+    return () => {
+      socket.off("new_notification", handleNewNotification);
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const { data: searchResults, isFetching: isSearching } = useQuery({
+    queryKey: ["global-search", debouncedSearchQuery],
+    queryFn: async () => {
+      const response = await clientApiService.searchUsers(debouncedSearchQuery);
+      return response?.data?.users || [];
+    },
+    enabled: debouncedSearchQuery.trim().length > 0,
+  });
+
+  useEffect(() => {
+    if (debouncedSearchQuery.trim() !== "") {
+      setFilteredUsers(searchResults || []);
+      setShowSearchResults(true);
+    } else {
+      setFilteredUsers([]);
+      setShowSearchResults(false);
     }
+  }, [debouncedSearchQuery, searchResults]);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
-    const updateMutation = useMutation({
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setFilteredUsers([]);
+    setShowSearchResults(false);
+  };
 
-        mutationFn: async (data: ClientType) => {
+  const addClientFun = (data: ClientType) => {
+    const currentUserId = loginUserDetail?.id;
+    const isOwnClient = data?.createdByProviderId === currentUserId;
+    if (isTrialActive && !isOwnClient) {
+      toast.info(
+        "Adding another provider's client is a premium feature. Please upgrade your plan.",
+      );
+      return;
+    }
+    updateMutation.mutate(data);
+    handleClearSearch();
+  };
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: ClientType) => {
+      const localFormData = new FormData();
+      localFormData.append("fullName", data?.user?.fullName || "Unkown User");
+      localFormData.append("licenseNo", data?.user?.licenseNo || "");
+      localFormData.append("age", String(data?.user?.age || "18"));
+      localFormData.append("email", data?.user?.email || "");
+      localFormData.append("contactNo", data?.user?.contactNo || "0000000000");
+      localFormData.append("address", data?.user?.address || "No Address");
+      localFormData.append(
+        "gender",
+        (data?.user?.gender || "male").toLowerCase(),
+      );
+      localFormData.append(
+        "status",
+        (data?.user?.status || "active").toLowerCase(),
+      );
+      // localFormData.append("country", data?.user?.country || "");
+      localFormData.append("state", data?.user?.state || "");
+      localFormData.append("role", "client");
+      localFormData.append("isApprove", "pending");
+      localFormData.append("providerId", loginUserDetail?.id || "");
+      localFormData.append("profileImage", data?.user?.profileImage || "");
+      await clientApiService.addExistingClientToProvider(localFormData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["allclients"] });
+      queryClient.invalidateQueries({ queryKey: ["allproviders"] });
+      toast.success("User has been added successfully");
+      handleClearSearch();
+    },
+    onError: () => {
+      toast.error("Failed to add the client!");
+    },
+  });
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-            formData.append("fullName", data?.user?.fullName ?? "");
-            formData.append("licenseNo", data?.user?.licenseNo ?? "");
-            formData.append("age", data?.user?.age ?? "18");
-            formData.append("email", data?.email ?? "");
-            formData.append("contactNo", data?.user?.contactNo ?? "00000000000000");
-            formData.append("address", data?.user?.address ?? "No Address");
-            formData.append("gender", data?.user?.gender ?? "");
-            formData.append("status", data?.user?.status ?? "");
-            formData.append("country", data?.user?.country ?? "");
-            formData.append("state", data?.user?.state ?? "");
-            formData.append("role", "client");
-            formData.append("isApprove", "pending");
+  const isProvider = loginUserDetail?.user?.role === "provider";
 
-            formData.append("providerId", loginUserDetail.id);
-            // formData.append("isApprove", loginUserDetail?.user?.isApprove.toString());
+  return (
+    <div className="bg-white">
+      {updateMutation.isPending && <Loader text="Adding..." />}
 
+      <div className="flex w-full items-center justify-between xl:justify-between xl:gap-x-96 bg-white px-3 py-3">
+        <div className="block md:hidden">
+          {isSideBarClose === false && (
+            <IoMdMenu
+              size={24}
+              onClick={() => dispatch(isSideBarCloseReducser(true))}
+            />
+          )}
+        </div>
 
-            formData.append("profileImage", data?.user?.profileImage ?? "");
+        <div
+          className={`relative transition-all duration-300 ease-in-out  ${
+            screenWidth < 768
+              ? isSearchbarClose
+                ? "w-70"
+                : "w-8.75"
+              : " md:w-full md:max-w-70 lg:max-w-112.5 xl:max-w-125"
+          }`}
+          ref={searchRef}
+        >
+          {isProvider && (
+            <div className="relative">
+              {screenWidth < 768 && (
+                <LuSearch
+                  className="text-lightGreyColor absolute top-2.5 z-30 left-2 cursor-pointer"
+                  size={20}
+                  onClick={() => setIsSearchbarClose(!isSearchbarClose)}
+                />
+              )}
 
-            await clientApiService.addExistingClientToProvider(formData);
-        },
-        onMutate: () => {
-            setIsLoader(true);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['clients'] });
-            toast.success("New Client has added successfully")
-            setSearchByLicenseNo("")
-            setIsLoader(false)
-        },
-        onError: () => {
-            toast.error('Failed to add the client!');
-            setIsLoader(false)
-        },
+              <SearchBar
+                placeholder="Search By Name, Email, License No or Role..."
+                onChange={handleSearchChange}
+                onClear={handleClearSearch}
+                value={searchQuery}
+                showClearButton={!!searchQuery}
+                borderRounded="rounded-lg"
+              />
 
-    });
-    useEffect(() => {
-        const handleCickOutSide = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsDropDownOpen(false)
-            }
-        }
-        document.addEventListener("mousedown", handleCickOutSide)
-        return () => {
-            document.removeEventListener("mousedown", handleCickOutSide);
-        };
-    }, [])
-
-    return (
-        <div className='bg-white'>
-            {isLoader && <Loader text='Adding...' />}
-            <div className='flex  items-center justify-between md:justify-end md:gap-x-40 bg-white px-3 py-3'>
-
-                <div className="block md:hidden">
-                    {isSideBarClose === false && <IoMdMenu size={24} onClick={() => dispatch(isSideBarCloseReducser(true))} />}
-
-                </div>
-                <div
-                    className={`relative transition-all duration-300 ease-in-out  ${screenWidth < 768
-                        ? isSearchbarClose
-                            ? 'w-[250px]'
-                            : 'w-[35px]'
-                        : 'w-full md:w-[400px] lg:w-[500px] xl:w-[507px]'
-                        }`}
-                >
-                    {loginUserDetail?.user?.role === "provider" &&
-                        <div className='relative '>
-                            {screenWidth < 768 && <LuSearch className='text-lightGreyColor absolute top-2 z-30 left-2 ' size={20} onClick={() => setIsSearchbarClose(!isSearchbarClose)} />}
-                            <SearchBar placeholder='Search here...' onChange={(e) => setSearchByLicenseNo(e.target.value)} value={searchByLicenseNo} />
-                            {filteredClients && filteredClients.length > 0 &&
-                                < div className='w-[100%] rounded-lg bg-white    borderClass max-h-[500px]   absolute top-10 left-0 z-[999999]' >
-                                    {filteredClients?.map(data => {
-                                        return <div className='flex items-center justify-between   p-3    hover:bg-primaryColorLight  '     >
-                                            <div className='flex items-center gap-x-5     '>
-                                                {
-                                                    (data?.user?.profileImage !== null && data?.user?.profileImage !== "null") ? (
-                                                        <div className='relative'>
-
-
-                                                            <img
-                                                                src={data?.user?.profileImage}
-                                                                alt="Client"
-                                                                className=" w-8 h-8 rounded-full object-fill"
-                                                            />
-
-
-                                                        </div>
-                                                    ) : (<>
-
-                                                        <UserIcon className="text-[32px] md:text-[40px] lg:text-[30px]" />
-
-
-                                                    </>
-                                                    )
-                                                }
-                                                <div>
-
-                                                    <div className=' flex items-center'>
-                                                        {data?.user?.isApprove &&
-                                                            <div>
-                                                                <img
-                                                                    src={verifyBadge}
-                                                                    alt="Client"
-                                                                    className=" h-4 mr-1 rounded-full object-fill "
-                                                                />
-                                                            </div>
-                                                        }
-                                                        <p className='text-sm font-semibold capitalize'> {data?.user?.fullName}</p>
-
-
-                                                    </div>
-                                                    <p className='text-xs '><span>Email:</span> {data?.email}</p>
-                                                    <p className='text-xs '><span>Lic No:</span>  {data?.user?.licenseNo}</p>
-                                                </div>
-                                            </div>
-                                            {!data?.providerList?.some(provider => provider.providerId === loginUserDetail.id) ? (
-                                                <AddIcon onClick={() => addClientFun(data)} />
-
-                                            ) : <p className='text-primaryColorDark'>Already Added in your list</p>}
-                                        </div>
-                                    })}
-                                </div>
-                            }
-                        </div>}
-
-                </div>
-
-                {(screenWidth >= 768 || (screenWidth < 768 && !isSearchbarClose)) &&
-                    <>
-
-                        {/* ACCOUNT DROP DOWN */}
-                        <div className='flex items-center  relative gap-x-2 bg-white' ref={dropdownRef}>
-                            {
-                                previewUrl ? (
-                                    <img
-                                        src={previewUrl}
-                                        alt="Client"
-                                        className=" w-12 h-12 rounded-full object-cover"
-                                    />
-                                ) : (
-
-                                    <UserIcon className="text-[32px] md:text-[40px] lg:text-[48px]" />
-
-                                )
-                            }
-
-                            <div className='flex items-center gap-x-10 bg-white z-20'>
-                                <div className='font-[Montserrat]'>
-                                    <p className=' text-textColor font-bold text-[16px] md:text-[18px] lg:text-[20px] capitalize'>{loginUserDetail?.user?.fullName}</p>
-                                    <p className='text-lightGreyColor font-medium text-[12px] md:text-[14px] lg:text-[16px] capitalize'>{loginUserDetail?.user?.role === "superadmin" ? "Super Admin" : loginUserDetail?.department ? loginUserDetail?.department : "Client"}</p>
-                                </div>
-                                {loginUserDetail?.user?.role !== "superadmin" &&
-                                    <div className=''>
-                                        <IoIosArrowDown className={`text-textColor transition-all duration-700 ease-in-out  ${isDropDownOpen ? 'rotate-180' : 'rotate-0'} cursor-pointer`} size={22} onClick={() => setIsDropDownOpen(!isDropDownOpen)} />
-                                    </div>}
-                            </div>
-                            {/* OPTIONS */}
-                            <ul
-                                className={`bg-white shadow-[0_0_10px_0_rgba(0,0,0,0.1)] -z-10  rounded-[10px] flex flex-col  font-[Poppins] text-[12px] md:text-[14px] lg:text-[16px]'> absolute right-0 transition-all duration-700 ease-in-out 
-    ${isDropDownOpen ? 'opacity-100 translate-y-2  top-[45px] md:top-[50px] z-10' : 'opacity-0 hidden z-[0] -translate-y-3 pointer-events-none top-[-80px]'}
-  `}
-                            >
-                                <li className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' onClick={() => { setIsDropDownOpen(false); navigate("/notification") }}>Notifications</li>
-                                <li className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' onClick={() => { setIsDropDownOpen(false); navigate("/setting") }}>Settings</li>
-                                <li className='cursor-pointer py-2 px-3 rounded-[10px] hoverCLass' onClick={() => { setIsDropDownOpen(false); navigate("/help-and-support") }}>Help & Support</li>
-                            </ul>
-                        </div>
-                    </>
-
+              <SearchResults
+                results={filteredUsers || []}
+                onAddClient={addClientFun}
+                currentUserId={loginUserDetail.id}
+                isVisible={showSearchResults}
+                isLoading={isSearching || searchQuery !== debouncedSearchQuery}
+                onResultClick={handleClearSearch}
+                emptyMessage={
+                  searchQuery
+                    ? `No users found for "${searchQuery}"`
+                    : "Start typing to search users..."
                 }
-
+              />
             </div>
-        </div >
+          )}
+        </div>
+        {(screenWidth >= 768 || (screenWidth < 768 && !isSearchbarClose)) && (
+          <div className="flex items-center gap-x-4 md:gap-x-6">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/notification")}
+            >
+              <Bell
+                size={24}
+                className="text-gray-600 hover:text-gray-800 transition-colors duration-200 mt-1"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
 
-    )
-}
+            <UserProfileDropdown />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-export default Navbar
+export default Navbar;

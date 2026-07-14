@@ -63,8 +63,11 @@ const ResetPassword = () => {
                 <form onSubmit={handleSubmit(resetPasswordFunction)}>
                     <div className='flex items-end justify-end flex-col w-full'>
 
-                        <div className='mb-4 w-full'>
+                        <div className='mb-1.5 w-full'>
                             <InputField label='New Password' type='password' register={register("password")} placeHolder='Enter new password.' error={errors.password?.message} />
+                            <p className="text-xs text-gray-500 mt-1 leading-tight">
+                                Min 10 chars, including 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+                            </p>
                         </div>
                         <div className='mb-4 w-full'>
                             <InputField label='Confirm Password' type='password' register={register("confirmPassword")} placeHolder='Enter confirm password.' error={errors.confirmPassword?.message} />

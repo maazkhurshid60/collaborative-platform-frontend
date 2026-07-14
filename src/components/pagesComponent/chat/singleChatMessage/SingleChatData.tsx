@@ -2,98 +2,151 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import UserIcon from "../../../icons/user/User";
-import { useEffect } from "react";
-
-
+import { HiPhoto } from "react-icons/hi2";
+import { HiDocumentText } from "react-icons/hi2";
+import { HiPaperClip } from "react-icons/hi2";
 
 interface SingleChatDataType {
-    data: ChatChannelType;
-    activeId?: string | undefined
-    onClick?: () => void;
-
+  data: ChatChannelType;
+  activeId?: string | undefined;
+  onClick?: () => void;
 }
 
+const SingleChatData: React.FC<SingleChatDataType> = ({
+  data,
+  onClick,
+  activeId,
+}) => {
+  const loginUserId = useSelector(
+    (state: RootState) => state.LoginUserDetail.userDetails.userId,
+  );
 
+  // Helper function to get media display info
+  const getMediaDisplayInfo = (mediaUrl?: string) => {
+    if (!mediaUrl) return null;
 
-const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId }) => {
-    const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
-
-
-    const otherUser =
-        data?.providerA?.id === loginUserId
-            ? { fullName: data?.providerB?.user?.fullName, profileImage: data?.providerB?.user?.profileImage }
-            : { fullName: data?.providerA?.user?.fullName, profileImage: data?.providerA?.user?.profileImage };
-
-    const unreadCount = Number(data?.totalUnread ?? 0);
-    const imagePath = otherUser?.profileImage ? otherUser?.profileImage : null;
-    useEffect(() => {
-        console.log("🔁 Re-render Sidebar Item:", data.id, "data.lastMessage?.message", data.lastMessage?.message, data.updatedAt);
-    }, [data.lastMessage?.message, data.updatedAt]);
-
-
-    return (
-        <div className="">
-
-            <div className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  hover:bg-primaryColorLight transition-all duration-300 cursor-pointer hover:rounded-md 
-            ${activeId === data?.id ? "bg-primaryColorLight rounded-md " : "bg-white"}
-            `}
-
-                onClick={onClick}>
-                <div className='w-[100%] flex items-center justify-between'>
-                    <div className="flex items-start gap-x-6">
-                        <div className="w-10 h-10">
-                            {
-                                imagePath ? <img
-                                    src={imagePath}
-                                    alt="Client"
-                                    className="w-full h-full  rounded-full  object-fill"
-                                /> : <UserIcon />}
-                        </div>
-                        <div>
-                            <p className={`font-[Poppins] flex  items-center  gap-x-4 capitalize  text-[14px] text-textColor  ${data?.totalUnread !== 0 ? "font-semibold" : "font-normal "}`}>
-                                {otherUser?.fullName}
-                            </p>
-                            {data?.lastMessage?.message && (
-                                <p className="text-xs text-gray-500 truncate max-w-[90%]">
-                                    {data.lastMessage.message?.slice(0, 15) + "..."}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                </div>
-                {unreadCount > 0 && (
-                    <span className="bg-primaryColorDark text-white text-xs min-w-[20px] h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
-                        {data.totalUnread}
-                    </span>
-                )}
-
-
-            </div>
-        </div>
+    const extension = mediaUrl.split(".").pop()?.toLowerCase();
+    const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(
+      extension || "",
     );
+    const isPdf = extension === "pdf";
+    const isDoc = ["doc", "docx"].includes(extension || "");
+
+    if (isImage) {
+      return { icon: HiPhoto, text: "Photo" };
+    } else if (isPdf || isDoc) {
+      return { icon: HiDocumentText, text: "Document" };
+    } else {
+      return { icon: HiPaperClip, text: "File" };
+    }
+  };
+
+  const otherUser =
+    data?.providerA?.id === loginUserId
+      ? {
+          // providerA is me (User ID match), so providerB is other
+          fullName: (data?.providerB as any)?.fullName,
+          profileImage: (data?.providerB as any)?.profileImage,
+        }
+      : {
+          // providerA is not me, so providerA is other
+          fullName: (data?.providerA as any)?.fullName,
+          profileImage: (data?.providerA as any)?.profileImage,
+        };
+
+  const unreadCount = Number(data?.totalUnread ?? 0);
+  const imagePath = otherUser?.profileImage;
+  const isValidImage =
+    imagePath && imagePath !== "null" && imagePath.trim() !== "";
+
+  // useEffect(() => {
+  //   console.log(
+  //     data.id,
+  //     "data.lastMessage?.message",
+  //     data.lastMessage?.message,
+  //     data.x1
+  //   );
+  // }, [data.lastMessage?.message, data.updatedAt]);
+  return (
+    <div className="">
+      <div
+        className={`pb-2 pt-2 pl-2 flex items-center gap-x-2  hover:bg-primaryColorLight mt-1 transition-all duration-300 cursor-pointer hover:rounded-md 
+            ${
+              activeId === data?.id
+                ? "bg-primaryColorLight rounded-md "
+                : "bg-white"
+            }
+            `}
+        onClick={onClick}
+      >
+        <div className="w-full flex items-start  justify-between">
+          <div className="flex items-start justify-between gap-x-6">
+            {isValidImage ? (
+              <img src={imagePath} className={`rounded-full w-12.5 h-12.5 `} />
+            ) : (
+              <UserIcon size={30} className={`w-13 h-13 -ml-2`} />
+            )}
+
+            <div>
+              <p
+                className={`font-bold flex mt-2 ${isValidImage ? "mt-1" : "-ml-2.5"}  items-center  gap-x-2 capitalize text-sm  text-textColor  ${
+                  data?.totalUnread !== 0 ? "font-semibold" : "font-normal "
+                }`}
+              >
+                {otherUser?.fullName}
+              </p>
+              {/* Display last message - either text or media */}
+              {data?.lastMessage && (
+                <div className="text-xs text-gray-500 truncate max-w-[90%]">
+                  {data.lastMessage?.type === "media" &&
+                  data.lastMessage?.mediaUrl ? (
+                    // Media message display with full info
+                    (() => {
+                      const mediaInfo = getMediaDisplayInfo(
+                        data.lastMessage.mediaUrl,
+                      );
+                      if (mediaInfo) {
+                        const IconComponent = mediaInfo.icon;
+                        return (
+                          <div className="flex items-center gap-1">
+                            <IconComponent className="w-4 h-4" />
+                            <span>{mediaInfo.text}</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()
+                  ) : data.lastMessage?.message &&
+                    data.lastMessage.message.trim() !== "" ? (
+                    // Text message display
+                    <p>
+                      {data.lastMessage.message.length > 15
+                        ? data.lastMessage.message.slice(0, 15) + "..."
+                        : data.lastMessage.message}
+                    </p>
+                  ) : (
+                    // Fallback for media messages with empty message field
+                    <div className="flex items-center gap-1">
+                      <HiPhoto className="w-4 h-4" />
+                      <span>Media</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        {unreadCount > 0 && (
+          <span className="bg-primaryColorDark text-white text-xs min-w-5 h-5 flex items-center justify-center mr-4 rounded-full px-1 leading-none aspect-square">
+            {data.totalUnread}
+          </span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default SingleChatData;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import { useSelector } from "react-redux";
 // import { RootState } from "../../../../redux/store";
@@ -105,15 +158,12 @@ export default SingleChatData;
 // import naclUtil from 'tweetnacl-util';
 // import nacl from "tweetnacl";
 
-
 // interface SingleChatDataType {
 //     data: ChatChannelType;
 //     activeId?: string | undefined
 //     onClick?: () => void;
 
 // }
-
-
 
 // const SingleChatData: React.FC<SingleChatDataType> = ({ data, onClick, activeId }) => {
 //     const loginUserId = useSelector((state: RootState) => state.LoginUserDetail.userDetails.id);
@@ -122,9 +172,6 @@ export default SingleChatData;
 //     );
 
 //     const decryptedPrivateKey = base64Key ? naclUtil.decodeBase64(base64Key) : null;
-
-
-
 
 //     const otherUser =
 //         data?.providerA?.id === loginUserId
@@ -193,10 +240,6 @@ export default SingleChatData;
 //         }
 //     }, [data.lastMessage?.message, data.updatedAt, decryptedPrivateKey]);
 
-
-
-
-
 //     console.log("last decrypted message", decryptedMessage);
 
 //     return (
@@ -236,29 +279,9 @@ export default SingleChatData;
 //                     </span>
 //                 )}
 
-
 //             </div>
 //         </div>
 //     );
 // };
 
 // export default SingleChatData;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -41,14 +41,6 @@ const ForgotPassword = () => {
         try {
             const response = await authService.forgotPassword(data.email);
 
-            const userData = response?.data?.user;
-
-            if (userData?.status !== "active") {
-                toast.error("Oops! Your account has been disabled. Contact with super admin.");
-                navigate("/");
-                return;
-            }
-            // navigate("/reset-password");
             toast.success(response?.message);
 
 

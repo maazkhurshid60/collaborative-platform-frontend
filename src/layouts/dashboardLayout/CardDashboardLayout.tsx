@@ -1,15 +1,14 @@
-
 interface CardDashboardLayoutProps {
-    children: React.ReactNode
-    heading?: string
+  children: React.ReactNode;
+  heading?: string;
 }
 const CardDashboardLayout: React.FC<CardDashboardLayoutProps> = (props) => {
-    return (
-        <div className='bg-inputBgColor rounded-md p-4 h-[100%] w-[100%]'>
-            <p className='headingMediumSmall'>{props.heading}</p>
-            {props.children}
-        </div>
-    )
-}
+  return (
+    <div className="bg-inputBgColor shadow-sm rounded-md pl-4 pr-4 pt-4 w-full  overflow-hidden ">
+      <p className="headingMediumSmall">{props.heading}</p>
+      {props.children}
+    </div>
+  );
+};
 
-export default CardDashboardLayout
+export default CardDashboardLayout;
