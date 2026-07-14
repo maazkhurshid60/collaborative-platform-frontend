@@ -1,10 +1,11 @@
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useNavigate } from "react-router-dom";
-import { DeleteIcon, EditIcon, ViewIcon } from "lucide-react";
+import { DeleteIcon, EditIcon } from "lucide-react";
 
 import ShareDocumentIcon from "@/components/icons/share/ShareDocument";
 import { ClientType, Provider } from "@/types/clientType/ClientType";
+import ViewIcon from "../../../components/icons/view/View";
 
 interface ClientItemPropsType {
   data: ClientType;
@@ -139,12 +140,12 @@ const ClientItem = ({
       </td>
 
       {/* Action (fixed padding + equal icon boxes) */}
-      <td className="px-2 py-3  align-middle whitespace-nowrap">
+      <td className="px-2 py-3  text-gray-500 align-middle whitespace-nowrap">
         <div className="flex items-center gap-x-1.5">
           <div className="w-5 h-5 flex items-center justify-start">
             <ViewIcon onClick={() => navigate(`/clients/${data?.id}`)} />
           </div>
-          <div className="w-5 h-5 flex items-center justify-center">
+          <div className="w-4 h-4 flex items-center justify-center">
             <ShareDocumentIcon
               onClick={() =>
                 navigate(`/clients/edit-client/${data?.id}`, {
@@ -154,7 +155,7 @@ const ClientItem = ({
             />
           </div>
           {canEditDelete && (
-            <div className="w-5 h-5 flex items-center justify-center">
+            <div className="w-4 h-4 flex items-center justify-center">
               <EditIcon
                 onClick={() => navigate(`/clients/edit-client/${data?.id}`)}
               />

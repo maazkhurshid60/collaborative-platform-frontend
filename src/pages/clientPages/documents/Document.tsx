@@ -1,13 +1,14 @@
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import usePaginationHook from "../../../hook/usePaginationHook";
 import Table from "../../../components/table/Table";
 import CustomPagination from "../../../components/customPagination/CustomPagination";
 import ViewDocModal from "../../../components/modals/clientModal/viewDocModal/ViewDocModal";
-import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import documentApiService from "../../../apiServices/documentApi/DocumentApi";
-import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../apiServices/axiosInstance/AxiosInstance";
 
 import {

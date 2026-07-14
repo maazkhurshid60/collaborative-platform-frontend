@@ -1,22 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { FaRegShareFromSquare } from "react-icons/fa6";
+import { AppDispatch, RootState } from "@/redux/store";
 
-import Button from "../../../button/Button";
-import ClientFormShareModal from "../../../modals/providerModal/clientDocShareModal/ClientFormShareModal";
-import { AppDispatch, RootState } from "../../../../redux/store";
-import { isModalShowReducser } from "../../../../redux/slices/ModalSlice";
-import Checkbox from "../../../checkbox/Checkbox";
-import axiosInstance from "../../../../apiServices/axiosInstance/AxiosInstance";
-import ClientCompleteDocShareModal from "../../../modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal";
-import ViewDocModal from "../../../modals/clientModal/viewDocModal/ViewDocModal";
-import { generateFormPdfUrl } from "../../../../pdf/utils/pdfHelpers";
-import { documentSignByClientType } from "../../../../types/documentType/DocumentType";
-import NoRecordFound from "../../../noRecordFound/NoRecordFound";
-import Loader from "../../../loader/Loader";
+import Loader from "@/components/loader/Loader";
+import ModalLayout from "@/components/modals/modalLayout/ModalLayout";
+import ProviderFormFillStep from "@/components/modals/providerModal/multiClientDocShareModal/ProviderFormFillStep";
+import ClientCompleteDocShareModal from "@/components/modals/providerModal/clientDocShareModal/ClientCompleteDocShareModal";
+import ViewDocModal from "@/components/modals/clientModal/viewDocModal/ViewDocModal";
+import Checkbox from "@/components/checkbox/Checkbox";
+import SearchBar from "@/components/searchBar/SearchBar";
+import NoRecordFound from "@/components/noRecordFound/NoRecordFound";
+import Table from "@/components/table/Table";
+import CustomPagination from "@/components/customPagination/CustomPagination";
+import { ShareClientDocRow } from "./ShareClientDocRow";
+import Button from "@/components/button/Button";
+import { useDocumentData } from "@/hooks/useDocumentData";
+import { isModalShowReducser } from "@/redux/slices/ModalSlice";
+import axiosInstance from "@/apiServices/axiosInstance/AxiosInstance";
+import documentApiService from "@/apiServices/documentApi/DocumentApi";
+import { documentSignByClientType } from "@/types/documentType/DocumentType";
 
 interface ShareClientDocProps {
   clientId: string;
@@ -24,15 +30,24 @@ interface ShareClientDocProps {
   clientEmail?: string;
 }
 
+const recordPerPage = 10;
+const heading = ["", "#", "Document", "Type", "Status", "Created", "Action"];
+
 const ShareClientDoc: React.FC<ShareClientDocProps> = ({
   clientId,
   recipientId,
   clientEmail,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [sharedDocs, setSharedDocs] = useState<string[]>();
-  const [sharedDocsId, setSharedDocsId] = useState<string[]>([]);
-  const [activeModal, setActiveModal] = useState<"SHARE" | "VIEW" | null>(null);
+  const queryClient = useQueryClient();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [activeModal, setActiveModal] = useState<
+    "CONFIRM_SHARE" | "FILL_FORMS" | "VIEW" | null
+  >(null);
+
   const [modalData, setModalData] = useState<{
     docForRecipients: any | null;
     selectedDocHtml: string;
@@ -47,151 +62,227 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({
     },
   });
 
-  const isShowModal = useSelector(
-    (state: RootState) => state.modalSlice.isModalShow,
-  );
-  const isClientCompleteDocModal = useSelector(
-    (state: RootState) => state.modalSlice.isClientCompleteDocModal,
+  const [selectedCompletedDoc, setSelectedCompletedDoc] = useState<
+    any | undefined
+  >(undefined);
+
+  const { isModalShow, isClientCompleteDocModal } = useSelector(
+    (state: RootState) => state.modalSlice,
   );
 
   const providerId = useSelector(
     (state: RootState) => state.LoginUserDetail.userDetails.id,
   );
-  const [selectedCompletedDoc, setSelectedCompletedDoc] = useState<
-    any | undefined
-  >(undefined);
+  const loginUserId = useSelector(
+    (state: RootState) => state.LoginUserDetail.userDetails.user.id,
+  );
 
-  const selectDoc = (docName: string, isChecked: boolean, id: string) => {
-    if (isChecked) {
-      setSharedDocs((prev) => [...(prev ?? []), docName]);
-      setSharedDocsId((prev) => [...(prev ?? []), id]);
-    } else {
-      setSharedDocs((prev) => (prev ?? []).filter((doc) => doc !== docName));
-      setSharedDocsId((prev) => (prev ?? []).filter((item) => item !== id));
-    }
+  // Fetch all form templates and master documents via the shared hook
+  const { combinedDocs = [], docsLoading } = useDocumentData(
+    providerId,
+    loginUserId,
+  );
+
+  // Filter combined documents by search term
+  const filteredDocs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return combinedDocs;
+    return combinedDocs.filter(
+      (d) =>
+        d.name?.toLowerCase().includes(term) ||
+        d.type?.toLowerCase().includes(term),
+    );
+  }, [combinedDocs, searchTerm]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredDocs.length / recordPerPage) || 1;
+  const pageRecords = useMemo(() => {
+    const start = (currentPage - 1) * recordPerPage;
+    return filteredDocs.slice(start, start + recordPerPage);
+  }, [filteredDocs, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
-  const handleViewForm = async (doc: any) => {
-    try {
-      const formDoc = { ...doc, isForm: true, name: doc.title };
-      const url = await generateFormPdfUrl(formDoc);
-
-      setModalData({
-        docForRecipients: formDoc,
-        selectedDocHtml: "",
-        dataSendToViewDocModal: {
-          clientId: clientId,
-          providerId: providerId || "",
-          documentId: doc.id,
-          recipientId: "",
-          sharedDocumentId: "",
-          eSignature: "",
-          isAgree: false,
-          pdfUrl: url,
-        },
-      });
-      setActiveModal("VIEW");
-      dispatch(isModalShowReducser(true));
-    } catch (error) {
-      console.error("Error in handleViewForm:", error);
-      toast.error("Unable to view form.");
-    }
+  // Selection helpers
+  const toggleSelectDoc = (docId: string, checked: boolean) => {
+    setSelectedDocIds((prev) =>
+      checked ? [...prev, docId] : prev.filter((id) => id !== docId),
+    );
   };
 
-  const handleViewSubmittedForm = async (doc: any) => {
-    try {
-      const submissionData = doc?.submission?.data || {};
-      const signature = doc?.submission?.signature || null;
-      const formDoc = { ...doc, isForm: true, name: doc.title };
-      const url = await generateFormPdfUrl(formDoc, submissionData, signature);
-
-      setModalData({
-        docForRecipients: formDoc,
-        selectedDocHtml: "",
-        dataSendToViewDocModal: {
-          clientId: clientId,
-          providerId: providerId || "",
-          documentId: doc.id,
-          recipientId: "",
-          sharedDocumentId: "",
-          eSignature: signature || "",
-          isAgree: true,
-          pdfUrl: url,
-        },
-      });
-      setActiveModal("VIEW");
-      dispatch(isModalShowReducser(true));
-    } catch (error) {
-      console.error("Error displaying submitted form:", error);
-      toast.error("Failed to display form submission.");
-    }
-  };
-
-  const { data: documentData, isLoading } = useQuery<any>({
-    queryKey: ["formTemplates", clientId],
-    queryFn: async () => {
-      try {
-        const [templatesRes, sharesRes] = await Promise.all([
-          axiosInstance.get("/form/templates"),
-          axiosInstance.get("/form/client/" + clientId),
-        ]);
-
-        const templates = templatesRes.data?.data?.templates || [];
-        const allShares = sharesRes.data?.data?.shares || [];
-
-        // Filter shares to only show forms shared by the current provider
-        const shares = allShares.filter(
-          (s: any) => s.providerId === providerId,
-        );
-
-        const uncompleted: any[] = [];
-        const shared: any[] = [];
-        const completed: any[] = [];
-
-        templates.forEach((template: any) => {
-          const share = shares.find((s: any) => s.templateId === template.id);
-          // Always push to uncompleted so it can be shared again
-          uncompleted.push(template);
-          
-          if (share?.status === "PENDING") {
-            shared.push({ ...template, shareId: share.id });
-          } else if (share?.status === "SUBMITTED") {
-            completed.push({
-              ...template,
-              shareId: share.id,
-              submission: share.submission,
-            });
-          }
-        });
-
-        return {
-          uncompletedDocuments: uncompleted,
-          sharedDocuments: shared,
-          completedDocuments: completed,
-        };
-      } catch (error) {
-        console.error("Error fetching form templates:", error);
-        return {
-          uncompletedDocuments: [],
-          sharedDocuments: [],
-          completedDocuments: [],
-        };
+  const toggleSelectAllOnPage = (checked: boolean) => {
+    const pageIds = pageRecords.map((d) => d.id) ?? [];
+    setSelectedDocIds((prev) => {
+      if (checked) {
+        const merged = new Set([...prev, ...pageIds]);
+        return Array.from(merged);
       }
+      return prev.filter((id) => !pageIds.includes(id));
+    });
+  };
+
+  const selectedDocs = useMemo(
+    () => combinedDocs.filter((d) => selectedDocIds.includes(d.id)),
+    [combinedDocs, selectedDocIds],
+  );
+
+  // Get status of a document specifically for THIS client
+  const getDocStatus = (doc: any) => {
+    if (doc.isForm) {
+      const share = doc.shares?.find(
+        (s: any) => s.clientId === clientId && s.providerId === providerId,
+      );
+      if (!share) return "NOT_SHARED";
+      return share.status === "SUBMITTED" ? "COMPLETED" : "PENDING";
+    } else {
+      const share = doc.sharedWith?.find(
+        (sw: any) => sw.clientId === clientId && sw.providerId === providerId,
+      );
+      if (!share) return "NOT_SHARED";
+      return share.eSignature ? "COMPLETED" : "PENDING";
+    }
+  };
+
+  // Share Mutation
+  const shareMutation = useMutation({
+    mutationFn: async (providerData: Record<string, any> = {}) => {
+      const formIds = selectedDocs.filter((d) => d.isForm).map((d) => d.id);
+      const docIds = selectedDocs.filter((d) => !d.isForm).map((d) => d.id);
+
+      const promises: Promise<any>[] = [];
+
+      if (docIds.length > 0) {
+        promises.push(
+          documentApiService.documentSharedWithClientApi(
+            {
+              providerId: providerId || "",
+              clientId,
+              documentId: docIds,
+              recipientId: recipientId || "",
+              senderId: loginUserId || "",
+              clientEmail,
+              title: "Document has shared",
+            } as any,
+            { silent: true },
+          ),
+        );
+      }
+
+      if (formIds.length > 0) {
+        formIds.forEach((formId) => {
+          promises.push(
+            axiosInstance.post("/form/share", {
+              templateId: formId,
+              clientId,
+              providerId,
+              expirationDays: 7,
+              providerData:
+                Object.keys(providerData).length > 0 ? providerData : undefined,
+            }),
+          );
+        });
+      }
+
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      toast.success("Documents shared successfully!");
+      queryClient.invalidateQueries({ queryKey: ["master-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["form-templates"] });
+      setSelectedDocIds([]);
+      dispatch(isModalShowReducser(false));
+      setActiveModal(null);
+    },
+    onError: (error: any) => {
+      console.error("Error sharing documents:", error);
+      toast.error(error?.response?.data?.error || "Failed to share documents");
     },
   });
 
+  const handleOpenShareModal = () => {
+    if (selectedDocIds.length === 0) {
+      toast.warn("Select at least one document first");
+      return;
+    }
+
+    const hasProviderSections = selectedDocs.some(
+      (doc) =>
+        doc.isForm &&
+        doc.schema?.fields?.some((f: any) => f.type === "provider-section"),
+    );
+
+    if (hasProviderSections) {
+      setActiveModal("FILL_FORMS");
+    } else {
+      setActiveModal("CONFIRM_SHARE");
+    }
+    dispatch(isModalShowReducser(true));
+  };
+
+  const allOnPageSelected =
+    pageRecords.length > 0 &&
+    pageRecords.every((d) => selectedDocIds.includes(d.id));
+
+  // Simple share confirmation modal content
+  const confirmShareBody = (
+    <div className="mt-4">
+      <p className="text-[14px] text-textGreyColor mb-4">
+        Are you sure you want to share the selected documents with this client?
+      </p>
+      <p className="font-semibold text-[14px] mt-4 mb-4">Selected Documents</p>
+      <div className="grid grid-cols-1 gap-3 mb-6 max-h-40 overflow-y-auto">
+        {selectedDocs.map((doc) => (
+          <div
+            key={doc.id}
+            className="flex items-center gap-x-3 font-medium text-[14px] min-w-0"
+          >
+            <IoDocumentTextOutline className="text-primaryColorDark text-2xl shrink-0" />
+            <span className="truncate">{doc.name}</span>
+          </div>
+        ))}
+      </div>
+      <Button
+        text="Send"
+        sm
+        onclick={() => shareMutation.mutate({})}
+        isLoading={shareMutation.isPending}
+        disabled={shareMutation.isPending}
+      />
+    </div>
+  );
+
+  if (docsLoading) return <Loader text="Loading documents..." />;
+
   return (
-    <div>
-      {isLoading && <Loader />}
-      {isShowModal && activeModal === "SHARE" && recipientId && (
-        <ClientFormShareModal
-          sharedDocs={sharedDocs}
-          clientId={clientId}
-          providerId={providerId}
-          sharedDocsId={sharedDocsId}
-          clientEmail={clientEmail}
+    <div className="mt-6">
+      {/* Modals rendering */}
+      {isModalShow && activeModal === "CONFIRM_SHARE" && (
+        <ModalLayout
+          heading="Share Documents"
+          modalBodyContent={confirmShareBody}
         />
       )}
+
+      {isModalShow && activeModal === "FILL_FORMS" && (
+        <ModalLayout
+          heading="Share Documents"
+          modalBodyContent={
+            <ProviderFormFillStep
+              forms={selectedDocs.filter((d) => d.isForm)}
+              onBack={() => {
+                dispatch(isModalShowReducser(false));
+                setActiveModal(null);
+              }}
+              onSubmit={(data) => shareMutation.mutate(data)}
+              isSubmitting={shareMutation.isPending}
+            />
+          }
+          widthClass="w-[95%] max-w-4xl"
+        />
+      )}
+
       {isClientCompleteDocModal && (
         <ClientCompleteDocShareModal
           showDownloadButton
@@ -199,105 +290,90 @@ const ShareClientDoc: React.FC<ShareClientDocProps> = ({
           clientId={clientId}
         />
       )}
-      {isShowModal && activeModal === "VIEW" && (
+
+      {isModalShow && activeModal === "VIEW" && (
         <ViewDocModal
           sharedDocs={modalData.selectedDocHtml}
           isOnlyRead
           data={modalData.dataSendToViewDocModal as documentSignByClientType}
           previewKind="pdf"
           pdfUrl={modalData.dataSendToViewDocModal?.pdfUrl}
-          heading={modalData.docForRecipients?.name || "Form Template"}
+          heading={modalData.docForRecipients?.name || "Document Preview"}
         />
       )}
-      <div className="relative pl-2">
-        <div className="mt-8 flex items-center justify-between mb-2">
-          <p className="font-semibold text-[14px] ">Needs to be Shared</p>
-          <div className="w-23.75">
-            <Button
-              text="Share"
-              sm
-              onclick={() => {
-                if (sharedDocs && sharedDocs.length > 0) {
-                  setActiveModal("SHARE");
-                  dispatch(isModalShowReducser(true));
-                } else {
-                  toast.warn("Select a document first");
-                }
-              }}
-              icon={<FaRegShareFromSquare />}
+
+      {/* Toolbar & Send Actions */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-x-4 w-full md:w-[60%]">
+          <div className="w-3 h-6 flex items-center justify-center shrink-0">
+            <Checkbox
+              checked={allOnPageSelected}
+              onChange={(e) => toggleSelectAllOnPage(e.target.checked)}
+            />
+          </div>
+          {selectedDocIds.length > 0 && (
+            <span className="text-[12px] text-textColor font-semibold whitespace-nowrap">
+              {selectedDocIds.length} selected
+            </span>
+          )}
+          <div className="w-full">
+            <SearchBar
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Document Name"
             />
           </div>
         </div>
-        <div className="grid  grid-cols-1 sm:grid-cols-2 gap-y-3">
-          {documentData?.uncompletedDocuments?.map((data: any) => (
-            <div
-              key={data.id}
-              className="flex items-center gap-x-3 font-medium text-[14px]"
-            >
-              <Checkbox
-                onChange={(e) =>
-                  selectDoc(data.title, e.target.checked, data.id)
-                }
-                checked={sharedDocs?.includes(data.title) ?? false}
-              />
-              <div
-                className="cursor-pointer flex items-center gap-x-2"
-                onClick={() => handleViewForm(data)}
-              >
-                <IoDocumentTextOutline className="text-primaryColorDark text-2xl" />
-                {data?.title}
-              </div>
-            </div>
-          ))}
-        </div>
 
-        <hr className="text-textGreyColor/30 h-0.5 mt-10 mb-10" />
+        <div className="w-full md:w-36 flex justify-end">
+          <Button
+            text={`Share${selectedDocIds.length ? ` (${selectedDocIds.length})` : ""}`}
+            onclick={handleOpenShareModal}
+            icon={<FaRegShareFromSquare />}
+            sm
+          />
+        </div>
+      </div>
 
-        <div className="mt-8 flex items-center justify-between mb-2">
-          <p className="font-semibold text-[14px] ">
-            Shared Documents for client review
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3">
-          {documentData?.sharedDocuments &&
-          documentData?.sharedDocuments?.length > 0 ? (
-            documentData?.sharedDocuments?.map((data: any) => (
-              <div
-                key={data.id}
-                className="cursor-pointer flex items-center gap-x-3 font-medium text-[14px] "
-                onClick={() => handleViewForm(data)}
-              >
-                <IoDocumentTextOutline className="text-primaryColorDark text-2xl" />
-                {data?.title}
-              </div>
-            ))
-          ) : (
-            <NoRecordFound />
-          )}
-        </div>
+      {/* Unified documents table */}
+      <div className="mt-4 w-full">
+        {pageRecords.length === 0 ? (
+          <NoRecordFound />
+        ) : (
+          <>
+            <Table heading={heading}>
+              {pageRecords.map((doc: any, rowIndex: number) => {
+                const serialNo =
+                  (currentPage - 1) * recordPerPage + rowIndex + 1;
+                const isSelected = selectedDocIds.includes(doc.id);
+                const status = getDocStatus(doc);
 
-        <hr className="text-textGreyColor/30 h-0.5 mt-10 mb-10" />
+                return (
+                  <ShareClientDocRow
+                    key={doc.id}
+                    doc={doc}
+                    serialNo={serialNo}
+                    isSelected={isSelected}
+                    status={status}
+                    toggleSelectDoc={toggleSelectDoc}
+                    clientId={clientId}
+                    providerId={providerId}
+                    recipientId={recipientId}
+                    setModalData={setModalData}
+                    setActiveModal={setActiveModal}
+                    setSelectedCompletedDoc={setSelectedCompletedDoc}
+                  />
+                );
+              })}
+            </Table>
 
-        <div className="mt-8 flex items-center justify-between mb-2">
-          <p className="font-semibold text-[14px] ">Completed Documents</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3">
-          {documentData?.completedDocuments &&
-          documentData?.completedDocuments?.length > 0 ? (
-            documentData?.completedDocuments?.map((data: any) => (
-              <div
-                key={data.id}
-                className="cursor-pointer flex items-center gap-x-3 font-medium text-[14px] "
-                onClick={() => handleViewSubmittedForm(data)}
-              >
-                <IoDocumentTextOutline className="text-primaryColorDark text-2xl" />
-                {data?.title}
-              </div>
-            ))
-          ) : (
-            <NoRecordFound />
-          )}
-        </div>
+            <CustomPagination
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              hookCurrentPage={currentPage}
+            />
+          </>
+        )}
       </div>
     </div>
   );
