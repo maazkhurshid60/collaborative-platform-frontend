@@ -162,6 +162,22 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async getContactQueries(params: { page?: number; limit?: number; search?: string } = {}) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.get("/contact-queries", {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching contact queries:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();

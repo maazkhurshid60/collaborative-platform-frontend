@@ -120,6 +120,11 @@ export const SuperAdminSidebarData = [
     icon: ClipboardList,
   },
   {
+    name: "Contact Queries",
+    url: "/contact-queries",
+    icon: MessageIcon,
+  },
+  {
     name: "User Profile",
     url: "/super-admin",
     icon: UserIconForSidbar,
