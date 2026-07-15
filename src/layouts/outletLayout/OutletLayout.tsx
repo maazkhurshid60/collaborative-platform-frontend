@@ -9,6 +9,7 @@ interface OutletLayoutProps {
   isEdit?: boolean;
   onEditClick?: () => void;
   buttonContainerClass?: string;
+  parentContainerClasses?: string;
 }
 
 const OutletLayout: React.FC<OutletLayoutProps> = ({
@@ -20,10 +21,11 @@ const OutletLayout: React.FC<OutletLayoutProps> = ({
   isEdit,
   onEditClick,
   buttonContainerClass,
+  parentContainerClasses,
 }) => {
   return (
     <div
-      className={`${isWhiteColor ? "bg-white" : "bg-transparent"} relative  w-full p-3  rounded-lg space-y-7   
+      className={`${isWhiteColor ? "bg-white" : "bg-transparent"} ${parentContainerClasses} relative  w-full p-3  rounded-lg space-y-7   
         font-[Poppins] text-textColor 
         `}
     >

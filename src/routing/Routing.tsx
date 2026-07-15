@@ -106,6 +106,9 @@ const DocumentSharing = lazy(
 const AuditLogs = lazy(
   () => import("../pages/superadminPages/auditLogs/AuditLogs"),
 );
+const ContactQueries = lazy(
+  () => import("../pages/superadminPages/contactQueries/ContactQueries"),
+);
 const PublicFormView = lazy(
   () => import("../pages/publicPages/PublicFormView"),
 );
@@ -354,6 +357,16 @@ const Routing = () => {
             element={
               <WrappedRoute>
                 <AuditLogs />
+              </WrappedRoute>
+            }
+          />
+        )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/contact-queries"
+            element={
+              <WrappedRoute>
+                <ContactQueries />
               </WrappedRoute>
             }
           />
