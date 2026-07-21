@@ -34,11 +34,9 @@ const ContactQueries = () => {
       return response;
     },
     staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });
 
-  console.log("Data is here : ", data);
   const queries = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
 
