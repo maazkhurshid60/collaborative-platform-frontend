@@ -1,4 +1,4 @@
-import { ClipboardList, FileText, Bot } from "lucide-react";
+import { ClipboardList, FileText, Bot, ShieldCheck } from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
 import DashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/dashboard/Dashboard";
@@ -11,9 +11,7 @@ import InviteProvider from "../components/icons/dashboardIcons/providersPortalIc
 import InvoiceIcon from "../components/icons/Invocies/InvociesIcon";
 import ProvidersInDashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/providers/ProvidersInDashboard";
 import SubscriptionIcon from "../components/icons/crownIcon/CrownIcon";
-import RejectedIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/RejectedIcon";
 import VerifiedIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/VerifiedIcon";
-import PendingIcon from "../components/icons/dashboardIcons/providersPortalIcons/clients/PendingIcon";
 import UserIconForSidbar from "../components/icons/dashboardIcons/providersPortalIcons/clients/UserIconForSidbar";
 
 export const ProviderSidebarData = [
@@ -119,6 +117,16 @@ export const SuperAdminSidebarData = [
     url: "/audit-logs",
     icon: ClipboardList,
   },
+  {
+    name: "BAA",
+    url: "/baa-management",
+    icon: ShieldCheck,
+    subItems: [
+      { name: "BAA Document", url: "/baa-management" },
+      { name: "Accepted Providers", url: "/baa-accepted-providers" },
+    ],
+  },
+
   {
     name: "Contact Queries",
     url: "/contact-queries",

@@ -121,6 +121,13 @@ const ChatWithAI = lazy(
 const SuperAdminDashboard = lazy(
   () => import("../pages/superadminPages/dashboard/SuperAdminDashboard"),
 );
+const BaaManagement = lazy(
+  () => import("../pages/superadminPages/baa/BaaManagement"),
+);
+const BaaAcceptedProviders = lazy(
+  () => import("../pages/superadminPages/baa/BaaAcceptedProviders"),
+);
+
 
 const Routing = () => {
   const loginUserRole = useSelector(
@@ -371,6 +378,28 @@ const Routing = () => {
             }
           />
         )}
+
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/baa-management"
+            element={
+              <WrappedRoute>
+                <BaaManagement />
+              </WrappedRoute>
+            }
+          />
+        )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/baa-accepted-providers"
+            element={
+              <WrappedRoute>
+                <BaaAcceptedProviders />
+              </WrappedRoute>
+            }
+          />
+        )}
+
 
         {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
           <Route

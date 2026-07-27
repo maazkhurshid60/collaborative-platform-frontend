@@ -178,7 +178,47 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async getBaa() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.get("/baa", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching BAA:", error);
+            throw error;
+        }
+    }
+
+    async saveBaa(data: { title: string; content: string }) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.post("/baa", data, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error saving BAA:", error);
+            throw error;
+        }
+    }
+
+    async getBaaAcceptedProviders() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.get("/baa-providers", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching BAA accepted providers:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();
 export default superAdminApi;
+
