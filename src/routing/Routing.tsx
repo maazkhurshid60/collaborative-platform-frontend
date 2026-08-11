@@ -17,6 +17,7 @@ import PaymentSuccessPage from "../pages/payment-pages/PaymentSuccessPage";
 import { PaymentFailurePage } from "../pages/payment-pages/PaymentFailurePage";
 import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage";
 import ConfirmFreeAccount from "../pages/auth/confirmFreeAccount/ConfirmFreeAccount";
+import WelcomeFreeTrial from "../pages/auth/welcomeFreeTrial/WelcomeFreeTrial";
 import SelectPlan from "../pages/payment-pages/SelectPlan";
 import PlanExpiredOverlay from "../components/pagesComponent/dashboard/plan-expired/PlanExpiredOverlay";
 import { SubscriptionGuard } from "../components/subscriptionGuard/SubscriptionGuard";
@@ -681,6 +682,14 @@ const Routing = () => {
           element={
             <WrappedRoute>
               <ConfirmFreeAccount />
+            </WrappedRoute>
+          }
+        />
+        <Route
+          path="/welcome-free-trial"
+          element={
+            <WrappedRoute>
+              <WelcomeFreeTrial />
             </WrappedRoute>
           }
         />

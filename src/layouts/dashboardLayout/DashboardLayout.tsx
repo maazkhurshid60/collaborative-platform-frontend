@@ -52,7 +52,8 @@ const DashboardLayout = () => {
     location.pathname === "/confirm-free-account" ||
     location.pathname === "/payment-checkout" ||
     location.pathname === "/payment-success" ||
-    location.pathname === "/payment-failure";
+    location.pathname === "/payment-failure" ||
+    location.pathname === "/welcome-free-trial";
 
   // Pages that are exempt from subscription restrictions but SHOULD show sidebar
   const isExempt =

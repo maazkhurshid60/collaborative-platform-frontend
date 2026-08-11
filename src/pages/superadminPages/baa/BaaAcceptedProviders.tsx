@@ -8,6 +8,7 @@ import ViewIcon from "../../../components/icons/view/View";
 import Loader from "../../../components/loader/Loader";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import superAdminApi from "../../../apiServices/superAdminApi/SuperAdminApi";
+import { getFormatedDateAndTime } from "@/utils/dataTimeUtils";
 
 const heading = [
   "#",
@@ -65,20 +66,14 @@ const BaaAcceptedProviders: React.FC = () => {
                   <td className="px-4 py-3 align-middle font-medium text-gray-900">
                     {user.fullName}
                   </td>
-                  <td className="px-4 py-3 align-middle text-gray-500">
+                  <td className="px-4 py-3 align-middle text-gray-600">
                     {user.email.toLowerCase()}
                   </td>
                   <td className="px-4 py-3 align-middle text-gray-600">
                     {user.provider?.speciality || "N/A"}
                   </td>
                   <td className="px-4 py-3 align-middle text-gray-600">
-                    {new Date(user.baaAcceptedAt).toLocaleString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {getFormatedDateAndTime(user.baaAcceptedAt)}
                   </td>
                   <td className="px-4 py-3 align-middle">
                     <span className="inline-flex items-center gap-x-1.5 rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
@@ -86,14 +81,12 @@ const BaaAcceptedProviders: React.FC = () => {
                       Accepted
                     </span>
                   </td>
-                  <td className="px-4 py-3 align-middle">
-                    <div className="flex items-center justify-start gap-x-2">
-                      <ViewIcon
-                        onClick={() =>
-                          navigate(`/all-users/view-user/${user.id}`)
-                        }
-                      />
-                    </div>
+                  <td className="px-4 py-3 flex items-start justify-start ">
+                    <ViewIcon
+                      onClick={() =>
+                        navigate(`/all-users/view-user/${user.id}`)
+                      }
+                    />
                   </td>
                 </tr>
               ))}
