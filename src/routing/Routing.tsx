@@ -17,6 +17,7 @@ import PaymentSuccessPage from "../pages/payment-pages/PaymentSuccessPage";
 import { PaymentFailurePage } from "../pages/payment-pages/PaymentFailurePage";
 import { PaymentCheckoutPage } from "../pages/payment-pages/Payment-CheckoutPage";
 import ConfirmFreeAccount from "../pages/auth/confirmFreeAccount/ConfirmFreeAccount";
+import WelcomeFreeTrial from "../pages/auth/welcomeFreeTrial/WelcomeFreeTrial";
 import SelectPlan from "../pages/payment-pages/SelectPlan";
 import PlanExpiredOverlay from "../components/pagesComponent/dashboard/plan-expired/PlanExpiredOverlay";
 import { SubscriptionGuard } from "../components/subscriptionGuard/SubscriptionGuard";
@@ -121,6 +122,13 @@ const ChatWithAI = lazy(
 const SuperAdminDashboard = lazy(
   () => import("../pages/superadminPages/dashboard/SuperAdminDashboard"),
 );
+const BaaManagement = lazy(
+  () => import("../pages/superadminPages/baa/BaaManagement"),
+);
+const BaaAcceptedProviders = lazy(
+  () => import("../pages/superadminPages/baa/BaaAcceptedProviders"),
+);
+
 
 const Routing = () => {
   const loginUserRole = useSelector(
@@ -371,6 +379,28 @@ const Routing = () => {
             }
           />
         )}
+
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/baa-management"
+            element={
+              <WrappedRoute>
+                <BaaManagement />
+              </WrappedRoute>
+            }
+          />
+        )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/baa-accepted-providers"
+            element={
+              <WrappedRoute>
+                <BaaAcceptedProviders />
+              </WrappedRoute>
+            }
+          />
+        )}
+
 
         {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
           <Route
@@ -652,6 +682,14 @@ const Routing = () => {
           element={
             <WrappedRoute>
               <ConfirmFreeAccount />
+            </WrappedRoute>
+          }
+        />
+        <Route
+          path="/welcome-free-trial"
+          element={
+            <WrappedRoute>
+              <WelcomeFreeTrial />
             </WrappedRoute>
           }
         />

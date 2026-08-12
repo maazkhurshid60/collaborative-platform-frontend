@@ -194,6 +194,17 @@ class AuthService {
         }
     }
 
+    // Fetches the active BAA document (public — no token required)
+    async getActiveBaa() {
+        try {
+            const response = await this.api.get("/baa");
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching active BAA:", error);
+            throw error;
+        }
+    }
+
 }
 // Export a single instance
 const authService = new AuthService();

@@ -21,6 +21,7 @@ import nacl from "tweetnacl";
 
 import { RootState } from "../../../redux/store";
 import HipaaModal from "../../../components/modals/HipaaModal/HipaaModal";
+import BaaModal from "../../../components/modals/BaaModal/BaaModal";
 
 export const specialityOptions = [
   { value: "Psychiatry", label: "Psychiatry" },
@@ -60,6 +61,9 @@ const ProviderSignup = () => {
   const [invitedByName, setInvitedByName] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(false);
   const [showHipaaModal, setShowHipaaModal] = useState(false);
+  const [showBaaModal, setShowBaaModal] = useState(false);
+  const [baaData, setBaaData] = useState<{ title: string; content: string } | null>(null);
+  const [pendingSignupData, setPendingSignupData] = useState<any>(null);
 
   const methods = useForm<FormFields>({
     resolver: zodResolver(ProviderSignupSchema),
@@ -164,28 +168,68 @@ const ProviderSignup = () => {
       inviteToken: token || undefined,
     };
 
+    // Fetch active BAA document
+    try {
+      const baaRes = await authService.getActiveBaa();
+      if (baaRes?.data) {
+        // BAA exists — show modal before navigating
+        setBaaData({ title: baaRes.data.title, content: baaRes.data.content });
+        setPendingSignupData(dataSendToBackend);
+        setIsLoading(false);
+        setShowBaaModal(true);
+        return;
+      }
+    } catch (baaErr) {
+      console.error("Failed to fetch BAA — proceeding without:", baaErr);
+    }
+
+    // No BAA — proceed directly
+    setIsLoading(false);
+    proceedAfterBaa(dataSendToBackend);
+  };
+
+  // Called after provider agrees to BAA (or if no BAA exists)
+  const proceedAfterBaa = (data: any) => {
     if (token) {
-      setIsLoading(false);
       navigate("/confirm-free-account", {
         state: {
-          userData: dataSendToBackend,
+          userData: data,
           planType: "FREE",
-          inviteToken: token, // ✅ preserve so "View Plans" detour works
+          inviteToken: token,
         },
       });
       return;
     }
-
-    // Normal flow: navigate to select-plan
-    setIsLoading(false);
-    navigate("/select-plan", { state: { userData: dataSendToBackend } });
+    navigate("/select-plan", { state: { userData: data } });
   };
+
+  const handleBaaAgree = () => {
+    setShowBaaModal(false);
+    if (pendingSignupData) {
+      proceedAfterBaa({ ...pendingSignupData, baaAccepted: true });
+    }
+  };
+
+  const handleBaaCancel = () => {
+    setShowBaaModal(false);
+    setPendingSignupData(null);
+    toast.warn("You must accept the BAA to register as a provider.");
+  };
+
 
   return (
     <>
       {isLoading && <Loader />}
       {showHipaaModal && (
         <HipaaModal onClose={() => setShowHipaaModal(false)} />
+      )}
+      {showBaaModal && baaData && (
+        <BaaModal
+          title={baaData.title}
+          content={baaData.content}
+          onAgree={handleBaaAgree}
+          onCancel={handleBaaCancel}
+        />
       )}
       <AuthLayout heading="Sign up" currentStep={1} totalSteps={2}>
         <FormProvider {...methods}>
