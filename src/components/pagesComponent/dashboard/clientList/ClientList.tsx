@@ -19,19 +19,18 @@ import NoRecordFound from "../../../noRecordFound/NoRecordFound";
 import { selectedClientIdType } from "../../../../pages/providerPages/clients/Clients";
 import ViewIcon from "../../../icons/view/View";
 
-const ClientList = () => {
-  // 1) Add S.No. as first heading
-  const heading = [
-    "#",
-    "name",
-    "Client ID",
-    "gender",
-    "email",
-    "status",
-    "providers",
-    "action",
-  ];
+const heading = [
+  "#",
+  "name",
+  "Client ID",
+  "gender",
+  "email",
+  "status",
+  "providers",
+  "action",
+];
 
+const ClientList = () => {
   const [isLoader, setIsLoader] = useState(false);
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
@@ -188,7 +187,7 @@ const ClientList = () => {
                     className="border-b border-b-solid border-b-lightGreyColor pb-4s"
                   >
                     {/* S.No. column */}
-                    <td className="px-4 py-4 w-[60px] whitespace-nowrap">
+                    <td className="px-4 py-4 w-15 whitespace-nowrap">
                       {serialNo}
                     </td>
 
@@ -208,7 +207,7 @@ const ClientList = () => {
                       </span>
                     </td>
 
-                    <td className="px-4 py-2 w-[100px]">
+                    <td className="px-4 py-2 w-25">
                       {data?.providerList?.length === 0 ||
                       data?.providerList === undefined ? (
                         <p>No Providers Found</p>

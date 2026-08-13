@@ -47,6 +47,7 @@ export interface ProviderUser {
     profileImage: string | null;
     email?: string
     role: string;
+    profile?: { identityVerified?: boolean; backgroundChecked?: boolean };
     status: string;
     createdAt: string;
     updatedAt: string;

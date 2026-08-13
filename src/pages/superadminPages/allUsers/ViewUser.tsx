@@ -1,11 +1,12 @@
 
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { GoDotFill } from "react-icons/go";
 import { ProviderType } from "../../../types/providerType/ProviderType";
 import loginUserApiService from "../../../apiServices/loginUserApi/LoginUserApi";
+import { providerProfileApiService } from "../../../services/providerProfileApiService";
 import Loader from "../../../components/loader/Loader";
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import BackIcon from "../../../components/icons/back/Back";
@@ -119,6 +120,26 @@ const ViewUser = () => {
       setIsRejectLoading(false);
     }
   };
+
+  const verificationMutation = useMutation({
+    mutationFn: async ({
+      providerId,
+      flag,
+      value,
+    }: {
+      providerId: string;
+      flag: "identityVerified" | "backgroundChecked";
+      value: boolean;
+    }) => providerProfileApiService.setVerificationFlags(providerId, { [flag]: value }),
+    onSuccess: () => {
+      toast.success("Verification status updated");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error: Error) => {
+      console.error("Verification update failed:", error);
+      toast.error("Failed to update verification status");
+    },
+  });
 
   const restoreFunction = async (data: User) => {
     try {
@@ -265,6 +286,40 @@ const ViewUser = () => {
             </div>
           )}
         </div>
+
+        {/* PLATFORM VERIFICATION (provider only, only settable by superAdmin) */}
+        {selectedUserData?.role === "provider" && selectedUserData.provider?.id && (() => {
+          const providerId = selectedUserData.provider.id;
+          const profile = selectedUserData.provider.profile;
+          return (
+            <div className="flex items-center gap-x-6 mt-6">
+              <label className="flex items-center gap-2 text-[14px] text-textGreyColor cursor-pointer">
+                <input
+                  type="checkbox"
+                  disabled={verificationMutation.isPending}
+                  checked={!!profile?.identityVerified}
+                  onChange={(e) =>
+                    verificationMutation.mutate({ providerId, flag: "identityVerified", value: e.target.checked })
+                  }
+                  className="w-4 h-4"
+                />
+                Identity Verified
+              </label>
+              <label className="flex items-center gap-2 text-[14px] text-textGreyColor cursor-pointer">
+                <input
+                  type="checkbox"
+                  disabled={verificationMutation.isPending}
+                  checked={!!profile?.backgroundChecked}
+                  onChange={(e) =>
+                    verificationMutation.mutate({ providerId, flag: "backgroundChecked", value: e.target.checked })
+                  }
+                  className="w-4 h-4"
+                />
+                Background Checked
+              </label>
+            </div>
+          );
+        })()}
 
         {/* ACTIONS */}
         <div className="flex items-end justify-end mt-8">

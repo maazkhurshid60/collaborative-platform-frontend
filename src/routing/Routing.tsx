@@ -113,6 +113,11 @@ const ContactQueries = lazy(
 const PublicFormView = lazy(
   () => import("../pages/publicPages/PublicFormView"),
 );
+const ProviderPublicProfile = lazy(
+  () => import("../pages/publicPages/ProviderPublicProfile"),
+);
+const FindAProvider = lazy(() => import("../pages/publicPages/FindAProvider"));
+const Queries = lazy(() => import("../pages/providerPages/queries/Queries"));
 const FormBuilder = lazy(
   () => import("../pages/providerPages/formBuilder/FormBuilder"),
 );
@@ -239,6 +244,22 @@ const Routing = () => {
           </WrappedRoute>
         }
       />
+      <Route
+        path="/p/:slug"
+        element={
+          <WrappedRoute>
+            <ProviderPublicProfile />
+          </WrappedRoute>
+        }
+      />
+      <Route
+        path="/find-a-provider"
+        element={
+          <WrappedRoute>
+            <FindAProvider />
+          </WrappedRoute>
+        }
+      />
 
       {/* Protected Routes */}
       <Route
@@ -314,6 +335,17 @@ const Routing = () => {
             element={
               <WrappedRoute>
                 <SubscriptionSettingPage />
+              </WrappedRoute>
+            }
+          />
+        )}
+
+        {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+          <Route
+            path="/queries"
+            element={
+              <WrappedRoute>
+                <Queries />
               </WrappedRoute>
             }
           />

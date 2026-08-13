@@ -15,6 +15,7 @@ export interface ProviderType {
     // provider?:
     clientId?: string
     client?: ClientType
+    profile?: { identityVerified?: boolean; backgroundChecked?: boolean }
 }
 export interface Client {
     id?: string

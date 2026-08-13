@@ -109,8 +109,8 @@ const ProviderItem: React.FC<ProviderItemProps> = ({
         }}
       >
         <div className="shrink-0">
-          <div className="w-[55px] h-[55px] rounded-full flex items-center justify-center bg-gray-200">
-            <HiMiniUserCircle className="w-[40px] h-[40px] text-gray-400" />
+          <div className="w-13.75 h-13.75 rounded-full flex items-center justify-center bg-gray-200">
+            <HiMiniUserCircle className="w-10 h-10 text-gray-400" />
           </div>
         </div>
         <div className="flex-1 min-w-0">
@@ -140,8 +140,8 @@ const ProviderItem: React.FC<ProviderItemProps> = ({
             className="w-12 h-12 rounded-full object-cover border-2 ml-1.5 border-gray-200"
           />
         ) : (
-          <div className="w-[55px] h-[55px] rounded-full flex items-center justify-center">
-            <HiMiniUserCircle className="w-[55px] h-[55px]" />
+          <div className="w-13.75 h-13.75 rounded-full flex items-center justify-center">
+            <HiMiniUserCircle className="w-13.75 h-13.75" />
           </div>
         )}
       </div>
