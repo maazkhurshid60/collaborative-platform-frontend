@@ -26,6 +26,8 @@ import { saveLoginUserDetailsReducer } from "../../../redux/slices/LoginUserDeta
 import FileUploader from "../../../components/uploader/fileUploader/FileUploader";
 import CrossIcon from "../../../components/icons/cross/Cross";
 import CountryStateSelect from "../../../components/dropdown/CountryStateSelect";
+import { providerProfileApiService } from "../../../services/providerProfileApiService";
+import { ProfileCompletenessBar, PUBLISH_THRESHOLD_PERCENT } from "../publicProfile/components/ProfileCompletenessBar";
 
 type FormFields = z.infer<typeof providerSchema>;
 
@@ -150,6 +152,17 @@ const AccountInfoTab = () => {
       return response?.data;
     },
     enabled: Boolean(loginUserDetail?.id),
+  });
+
+  const isProvider = loginUserDetail?.user?.role === "provider";
+
+  const { data: providerProfile } = useQuery({
+    queryKey: ["providerProfile", "me"],
+    queryFn: async () => {
+      const response = await providerProfileApiService.getMyProfile();
+      return response?.data;
+    },
+    enabled: isProvider,
   });
 
   // Snapshot of initial values from backend
@@ -324,6 +337,15 @@ const AccountInfoTab = () => {
     <>
       {isLoader && <Loader text="Updating..." />}
       {isShowDeleteModal && <DeleteClientModal />}
+
+      {isProvider && providerProfile && (
+        <div className="mt-4 rounded-xl border border-lightGreyColor/25 bg-white p-4">
+          <ProfileCompletenessBar
+            completenessPercent={providerProfile.completenessPercent ?? 0}
+            helperText={`Fill in at least ${PUBLISH_THRESHOLD_PERCENT}% of your public profile before you can publish it. Head to the "Public Profile" tab to finish it.`}
+          />
+        </div>
+      )}
 
       {isEdit ? (
         <FormProvider {...methods}>

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import naclUtil from "tweetnacl-util";
@@ -22,6 +22,7 @@ import {
 
 import { Client } from "../../../types/providerType/ProviderType";
 import Loader from "../../../components/loader/Loader";
+import { trackMetaPixelPageView } from "../../../utils/metaPixel";
 
 type FormFields = z.infer<typeof LoginSchema>;
 
@@ -45,6 +46,10 @@ const Login = () => {
   });
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    trackMetaPixelPageView();
+  }, []);
 
   //FUNCTIONS
   const loginFunction = useCallback(

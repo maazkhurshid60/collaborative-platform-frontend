@@ -2,6 +2,7 @@ import { Copy, ExternalLink } from "lucide-react";
 import Toggle from "../../../../components/toggle/Toggle";
 import { LANDING_SITE_URL } from "../../../../constantData/LandingSite";
 import type { ProfileFormState } from "../types";
+import { ProfileCompletenessBar, PUBLISH_THRESHOLD_PERCENT } from "./ProfileCompletenessBar";
 
 interface ProfileHeaderProps {
   formValues: ProfileFormState;
@@ -17,6 +18,7 @@ export const ProfileHeader = ({
   onCopyLink,
 }: ProfileHeaderProps) => {
   const publicUrl = `${LANDING_SITE_URL}/p/${formValues.slug}`;
+  const completenessPercent = formValues.completenessPercent ?? 0;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 mb-6 drop-shadow-sm">
@@ -27,21 +29,38 @@ export const ProfileHeader = ({
             Build the profile new clients see, and share it anywhere.
           </p>
         </div>
-        <div
-          className={`flex items-center gap-3 ${
-            isPublishPending ? "opacity-50 pointer-events-none" : ""
-          }`}
-        >
-          <span className="text-[14px] font-medium text-[#333333]">
-            {formValues.isPublished ? "Published" : "Private"}
+        <div className={`flex items-center gap-2.5 ${isPublishPending ? "opacity-50 pointer-events-none" : ""}`}>
+          <span
+            className={`text-[14px] font-medium transition-colors ${
+              !formValues.isPublished ? "text-[#333333]" : "text-[#98A2B3]"
+            }`}
+          >
+            Private
           </span>
           <Toggle
             checked={formValues.isPublished}
             onChange={(e) => onPublishToggle(e.target.checked)}
             dataTestId="public-profile-publish-toggle"
           />
+          <span
+            className={`text-[14px] font-medium transition-colors ${
+              formValues.isPublished ? "text-primaryColorDark" : "text-[#98A2B3]"
+            }`}
+          >
+            Public
+          </span>
         </div>
       </div>
+
+      <ProfileCompletenessBar
+        completenessPercent={completenessPercent}
+        helperText={
+          formValues.isPublished
+            ? `Your profile is below the ${PUBLISH_THRESHOLD_PERCENT}% mark recommended for a strong public listing — fill in more details to improve it.`
+            : `Fill in at least ${PUBLISH_THRESHOLD_PERCENT}% of your public profile before you can publish it.`
+        }
+        className="mt-5"
+      />
 
       {formValues.isPublished && (
         <div className="mt-5 flex items-center gap-2 bg-inputBgColor rounded-lg px-4 py-3">

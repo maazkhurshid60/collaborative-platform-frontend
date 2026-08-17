@@ -118,6 +118,9 @@ const ProviderPublicProfile = lazy(
 );
 const FindAProvider = lazy(() => import("../pages/publicPages/FindAProvider"));
 const Queries = lazy(() => import("../pages/providerPages/queries/Queries"));
+const Appointments = lazy(
+  () => import("../pages/providerPages/appointments/Appointments"),
+);
 const FormBuilder = lazy(
   () => import("../pages/providerPages/formBuilder/FormBuilder"),
 );
@@ -346,6 +349,17 @@ const Routing = () => {
             element={
               <WrappedRoute>
                 <Queries />
+              </WrappedRoute>
+            }
+          />
+        )}
+
+        {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
+          <Route
+            path="/appointments"
+            element={
+              <WrappedRoute>
+                <Appointments />
               </WrappedRoute>
             }
           />

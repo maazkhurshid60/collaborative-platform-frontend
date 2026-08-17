@@ -1,4 +1,4 @@
-import { ClipboardList, FileText, Bot, ShieldCheck, MessageCircleQuestion } from "lucide-react";
+import { ClipboardList, FileText, Bot, ShieldCheck, MessageCircleQuestion, CalendarDays } from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
 import DashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/dashboard/Dashboard";
@@ -65,6 +65,11 @@ export const ProviderSidebarData = [
     name: "Queries",
     url: "/queries",
     icon: MessageCircleQuestion,
+  },
+  {
+    name: "Appointments",
+    url: "/appointments",
+    icon: CalendarDays,
   },
   {
     name: "User Profile",

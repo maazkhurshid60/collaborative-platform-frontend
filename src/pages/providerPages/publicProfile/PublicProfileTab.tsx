@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { Check, Loader } from "lucide-react";
+import { AxiosError } from "axios";
 
 import { providerProfileApiService } from "../../../services/providerProfileApiService";
 import { LANDING_SITE_URL } from "../../../constantData/LandingSite";
@@ -83,7 +84,10 @@ const PublicProfileTab = () => {
           : "Profile is now private.",
       );
     },
-    onError: () => toast.error("Failed to update publish status."),
+    onError: (error: unknown) => {
+      const err = error as AxiosError<{ message?: string }>;
+      toast.error(err?.response?.data?.message || "Failed to update publish status.");
+    },
   });
 
   const formValues = watch();

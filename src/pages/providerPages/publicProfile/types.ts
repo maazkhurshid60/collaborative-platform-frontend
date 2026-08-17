@@ -52,6 +52,7 @@ export interface ProfileFormState {
   identityVerified: boolean;
   backgroundChecked: boolean;
   licenseVerified: boolean;
+  completenessPercent: number;
 }
 
 export const emptyState: ProfileFormState = {
@@ -103,6 +104,7 @@ export const emptyState: ProfileFormState = {
   identityVerified: false,
   backgroundChecked: false,
   licenseVerified: false,
+  completenessPercent: 0,
 };
 
 export type ProviderProfileApiResponse = Omit<
@@ -149,6 +151,7 @@ export const toFormState = (
   identityVerified: profile?.identityVerified ?? false,
   backgroundChecked: profile?.backgroundChecked ?? false,
   allowQueries: profile?.allowQueries ?? true,
+  completenessPercent: profile?.completenessPercent ?? 0,
 });
 
 export const availabilityToggles: { key: keyof ProfileFormState; label: string }[] = [
