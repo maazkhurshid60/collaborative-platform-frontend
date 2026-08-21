@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 import { Mail, Phone, Video, Building2, Home, X, Check } from "lucide-react";
 
 import Loader from "@/components/loader/Loader";
@@ -10,6 +11,7 @@ import DeleteClientModal from "@/components/modals/providerModal/deleteClientMod
 import { isModalDeleteReducer } from "@/redux/slices/ModalSlice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { appointmentApiService, type AppointmentRecord } from "@/services/appointmentApiService";
+import { startCallFromUrl } from "@/utils/callModalService";
 
 const STATUS_FILTERS = [
     { label: "All", value: "" },
@@ -85,6 +87,22 @@ const AppointmentsListTab = () => {
         onError: () => toast.error("Failed to accept booking request."),
     });
 
+    const joinCallMutation = useMutation({
+        mutationFn: async (appointmentId: string) => appointmentApiService.getCallJoinInfo(appointmentId),
+        onSuccess: (response) => {
+            const joinUrl = response?.data?.joinUrl;
+            if (!joinUrl) {
+                toast.error("Couldn't get the video call link.");
+                return;
+            }
+            startCallFromUrl(joinUrl);
+        },
+        onError: (error: unknown) => {
+            const err = error as AxiosError<{ message?: string }>;
+            toast.error(err?.response?.data?.message || "Couldn't join the video call.");
+        },
+    });
+
     const openConfirm = (type: ConfirmAction["type"], appointmentId: string) => {
         setConfirmAction({ type, appointmentId });
         dispatch(isModalDeleteReducer(true));
@@ -128,12 +146,21 @@ const AppointmentsListTab = () => {
                             >
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <p className="text-[15px] font-semibold text-textColor">{appt.guestName}</p>
+                                        <p className="text-[15px] font-semibold text-textColor">
+                                            {appt.isMyBooking
+                                                ? `Booked with ${appt.provider?.user?.fullName || appt.guestName}`
+                                                : appt.guestName}
+                                        </p>
                                         <span
                                             className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${STATUS_BADGE[appt.displayStatus]}`}
                                         >
                                             {appt.displayStatus}
                                         </span>
+                                        {appt.isMyBooking && (
+                                            <span className="rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-purple-600">
+                                                My Booking
+                                            </span>
+                                        )}
                                     </div>
                                     <p className="mt-1 text-[13px] text-textGreyColor">
                                         {new Date(appt.startTime).toLocaleString(undefined, {
@@ -169,7 +196,7 @@ const AppointmentsListTab = () => {
                                     )}
                                 </div>
 
-                                {appt.displayStatus === "PENDING" && (
+                                {appt.displayStatus === "PENDING" && !appt.isMyBooking && (
                                     <div className="flex shrink-0 items-center gap-2 self-start">
                                         <button
                                             type="button"
@@ -190,13 +217,25 @@ const AppointmentsListTab = () => {
                                 )}
 
                                 {appt.displayStatus === "CONFIRMED" && (
-                                    <button
-                                        type="button"
-                                        onClick={() => openConfirm("cancel", appt.id)}
-                                        className="flex shrink-0 items-center gap-1.5 self-start rounded-full border border-red-200 px-4 py-2 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
-                                    >
-                                        <X size={14} /> Cancel
-                                    </button>
+                                    <div className="flex shrink-0 items-center gap-2 self-start">
+                                        {appt.sessionType === "ONLINE" && (
+                                            <button
+                                                type="button"
+                                                onClick={() => joinCallMutation.mutate(appt.id)}
+                                                disabled={joinCallMutation.isPending}
+                                                className="flex items-center gap-1.5 rounded-full border border-primaryColorDark/30 bg-primaryColorLight/40 px-4 py-2 text-[13px] font-semibold text-primaryColorDark transition-colors hover:bg-primaryColorLight disabled:opacity-50 cursor-pointer"
+                                            >
+                                                <Video size={14} /> Join Video Call
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => openConfirm("cancel", appt.id)}
+                                            className="flex items-center gap-1.5 rounded-full border border-red-200 px-4 py-2 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50 cursor-pointer"
+                                        >
+                                            <X size={14} /> Cancel
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         );

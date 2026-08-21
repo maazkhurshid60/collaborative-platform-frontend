@@ -27,6 +27,9 @@ import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
 import { useMemo, useState } from "react";
 import { filterProviders } from "../../../utils/FilteredUsers";
 import SearchBar from "../../../components/searchBar/SearchBar";
+import BookProviderSessionModal from "@/components/modals/providerModal/BookProviderSessionModal";
+import { Video } from "lucide-react";
+
 const Providers = () => {
   const heading = [
     "#",
@@ -41,16 +44,26 @@ const Providers = () => {
   const navigate = useNavigate();
 
   const loginUserDetail = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id,
   );
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [bookingProvider, setBookingProvider] = useState<{
+    id: string;
+    name: string;
+    slug?: string;
+  } | null>(null);
 
-  const { data: providerData, isLoading, isError } = useQuery<ProviderType[]>({
+  const {
+    data: providerData,
+    isLoading,
+    isError,
+  } = useQuery<ProviderType[]>({
     queryKey: ["providers", loginUserDetail],
     queryFn: async () => {
       try {
-        const response = await providerApiService.getAllProviders(loginUserDetail);
+        const response =
+          await providerApiService.getAllProviders(loginUserDetail);
         return response?.data?.providers ?? [];
       } catch (error) {
         console.error("Error fetching providers:", error);
@@ -63,19 +76,28 @@ const Providers = () => {
   const recordPerPage = 6;
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
-    usePaginationHook({ data: providerData ?? [], recordPerPage, storageKey: "providers_pagination" });
+    usePaginationHook({
+      data: providerData ?? [],
+      recordPerPage,
+      storageKey: "providers_pagination",
+    });
 
   const currentRecords = getCurrentRecords() ?? [];
 
   const filteredData = useMemo(() => {
-    return currentRecords.filter((p) => !p?.user?.blockedMembers?.includes(loginUserDetail));
+    return currentRecords.filter(
+      (p) => !p?.user?.blockedMembers?.includes(loginUserDetail),
+    );
   }, [currentRecords, loginUserDetail]);
 
   const filteredSearchProviders = useMemo(() => {
     return filterProviders(filteredData || [], searchTerm);
   }, [filteredData, searchTerm]);
 
-  const downloadXLS = (data: ProviderType[], fileName: string = "providers.xls") => {
+  const downloadXLS = (
+    data: ProviderType[],
+    fileName: string = "providers.xls",
+  ) => {
     const formattedData = data.map((provider, index) => ({
       "#": (currentPage - 1) * recordPerPage + index + 1,
       Name: provider?.user?.fullName ?? "",
@@ -94,8 +116,13 @@ const Providers = () => {
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Provider Data");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xls", type: "array" });
-    const fileBlob = new Blob([excelBuffer], { type: "application/vnd.ms-excel" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xls",
+      type: "array",
+    });
+    const fileBlob = new Blob([excelBuffer], {
+      type: "application/vnd.ms-excel",
+    });
     saveAs(fileBlob, fileName);
   };
 
@@ -105,7 +132,12 @@ const Providers = () => {
   return (
     <OutletLayout
       heading="Providers on the platform"
-      button={<Button text="Download xls" onclick={() => downloadXLS(currentRecords)} />}
+      button={
+        <Button
+          text="Download xls"
+          onclick={() => downloadXLS(currentRecords)}
+        />
+      }
     >
       <div className="flex items-center md:justify-end mt-6">
         <div className="w-full md:w-[40%]">
@@ -123,48 +155,52 @@ const Providers = () => {
         ) : (
           <>
             <Table heading={heading}>
-              {filteredSearchProviders.map((data: ProviderType, index: number) => {
-                const serialNo = (currentPage - 1) * recordPerPage + index + 1;
+              {filteredSearchProviders.map(
+                (data: ProviderType, index: number) => {
+                  const serialNo =
+                    (currentPage - 1) * recordPerPage + index + 1;
 
-                return (
-                  <tr
-                    key={data?.id ?? index}
-                    className="border-b-[1px] border-b-solid border-b-lightGreyColor"
-                  >
-                    {/* S.No. */}
-                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                      {serialNo}
-                    </td>
+                  return (
+                    <tr
+                      key={data?.id ?? index}
+                      className="border-b border-b-solid border-b-lightGreyColor"
+                    >
+                      {/* S.No. */}
+                      <td className="px-4 py-3 align-middle whitespace-nowrap">
+                        {serialNo}
+                      </td>
 
-                    {/* Name */}
-                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                      {data?.user?.fullName}
-                    </td>
+                      {/* Name */}
+                      <td className="px-4 py-3 align-middle whitespace-nowrap">
+                        {data?.user?.fullName}
+                      </td>
 
-                    {/* License */}
-                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                      {data?.user?.licenseNo}
-                    </td>
+                      {/* License */}
+                      <td className="px-4 py-3 align-middle whitespace-nowrap">
+                        {data?.user?.licenseNo}
+                      </td>
 
-                    {/* Gender */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
-                      {data?.user?.gender === "PREFER_NOT_TO_SAY" ? "Prefer not to say" : data?.user?.gender || "-"}
-                    </td>
+                      {/* Gender */}
+                      <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
+                        {data?.user?.gender === "PREFER_NOT_TO_SAY"
+                          ? "Prefer not to say"
+                          : data?.user?.gender || "-"}
+                      </td>
 
-                    {/* Email */}
-                    {/* <td className="px-4 py-3 align-middle">
+                      {/* Email */}
+                      {/* <td className="px-4 py-3 align-middle">
                         <span className="block max-w-[260px] truncate lowercase" title={data?.user?.email}>
                           {data?.user?.email}
                         </span>
                       </td> */}
 
-                    {/* Status */}
-                    <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
-                      {data?.user?.status}
-                    </td>
+                      {/* Status */}
+                      <td className="px-2 py-3 align-middle whitespace-nowrap capitalize">
+                        {data?.user?.status}
+                      </td>
 
-                    {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
-                    {/* <td className="px-4 py-3 align-middle">
+                      {/* Clients (keep table aligned: allow wrapping inside cell, not horizontal scroll) */}
+                      {/* <td className="px-4 py-3 align-middle">
                       {data?.clientList === undefined ||
                         data?.clientList?.filter((p: Client) => p?.client?.clientShowToOthers === true)
                           .length === 0 ? (
@@ -197,22 +233,43 @@ const Providers = () => {
                       )}
                     </td> */}
 
-                    {/* Specaility */}
-                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                      {data?.speciality}
-                    </td>
+                      {/* Specaility */}
+                      <td className="px-4 py-3 align-middle whitespace-nowrap">
+                        {data?.speciality}
+                      </td>
 
-                    {/* Action (fixed padding + centered icon) */}
-                    <td className="px-4 py-3 align-middle whitespace-nowrap">
-                      <div className="flex items-center justify-start">
-                        <Link to={`/providers/${data?.id}`}>
-                          <ViewIcon />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      {/* Action (fixed padding + centered icon) */}
+                      <td className="px-4 py-3 align-middle whitespace-nowrap">
+                        <div className="flex items-center justify-start gap-2">
+                          <Link to={`/providers/${data?.id}`}>
+                            <ViewIcon />
+                          </Link>
+                          {data?.user?.id !== loginUserDetail &&
+                            Boolean(data?.id) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (data?.id) {
+                                    setBookingProvider({
+                                      id: data.id,
+                                      name: data?.user?.fullName || "Provider",
+                                      slug: (data as any)?.profile?.slug,
+                                    });
+                                  }
+                                }}
+                                className="flex items-center gap-1 rounded-lg border border-primaryColorDark/30 bg-primaryColorLight/20 px-2.5 py-1 text-xs font-medium text-primaryColorDark hover:bg-primaryColorDark hover:text-white transition-colors cursor-pointer"
+                                title="Schedule Consultation / Call"
+                              >
+                                <Video size={13} />
+                                Book Session
+                              </button>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                },
+              )}
             </Table>
 
             <CustomPagination
@@ -223,6 +280,14 @@ const Providers = () => {
           </>
         )}
       </div>
+
+      {bookingProvider && (
+        <BookProviderSessionModal
+          isOpen={Boolean(bookingProvider)}
+          onClose={() => setBookingProvider(null)}
+          targetProvider={bookingProvider}
+        />
+      )}
     </OutletLayout>
   );
 };

@@ -376,6 +376,19 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       ? (activeChatObject as ChatChannelType)?.providerB?.fullName
       : (activeChatObject as ChatChannelType)?.providerA?.fullName;
 
+  const isProviderA = (activeChatObject as ChatChannelType)?.providerA?.id === loginUserUserId;
+  const partnerUser = isProviderA
+    ? (activeChatObject as ChatChannelType)?.providerB
+    : (activeChatObject as ChatChannelType)?.providerA;
+
+  const targetProvider = partnerUser
+    ? {
+        id: (partnerUser as any)?.providerId || partnerUser?.id,
+        name: partnerUser?.fullName || otherName || "Provider",
+        slug: (partnerUser as any)?.slug,
+      }
+    : undefined;
+
   return (
     <>
       <div className="bg-white p-3 rounded-lg h-full flex flex-col">
@@ -385,6 +398,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
           groupCreatedBy={groupCreatedBy}
           membersCanInvite={(activeChatObject as any)?.membersCanInvite}
+          targetProvider={targetProvider}
         />{" "}
         <hr className="my-4 border-inputBgColor" />
         <div className="flex-1 overflow-y-auto mb-4" ref={messageContainerRef}>

@@ -14,6 +14,9 @@ import RenewalSuccessfullModal from './components/modals/RenowalSuccessfullModal
 import InvoiceModal from './components/modals/InvoiceModal'
 import { subscriptionApiService } from './services/subscriptionApiService'
 import { useDispatch } from 'react-redux'
+import IncomingCallModal, { IncomingCallData } from './components/modals/providerModal/IncomingCallModal'
+import CallRoomModal, { ActiveCallState } from './components/modals/providerModal/CallRoomModal'
+import { startCallFromUrl } from './utils/callModalService'
 const queryClient = new QueryClient();
 
 function App() {
@@ -25,6 +28,19 @@ function App() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [latestInvoiceData, setLatestInvoiceData] = useState<any>(null);
   const [isFetchingReceipt, setIsFetchingReceipt] = useState(false);
+  const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null);
+  const [activeCall, setActiveCall] = useState<ActiveCallState | null>(null);
+
+  useEffect(() => {
+    const handleOpenCall = (e: any) => {
+      const { appointmentId, token, audioOnly } = e.detail || {};
+      if (appointmentId && token) {
+        setActiveCall({ isOpen: true, appointmentId, token, audioOnly });
+      }
+    };
+    window.addEventListener("open_call_session", handleOpenCall);
+    return () => window.removeEventListener("open_call_session", handleOpenCall);
+  }, []);
 
   const handleViewLatestReceipt = async () => {
     if (isFetchingReceipt) return;
@@ -187,6 +203,20 @@ function App() {
       }
     });
 
+    // Incoming real-time voice / video call listener
+    socketInstance.on("incoming_call", (data: any) => {
+      console.log("📞 Incoming call received:", data);
+      if (data?.calleeJoinUrl) {
+        data.calleeJoinUrl = data.calleeJoinUrl.replace(/^https?:\/\/[^/]+/, window.location.origin);
+      }
+      setIncomingCall(data);
+      if (data?.appointmentId) {
+        socketInstance.emit("call_ringing", { appointmentId: data.appointmentId });
+      }
+      const audio = new Audio(notification);
+      audio.play().catch((e) => console.error("Ringtone failed:", e));
+    });
+
     // Subscription renewal — opens the success modal when Stripe renews the plan
     socketInstance.on("subscription_renewal", (data) => {
       console.log("🔁 Subscription renewal received:", data);
@@ -203,6 +233,7 @@ function App() {
     });
 
     return () => {
+      socketInstance.off("incoming_call");
       socketInstance.off("subscription_renewal");
       socketInstance.off("subscription_updated");
       socketInstance.disconnect(); // 🔥 IMPORTANT
@@ -211,6 +242,21 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <IncomingCallModal
+        incomingCall={incomingCall}
+        onAccept={() => {
+          if (incomingCall?.calleeJoinUrl) {
+            startCallFromUrl(incomingCall.calleeJoinUrl);
+          }
+          setIncomingCall(null);
+        }}
+        onDecline={() => setIncomingCall(null)}
+      />
+
+      <CallRoomModal
+        activeCall={activeCall}
+        onClose={() => setActiveCall(null)}
+      />
 
       <BrowserRouter>
         <Routing />

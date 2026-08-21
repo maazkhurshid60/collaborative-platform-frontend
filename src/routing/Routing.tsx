@@ -107,6 +107,9 @@ const DocumentSharing = lazy(
 const AuditLogs = lazy(
   () => import("../pages/superadminPages/auditLogs/AuditLogs"),
 );
+const MeetingsAudit = lazy(
+  () => import("../pages/superadminPages/meetings/MeetingsAudit"),
+);
 const ContactQueries = lazy(
   () => import("../pages/superadminPages/contactQueries/ContactQueries"),
 );
@@ -135,6 +138,9 @@ const BaaManagement = lazy(
 );
 const BaaAcceptedProviders = lazy(
   () => import("../pages/superadminPages/baa/BaaAcceptedProviders"),
+);
+const CallRoomPage = lazy(
+  () => import("../pages/providerPages/callRoom/CallRoomPage"),
 );
 
 
@@ -260,6 +266,14 @@ const Routing = () => {
         element={
           <WrappedRoute>
             <FindAProvider />
+          </WrappedRoute>
+        }
+      />
+      <Route
+        path="/call/:appointmentId"
+        element={
+          <WrappedRoute>
+            <CallRoomPage />
           </WrappedRoute>
         }
       />
@@ -411,6 +425,16 @@ const Routing = () => {
             element={
               <WrappedRoute>
                 <AuditLogs />
+              </WrappedRoute>
+            }
+          />
+        )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/meetings-audit"
+            element={
+              <WrappedRoute>
+                <MeetingsAudit />
               </WrappedRoute>
             }
           />

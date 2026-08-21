@@ -1,4 +1,11 @@
-import { ClipboardList, FileText, Bot, ShieldCheck, MessageCircleQuestion, CalendarDays } from "lucide-react";
+import {
+  ClipboardList,
+  FileText,
+  Bot,
+  ShieldCheck,
+  MessageCircleQuestion,
+  CalendarDays,
+} from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
 import DashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/dashboard/Dashboard";
@@ -20,10 +27,16 @@ export const ProviderSidebarData = [
     url: "/dashboard",
     icon: DashboardIcon,
   },
+
   {
     name: "Chats",
     url: "/chat",
     icon: MessageIcon,
+  },
+  {
+    name: "Providers",
+    url: "/providers",
+    icon: ProvidersInDashboardIcon,
   },
   {
     name: "Clients",
@@ -34,12 +47,6 @@ export const ProviderSidebarData = [
     name: "Document Sharing",
     url: "/document-sharing",
     icon: DocumentIcon,
-  },
-
-  {
-    name: "Providers",
-    url: "/providers",
-    icon: ProvidersInDashboardIcon,
   },
   {
     name: "Invite Provider",
