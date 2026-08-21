@@ -22,6 +22,7 @@ import nacl from "tweetnacl";
 import { RootState } from "../../../redux/store";
 import HipaaModal from "../../../components/modals/HipaaModal/HipaaModal";
 import BaaModal from "../../../components/modals/BaaModal/BaaModal";
+import { trackMetaPixelPageView } from "../../../utils/metaPixel";
 
 export const specialityOptions = [
   { value: "Psychiatry", label: "Psychiatry" },
@@ -62,6 +63,10 @@ const ProviderSignup = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [showHipaaModal, setShowHipaaModal] = useState(false);
   const [showBaaModal, setShowBaaModal] = useState(false);
+
+  useEffect(() => {
+    trackMetaPixelPageView();
+  }, []);
   const [baaData, setBaaData] = useState<{ title: string; content: string } | null>(null);
   const [pendingSignupData, setPendingSignupData] = useState<any>(null);
 

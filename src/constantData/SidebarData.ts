@@ -1,4 +1,4 @@
-import { ClipboardList, FileText, Bot, ShieldCheck } from "lucide-react";
+import { ClipboardList, FileText, Bot, ShieldCheck, MessageCircleQuestion, CalendarDays } from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
 import DashboardIcon from "../components/icons/dashboardIcons/providersPortalIcons/dashboard/Dashboard";
@@ -60,6 +60,16 @@ export const ProviderSidebarData = [
     name: "Chat with AI",
     url: "/chat-with-ai",
     icon: Bot,
+  },
+  {
+    name: "Queries",
+    url: "/queries",
+    icon: MessageCircleQuestion,
+  },
+  {
+    name: "Appointments",
+    url: "/appointments",
+    icon: CalendarDays,
   },
   {
     name: "User Profile",
