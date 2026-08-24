@@ -73,4 +73,14 @@ export const appointmentApiService = {
         const response = await axiosInstance.get(`/appointments/me/${appointmentId}/call-join`);
         return response.data;
     },
+    getDirectCallLogs: async (targetProviderId: string) => {
+        const response = await axiosInstance.get(`/appointments/direct-call-logs`, {
+            params: { targetProviderId },
+        });
+        return response.data;
+    },
+    getAllMyCallLogs: async () => {
+        const response = await axiosInstance.get(`/appointments/my-call-logs`);
+        return response.data;
+    },
 };

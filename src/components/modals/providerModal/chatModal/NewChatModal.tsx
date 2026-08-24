@@ -91,9 +91,7 @@ const NewChatModal = () => {
       dispatch(isNewChatModalShowReducser(false));
     },
     onError: (error) => {
-      console.error(error);
-
-      toast.error("Failed to create chat.");
+      console.error("Error creating chat:", error);
     },
   });
 

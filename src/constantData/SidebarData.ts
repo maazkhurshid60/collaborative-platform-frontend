@@ -5,6 +5,7 @@ import {
   ShieldCheck,
   MessageCircleQuestion,
   CalendarDays,
+  PhoneCall,
 } from "lucide-react";
 
 import MessageIcon from "../components/icons/dashboardIcons/providersPortalIcons/message/Message";
@@ -77,6 +78,11 @@ export const ProviderSidebarData = [
     name: "Appointments",
     url: "/appointments",
     icon: CalendarDays,
+  },
+  {
+    name: "Call Logs",
+    url: "/call-logs",
+    icon: PhoneCall,
   },
   {
     name: "User Profile",

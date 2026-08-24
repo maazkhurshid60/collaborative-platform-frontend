@@ -28,12 +28,13 @@ import { FiArchive, FiSettings, FiUserPlus } from "react-icons/fi";
 import ToolTip from "../../../toolTip/ToolTip";
 
 import BookProviderSessionModal from "@/components/modals/providerModal/BookProviderSessionModal";
+import DirectCallLogsModal from "@/components/modals/providerModal/chatModal/DirectCallLogsModal";
 import { startCallFromUrl } from "@/utils/callModalService";
 import {
   appointmentApiService,
   AppointmentRecord,
 } from "@/services/appointmentApiService";
-import { Video, Calendar, Phone } from "lucide-react";
+import { Video, Calendar, Phone, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 interface chatNavbarProps {
@@ -53,6 +54,7 @@ interface chatNavbarProps {
 const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
   const [isShowModal, setIsShowModal] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isCallLogsModalOpen, setIsCallLogsModalOpen] = useState(false);
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
   );
@@ -120,16 +122,17 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
       return channelId;
     },
     onSuccess: () => {
-      toast.success("Chat Channel has been hidden for you");
+      toast.success("Chat conversation and associated messages deleted successfully");
       queryClient.invalidateQueries({
         queryKey: ["chatchannels"],
       });
       dispatch(isDeleteChannelModalShowReducer(false));
       navigate("/chat");
     },
-    onError: (err) => {
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || err?.message || "Delete failed";
+      toast.error(msg);
       console.error("Delete failed", err);
-      // you can show a toast here
     },
   });
   const deleteGroupChannelMutation = useMutation({
@@ -191,12 +194,12 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
           text={
             props.groupMembers?.length > 0
               ? "Deleting this conversation will remove it permanently for both users and it cannot be recovered. Are you sure you want to delete this conversation?"
-              : "This will hide the conversation from your view. Messages remain visible to other participants."
+              : "Deleting this conversation will permanently remove it and all associated messages. Are you sure you want to delete this chat?"
           }
           heading={
             props.groupMembers?.length > 0
               ? "Deleting Group Conversation"
-              : "Hiding Conversation"
+              : "Delete Conversation"
           }
           onDeleteConfirm={confirmDeleteChatChannel}
         />
@@ -303,22 +306,17 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
             )}
           </div>
           {(loginUserId === props.groupCreatedBy?.id ||
+            !props.groupMembers ||
             props.groupMembers?.length === 0) && (
-            <div className="relative group flex items-center justify-center">
-              {props.groupMembers?.length > 0 ? (
-                <>
-                  <DeleteIcon onClick={deleteConservation} />
-                  <ToolTip toolTipText="Delete Group" />
-                </>
-              ) : (
-                <>
-                  <FiArchive
-                    onClick={deleteConservation}
-                    className="text-xl text-textGreyColor hover:text-[#2C9993] cursor-pointer"
-                  />
-                  <ToolTip toolTipText="Hide Conversation" />
-                </>
-              )}
+            <div className="relative group flex items-center justify-center cursor-pointer">
+              <DeleteIcon onClick={deleteConservation} />
+              <ToolTip
+                toolTipText={
+                  props.groupMembers?.length > 0
+                    ? "Delete Group"
+                    : "Delete Conversation"
+                }
+              />
             </div>
           )}
 
@@ -385,6 +383,18 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     </button>
                     <ToolTip toolTipText="Schedule Call" />
                   </div>
+
+                  {/* Call History */}
+                  <div className="relative group flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsCallLogsModalOpen(true)}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:border-primaryColorDark/50 hover:bg-primaryColorLight/20 hover:text-primaryColorDark transition-all duration-200 cursor-pointer shadow-2xs hover:scale-110 active:scale-95"
+                    >
+                      <Clock size={16} />
+                    </button>
+                    <ToolTip toolTipText="Call History" />
+                  </div>
                 </div>
               )}
 
@@ -429,6 +439,16 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
           isOpen={isBookingModalOpen}
           onClose={() => setIsBookingModalOpen(false)}
           targetProvider={props.targetProvider}
+        />
+      )}
+
+      {props.targetProvider && isCallLogsModalOpen && (
+        <DirectCallLogsModal
+          isOpen={isCallLogsModalOpen}
+          onClose={() => setIsCallLogsModalOpen(false)}
+          targetProviderId={props.targetProvider.id}
+          targetProviderName={props.targetProvider.name}
+          onStartCall={(callType) => startInstantCallMutation.mutate(callType)}
         />
       )}
     </>

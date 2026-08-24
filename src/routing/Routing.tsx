@@ -124,6 +124,9 @@ const Queries = lazy(() => import("../pages/providerPages/queries/Queries"));
 const Appointments = lazy(
   () => import("../pages/providerPages/appointments/Appointments"),
 );
+const CallLogsPage = lazy(
+  () => import("../pages/providerPages/callLogs/CallLogsPage"),
+);
 const FormBuilder = lazy(
   () => import("../pages/providerPages/formBuilder/FormBuilder"),
 );
@@ -369,14 +372,24 @@ const Routing = () => {
         )}
 
         {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
-          <Route
-            path="/appointments"
-            element={
-              <WrappedRoute>
-                <Appointments />
-              </WrappedRoute>
-            }
-          />
+          <>
+            <Route
+              path="/appointments"
+              element={
+                <WrappedRoute>
+                  <Appointments />
+                </WrappedRoute>
+              }
+            />
+            <Route
+              path="/call-logs"
+              element={
+                <WrappedRoute>
+                  <CallLogsPage />
+                </WrappedRoute>
+              }
+            />
+          </>
         )}
 
         {loginUserRole === "superAdmin" && (

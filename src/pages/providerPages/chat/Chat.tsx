@@ -30,6 +30,7 @@ import ChatModalBodyContent from "../../../components/modals/providerModal/chatM
 import NewGroupChatModal from "../../../components/modals/providerModal/chatModal/NewGroupChatModal";
 import GroupChatData from "../../../components/pagesComponent/chat/groupChatData/GroupChatData";
 import { HiOutlineUserAdd } from "react-icons/hi";
+import { FiPhoneCall } from "react-icons/fi";
 import { GroupChat, GroupCreatedBy } from "../../../types/chatType/GroupType";
 import { Group, Message, NewMessage } from "../../../types/chatType/ChatType";
 import ToolTip from "../../../components/toolTip/ToolTip";
@@ -438,24 +439,42 @@ const Chat = () => {
                 Recent Chats
               </p>
 
-              <div className="flex items-center gap-3">
-                {/* Existing button */}
+              <div className="flex items-center gap-1">
+                {/* View Call Logs */}
                 <div className="relative group">
-                  <HiOutlineUserAdd
-                    className="cursor-pointer text-xl text-textGreyColor"
+                  <button
+                    type="button"
+                    onClick={() => navigate("/call-logs")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primaryColorDark transition-all cursor-pointer"
+                  >
+                    <FiPhoneCall className="text-[17px]" />
+                  </button>
+                  <ToolTip toolTipText="View Call History & Logs" />
+                </div>
+
+                {/* Start chat with a provider */}
+                <div className="relative group">
+                  <button
+                    type="button"
                     onClick={() => dispatch(isNewChatModalShowReducser(true))}
-                  />
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primaryColorDark transition-all cursor-pointer"
+                  >
+                    <HiOutlineUserAdd className="text-[19px]" />
+                  </button>
                   <ToolTip toolTipText="Start chat with a provider on the platform" />
                 </div>
 
-                {/* ✅ Invite provider by email (icon changed) */}
+                {/* Invite provider by email */}
                 <div className="relative group">
-                  <MdOutlineMail
-                    className="cursor-pointer text-xl text-textGreyColor"
+                  <button
+                    type="button"
                     onClick={() =>
                       dispatch(isInviteProviderModalShowReducser(true))
                     }
-                  />
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-primaryColorDark transition-all cursor-pointer"
+                  >
+                    <MdOutlineMail className="text-[19px]" />
+                  </button>
                   <ToolTip toolTipText="Invite provider by email" />
                 </div>
               </div>

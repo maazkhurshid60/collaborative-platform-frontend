@@ -72,12 +72,12 @@ interface ClientIdData {
 export const ProviderSignupSchema = z
   .object({
     email: z.string().email("Email is required"),
-    state: z.string().nonempty("State is required"),
+    state: z.string().optional(),
     fullName: fullNameValidator,
-    gender: z.string().nonempty("Gender is required"),
-    speciality: z.string().min(1, "Speciality is required"),
+    gender: z.string().optional(),
+    speciality: z.string().optional(),
     otherSpeciality: z.string().optional(),
-    licenseNo: licenseNoValidator,
+    licenseNo: z.string().optional(),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
     hipaaConsent: z.literal(true, {
