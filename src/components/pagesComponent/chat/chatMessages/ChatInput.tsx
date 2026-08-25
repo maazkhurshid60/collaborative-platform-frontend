@@ -31,9 +31,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showPhiModal, setShowPhiModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const loginUserUserId = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
+  const { userId: loginUserUserId } = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails,
   );
   const loginUserProfileImage = useSelector(
     (state: RootState) =>
@@ -91,6 +92,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     setMessages((prev) => [...prev, tempMsg]);
     setSendMessageText("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
     try {
@@ -296,6 +300,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
       ) : (
         <div className="flex items-center justify-between">
           <textarea
+            ref={textareaRef}
             className="outline-none pl-4 p-2 w-full bg-gray-100 rounded-lg resize-none overflow-hidden"
             placeholder="Type your message..."
             value={sendMessageText}
@@ -303,6 +308,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
               setSendMessageText(e.target.value);
               e.target.style.height = "auto";
               e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
             }}
             rows={1}
           />

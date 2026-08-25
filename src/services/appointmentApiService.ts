@@ -69,6 +69,14 @@ export const appointmentApiService = {
         const response = await axiosInstance.patch(`/appointments/me/${appointmentId}/decline`);
         return response.data;
     },
+    resendAppointmentEmail: async (appointmentId: string) => {
+        const response = await axiosInstance.post(`/appointments/me/${appointmentId}/resend-email`);
+        return response.data;
+    },
+    getAppointmentShareLink: async (appointmentId: string) => {
+        const response = await axiosInstance.get(`/appointments/me/${appointmentId}/share-link`);
+        return response.data;
+    },
     getCallJoinInfo: async (appointmentId: string) => {
         const response = await axiosInstance.get(`/appointments/me/${appointmentId}/call-join`);
         return response.data;

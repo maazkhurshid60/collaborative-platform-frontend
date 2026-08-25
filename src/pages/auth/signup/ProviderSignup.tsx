@@ -67,7 +67,10 @@ const ProviderSignup = () => {
   useEffect(() => {
     trackMetaPixelPageView();
   }, []);
-  const [baaData, setBaaData] = useState<{ title: string; content: string } | null>(null);
+  const [baaData, setBaaData] = useState<{
+    title: string;
+    content: string;
+  } | null>(null);
   const [pendingSignupData, setPendingSignupData] = useState<any>(null);
 
   const methods = useForm<FormFields>({
@@ -119,7 +122,10 @@ const ProviderSignup = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.checkEmail(data.email, data.licenseNo || "");
+      const response = await authService.checkEmail(
+        data.email,
+        data.licenseNo || "",
+      );
 
       if (response?.data?.exists) {
         setIsLoading(false);
@@ -219,7 +225,6 @@ const ProviderSignup = () => {
     setPendingSignupData(null);
     toast.warn("You must accept the BAA to register as a provider.");
   };
-
 
   return (
     <>

@@ -1,11 +1,3 @@
-// Providers.tsx
-// Alignment fixes applied:
-// - Consistent td padding/vertical alignment across ALL columns
-// - Prevent wrapping in narrow columns (email/status/action) to avoid column drift
-// - Fix Action column padding (was missing px-2) and center alignment
-// - Clients column: allow wrapping inside cell without breaking table grid
-// - Uses the same Table.tsx (table-fixed recommended)
-
 import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 import Button from "../../../components/button/Button";
 
@@ -13,7 +5,10 @@ import usePaginationHook from "../../../hook/usePaginationHook";
 import Table from "../../../components/table/Table";
 import CustomPagination from "../../../components/customPagination/CustomPagination";
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Video } from "lucide-react";
+import { useMemo, useState } from "react";
+
 import Loader from "../../../components/loader/Loader";
 import providerApiService from "../../../apiServices/providerApi/ProviderApi";
 import { useQuery } from "@tanstack/react-query";
@@ -24,30 +19,29 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ViewIcon from "../../../components/icons/view/View";
 import NoRecordFound from "../../../components/noRecordFound/NoRecordFound";
-import { useMemo, useState } from "react";
 import { filterProviders } from "../../../utils/FilteredUsers";
 import SearchBar from "../../../components/searchBar/SearchBar";
+import { useDebounce } from "../../../hook/useDebounce";
 import BookProviderSessionModal from "@/components/modals/providerModal/BookProviderSessionModal";
-import { Video } from "lucide-react";
+
+const heading = [
+  "#",
+  "Name",
+  "License Number",
+  "Gender",
+  "Status",
+  "Speciality",
+  "Action",
+];
 
 const Providers = () => {
-  const heading = [
-    "#",
-    "Name",
-    "License Number",
-    "Gender",
-    "Status",
-    "Speciality",
-    "Action",
-  ];
-
-  const navigate = useNavigate();
-
   const loginUserDetail = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.id,
   );
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
+
   const [bookingProvider, setBookingProvider] = useState<{
     id: string;
     name: string;
@@ -61,38 +55,27 @@ const Providers = () => {
   } = useQuery<ProviderType[]>({
     queryKey: ["providers", loginUserDetail],
     queryFn: async () => {
-      try {
-        const response =
-          await providerApiService.getAllProviders(loginUserDetail);
-        return response?.data?.providers ?? [];
-      } catch (error) {
-        console.error("Error fetching providers:", error);
-        return [];
-      }
+      const response =
+        await providerApiService.getAllProviders(loginUserDetail);
+      return response?.data?.providers ?? [];
     },
     enabled: Boolean(loginUserDetail),
   });
+
+  const filteredProviders = useMemo(() => {
+    return filterProviders(providerData || [], debouncedSearchTerm);
+  }, [providerData, debouncedSearchTerm]);
 
   const recordPerPage = 6;
 
   const { totalPages, getCurrentRecords, handlePageChange, currentPage } =
     usePaginationHook({
-      data: providerData ?? [],
+      data: filteredProviders ?? [],
       recordPerPage,
       storageKey: "providers_pagination",
     });
 
-  const currentRecords = getCurrentRecords() ?? [];
-
-  const filteredData = useMemo(() => {
-    return currentRecords.filter(
-      (p) => !p?.user?.blockedMembers?.includes(loginUserDetail),
-    );
-  }, [currentRecords, loginUserDetail]);
-
-  const filteredSearchProviders = useMemo(() => {
-    return filterProviders(filteredData || [], searchTerm);
-  }, [filteredData, searchTerm]);
+  const filteredSearchProviders = getCurrentRecords() ?? [];
 
   const downloadXLS = (
     data: ProviderType[],
@@ -135,7 +118,7 @@ const Providers = () => {
       button={
         <Button
           text="Download xls"
-          onclick={() => downloadXLS(currentRecords)}
+          onclick={() => downloadXLS(filteredSearchProviders)}
         />
       }
     >
