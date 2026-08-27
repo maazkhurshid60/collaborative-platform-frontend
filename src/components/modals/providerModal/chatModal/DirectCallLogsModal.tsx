@@ -64,8 +64,8 @@ export const DirectCallLogsModal: React.FC<DirectCallLogsModalProps> = ({
         {/* Content */}
         <div className="my-4 flex-1 overflow-y-auto pr-1">
           {isLoading ? (
-            <div className="flex py-12 justify-center">
-              <Loader />
+            <div className="flex py-6 justify-center">
+              <Loader inline />
             </div>
           ) : !data || data.length === 0 ? (
             <div className="py-12 text-center text-gray-500">

@@ -449,7 +449,7 @@ const Chat = () => {
                   >
                     <FiPhoneCall className="text-[17px]" />
                   </button>
-                  <ToolTip toolTipText="View Call History & Logs" />
+                  <ToolTip toolTipText="View Call History & Logs" position="bottom" />
                 </div>
 
                 {/* Start chat with a provider */}
@@ -461,7 +461,7 @@ const Chat = () => {
                   >
                     <HiOutlineUserAdd className="text-[19px]" />
                   </button>
-                  <ToolTip toolTipText="Start chat with a provider on the platform" />
+                  <ToolTip toolTipText="Start chat with a provider on the platform" position="bottom" />
                 </div>
 
                 {/* Invite provider by email */}
@@ -475,7 +475,7 @@ const Chat = () => {
                   >
                     <MdOutlineMail className="text-[19px]" />
                   </button>
-                  <ToolTip toolTipText="Invite provider by email" />
+                  <ToolTip toolTipText="Invite provider by email" position="bottom" />
                 </div>
               </div>
             </div>

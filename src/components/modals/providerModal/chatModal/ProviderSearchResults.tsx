@@ -149,16 +149,21 @@ const ProviderItem: React.FC<ProviderItemProps> = ({
       {/* Provider Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          {provider?.user?.isApprove === "APPROVED" && (
-            <img
-              src={verifyBadge}
-              alt="Verified"
-              className="h-4 w-4 shrink-0"
-            />
-          )}
           <h4 className="text-sm font-semibold text-gray-900 capitalize truncate">
             {provider?.user?.fullName || "Unknown Provider"}
           </h4>
+          {provider?.user?.isApprove === "APPROVED" ? (
+            <img
+              src={verifyBadge}
+              alt="Verified"
+              title="Verified Account"
+              className="h-4 w-4 shrink-0"
+            />
+          ) : (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium shrink-0">
+              Unverified
+            </span>
+          )}
         </div>
 
         <div className="space-y-1">

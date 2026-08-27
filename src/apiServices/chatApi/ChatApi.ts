@@ -48,9 +48,9 @@ class ChatApiService {
         }
     }
 
-    async getAllUsersForChat(loginUserId: string) {
+    async getAllUsersForChat(loginUserId: string, search?: string) {
         try {
-            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId });
+            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId, search });
             return response?.data;
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get users";

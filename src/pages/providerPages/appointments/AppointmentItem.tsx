@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import {
   Building2,
+  CalendarClock,
   Check,
   Copy,
   Home,
@@ -21,6 +22,7 @@ import {
 } from "@/services/appointmentApiService";
 import { startCallFromUrl } from "@/utils/callModalService";
 import { getFormatedDateAndTime } from "@/utils/dataTimeUtils";
+import { RescheduleModal } from "./RescheduleModal";
 
 const SESSION_TYPE_ICON = {
   ONLINE: Video,
@@ -51,6 +53,7 @@ interface AppointmentItemProps {
 const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
   const queryClient = useQueryClient();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
 
   const SessionIcon = SESSION_TYPE_ICON[appt.sessionType];
   const isCopied = copiedId === appt.id;
@@ -236,6 +239,16 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
           )}
           <button
             type="button"
+            onClick={() => setIsRescheduleOpen(true)}
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] font-medium text-amber-700 transition-colors hover:bg-amber-100"
+            title="Reschedule Appointment"
+          >
+            <CalendarClock size={14} />
+            <span>Reschedule</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => onOpenConfirm("cancel", appt.id)}
             className="flex cursor-pointer items-center gap-1.5 rounded-full border border-red-200 px-4 py-2 text-[13px] font-semibold text-red-500 transition-colors hover:bg-red-50"
           >
@@ -243,6 +256,12 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
           </button>
         </div>
       )}
+
+      <RescheduleModal
+        isOpen={isRescheduleOpen}
+        onClose={() => setIsRescheduleOpen(false)}
+        appointment={appt}
+      />
     </div>
   );
 };

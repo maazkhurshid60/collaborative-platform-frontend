@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import Loader from "../../../loader/Loader";
 import chatApiService from "../../../../apiServices/chatApi/ChatApi";
 import { isNewChatModalShowReducser } from "../../../../redux/slices/ModalSlice";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
+import { useDebounce } from "../../../../hook/useDebounce";
 
 const NewChatModal = () => {
   const loginUserDetail = useSelector(
@@ -20,6 +21,10 @@ const NewChatModal = () => {
   const dispatch = useDispatch<AppDispatch>();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  // Search state & debounced search for API-level filtering
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
   const handleProviderSelect = (provider: ProviderType) => {
     const existingChannel = allChannels?.find(
@@ -37,28 +42,18 @@ const NewChatModal = () => {
     }
   };
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProviders, setFilteredProviders] = useState<ProviderType[]>(
-    [],
-  );
-
   const {
     data: allProviders,
     isLoading,
     isError,
   } = useQuery<ProviderType[]>({
-    queryKey: ["providers"],
+    queryKey: ["providers", debouncedSearchQuery],
     queryFn: async () => {
-      try {
-        const response = await chatApiService.getAllUsersForChat(
-          loginUserDetail.id,
-        );
-        return response?.data?.users;
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        return []; // Return an empty array in case of an error
-      }
+      const response = await chatApiService.getAllUsersForChat(
+        loginUserDetail.id,
+        debouncedSearchQuery,
+      );
+      return response?.data?.users;
     },
     refetchOnWindowFocus: false,
   });
@@ -73,7 +68,6 @@ const NewChatModal = () => {
       return response?.data?.newChatChannel;
     },
     onSuccess: (newChat) => {
-      // Push to cache or refetch
       queryClient.setQueryData<ChatChannelType[]>(
         ["chatchannels"],
         (old = []) => {
@@ -82,10 +76,8 @@ const NewChatModal = () => {
         },
       );
 
-      // Optional: force full refetch
       queryClient.invalidateQueries({ queryKey: ["chatchannels"] });
 
-      // Clear search and close modal
       handleClearSearch();
       toast.success("New chat created successfully!");
       dispatch(isNewChatModalShowReducser(false));
@@ -103,46 +95,11 @@ const NewChatModal = () => {
     },
   });
 
-  useEffect(() => {}, [allProviders]);
-
   const providers = useMemo(() => {
-    return allProviders?.filter(
-      (data) =>
-        data?.id !== loginUserDetail.id && data.user?.isApprove === "APPROVED",
+    return (
+      allProviders?.filter((data) => data?.id !== loginUserDetail.id) || []
     );
   }, [allProviders, loginUserDetail.id]);
-
-  // Search functionality with debounce
-  useEffect(() => {
-    if (!providers) {
-      setFilteredProviders([]);
-      return;
-    }
-
-    if (searchQuery.trim() === "") {
-      setFilteredProviders(providers);
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      const searchTerm = searchQuery.toLowerCase();
-      const filtered = providers.filter((provider) => {
-        return (
-          provider.user?.fullName?.toLowerCase().includes(searchTerm) ||
-          provider.user?.email?.toLowerCase().includes(searchTerm) ||
-          provider.speciality?.toLowerCase().includes(searchTerm) ||
-          provider.user?.licenseNo?.toLowerCase().includes(searchTerm) ||
-          provider.user?.role?.toLowerCase().includes(searchTerm)
-        );
-      });
-
-      setFilteredProviders(filtered);
-    }, 300);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [searchQuery, providers]);
 
   // Search handlers
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,11 +108,10 @@ const NewChatModal = () => {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    setFilteredProviders(providers || []);
   };
 
   if (isLoading) {
-    return <Loader text="Loading providers..." />;
+    return <Loader inline text="Loading providers..." />;
   }
 
   if (isError) {
@@ -184,7 +140,7 @@ const NewChatModal = () => {
       </div>
 
       <div className="mt-2">
-        {providers?.length === 0 ? (
+        {providers.length === 0 ? (
           <div className="p-6 text-center text-lightGreyColor">
             <div className="mb-2">
               <svg
@@ -201,12 +157,15 @@ const NewChatModal = () => {
                 />
               </svg>
             </div>
-            <p className="text-sm font-medium">No active providers found!</p>
-            <p className="text-xs mt-1">Providers might be pending approval.</p>
+            <p className="text-sm font-medium">
+              {searchQuery
+                ? `No providers match "${searchQuery}"`
+                : "No providers available for new chats"}
+            </p>
           </div>
         ) : (
           <ProviderSearchResults
-            providers={filteredProviders}
+            providers={providers}
             onProviderSelect={handleProviderSelect}
             isActionLoading={
               createNewChat.hasOwnProperty("isPending")
@@ -223,11 +182,11 @@ const NewChatModal = () => {
         )}
       </div>
 
-      {filteredProviders.length > 0 && (
+      {providers.length > 0 && (
         <div className="text-xs text-gray-500 text-center mt-2">
           {searchQuery
-            ? `Found ${filteredProviders.length} User${filteredProviders.length !== 1 ? "s" : ""} matching "${searchQuery}"`
-            : `${filteredProviders.length} User${filteredProviders.length !== 1 ? "s" : ""} available for new chats`}
+            ? `Found ${providers.length} User${providers.length !== 1 ? "s" : ""} matching "${searchQuery}"`
+            : `${providers.length} User${providers.length !== 1 ? "s" : ""} available for new chats`}
         </div>
       )}
     </div>

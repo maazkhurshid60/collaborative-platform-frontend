@@ -16,6 +16,14 @@ interface CalendarGridViewProps {
   onAppointmentClick: (appt: AppointmentRecord) => void;
 }
 
+const isPastDate = (date: Date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  return target < today;
+};
+
 // Helper to determine status-based colors, labels, and hover styles
 const getEventStatusStyles = (status?: string) => {
   const normalizedStatus = (status || "").toUpperCase();
@@ -89,12 +97,17 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
             const dayOfWeek = day.getDay();
             const dayConfig = days?.[dayOfWeek];
             const hasTimeOff = isDayTimeOff(day);
+            const isPast = isPastDate(day);
 
             return (
               <div
                 key={idx}
-                onClick={() => onDayClick(day)}
-                className="flex flex-col items-center border-r border-gray-200 last:border-r-0 cursor-pointer hover:bg-blue-50/50 py-1 transition-colors"
+                onClick={() => !isPast && onDayClick(day)}
+                className={`flex flex-col items-center border-r border-gray-200 last:border-r-0 py-1 transition-colors ${
+                  isPast
+                    ? "opacity-40 cursor-not-allowed bg-gray-100/50"
+                    : "cursor-pointer hover:bg-blue-50/50"
+                }`}
               >
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   {day.toLocaleDateString("en-US", { weekday: "short" })}
@@ -111,6 +124,10 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
                 {hasTimeOff ? (
                   <span className="mt-1 px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">
                     Time Off
+                  </span>
+                ) : isPast ? (
+                  <span className="mt-1 text-[9px] text-gray-400 font-medium">
+                    Past Day
                   </span>
                 ) : isDayAvailable(day) ? (
                   <span className="mt-1 text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100">
@@ -134,23 +151,28 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
             const hasTimeOff = isDayTimeOff(day);
             const dayAppts = getAppointmentsForDate(day);
             const available = isDayAvailable(day);
+            const isPast = isPastDate(day);
 
             return (
               <div
                 key={idx}
-                onClick={() => onDayClick(day)}
-                className={`p-2 space-y-2 min-h-120 flex flex-col cursor-pointer transition-all hover:bg-blue-50/20 group relative ${
-                  hasTimeOff
-                    ? "bg-amber-50/30"
-                    : !available
-                      ? "bg-gray-50/50"
-                      : "bg-white"
+                onClick={() => !isPast && onDayClick(day)}
+                className={`p-2 space-y-2 min-h-120 flex flex-col transition-all group relative ${
+                  isPast
+                    ? "bg-gray-100/60 cursor-not-allowed opacity-65"
+                    : hasTimeOff
+                      ? "bg-amber-50/30 cursor-pointer hover:bg-blue-50/20"
+                      : !available
+                        ? "bg-gray-50/50 cursor-pointer hover:bg-blue-50/20"
+                        : "bg-white cursor-pointer hover:bg-blue-50/20"
                 }`}
               >
                 {/* Hover Indicator */}
-                <div className="opacity-0 group-hover:opacity-100 absolute top-2 right-2 text-primaryColorDark text-[10px] font-bold bg-white px-2 py-0.5 rounded-full border border-gray-200 shadow-2xs pointer-events-none transition-opacity">
-                  Click to Edit
-                </div>
+                {!isPast && (
+                  <div className="opacity-0 group-hover:opacity-100 absolute top-2 right-2 text-primaryColorDark text-[10px] font-bold bg-white px-2 py-0.5 rounded-full border border-gray-200 shadow-2xs pointer-events-none transition-opacity">
+                    Click to Edit
+                  </div>
+                )}
 
                 {hasTimeOff ? (
                   <div className="p-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-center text-xs space-y-1">
@@ -159,6 +181,10 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
                     <p className="text-[10px] text-amber-700">
                       No appointments
                     </p>
+                  </div>
+                ) : isPast ? (
+                  <div className="flex-1 flex items-center justify-center text-xs text-gray-400 font-medium italic">
+                    Past Day
                   </div>
                 ) : !available ? (
                   <div className="flex-1 flex items-center justify-center text-xs text-gray-300 font-medium italic">
@@ -257,16 +283,19 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
           const isCurrentMonth = day.getMonth() === currentDate.getMonth();
           const dayAppts = getAppointmentsForDate(day);
           const available = isDayAvailable(day);
+          const isPast = isPastDate(day);
 
           return (
             <div
               key={idx}
-              onClick={() => onDayClick(day)}
-              className={`p-2 flex flex-col min-h-22.5 cursor-pointer transition-colors hover:bg-blue-50/40 ${
-                !isCurrentMonth
-                  ? "bg-gray-50/40 text-gray-300"
-                  : "bg-white text-gray-800"
-              } ${hasTimeOff ? "bg-amber-50/40" : ""}`}
+              onClick={() => !isPast && onDayClick(day)}
+              className={`p-2 flex flex-col min-h-22.5 transition-colors ${
+                isPast
+                  ? "bg-gray-100/60 text-gray-400 cursor-not-allowed opacity-65"
+                  : !isCurrentMonth
+                    ? "bg-gray-50/40 text-gray-300 cursor-pointer hover:bg-blue-50/40"
+                    : "bg-white text-gray-800 cursor-pointer hover:bg-blue-50/40"
+              } ${hasTimeOff && !isPast ? "bg-amber-50/40" : ""}`}
             >
               <div className="flex items-center justify-between mb-1">
                 <span
@@ -283,9 +312,14 @@ export const CalendarGridView: React.FC<CalendarGridViewProps> = ({
                     Off
                   </span>
                 )}
+                {isPast && (
+                  <span className="text-[9px] font-medium text-gray-400">
+                    Past
+                  </span>
+                )}
               </div>
 
-              {!hasTimeOff && available && (
+              {!hasTimeOff && available && !isPast && (
                 <div className="mt-auto pt-1">
                   <span className="block text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 truncate">
                     {dayConfig?.startTime} - {dayConfig?.endTime}

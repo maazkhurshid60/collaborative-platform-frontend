@@ -81,6 +81,16 @@ const TimeOffTab = () => {
 
   // Cell click handler opens Add Time Off modal prefilled with clicked date
   const handleDayCellClick = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+
+    if (target < today) {
+      toast.warning("Cannot schedule time-off for past dates.");
+      return;
+    }
+
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -320,6 +330,7 @@ const TimeOffTab = () => {
                   </label>
                   <input
                     type="date"
+                    min={new Date().toISOString().split("T")[0]}
                     required
                     {...register("startDate", { required: true })}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:border-primaryColorDark outline-none"
@@ -331,6 +342,7 @@ const TimeOffTab = () => {
                   </label>
                   <input
                     type="date"
+                    min={new Date().toISOString().split("T")[0]}
                     required
                     {...register("endDate", { required: true })}
                     className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2 text-xs font-semibold text-gray-800 focus:bg-white focus:border-primaryColorDark outline-none"

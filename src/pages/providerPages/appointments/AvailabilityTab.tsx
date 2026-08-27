@@ -119,6 +119,16 @@ const AvailabilityTab = () => {
 
   // Handler for direct cell click on calendar day
   const handleDayCellClick = (dayDate: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(dayDate);
+    target.setHours(0, 0, 0, 0);
+
+    if (target < today) {
+      toast.warning("Availability for past dates cannot be edited.");
+      return;
+    }
+
     const dayOfWeek = dayDate.getDay();
     const dayConfig = days?.[dayOfWeek] || {
       enabled: false,

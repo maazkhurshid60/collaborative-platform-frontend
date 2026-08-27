@@ -200,17 +200,12 @@ const ProviderSignup = () => {
 
   // Called after provider agrees to BAA (or if no BAA exists)
   const proceedAfterBaa = (data: any) => {
-    if (token) {
-      navigate("/confirm-free-account", {
-        state: {
-          userData: data,
-          planType: "FREE",
-          inviteToken: token,
-        },
-      });
-      return;
-    }
-    navigate("/select-plan", { state: { userData: data } });
+    navigate("/select-plan", {
+      state: {
+        userData: data,
+        inviteToken: token || undefined,
+      },
+    });
   };
 
   const handleBaaAgree = () => {
