@@ -13,6 +13,9 @@ import chatApiService from "../../../../apiServices/chatApi/ChatApi";
 import { isNewChatModalShowReducser } from "../../../../redux/slices/ModalSlice";
 import { ChatChannelType } from "../../../../types/chatType/ChatChannelType";
 import { useDebounce } from "../../../../hook/useDebounce";
+import { useSubscription } from "@/hooks/useSubscription";
+
+const CONVERSATION_LIMIT = 10;
 
 const NewChatModal = () => {
   const loginUserDetail = useSelector(
@@ -21,6 +24,7 @@ const NewChatModal = () => {
   const dispatch = useDispatch<AppDispatch>();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isSubscriptionActive } = useSubscription();
 
   // Search state & debounced search for API-level filtering
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,8 +86,18 @@ const NewChatModal = () => {
       toast.success("New chat created successfully!");
       dispatch(isNewChatModalShowReducser(false));
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error creating chat:", error);
+      if (error?.response?.status === 403) {
+        toast.error(
+          error?.response?.data?.message ||
+            `Free plan is limited to ${CONVERSATION_LIMIT} conversations. Upgrade to start more.`,
+        );
+        return;
+      }
+      toast.error(
+        error?.response?.data?.message || "Failed to create new chat.",
+      );
     },
   });
 
@@ -125,6 +139,12 @@ const NewChatModal = () => {
 
   return (
     <div className="space-y-4">
+      {!isSubscriptionActive && (
+        <div className="text-xs font-medium text-gray-500 text-center">
+          Conversations used: {allChannels.length}/{CONVERSATION_LIMIT}
+        </div>
+      )}
+
       <div className="mt-4">
         <SearchBar
           sm

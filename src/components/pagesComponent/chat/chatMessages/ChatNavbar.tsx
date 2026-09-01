@@ -29,13 +29,13 @@ import ToolTip from "../../../toolTip/ToolTip";
 
 import BookProviderSessionModal from "@/components/modals/providerModal/BookProviderSessionModal";
 import DirectCallLogsModal from "@/components/modals/providerModal/chatModal/DirectCallLogsModal";
-import { startCallFromUrl } from "@/utils/callModalService";
 import {
   appointmentApiService,
   AppointmentRecord,
 } from "@/services/appointmentApiService";
 import { Video, Calendar, Phone, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface chatNavbarProps {
   name?: string;
@@ -55,6 +55,15 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
   const [isShowModal, setIsShowModal] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isCallLogsModalOpen, setIsCallLogsModalOpen] = useState(false);
+  const { canUsePremiumFeature } = useSubscription();
+
+  const withCallingAccess = (action: () => void) => () => {
+    if (!canUsePremiumFeature) {
+      toast.error("Your 3-day trial for calling has ended. Upgrade to keep making calls.");
+      return;
+    }
+    action();
+  };
   const loginUserId = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.id,
   );
@@ -94,11 +103,15 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
       const res = await appointmentApiService.getCallJoinInfo(appointmentId);
       const joinUrl = res?.data?.joinUrl;
       if (joinUrl) {
-        startCallFromUrl(joinUrl);
+        window.open(joinUrl, "_blank", "noopener,noreferrer");
       } else {
         toast.error("Couldn't get call link.");
       }
     } catch (err: any) {
+      if (err?.response?.status === 403) {
+        toast.error(err?.response?.data?.message || "Upgrade to continue using calling.");
+        return;
+      }
       toast.error(
         err?.response?.data?.message || "Call is not currently active.",
       );
@@ -122,7 +135,9 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
       return channelId;
     },
     onSuccess: () => {
-      toast.success("Chat conversation and associated messages deleted successfully");
+      toast.success(
+        "Chat conversation and associated messages deleted successfully",
+      );
       queryClient.invalidateQueries({
         queryKey: ["chatchannels"],
       });
@@ -130,7 +145,8 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
       navigate("/chat");
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.message || err?.message || "Delete failed";
+      const msg =
+        err?.response?.data?.message || err?.message || "Delete failed";
       toast.error(msg);
       console.error("Delete failed", err);
     },
@@ -177,12 +193,16 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
         toast.success(
           `Starting ${callType === "audio" ? "Voice" : "Video"} Call...`,
         );
-        startCallFromUrl(joinUrl);
+        window.open(joinUrl, "_blank", "noopener,noreferrer");
       } else {
         toast.error("Failed to start call.");
       }
     },
     onError: (err: any) => {
+      if (err?.response?.status === 403) {
+        toast.error(err?.response?.data?.message || "Upgrade to continue using calling.");
+        return;
+      }
       toast.error(err?.response?.data?.message || "Could not start call.");
     },
   });
@@ -308,10 +328,11 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
           {(loginUserId === props.groupCreatedBy?.id ||
             !props.groupMembers ||
             props.groupMembers?.length === 0) && (
-            <div className="relative group flex items-center justify-center cursor-pointer">
-              <DeleteIcon onClick={deleteConservation} />
-              <ToolTip
-                toolTipText={
+            <div className="flex items-center justify-center cursor-pointer">
+              <DeleteIcon
+                onClick={deleteConservation}
+                tooltipPosition="bottom"
+                tooltipText={
                   props.groupMembers?.length > 0
                     ? "Delete Group"
                     : "Delete Conversation"
@@ -338,7 +359,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                   {activeCallAppt && (
                     <button
                       type="button"
-                      onClick={() => handleJoinCall(activeCallAppt.id)}
+                      onClick={withCallingAccess(() => handleJoinCall(activeCallAppt.id))}
                       className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-600 transition-all cursor-pointer animate-pulse"
                       title="Join scheduled video call room"
                     >
@@ -351,12 +372,12 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     <button
                       type="button"
                       disabled={startInstantCallMutation.isPending}
-                      onClick={() => startInstantCallMutation.mutate("audio")}
+                      onClick={withCallingAccess(() => startInstantCallMutation.mutate("audio"))}
                       className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-200 cursor-pointer shadow-2xs hover:scale-110 active:scale-95"
                     >
                       <Phone size={16} />
                     </button>
-                    <ToolTip toolTipText="Voice Call" />
+                    <ToolTip position="bottom" toolTipText="Voice Call" />
                   </div>
 
                   {/* Instant Video Call */}
@@ -364,12 +385,12 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     <button
                       type="button"
                       disabled={startInstantCallMutation.isPending}
-                      onClick={() => startInstantCallMutation.mutate("video")}
+                      onClick={withCallingAccess(() => startInstantCallMutation.mutate("video"))}
                       className="flex h-9 w-9 items-center justify-center rounded-full border border-primaryColorDark/30 bg-primaryColorLight/20 text-primaryColorDark hover:bg-primaryColorDark hover:text-white transition-all duration-200 cursor-pointer shadow-2xs hover:scale-110 active:scale-95"
                     >
                       <Video size={16} />
                     </button>
-                    <ToolTip toolTipText="Video Call" />
+                    <ToolTip position="bottom" toolTipText="Video Call" />
                   </div>
 
                   {/* Schedule Call */}
@@ -381,7 +402,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     >
                       <Calendar size={16} />
                     </button>
-                    <ToolTip toolTipText="Schedule Call" />
+                    <ToolTip position="bottom" toolTipText="Schedule Call" />
                   </div>
 
                   {/* Call History */}
@@ -393,7 +414,7 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
                     >
                       <Clock size={16} />
                     </button>
-                    <ToolTip toolTipText="Call History" />
+                    <ToolTip position="bottom" toolTipText="Call History" />
                   </div>
                 </div>
               )}
@@ -448,7 +469,9 @@ const ChatNavbar: React.FC<chatNavbarProps> = (props) => {
           onClose={() => setIsCallLogsModalOpen(false)}
           targetProviderId={props.targetProvider.id}
           targetProviderName={props.targetProvider.name}
-          onStartCall={(callType) => startInstantCallMutation.mutate(callType)}
+          onStartCall={(callType) =>
+            withCallingAccess(() => startInstantCallMutation.mutate(callType))()
+          }
         />
       )}
     </>

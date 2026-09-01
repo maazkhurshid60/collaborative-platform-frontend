@@ -22,7 +22,16 @@ const TrialBanner: React.FC = () => {
     return diffDays > 0 ? diffDays : 0;
   };
 
+  // Under a day left — show hours instead of rounding up to "1 day".
+  const getHoursRemaining = () => {
+    if (!subscription?.trialEnd) return null;
+    const diffTime = new Date(subscription.trialEnd).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60)));
+  };
+
   const daysRemaining = getDaysRemaining();
+  const hoursRemaining = getHoursRemaining();
+  const isUnderADay = hoursRemaining !== null && hoursRemaining <= 24;
 
   // Only show banner for STANDARD plan with active trial (7 days or less remaining)
   const shouldShowBanner =
@@ -40,8 +49,17 @@ const TrialBanner: React.FC = () => {
       <div className="w-full bg-[#FFE0B2]/30 border-[#FFE0B2]/30 border-3 rounded-3xl p-6 mb-6 flex items-center justify-between">
         <div className="flex-1">
           <h2 className="text-[24px] font-semibold text-[#8A5A00] font-[Poppins] mb-2">
-            Your free trial ends in {daysRemaining}{" "}
-            {daysRemaining === 1 ? "day" : "days"}
+            {isUnderADay ? (
+              <>
+                Your free trial ends in {hoursRemaining}{" "}
+                {hoursRemaining === 1 ? "hour" : "hours"}
+              </>
+            ) : (
+              <>
+                Your free trial ends in {daysRemaining}{" "}
+                {daysRemaining === 1 ? "day" : "days"}
+              </>
+            )}
           </h2>
           <p className="text-[16px] text-[#666666] font-[Poppins] mb-4">
             Upgrade now to keep full access to all features

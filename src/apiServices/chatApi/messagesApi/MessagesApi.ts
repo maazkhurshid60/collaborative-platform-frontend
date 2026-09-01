@@ -123,6 +123,16 @@ class MessageApiService {
         }
     }
 
+    async deleteMessageForMe(data: DeleteMessagePayload) {
+        try {
+            const response = await this.api.delete("/chat/single-chat/delete-message-for-me", { data })
+            return response?.data
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to delete message";
+            toast.error(errMsg);
+        }
+    }
+
     async deleteChatChannelForUser(data: DeleteChatChannelPayload) {
         try {
             const response = await this.api.delete("/chat/single-chat/delete-channel", { data })

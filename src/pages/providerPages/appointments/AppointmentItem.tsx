@@ -20,9 +20,9 @@ import {
   appointmentApiService,
   type AppointmentRecord,
 } from "@/services/appointmentApiService";
-import { startCallFromUrl } from "@/utils/callModalService";
 import { getFormatedDateAndTime } from "@/utils/dataTimeUtils";
 import { RescheduleModal } from "./RescheduleModal";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const SESSION_TYPE_ICON = {
   ONLINE: Video,
@@ -54,6 +54,7 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
   const queryClient = useQueryClient();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+  const { canUsePremiumFeature } = useSubscription();
 
   const SessionIcon = SESSION_TYPE_ICON[appt.sessionType];
   const isCopied = copiedId === appt.id;
@@ -83,10 +84,14 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
         toast.error("Couldn't get the video call link.");
         return;
       }
-      startCallFromUrl(joinUrl);
+      window.open(joinUrl, "_blank", "noopener,noreferrer");
     },
     onError: (error: unknown) => {
       const err = error as AxiosError<{ message?: string }>;
+      if (err?.response?.status === 403) {
+        toast.error(err?.response?.data?.message || "Upgrade to continue using calling.");
+        return;
+      }
       toast.error(
         err?.response?.data?.message || "Couldn't join the video call.",
       );
@@ -188,7 +193,13 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
             <>
               <button
                 type="button"
-                onClick={() => joinCallMutation.mutate()}
+                onClick={() => {
+                  if (!canUsePremiumFeature) {
+                    toast.error("Your 3-day trial for calling has ended. Upgrade to keep making calls.");
+                    return;
+                  }
+                  joinCallMutation.mutate();
+                }}
                 disabled={joinCallMutation.isPending}
                 className="flex cursor-pointer items-center gap-1.5 rounded-full border border-primaryColorDark/30 bg-primaryColorLight/40 px-4 py-2 text-[13px] font-semibold text-primaryColorDark transition-colors hover:bg-primaryColorLight disabled:opacity-50"
               >

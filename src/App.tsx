@@ -15,8 +15,6 @@ import InvoiceModal from './components/modals/InvoiceModal'
 import { subscriptionApiService } from './services/subscriptionApiService'
 import { useDispatch } from 'react-redux'
 import IncomingCallModal, { IncomingCallData } from './components/modals/providerModal/IncomingCallModal'
-import CallRoomModal, { ActiveCallState } from './components/modals/providerModal/CallRoomModal'
-import { startCallFromUrl } from './utils/callModalService'
 const queryClient = new QueryClient();
 
 function App() {
@@ -29,18 +27,6 @@ function App() {
   const [latestInvoiceData, setLatestInvoiceData] = useState<any>(null);
   const [isFetchingReceipt, setIsFetchingReceipt] = useState(false);
   const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null);
-  const [activeCall, setActiveCall] = useState<ActiveCallState | null>(null);
-
-  useEffect(() => {
-    const handleOpenCall = (e: any) => {
-      const { appointmentId, token, audioOnly } = e.detail || {};
-      if (appointmentId && token) {
-        setActiveCall({ isOpen: true, appointmentId, token, audioOnly });
-      }
-    };
-    window.addEventListener("open_call_session", handleOpenCall);
-    return () => window.removeEventListener("open_call_session", handleOpenCall);
-  }, []);
 
   const handleViewLatestReceipt = async () => {
     if (isFetchingReceipt) return;
@@ -246,16 +232,11 @@ function App() {
         incomingCall={incomingCall}
         onAccept={() => {
           if (incomingCall?.calleeJoinUrl) {
-            startCallFromUrl(incomingCall.calleeJoinUrl);
+            window.open(incomingCall.calleeJoinUrl, "_blank", "noopener,noreferrer");
           }
           setIncomingCall(null);
         }}
         onDecline={() => setIncomingCall(null)}
-      />
-
-      <CallRoomModal
-        activeCall={activeCall}
-        onClose={() => setActiveCall(null)}
       />
 
       <BrowserRouter>

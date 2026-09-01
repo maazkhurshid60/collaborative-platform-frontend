@@ -5,8 +5,8 @@ import { Clock } from "lucide-react";
 import { toast } from "react-toastify";
 import OutletLayout from "@/layouts/outletLayout/OutletLayout";
 import { appointmentApiService } from "@/services/appointmentApiService";
-import { startCallFromUrl } from "@/utils/callModalService";
 import Loader from "@/components/loader/Loader";
+import { useSubscription } from "@/hooks/useSubscription";
 import { RootState } from "@/redux/store";
 
 import { CallLogsHeader } from "@/components/pagesComponent/callLogs/CallLogsHeader";
@@ -25,6 +25,7 @@ const CallLogsPage = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmClearAllOpen, setConfirmClearAllOpen] = useState(false);
+  const { canUsePremiumFeature } = useSubscription();
 
   const userDetails = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails,
@@ -111,12 +112,16 @@ const CallLogsPage = () => {
         toast.success(
           `Starting ${variables.callType === "audio" ? "Voice" : "Video"} Call...`,
         );
-        startCallFromUrl(joinUrl);
+        window.open(joinUrl, "_blank", "noopener,noreferrer");
       } else {
         toast.error("Failed to start call.");
       }
     },
     onError: (err: any) => {
+      if (err?.response?.status === 403) {
+        toast.error(err?.response?.data?.message || "Upgrade to continue using calling.");
+        return;
+      }
       toast.error(err?.response?.data?.message || "Could not start call.");
     },
   });
@@ -204,9 +209,13 @@ const CallLogsPage = () => {
 
   const handleStartCall = useCallback(
     (params: { targetProviderId: string; callType: "audio" | "video" }) => {
+      if (!canUsePremiumFeature) {
+        toast.error("Your 3-day trial for calling has ended. Upgrade to keep making calls.");
+        return;
+      }
       startInstantCallMutation.mutate(params);
     },
-    [startInstantCallMutation],
+    [startInstantCallMutation, canUsePremiumFeature],
   );
 
   return (

@@ -26,6 +26,8 @@ export interface Message {
   message: string;
   chatChannelId: string;
   mediaUrl?: string;
+  type?: string;
+  durationSeconds?: number | null;
   createdAt: string;
   sender: {
     fullName: string;

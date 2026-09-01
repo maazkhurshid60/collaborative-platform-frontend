@@ -26,12 +26,12 @@ export const CallRoomLobby: React.FC<CallRoomLobbyProps> = ({
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primaryColorLight/20 text-primaryColorDark">
         <Video size={32} />
       </div>
-      <h2 className="mt-4 text-xl font-bold text-textColor dark:text-white">
+      <h2 className="mt-4 text-xl font-bold text-textColor">
         Ready to join {audioOnlyParam ? "Voice" : "Video"} Call?
       </h2>
       <p className="mt-1 text-xs text-textGreyColor">
         Session with{" "}
-        <span className="font-semibold text-textColor dark:text-white">
+        <span className="font-semibold text-textColor">
           {participantName}
         </span>
       </p>

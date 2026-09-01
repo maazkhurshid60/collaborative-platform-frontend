@@ -1,20 +1,24 @@
 import React from "react";
-import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Minimize2, Loader2 } from "lucide-react";
 
 interface CallRoomControlsProps {
   isMuted: boolean;
   isCameraOff: boolean;
+  isRequestingVideo?: boolean;
   onToggleMute: () => void;
   onToggleCamera: () => void;
   onLeaveCall: () => void;
+  onMinimize?: () => void;
 }
 
 export const CallRoomControls: React.FC<CallRoomControlsProps> = ({
   isMuted,
   isCameraOff,
+  isRequestingVideo = false,
   onToggleMute,
   onToggleCamera,
   onLeaveCall,
+  onMinimize,
 }) => {
   return (
     <div className="mt-5 flex items-center justify-center gap-3">
@@ -32,13 +36,31 @@ export const CallRoomControls: React.FC<CallRoomControlsProps> = ({
       <button
         type="button"
         onClick={onToggleCamera}
-        className={`flex h-11 w-11 items-center justify-center rounded-full transition-all cursor-pointer ${
+        disabled={isRequestingVideo}
+        className={`flex h-11 w-11 items-center justify-center rounded-full transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
           isCameraOff ? "bg-rose-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
         }`}
         title={isCameraOff ? "Turn camera on" : "Turn camera off"}
       >
-        {isCameraOff ? <VideoOff size={18} /> : <Video size={18} />}
+        {isRequestingVideo ? (
+          <Loader2 size={18} className="animate-spin" />
+        ) : isCameraOff ? (
+          <VideoOff size={18} />
+        ) : (
+          <Video size={18} />
+        )}
       </button>
+
+      {onMinimize && (
+        <button
+          type="button"
+          onClick={onMinimize}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-all hover:bg-gray-200 cursor-pointer"
+          title="Minimize call"
+        >
+          <Minimize2 size={18} />
+        </button>
+      )}
 
       <button
         type="button"

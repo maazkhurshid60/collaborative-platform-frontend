@@ -13,7 +13,7 @@ export const CallRoomEnded: React.FC<CallRoomEndedProps> = ({
   return (
     <div className="py-12 text-center">
       <PhoneOff size={40} className="mx-auto text-gray-400" />
-      <h3 className="mt-3 text-lg font-bold text-textColor dark:text-white">
+      <h3 className="mt-3 text-lg font-bold text-textColor">
         Call Ended
       </h3>
       <p className="mt-1 text-xs text-textGreyColor">
