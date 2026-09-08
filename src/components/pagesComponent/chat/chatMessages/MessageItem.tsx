@@ -115,12 +115,12 @@ const MessageItem: React.FC<MessageItemProps> = ({
           {msg?.you && (
             <div className="flex items-center gap-x-2">
               <p className="text-textGreyColor text-[12px]">
-                {new Date(msg.createdAt)
-                  .toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                  .toLowerCase()}
+                {(() => {
+                  if (!msg.createdAt) return "";
+                  const d = new Date(msg.createdAt);
+                  if (isNaN(d.getTime())) return "";
+                  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }).toLowerCase();
+                })()}
               </p>
             </div>
           )}

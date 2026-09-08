@@ -19,6 +19,7 @@ const AudioMessageBubble: React.FC<AudioMessageBubbleProps> = ({
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isRecoveringDurationRef = useRef(false);
+  const hasRecoveredDurationRef = useRef(false);
 
   // Generate 22 deterministic waveform bar heights for WhatsApp-like aesthetic
   const waveformPattern = [
@@ -94,7 +95,7 @@ const AudioMessageBubble: React.FC<AudioMessageBubbleProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 rounded-2xl max-w-[280px] sm:max-w-[340px] my-1 shadow-sm relative transition-all ${
+      className={`flex items-center gap-3 p-3 rounded-2xl max-w-70 sm:max-w-85 my-1 shadow-sm relative transition-all ${
         isSender
           ? "bg-primaryColorDark text-white ml-auto rounded-tr-none"
           : "bg-white text-gray-900 border border-gray-200 rounded-tl-none"
@@ -114,14 +115,20 @@ const AudioMessageBubble: React.FC<AudioMessageBubbleProps> = ({
 
           // Chrome/MediaRecorder WebM blobs often report duration as
           // Infinity until the browser is forced to seek through the file.
+          // We only do this once per element: the forced seek-to-end leaves
+          // the element's seekable range in a state where it won't reliably
+          // play from the start again, so we reload it fresh afterwards.
+          if (hasRecoveredDurationRef.current) return;
+
           isRecoveringDurationRef.current = true;
           const recoverDuration = () => {
             audio.removeEventListener("timeupdate", recoverDuration);
             if (isFinite(audio.duration)) {
               setDuration(Math.round(audio.duration));
             }
-            audio.currentTime = 0;
             isRecoveringDurationRef.current = false;
+            hasRecoveredDurationRef.current = true;
+            audio.load();
           };
           audio.addEventListener("timeupdate", recoverDuration);
           audio.currentTime = Number.MAX_SAFE_INTEGER;
@@ -138,6 +145,9 @@ const AudioMessageBubble: React.FC<AudioMessageBubbleProps> = ({
         onEnded={() => {
           setIsPlaying(false);
           setCurrentTime(0);
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+          }
         }}
         onError={(e) => {
           console.log("Here is the error : ", e);

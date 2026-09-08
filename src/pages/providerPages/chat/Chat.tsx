@@ -250,8 +250,8 @@ const Chat = () => {
           newMessage.groupId === activeChatObject?.id);
       const isFromSelf = newMessage.senderId === loginUserUserId;
 
-      queryClient.setQueryData<ChatChannelType[]>(
-        ["chatchannels"],
+      queryClient.setQueriesData<ChatChannelType[]>(
+        { queryKey: ["chatchannels"] },
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -280,8 +280,8 @@ const Chat = () => {
         },
       );
 
-      queryClient.setQueryData<GroupChat[]>(
-        ["groupChatchannels"],
+      queryClient.setQueriesData<GroupChat[]>(
+        { queryKey: ["groupChatchannels"] },
         (oldGroups = []) => {
           return oldGroups.map((group) => {
             if (group?.id === newMessage.groupId) {

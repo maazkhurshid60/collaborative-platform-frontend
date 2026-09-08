@@ -116,17 +116,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
         socket?.emit("send_group", { message: saved });
       }
 
-      setMessages((prev) =>
-        prev.map((m) =>
+      setMessages((prev) => {
+        const alreadyExists = prev.some((m) => m.id === saved?.id);
+        if (alreadyExists) {
+          return prev.filter((m) => m.id !== tempId);
+        }
+        return prev.map((m) =>
           m.id === tempId ? { ...saved, you: true, status: "sent" } : m,
-        ),
-      );
+        );
+      });
     } catch (error: any) {
       console.error("❌ Error sending voice message:", error);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      if (error?.response?.status === 403) {
-        toast.error(error?.response?.data?.message || "Upgrade to continue sending voice notes.");
-      }
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to send voice message.";
+      toast.error(errorMessage);
     }
   };
 
@@ -207,14 +214,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const res =
           await messageApiService.sendMessageToSingleConservation(formData);
 
-        saved = res?.data?.chatMessage;
+        saved = res?.data?.chatMessage || res?.data;
 
         const otherId =
           (activeChatObject as ChatChannelType).providerA.id === loginUserUserId
             ? (activeChatObject as ChatChannelType).providerB.id
             : (activeChatObject as ChatChannelType).providerA.id;
 
-        socket?.emit("send_direct", { toProviderId: otherId, message: saved });
+        const channelId = (activeChatObject as ChatChannelType).id;
+        const msgToEmit = saved?.chatChannelId
+          ? saved
+          : { ...saved, chatChannelId: channelId };
+
+        socket?.emit("send_direct", { toProviderId: otherId, message: msgToEmit });
       } else {
         const res =
           await messageApiService.sendMessagesOfGroupChatChannel(formData);
@@ -223,14 +235,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         socket?.emit("send_group", { message: saved });
       }
 
-      setMessages((prev) =>
-        prev.map((m) =>
+      setMessages((prev) => {
+        const alreadyExists = prev.some((m) => m.id === saved?.id);
+        if (alreadyExists) {
+          return prev.filter((m) => m.id !== tempId);
+        }
+        return prev.map((m) =>
           m.id === tempId ? { ...saved, you: true, status: "sent" } : m,
-        ),
-      );
+        );
+      });
 
-      queryClient.setQueryData<ChatChannelType[]>(
-        ["chatchannels"],
+      queryClient.setQueriesData<ChatChannelType[]>(
+        { queryKey: ["chatchannels"] },
         (oldData) => {
           if (!oldData) return oldData;
           return oldData.map((channel) =>
@@ -249,8 +265,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
           );
         },
       );
-      queryClient.setQueryData<GroupChat[]>(
-        ["groupChatchannels"],
+      queryClient.setQueriesData<GroupChat[]>(
+        { queryKey: ["groupChatchannels"] },
         (oldGroups = []) =>
           oldGroups.map((group) => {
             if (group.id === saved.groupId) {
@@ -271,9 +287,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
             return { ...group };
           }),
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error sending message:", error);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to send message.";
+      toast.error(errorMessage);
     }
   };
 

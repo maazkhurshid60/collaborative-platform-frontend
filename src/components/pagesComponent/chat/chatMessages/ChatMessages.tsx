@@ -134,10 +134,22 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         const alreadyExists = prev.some((m) => m.id === newMsg.id);
         if (alreadyExists) return prev;
 
+        const tempIndex = prev.findIndex(
+          (m) =>
+            m.id.startsWith("temp-") &&
+            (m.message === newMsg.message || m.type === newMsg.type)
+        );
+
         const updatedMessage = {
           ...newMsg,
           you: newMsg.senderId === loginUserUserId,
         };
+
+        if (tempIndex !== -1) {
+          const updated = [...prev];
+          updated[tempIndex] = updatedMessage;
+          return updated;
+        }
 
         if (!updatedMessage.you) {
           setUnreadCounts((prevCounts) => ({
@@ -253,7 +265,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       const queryKey = isGroup ? ["groupChatchannels"] : ["chatchannels"];
 
       // Update sidebar chat list for both individual and group chats
-      queryClient.setQueryData(queryKey, (oldData: ChatChannelType[] = []) =>
+      queryClient.setQueriesData({ queryKey }, (oldData: ChatChannelType[] = []) =>
         oldData.map((channel) =>
           channel.id === newMessage.chatChannelId
             ? {
@@ -341,7 +353,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     yesterday.setDate(today.getDate() - 1);
 
     const getGroupKey = (dateStr: string) => {
+      if (!dateStr) return "Today";
       const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "Today";
+
       if (
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
