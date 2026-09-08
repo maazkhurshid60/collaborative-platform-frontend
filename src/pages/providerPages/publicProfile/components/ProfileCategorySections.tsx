@@ -103,19 +103,37 @@ export const ProfileCategorySections = ({
 
       {activeCategory === "availability" && (
         <Section title="Availability">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {availabilityToggles.map(({ key, label }) => (
-              <label
+              <Controller
                 key={key}
-                className="flex items-center gap-2 text-[14px] text-[#333333] cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  {...register(key as "acceptingNewPatients")}
-                  className="w-4 h-4"
-                />
-                {label}
-              </label>
+                name={key}
+                control={control}
+                render={({ field: { value, onChange } }) => (
+                  <div
+                    onClick={() => onChange(!value)}
+                    className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white shadow-sm cursor-pointer hover:border-transaction-summary-ammont transition-all"
+                  >
+                    <span className="text-[14px] font-medium text-gray-800 pr-2">
+                      {label}
+                    </span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={Boolean(value)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        value ? "bg-transaction-summary-ammont" : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                          value ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                )}
+              />
             ))}
           </div>
           <TextField

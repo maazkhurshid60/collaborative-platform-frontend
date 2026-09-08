@@ -17,6 +17,7 @@ export interface ProfileFormState {
   languages: string[];
   acceptingNewPatients: boolean;
   allowQueries: boolean;
+  showCalendar: boolean;
   offersOnlineSessions: boolean;
   offersInPersonSessions: boolean;
   offersHomeVisits: boolean;
@@ -74,6 +75,7 @@ export const emptyState: ProfileFormState = {
   languages: [],
   acceptingNewPatients: true,
   allowQueries: true,
+  showCalendar: false,
   offersOnlineSessions: false,
   offersInPersonSessions: false,
   offersHomeVisits: false,
@@ -150,13 +152,19 @@ export const toFormState = (
   awards: profile?.awards ?? [],
   identityVerified: profile?.identityVerified ?? false,
   backgroundChecked: profile?.backgroundChecked ?? false,
+  acceptingNewPatients: profile?.acceptingNewPatients ?? true,
+  offersOnlineSessions: profile?.offersOnlineSessions ?? false,
+  offersInPersonSessions: profile?.offersInPersonSessions ?? false,
+  offersHomeVisits: profile?.offersHomeVisits ?? false,
   allowQueries: profile?.allowQueries ?? true,
+  showCalendar: profile?.showCalendar ?? false,
   completenessPercent: profile?.completenessPercent ?? 0,
 });
 
 export const availabilityToggles: { key: keyof ProfileFormState; label: string }[] = [
   { key: "acceptingNewPatients", label: "Accepting New Patients" },
   { key: "allowQueries", label: "Allow Public Queries" },
+  { key: "showCalendar", label: "Show Booking Calendar on Landing Page" },
   { key: "offersOnlineSessions", label: "Online Sessions" },
   { key: "offersInPersonSessions", label: "In-Person Sessions" },
   { key: "offersHomeVisits", label: "Home Visits" },

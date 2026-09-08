@@ -217,6 +217,20 @@ class SuperAdminApi {
             throw error;
         }
     }
+
+    async getAllAppointments(params?: { page?: number; limit?: number; search?: string; status?: string }) {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await this.api.get("/appointments/all", {
+                headers: { Authorization: `Bearer ${token}` },
+                params,
+            });
+            return response.data;
+        } catch (error: any) {
+            console.error("Error fetching all appointments admin:", error);
+            throw error;
+        }
+    }
 }
 
 const superAdminApi = new SuperAdminApi();

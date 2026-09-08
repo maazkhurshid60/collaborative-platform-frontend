@@ -107,6 +107,9 @@ const DocumentSharing = lazy(
 const AuditLogs = lazy(
   () => import("../pages/superadminPages/auditLogs/AuditLogs"),
 );
+const MeetingsAudit = lazy(
+  () => import("../pages/superadminPages/meetings/MeetingsAudit"),
+);
 const ContactQueries = lazy(
   () => import("../pages/superadminPages/contactQueries/ContactQueries"),
 );
@@ -120,6 +123,9 @@ const FindAProvider = lazy(() => import("../pages/publicPages/FindAProvider"));
 const Queries = lazy(() => import("../pages/providerPages/queries/Queries"));
 const Appointments = lazy(
   () => import("../pages/providerPages/appointments/Appointments"),
+);
+const CallLogsPage = lazy(
+  () => import("../pages/providerPages/callLogs/CallLogsPage"),
 );
 const FormBuilder = lazy(
   () => import("../pages/providerPages/formBuilder/FormBuilder"),
@@ -135,6 +141,9 @@ const BaaManagement = lazy(
 );
 const BaaAcceptedProviders = lazy(
   () => import("../pages/superadminPages/baa/BaaAcceptedProviders"),
+);
+const CallRoomPage = lazy(
+  () => import("../pages/providerPages/callRoom/CallRoomPage"),
 );
 
 
@@ -263,6 +272,14 @@ const Routing = () => {
           </WrappedRoute>
         }
       />
+      <Route
+        path="/call/:appointmentId"
+        element={
+          <WrappedRoute>
+            <CallRoomPage />
+          </WrappedRoute>
+        }
+      />
 
       {/* Protected Routes */}
       <Route
@@ -355,14 +372,24 @@ const Routing = () => {
         )}
 
         {loginUserRole !== "client" && loginUserRole !== "superAdmin" && (
-          <Route
-            path="/appointments"
-            element={
-              <WrappedRoute>
-                <Appointments />
-              </WrappedRoute>
-            }
-          />
+          <>
+            <Route
+              path="/appointments"
+              element={
+                <WrappedRoute>
+                  <Appointments />
+                </WrappedRoute>
+              }
+            />
+            <Route
+              path="/call-logs"
+              element={
+                <WrappedRoute>
+                  <CallLogsPage />
+                </WrappedRoute>
+              }
+            />
+          </>
         )}
 
         {loginUserRole === "superAdmin" && (
@@ -411,6 +438,16 @@ const Routing = () => {
             element={
               <WrappedRoute>
                 <AuditLogs />
+              </WrappedRoute>
+            }
+          />
+        )}
+        {loginUserRole === "superAdmin" && (
+          <Route
+            path="/meetings-audit"
+            element={
+              <WrappedRoute>
+                <MeetingsAudit />
               </WrappedRoute>
             }
           />

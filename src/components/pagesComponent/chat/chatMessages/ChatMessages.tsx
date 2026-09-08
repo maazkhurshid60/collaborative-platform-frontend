@@ -26,6 +26,8 @@ export interface Message {
   message: string;
   chatChannelId: string;
   mediaUrl?: string;
+  type?: string;
+  durationSeconds?: number | null;
   createdAt: string;
   sender: {
     fullName: string;
@@ -132,10 +134,22 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         const alreadyExists = prev.some((m) => m.id === newMsg.id);
         if (alreadyExists) return prev;
 
+        const tempIndex = prev.findIndex(
+          (m) =>
+            m.id.startsWith("temp-") &&
+            (m.message === newMsg.message || m.type === newMsg.type)
+        );
+
         const updatedMessage = {
           ...newMsg,
           you: newMsg.senderId === loginUserUserId,
         };
+
+        if (tempIndex !== -1) {
+          const updated = [...prev];
+          updated[tempIndex] = updatedMessage;
+          return updated;
+        }
 
         if (!updatedMessage.you) {
           setUnreadCounts((prevCounts) => ({
@@ -251,7 +265,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       const queryKey = isGroup ? ["groupChatchannels"] : ["chatchannels"];
 
       // Update sidebar chat list for both individual and group chats
-      queryClient.setQueryData(queryKey, (oldData: ChatChannelType[] = []) =>
+      queryClient.setQueriesData({ queryKey }, (oldData: ChatChannelType[] = []) =>
         oldData.map((channel) =>
           channel.id === newMessage.chatChannelId
             ? {
@@ -339,7 +353,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     yesterday.setDate(today.getDate() - 1);
 
     const getGroupKey = (dateStr: string) => {
+      if (!dateStr) return "Today";
       const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return "Today";
+
       if (
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
@@ -376,6 +393,19 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       ? (activeChatObject as ChatChannelType)?.providerB?.fullName
       : (activeChatObject as ChatChannelType)?.providerA?.fullName;
 
+  const isProviderA = (activeChatObject as ChatChannelType)?.providerA?.id === loginUserUserId;
+  const partnerUser = isProviderA
+    ? (activeChatObject as ChatChannelType)?.providerB
+    : (activeChatObject as ChatChannelType)?.providerA;
+
+  const targetProvider = partnerUser
+    ? {
+        id: (partnerUser as any)?.providerId || partnerUser?.id,
+        name: partnerUser?.fullName || otherName || "Provider",
+        slug: (partnerUser as any)?.slug,
+      }
+    : undefined;
+
   return (
     <>
       <div className="bg-white p-3 rounded-lg h-full flex flex-col">
@@ -385,6 +415,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           groupMembers={(activeChatObject?.members as GroupMember[]) ?? []}
           groupCreatedBy={groupCreatedBy}
           membersCanInvite={(activeChatObject as any)?.membersCanInvite}
+          targetProvider={targetProvider}
         />{" "}
         <hr className="my-4 border-inputBgColor" />
         <div className="flex-1 overflow-y-auto mb-4" ref={messageContainerRef}>

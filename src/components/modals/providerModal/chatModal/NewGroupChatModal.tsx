@@ -93,7 +93,7 @@ const NewGroupChatModal = () => {
 
 
     if (isLoading) {
-        return <Loader text='Loading...' />
+        return <Loader inline text='Loading...' />
     }
     if (isError) {
         return <p>something went wrong</p>

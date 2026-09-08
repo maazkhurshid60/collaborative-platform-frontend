@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import UserIcon from "../../../icons/user/User";
-import DeleteIcon from "../../../icons/delete/DeleteIcon";
-import { FaRegCircle } from "react-icons/fa";
+import { FaRegCircle, FaEllipsisV } from "react-icons/fa";
 import { FaCircleCheck } from "react-icons/fa6";
 import { Message } from "./ChatMessages";
 import messageApiService from "../../../../apiServices/chatApi/messagesApi/MessagesApi";
+import AudioMessageBubble from "../audioMessageBubble/AudioMessageBubble";
 
 interface MessageItemProps {
   msg: Message;
@@ -26,10 +26,15 @@ const MessageItem: React.FC<MessageItemProps> = ({
   socket,
 }) => {
   const mediaFiles = msg.mediaUrl ? msg.mediaUrl.split(",") : [];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleDeleteMessage = async (messageId: string) => {
+  const handleDeleteForEveryone = async (messageId: string) => {
     if (!channelId || !loginUserProviderId) return;
-    if (!window.confirm("Are you sure you want to delete this message?"))
+    if (
+      !window.confirm(
+        "Delete this message for everyone? This cannot be undone.",
+      )
+    )
       return;
 
     try {
@@ -49,8 +54,32 @@ const MessageItem: React.FC<MessageItemProps> = ({
       });
     } catch (error) {
       console.error("❌ Failed to delete message:", error);
+    } finally {
+      setIsMenuOpen(false);
     }
   };
+
+  const handleDeleteForMe = async (messageId: string) => {
+    if (!channelId || !loginUserProviderId) return;
+    if (!window.confirm("Delete this message for you?")) return;
+
+    try {
+      await messageApiService.deleteMessageForMe({
+        channelId: channelId,
+        messageId,
+        loginUserId: loginUserProviderId,
+      });
+
+      // Only hides it in this user's own view — other participants are unaffected
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    } catch (error) {
+      console.error("❌ Failed to delete message for me:", error);
+    } finally {
+      setIsMenuOpen(false);
+    }
+  };
+
+  const isAudioType = msg.type === "audio" || msg.type === "AUDIO";
 
   return (
     <div
@@ -86,70 +115,133 @@ const MessageItem: React.FC<MessageItemProps> = ({
           {msg?.you && (
             <div className="flex items-center gap-x-2">
               <p className="text-textGreyColor text-[12px]">
-                {new Date(msg.createdAt)
-                  .toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                  .toLowerCase()}
+                {(() => {
+                  if (!msg.createdAt) return "";
+                  const d = new Date(msg.createdAt);
+                  if (isNaN(d.getTime())) return "";
+                  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }).toLowerCase();
+                })()}
               </p>
             </div>
           )}
 
           <div className="flex flex-col gap-2 relative">
-            {/* Media Files */}
-            <div className="flex flex-col gap-2 mt-1">
-              {mediaFiles.map((url, index) => {
-                const extension = url.split(".").pop()?.toLowerCase();
-                const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(
-                  extension || "",
-                );
-                const isPdf = extension === "pdf";
-                const isDoc = ["doc", "docx"].includes(extension || "");
-
-                return (
+            {/* Delete menu trigger — available for every message type */}
+            <div
+              className={`absolute top-0 z-10 ${msg.you ? "-left-6" : "-right-6"}`}
+            >
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                title="Message options"
+              >
+                <FaEllipsisV size={12} />
+              </button>
+              {isMenuOpen && (
+                <>
                   <div
-                    key={index}
-                    className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+                  <div
+                    className={`absolute top-6 z-20 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 ${msg.you ? "left-0" : "right-0"}`}
                   >
-                    {isImage ? (
-                      <img
-                        src={url}
-                        alt="media"
-                        className="w-32 h-auto rounded-md object-cover border border-gray-300"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-full text-xl">
-                        {isPdf ? "📄" : isDoc ? "📝" : "📎"}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col justify-center">
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 font-medium hover:underline text-sm"
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteForMe(msg.id)}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                    >
+                      Delete for me
+                    </button>
+                    {msg.you && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteForEveryone(msg.id)}
+                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                       >
-                        {isImage
-                          ? "View Image"
-                          : isPdf
-                            ? "View PDF"
-                            : isDoc
-                              ? "Open Document"
-                              : "Download File"}
-                      </a>
-                      <p className="text-xs text-gray-400 mt-1">
-                        .{extension?.toUpperCase()}
-                      </p>
-                    </div>
+                        Delete for everyone
+                      </button>
+                    )}
                   </div>
-                );
-              })}
+                </>
+              )}
             </div>
 
+            {/* Audio Voice Message or Media Files */}
+            {isAudioType && mediaFiles.length > 0 ? (
+              <AudioMessageBubble
+                mediaUrl={mediaFiles[0]}
+                durationSeconds={msg.durationSeconds}
+                isSender={msg.you}
+              />
+            ) : (
+              <div className="flex flex-col gap-2 mt-1">
+                {mediaFiles.map((url, index) => {
+                  const extension = url.split(".").pop()?.toLowerCase() || "";
+                  const isAudioFile = ["webm", "mp3", "ogg", "wav", "m4a"].includes(extension);
+
+                  if (isAudioFile) {
+                    return (
+                      <AudioMessageBubble
+                        key={index}
+                        mediaUrl={url}
+                        durationSeconds={msg.durationSeconds}
+                        isSender={msg.you}
+                      />
+                    );
+                  }
+
+                  const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(
+                    extension,
+                  );
+                  const isPdf = extension === "pdf";
+                  const isDoc = ["doc", "docx"].includes(extension);
+
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
+                    >
+                      {isImage ? (
+                        <img
+                          src={url}
+                          alt="media"
+                          className="w-32 h-auto rounded-md object-cover border border-gray-300"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-full text-xl">
+                          {isPdf ? "📄" : isDoc ? "📝" : "📎"}
+                        </div>
+                      )}
+
+                      <div className="flex flex-col justify-center">
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 font-medium hover:underline text-sm"
+                        >
+                          {isImage
+                            ? "View Image"
+                            : isPdf
+                              ? "View PDF"
+                              : isDoc
+                                ? "Open Document"
+                                : "Download File"}
+                        </a>
+                        <p className="text-xs text-gray-400 mt-1">
+                          .{extension?.toUpperCase()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Decrypted Text Message */}
-            {msg.message && (
+            {msg.message && msg.message !== "🎤 Voice Note" && !isAudioType && (
               <div
                 className={`relative flex items-center gap-x-2 ${msg.you ? "flex-row-reverse" : ""}`}
               >
@@ -158,12 +250,6 @@ const MessageItem: React.FC<MessageItemProps> = ({
                 >
                   {msg.message}
                 </p>
-                {msg.you && (
-                  <DeleteIcon
-                    className="w-4 h-4 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handleDeleteMessage(msg.id)}
-                  />
-                )}
               </div>
             )}
             <div className="absolute bottom-0.5 right-0.5">

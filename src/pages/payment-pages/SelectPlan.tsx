@@ -1,16 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import naclUtil from "tweetnacl-util";
+import CryptoJS from "crypto-js";
 import { ArrowLeft, Check } from "lucide-react";
+
 import StepIndicator from "../../components/stepIndicator/StepIndicator";
+import Loader from "../../components/loader/Loader";
+import authService from "../../apiServices/authApi/AuthApi";
+import messageApiService from "../../apiServices/chatApi/messagesApi/MessagesApi";
 import { RootState } from "../../redux/store";
+import { emptyDataNewJoinUserReducer } from "../../redux/slices/JoinNowUserSlice";
+import {
+  saveDecryptedPrivateKey,
+  saveLoginUserDetailsReducer,
+} from "../../redux/slices/LoginUserDetailSlice";
 
 const SelectPlan = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { userData, inviteToken } = location.state || {};
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annually">(
     "monthly",
+  );
+
+  const joinUser = useSelector(
+    (state: RootState) => state?.joinUserSlice?.data,
   );
 
   // Get logged-in user to check trial history
@@ -26,6 +44,92 @@ const SelectPlan = () => {
   const hasUsedTrial = isUpgradeFlow
     ? loggedInUser?.hasUsedFreeTrial || false
     : false;
+
+  const signupMutation = useMutation({
+    mutationFn: async () => {
+      if (!userData) {
+        throw new Error("SESSION_EXPIRED");
+      }
+
+      const signupData = {
+        ...userData,
+        planType: "FREE",
+      };
+
+      return await authService.signup(signupData);
+    },
+    onSuccess: async (response) => {
+      const token = response?.data?.token;
+      const user = response?.data?.user;
+
+      if (token && user) {
+        localStorage.setItem("token", token);
+
+        const encryptedPrivateKey = user?.user?.privateKey;
+        if (encryptedPrivateKey && userData?.password) {
+          try {
+            const decryptedKeyString = CryptoJS.AES.decrypt(
+              encryptedPrivateKey,
+              userData.password,
+            ).toString(CryptoJS.enc.Utf8);
+            const decryptedPrivateKeyUint8 =
+              naclUtil.decodeBase64(decryptedKeyString);
+            const base64Key = naclUtil.encodeBase64(decryptedPrivateKeyUint8);
+            dispatch(saveDecryptedPrivateKey(base64Key));
+          } catch (_decryptError) {
+            console.error("Failed to decrypt private key:", _decryptError);
+          }
+        }
+
+        const fixedUserData = {
+          ...user,
+          clientList:
+            user?.clientList?.map((item: any) => item.client) || [],
+        };
+        dispatch(saveLoginUserDetailsReducer(fixedUserData));
+      }
+
+      if (joinUser?.isNewJoin) {
+        try {
+          await messageApiService.updateGroupApi({
+            groupId: joinUser.groupId,
+            memberEmail: joinUser.memberEmail,
+          });
+        } catch (_groupErr) {
+          console.error("Failed to update group membership:", _groupErr);
+        }
+        dispatch(emptyDataNewJoinUserReducer());
+      }
+
+      toast.success("Free plan activated!");
+      sessionStorage.setItem("kolabFreeTrialLead", "1");
+      navigate("/welcome-free-trial");
+    },
+    onError: (error: any) => {
+      if (error?.message === "SESSION_EXPIRED") {
+        toast.error("Session expired. Please signup again.");
+        navigate("/provider-signup");
+        return;
+      }
+
+      if (error?.response?.status === 429) {
+        toast.error("Too Many Request Please Try again later");
+        return;
+      }
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.data?.error ||
+        "Failed to create account.";
+
+      if (errorMessage.includes("already exists")) {
+        toast.error("Account already exists. Please login.");
+        navigate("/login");
+      } else {
+        toast.error(errorMessage);
+      }
+    },
+  });
   const plans = [
     {
       name: "Free Version",
@@ -89,146 +193,149 @@ const SelectPlan = () => {
     },
   ];
   return (
-    <div className="w-full max-w-full min-h-screen bg-[#F9FAFB] flex flex-col">
-      {/* Only show step indicator during signup, not during upgrade */}
-      {!isUpgradeFlow && (
-        <div className="w-full mt-12 pl-50 pr-50 flex items-center justify-center">
-          <StepIndicator currentStep={2} totalSteps={2} />
-        </div>
-      )}
-      <div className=" flex flex-col items-center px-4 font-[Poppins]">
-        <div className="w-full max-w-330 flex flex-col">
-          {/* Main Content Area */}
-          <div className="flex flex-col items-center mt-4">
-            {/* Title & Description */}
-            <div className="text-center mb-10">
-              <h1 className="text-[40px] font-bold text-[#101828] mb-4">
-                Choose the plan that best fits your practice
-              </h1>
-              <p className="text-[#666666] max-w-250 mx-auto text-[18px] leading-relaxed">
-                Transparent billing with no hidden fees. Start with our free version
-                and upgrade when you are ready.
-              </p>
-            </div>
-            {/* Billing Cycle Toggle */}
-            <div className="flex items-center gap-1 p-1 bg-white border border-[#E2E2E2] rounded-lg mb-16 shadow-sm">
-              <button
-                onClick={() => setBillingCycle("monthly")}
-                className={`px-10 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${billingCycle === "monthly" ? "bg-[#2C9993] text-white shadow-sm" : "text-[#7E7D83] hover:text-[#101828]"}`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setBillingCycle("annually")}
-                className={`flex items-center gap-2 px-8 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${billingCycle === "annually" ? "bg-[#2C9993] text-white shadow-sm" : "text-[#7E7D83] hover:text-[#101828]"}`}
-              >
-                Annually
-                <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#EDF8E8] text-[#306F11]">
-                  Save 20%
-                </span>
-              </button>
-            </div>
+    <>
+      {signupMutation.isPending && <Loader />}
+      <div className="w-full max-w-full min-h-screen bg-[#F9FAFB] flex flex-col">
+        {/* Only show step indicator during signup, not during upgrade */}
+        {!isUpgradeFlow && (
+          <div className="w-full mt-12 pl-50 pr-50 flex items-center justify-center">
+            <StepIndicator currentStep={2} totalSteps={2} />
+          </div>
+        )}
+        <div className=" flex flex-col items-center px-4 font-[Poppins]">
+          <div className="w-full max-w-330 flex flex-col">
+            {/* Main Content Area */}
+            <div className="flex flex-col items-center mt-4">
+              {/* Title & Description */}
+              <div className="text-center mb-10">
+                <h1 className="text-[40px] font-bold text-[#101828] mb-4">
+                  Choose the plan that best fits your practice
+                </h1>
+                <p className="text-[#666666] max-w-250 mx-auto text-[18px] leading-relaxed">
+                  Transparent billing with no hidden fees. Start with our free version
+                  and upgrade when you are ready.
+                </p>
+              </div>
+              {/* Billing Cycle Toggle */}
+              <div className="flex items-center gap-1 p-1 bg-white border border-[#E2E2E2] rounded-lg mb-16 shadow-sm">
+                <button
+                  onClick={() => setBillingCycle("monthly")}
+                  className={`px-10 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${billingCycle === "monthly" ? "bg-[#2C9993] text-white shadow-sm" : "text-[#7E7D83] hover:text-[#101828]"}`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setBillingCycle("annually")}
+                  className={`flex items-center gap-2 px-8 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${billingCycle === "annually" ? "bg-[#2C9993] text-white shadow-sm" : "text-[#7E7D83] hover:text-[#101828]"}`}
+                >
+                  Annually
+                  <span className="px-2 py-0.5 text-[12px] rounded-md bg-[#EDF8E8] text-[#306F11]">
+                    Save 20%
+                  </span>
+                </button>
+              </div>
 
-            {/* Pricing Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-225 mb-20 px-5">
-              {plans
-                .filter((plan) => !hasUsedTrial || plan.name !== "Free Version") // Hide Free Version if used
-                .map((plan, index) => (
-                  <div
-                    key={index}
-                    className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 w-full h-full min-h-125 ${
-                      plan.theme === "pro"
-                        ? "bg-[#2C9993] text-white shadow-md"
-                        : "bg-white border border-[#E5E7EB] text-[#101828] shadow-md hover:shadow-lg"
-                    }`}
-                  >
-                    {/* {plan.isPopular && (
-                                        <div className={`absolute -top-4 left-1/2 -translate-x-1/2 py-2 px-6 bg-white border-2 border-[#2C9993] rounded-full text-[#2C9993] text-sm font-bold shadow-sm whitespace-nowrap`}>
-                                            Most Popular
-                                        </div>
-                                    )} */}
-
-                    {/* Plan Info */}
-                    <div className="mb-4">
-                      <h3
-                        className={`text-[24px] font-bold mb-0.5 ${plan.theme === "pro" ? "text-white" : "text-[#101828]"}`}
-                      >
-                        {plan.name}
-                      </h3>
-                      <p
-                        className={`text-[13px] leading-tight ${plan.theme === "pro" ? "text-white/80" : "text-[#666666]"}`}
-                      >
-                        {plan.description}
-                      </p>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mb-4 flex items-baseline gap-1">
-                      <span
-                        className={`text-[42px] font-bold ${plan.theme === "pro" ? "text-white" : "text-[#101828]"}`}
-                      >
-                        $
-                        {billingCycle === "monthly"
-                          ? plan.monthlyPrice
-                          : plan.annualPrice}
-                      </span>
-                      {plan.name !== "Free Version" && (
-                        <span
-                          className={`text-[16px] ${plan.theme === "pro" ? "text-white/80" : "text-[#666666]"}`}
-                        >
-                          {billingCycle === "monthly" ? "/month" : "/year"}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Action Button */}
-                    <button
-                      onClick={() => {
-                        if (plan.name === "Free Version") {
-                          navigate("/confirm-free-account", {
-                            state: {
-                              userData,
-                              planType: "FREE",
-                              inviteToken, // ✅ preserve invite context
-                            },
-                          });
-                        } else if (plan.name === "Standard") {
-                          navigate("/payment-checkout", {
-                            state: {
-                              planType: "STANDARD",
-                              billingCycle:
-                                billingCycle === "monthly"
-                                  ? "MONTHLY"
-                                  : "YEARLY",
-                              userData,
-                              isUpgrade: isUpgradeFlow,
-                              isRenewal: hasUsedTrial,
-                              inviteToken, // ✅ preserve invite context
-                            },
-                          });
-                        } else {
-                          // Pro plan = always requires payment
-                          navigate("/payment-checkout", {
-                            state: {
-                              planType: "PRO",
-                              billingCycle:
-                                billingCycle === "monthly"
-                                  ? "MONTHLY"
-                                  : "YEARLY",
-                              userData,
-                              inviteToken, // ✅ preserve invite context
-                            },
-                          });
-                        }
-                      }}
-                      className={`w-full py-2.5 rounded-[10px] font-medium text-[16px] mb-6 transition-all cursor-pointer border-2 ${
+              {/* Pricing Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-225 mb-20 px-5">
+                {plans
+                  .filter((plan) => !hasUsedTrial || plan.name !== "Free Version") // Hide Free Version if used
+                  .map((plan, index) => (
+                    <div
+                      key={index}
+                      className={`relative flex flex-col p-8 rounded-3xl transition-all duration-300 w-full h-full min-h-125 ${
                         plan.theme === "pro"
-                          ? "bg-transparent border-white text-white hover:bg-white/10"
-                          : "bg-white border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5"
+                          ? "bg-[#2C9993] text-white shadow-md"
+                          : "bg-white border border-[#E5E7EB] text-[#101828] shadow-md hover:shadow-lg"
                       }`}
                     >
-                      {plan.buttonText}
-                    </button>
+                      {/* Plan Info */}
+                      <div className="mb-4">
+                        <h3
+                          className={`text-[24px] font-bold mb-0.5 ${plan.theme === "pro" ? "text-white" : "text-[#101828]"}`}
+                        >
+                          {plan.name}
+                        </h3>
+                        <p
+                          className={`text-[13px] leading-tight ${plan.theme === "pro" ? "text-white/80" : "text-[#666666]"}`}
+                        >
+                          {plan.description}
+                        </p>
+                      </div>
+
+                      {/* Price */}
+                      <div className="mb-4 flex items-baseline gap-1">
+                        <span
+                          className={`text-[42px] font-bold ${plan.theme === "pro" ? "text-white" : "text-[#101828]"}`}
+                        >
+                          $
+                          {billingCycle === "monthly"
+                            ? plan.monthlyPrice
+                            : plan.annualPrice}
+                        </span>
+                        {plan.name !== "Free Version" && (
+                          <span
+                            className={`text-[16px] ${plan.theme === "pro" ? "text-white/80" : "text-[#666666]"}`}
+                          >
+                            {billingCycle === "monthly" ? "/month" : "/year"}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <button
+                        onClick={() => {
+                          if (plan.name === "Free Version") {
+                            if (userData) {
+                              signupMutation.mutate();
+                            } else {
+                              navigate("/confirm-free-account", {
+                                state: {
+                                  userData,
+                                  planType: "FREE",
+                                  inviteToken, // ✅ preserve invite context
+                                },
+                              });
+                            }
+                          } else if (plan.name === "Standard") {
+                            navigate("/payment-checkout", {
+                              state: {
+                                planType: "STANDARD",
+                                billingCycle:
+                                  billingCycle === "monthly"
+                                    ? "MONTHLY"
+                                    : "YEARLY",
+                                userData,
+                                isUpgrade: isUpgradeFlow,
+                                isRenewal: hasUsedTrial,
+                                inviteToken, // ✅ preserve invite context
+                              },
+                            });
+                          } else {
+                            // Pro plan = always requires payment
+                            navigate("/payment-checkout", {
+                              state: {
+                                planType: "PRO",
+                                billingCycle:
+                                  billingCycle === "monthly"
+                                    ? "MONTHLY"
+                                    : "YEARLY",
+                                userData,
+                                inviteToken, // ✅ preserve invite context
+                              },
+                            });
+                          }
+                        }}
+                        disabled={signupMutation.isPending}
+                        className={`w-full py-2.5 rounded-[10px] font-medium text-[16px] mb-6 transition-all cursor-pointer border-2 ${
+                          plan.theme === "pro"
+                            ? "bg-transparent border-white text-white hover:bg-white/10"
+                            : "bg-white border-[#2C9993] text-[#2C9993] hover:bg-[#2C9993]/5"
+                        }`}
+                      >
+                        {signupMutation.isPending && plan.name === "Free Version"
+                          ? "Creating Account..."
+                          : plan.buttonText}
+                      </button>
 
                     {/* Features List */}
                     <div
@@ -288,6 +395,7 @@ const SelectPlan = () => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 

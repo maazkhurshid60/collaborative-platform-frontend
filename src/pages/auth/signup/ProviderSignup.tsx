@@ -67,7 +67,10 @@ const ProviderSignup = () => {
   useEffect(() => {
     trackMetaPixelPageView();
   }, []);
-  const [baaData, setBaaData] = useState<{ title: string; content: string } | null>(null);
+  const [baaData, setBaaData] = useState<{
+    title: string;
+    content: string;
+  } | null>(null);
   const [pendingSignupData, setPendingSignupData] = useState<any>(null);
 
   const methods = useForm<FormFields>({
@@ -119,7 +122,10 @@ const ProviderSignup = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.checkEmail(data.email, data.licenseNo);
+      const response = await authService.checkEmail(
+        data.email,
+        data.licenseNo || "",
+      );
 
       if (response?.data?.exists) {
         setIsLoading(false);
@@ -157,15 +163,14 @@ const ProviderSignup = () => {
     const dataSendToBackend = {
       email: data.email,
       fullName: data.fullName,
-      gender: data.gender,
+      gender: data.gender || "prefer_not_to_say",
       password: data.password,
-      licenseNo: data.licenseNo,
+      licenseNo: data.licenseNo || "",
       speciality:
         data.speciality === "Other"
           ? data.otherSpeciality || "Other"
-          : data.speciality,
-      //         country: data.country,
-      state: data.state,
+          : data.speciality || "Primary Care",
+      state: data.state || "",
       isApprove: "pending",
       role: "provider",
       publicKey: publicKey,
@@ -195,17 +200,12 @@ const ProviderSignup = () => {
 
   // Called after provider agrees to BAA (or if no BAA exists)
   const proceedAfterBaa = (data: any) => {
-    if (token) {
-      navigate("/confirm-free-account", {
-        state: {
-          userData: data,
-          planType: "FREE",
-          inviteToken: token,
-        },
-      });
-      return;
-    }
-    navigate("/select-plan", { state: { userData: data } });
+    navigate("/select-plan", {
+      state: {
+        userData: data,
+        inviteToken: token || undefined,
+      },
+    });
   };
 
   const handleBaaAgree = () => {
@@ -221,7 +221,6 @@ const ProviderSignup = () => {
     toast.warn("You must accept the BAA to register as a provider.");
   };
 
-
   return (
     <>
       {isLoading && <Loader />}
@@ -232,6 +231,7 @@ const ProviderSignup = () => {
         <BaaModal
           title={baaData.title}
           content={baaData.content}
+          recipientName={methods.getValues("fullName")}
           onAgree={handleBaaAgree}
           onCancel={handleBaaCancel}
         />
@@ -266,6 +266,8 @@ const ProviderSignup = () => {
                 disabled={isVerified}
               />
             </div>
+            {/* Commented out for streamlined signup experiment */}
+            {/* 
             <div className="mb-1.5">
               <Dropdown<FormFields>
                 name="gender"
@@ -280,17 +282,6 @@ const ProviderSignup = () => {
                 error={errors.gender?.message}
               />
             </div>
-            {/* 
-                        <div className='mb-1.5'>
-                            <InputField required
-                                type='text'
-                                label='License Number'
-                                register={register("licenseNo")}
-                                placeHolder='Enter license number.'
-                                error={errors.licenseNo?.message} />
-
-                        </div> */}
-
             <div className="mb-1.5">
               <InputField
                 required
@@ -300,7 +291,6 @@ const ProviderSignup = () => {
                 placeHolder="Enter License Number"
                 error={errors.licenseNo?.message}
               />
-
               <p className="text-xs text-gray-500 mt-1">
                 Enter your professional license number as it appears on your ID.
               </p>
@@ -328,10 +318,8 @@ const ProviderSignup = () => {
                 </div>
               )}
             </div>
-            {/* 👇 Country & State Dropdown 👇 */}
-            {/* <CountryStateSelect isCountryView={true} isStateView={false} /> */}
-            <div className="mb-1.5" />
             <CountryStateSelect isStateView={true} />
+            */}
             <div className="mt-1.5 mb-1.5">
               <InputField
                 required
