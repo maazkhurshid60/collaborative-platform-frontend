@@ -1,30 +1,44 @@
-import './App.css'
-import { ToastContainer, toast } from 'react-toastify'
-import { BrowserRouter } from 'react-router-dom'
-import Routing from './routing/Routing'
-import { useSelector } from 'react-redux'
-import { RootState } from './redux/store'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { initSocket, socket } from './socket/Socket'
-import notification from "../src/assets/audio/notification.wav"
-import authService from './apiServices/authApi/AuthApi'
-import { saveLoginUserDetailsReducer, setIsRefreshing } from './redux/slices/LoginUserDetailSlice'
-import RenewalSuccessfullModal from './components/modals/RenowalSuccessfullModal'
-import InvoiceModal from './components/modals/InvoiceModal'
-import { subscriptionApiService } from './services/subscriptionApiService'
-import { useDispatch } from 'react-redux'
+import "./App.css";
+import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { BrowserRouter } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import Routing from "./routing/Routing";
+import { RootState } from "./redux/store";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { initSocket } from "./socket/Socket";
+import notification from "../src/assets/audio/notification.wav";
+import authService from "./apiServices/authApi/AuthApi";
+import {
+  saveLoginUserDetailsReducer,
+  setIsRefreshing,
+} from "./redux/slices/LoginUserDetailSlice";
+import RenewalSuccessfullModal from "./components/modals/RenowalSuccessfullModal";
+import InvoiceModal from "./components/modals/InvoiceModal";
+import { subscriptionApiService } from "./services/subscriptionApiService";
+import IncomingCallModal, {
+  IncomingCallData,
+} from "./components/modals/providerModal/IncomingCallModal";
+
 const queryClient = new QueryClient();
 
 function App() {
-  const userId = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.userId)
-  const role = useSelector((state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role)
+  const userId = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
+  );
+  const role = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role,
+  );
   const dispatch = useDispatch();
   const [showRenwalModal, setShowRenwalModal] = useState(false);
   const [renewalData, setRenewalData] = useState<any>(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [latestInvoiceData, setLatestInvoiceData] = useState<any>(null);
   const [isFetchingReceipt, setIsFetchingReceipt] = useState(false);
+  const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(
+    null,
+  );
 
   const handleViewLatestReceipt = async () => {
     if (isFetchingReceipt) return;
@@ -46,7 +60,9 @@ function App() {
     }
   };
 
-  const providerId = useSelector((state: RootState) => state?.LoginUserDetail.userDetails?.user?.id)
+  const providerId = useSelector(
+    (state: RootState) => state?.LoginUserDetail.userDetails?.user?.id,
+  );
 
   const fetchUserData = async () => {
     const token = localStorage.getItem("token");
@@ -111,14 +127,12 @@ function App() {
   //   }
   // }, [userId]);
 
-
   // useEffect(() => {
   //   if (userId) {
   //     const socketInstance = initSocket(
   //       role === "provider" ? providerId : "",
   //       userId
   //     );
-
 
   //     socketInstance.on("new_notification", (data) => {
   //       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -146,13 +160,12 @@ function App() {
     }
   }, []);
 
-
   useEffect(() => {
     if (!userId) return; // 🔥 STOP if no userId
 
     const socketInstance = initSocket(
       role === "provider" ? providerId : "",
-      userId
+      userId,
     );
 
     socketInstance.on("connect", () => {
@@ -164,12 +177,15 @@ function App() {
 
       // 🔥 Failsafe: Only show if this user is the intended recipient
       if (data.recipientId && data.recipientId !== userId) {
-        console.log("🚫 Ignoring notification meant for another user:", data.recipientId);
+        console.log(
+          "🚫 Ignoring notification meant for another user:",
+          data.recipientId,
+        );
         return;
       }
 
       // 1. Invalidate React Query cache
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       // 2. Play notification sound & show notification
       if ("Notification" in window && Notification.permission === "granted") {
@@ -179,12 +195,62 @@ function App() {
         });
 
         const audio = new Audio(notification);
-        audio.play().catch(e => console.error("Audio play failed:", e));
+        audio.play().catch((e) => console.error("Audio play failed:", e));
       } else {
         // Fallback sound if browser notifications are disabled but app is open
         const audio = new Audio(notification);
-        audio.play().catch(e => console.error("Audio play failed:", e));
+        audio.play().catch((e) => console.error("Audio play failed:", e));
       }
+    });
+
+    const handleDirectMessage = (data: any) => {
+      console.log("💬 Real-time direct message event received in App:", data);
+
+      const senderId = data?.senderId || data?.sender?.id;
+      if (senderId && senderId === userId) return;
+
+      // Invalidate & refetch chat channels query cache so unread counts update live across all components
+      queryClient.invalidateQueries({ queryKey: ["chatchannels"] });
+      queryClient.invalidateQueries({ queryKey: ["groupChatchannels"] });
+      queryClient.invalidateQueries({ queryKey: ["unreadNotificationCount"] });
+      queryClient.refetchQueries({ queryKey: ["chatchannels"] });
+      queryClient.refetchQueries({ queryKey: ["groupChatchannels"] });
+
+      // Trigger web desktop notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        const senderName =
+          data?.sender?.fullName || data?.senderName || "New Message";
+        new Notification(`Message from ${senderName}`, {
+          body: data?.message || "Sent you a message",
+          icon: `/fevicon.png?v=${Date.now()}`,
+        });
+      }
+
+      const audio = new Audio(notification);
+      audio.play().catch((e) => console.error("Audio play failed:", e));
+    };
+
+    socketInstance.on("receive_direct", handleDirectMessage);
+    socketInstance.on("receive_message", handleDirectMessage);
+    socketInstance.on("refresh_unread", handleDirectMessage);
+
+    // Incoming real-time voice / video call listener
+    socketInstance.on("incoming_call", (data: any) => {
+      console.log("📞 Incoming call received:", data);
+      if (data?.calleeJoinUrl) {
+        data.calleeJoinUrl = data.calleeJoinUrl.replace(
+          /^https?:\/\/[^/]+/,
+          window.location.origin,
+        );
+      }
+      setIncomingCall(data);
+      if (data?.appointmentId) {
+        socketInstance.emit("call_ringing", {
+          appointmentId: data.appointmentId,
+        });
+      }
+      const audio = new Audio(notification);
+      audio.play().catch((e) => console.error("Ringtone failed:", e));
     });
 
     // Subscription renewal — opens the success modal when Stripe renews the plan
@@ -199,10 +265,14 @@ function App() {
     socketInstance.on("subscription_updated", () => {
       console.log("🔄 Subscription updated");
       fetchUserData();
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
     });
 
     return () => {
+      socketInstance.off("receive_direct", handleDirectMessage);
+      socketInstance.off("receive_message", handleDirectMessage);
+      socketInstance.off("refresh_unread", handleDirectMessage);
+      socketInstance.off("incoming_call");
       socketInstance.off("subscription_renewal");
       socketInstance.off("subscription_updated");
       socketInstance.disconnect(); // 🔥 IMPORTANT
@@ -211,6 +281,20 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <IncomingCallModal
+        incomingCall={incomingCall}
+        onAccept={() => {
+          if (incomingCall?.calleeJoinUrl) {
+            window.open(
+              incomingCall.calleeJoinUrl,
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }
+          setIncomingCall(null);
+        }}
+        onDecline={() => setIncomingCall(null)}
+      />
 
       <BrowserRouter>
         <Routing />
@@ -250,9 +334,7 @@ function App() {
         />
       </BrowserRouter>
     </QueryClientProvider>
-
-  )
+  );
 }
 
-export default App
-
+export default App;

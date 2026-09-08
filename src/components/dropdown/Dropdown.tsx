@@ -1,8 +1,11 @@
-
-
-
 import { useEffect, useRef, useState } from "react";
-import { Controller, Control, FieldError, FieldValues, Path } from "react-hook-form";
+import {
+  Controller,
+  Control,
+  FieldError,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 
 interface DropdownOption {
   value: string;
@@ -49,7 +52,7 @@ const Dropdown = <T extends FieldValues>({
 
   // Filter options based on search term
   const filteredOptions = sortedOptions.filter((option) =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    option.label.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   useEffect(() => {
@@ -73,28 +76,31 @@ const Dropdown = <T extends FieldValues>({
 
   return (
     <div ref={dropdownRef} className="relative w-full">
-      <div className="flex">
-        <p className="labelMedium mb-1">{label}</p>
-        {required && <p className="text-redColor ml-1">*</p>}
-      </div>
+      {label && (
+        <div className="flex">
+          <p className="labelMedium mb-1">{label}</p>
+          {required && <p className="text-redColor ml-1">*</p>}
+        </div>
+      )}
 
       <Controller
         name={name}
         control={control}
         render={({ field, fieldState }) => {
-          const selectedLabel =
-            field.value
-              ? sortedOptions.find((opt) => opt.value === field.value)?.label
-              : "";
+          const selectedLabel = field.value
+            ? sortedOptions.find((opt) => opt.value === field.value)?.label
+            : "";
 
           // Source of truth for error: RHF fieldState.error, fallback to manual error prop
-          const errorMessage = fieldState.error?.message || (error ? error.toString() : "");
+          const errorMessage =
+            fieldState.error?.message || (error ? error.toString() : "");
 
           return (
             <div>
               <div
-                className={`bg-inputBgColor rounded-md p-2 cursor-pointer flex justify-between items-center ${errorMessage ? "border border-red-500" : ""
-                  }`}
+                className={`bg-inputBgColor rounded-md p-2 cursor-pointer flex justify-between items-center ${
+                  errorMessage ? "border border-red-500" : ""
+                }`}
                 onClick={toggleDropdown}
               >
                 <span className="text-gray-700" data-testid={datatestid}>
@@ -102,20 +108,27 @@ const Dropdown = <T extends FieldValues>({
                 </span>
 
                 <svg
-                  className={`w-5 h-5 transform transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
-                    }`}
+                  className={`w-5 h-5 transform transition-transform duration-300 ${
+                    isOpen ? "rotate-180" : "rotate-0"
+                  }`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
 
               <div
-                className={`absolute bg-white border border-gray-300 rounded-md mt-1 w-full shadow-md z-10 transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-                  }`}
+                className={`absolute bg-white border border-gray-300 rounded-md mt-1 w-full shadow-md z-10 transition-all duration-300 ease-in-out overflow-hidden ${
+                  isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+                }`}
               >
                 <input
                   type="text"
@@ -127,7 +140,7 @@ const Dropdown = <T extends FieldValues>({
                   onClick={(e) => e.stopPropagation()} // do not toggle dropdown
                 />
 
-                <ul className="h-auto max-h-[127px] overflow-auto">
+                <ul className="h-auto max-h-31.75 overflow-auto">
                   {filteredOptions.length > 0 ? (
                     filteredOptions.map((option) => (
                       <li
@@ -136,8 +149,8 @@ const Dropdown = <T extends FieldValues>({
                         className="p-2 hover:bg-gray-100 cursor-pointer text-textColor text-sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          field.onChange(option.value);   // RHF source of truth
-                          onChange?.(option);             // side-effects only
+                          field.onChange(option.value); // RHF source of truth
+                          onChange?.(option); // side-effects only
                           setSearchTerm("");
                           closeDropdown();
                         }}
@@ -146,11 +159,15 @@ const Dropdown = <T extends FieldValues>({
                       </li>
                     ))
                   ) : (
-                    <li className="p-2 text-gray-500 text-sm text-center">No results found</li>
+                    <li className="p-2 text-gray-500 text-sm text-center">
+                      No results found
+                    </li>
                   )}
                 </ul>
               </div>
-              {errorMessage && <p className="errorText text-left mt-1">{errorMessage}</p>}
+              {errorMessage && (
+                <p className="errorText text-left mt-1">{errorMessage}</p>
+              )}
             </div>
           );
         }}
@@ -160,4 +177,3 @@ const Dropdown = <T extends FieldValues>({
 };
 
 export default Dropdown;
-

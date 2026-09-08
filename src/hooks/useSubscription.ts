@@ -19,6 +19,7 @@ export const useSubscription = () => {
       plan: "STANDARD",
       status: "ACTIVE",
       daysUntilTrialEnd: 0,
+      canUsePremiumFeature: true, // Allow access until data loads
       role: undefined,
     };
   }
@@ -65,6 +66,16 @@ export const useSubscription = () => {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
+  // Still inside the 3-day trial window where premium, time-limited features
+  // (calling, voice messaging) are unlocked — distinct from isTrialActive,
+  // which just checks the subscription STATUS and never expires on its own.
+  const isWithinTrialFeatureWindow = () => {
+    if (!subscription || subscription.status !== "TRIALING" || !subscription.trialEnd) {
+      return false;
+    }
+    return new Date() <= new Date(subscription.trialEnd);
+  };
+
   const result = {
     subscription,
     isTrialActive: isTrialActive(),
@@ -73,6 +84,9 @@ export const useSubscription = () => {
     plan: subscription?.plan || "STANDARD",
     status: subscription?.status || "ACTIVE",
     daysUntilTrialEnd: daysUntilTrialEnd(),
+    // Gate for calling / voice messaging: paid access always passes; trial
+    // accounts only pass for the first 3 days (see isWithinTrialFeatureWindow).
+    canUsePremiumFeature: isSubscriptionActive() ? true : isWithinTrialFeatureWindow(),
     role,
   };
 

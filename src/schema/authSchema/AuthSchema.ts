@@ -24,12 +24,12 @@ export const licenseNoValidator = z
   .min(1, "License number is required.");
 
 export const LoginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().pipe(z.string().email()),
   password: z.string().nonempty("Password is required"),
 });
 
 export const ForgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().pipe(z.string().email()),
 });
 
 export const ResetPasswordSchema = z
@@ -48,7 +48,7 @@ export const ClientIdSchema = z.object({
 
 export const ClientSignupSchema = z
   .object({
-    email: z.string().email(),
+    email: z.string().trim().toLowerCase().pipe(z.string().email()),
     fullName: fullNameValidator,
     gender: z.string().nonempty("Gender is required"),
 
@@ -71,13 +71,13 @@ interface ClientIdData {
 
 export const ProviderSignupSchema = z
   .object({
-    email: z.string().email("Email is required"),
-    state: z.string().nonempty("State is required"),
+    email: z.string().trim().toLowerCase().pipe(z.string().email("Email is required")),
+    state: z.string().optional(),
     fullName: fullNameValidator,
-    gender: z.string().nonempty("Gender is required"),
-    speciality: z.string().min(1, "Speciality is required"),
+    gender: z.string().optional(),
+    speciality: z.string().optional(),
     otherSpeciality: z.string().optional(),
-    licenseNo: licenseNoValidator,
+    licenseNo: z.string().optional(),
     password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm Password is required"),
     hipaaConsent: z.literal(true, {

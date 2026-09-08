@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { IoAttachSharp } from "react-icons/io5";
 import { IoIosSend } from "react-icons/io";
+import { FaMicrophone } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -13,6 +15,8 @@ import { GroupChat } from "../../../../types/chatType/GroupType";
 import { Message } from "./ChatMessages";
 import PhiAttestationModal from "../../../modals/PhiAttestationModal/PhiAttestationModal";
 import CrossIcon from "../../../icons/cross/Cross";
+import VoiceRecorder from "../voiceRecorder/VoiceRecorder";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface ChatInputProps {
   activeChatObject: ChatChannelType | GroupChat;
@@ -30,10 +34,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [sendMessageText, setSendMessageText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showPhiModal, setShowPhiModal] = useState(false);
+  const [isVoiceRecorderOpen, setIsVoiceRecorderOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { canUsePremiumFeature } = useSubscription();
 
-  const loginUserUserId = useSelector(
-    (state: RootState) => state?.LoginUserDetail?.userDetails?.userId,
+  const { userId: loginUserUserId } = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails,
   );
   const loginUserProfileImage = useSelector(
     (state: RootState) =>
@@ -52,6 +59,83 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const queryClient = useQueryClient();
   const socket = getSocket();
+
+  const sendVoiceMessage = async (audioFile: File, durationSeconds: number) => {
+    if (!activeChatObject) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const tempMsg: Message = {
+      id: tempId,
+      senderId: loginUserUserId,
+      message: "🎤 Voice Note",
+      mediaUrl: URL.createObjectURL(audioFile),
+      type: "audio",
+      durationSeconds,
+      chatChannelId: activeChatObject.id,
+      createdAt: new Date().toISOString(),
+      sender: { fullName: "You", profileImage: loginUserProfileImage },
+      you: true,
+      status: "sending",
+    };
+
+    setMessages((prev) => [...prev, tempMsg]);
+    setIsVoiceRecorderOpen(false);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    try {
+      const formData = new FormData();
+      formData.append("senderId", loginUserUserId);
+      formData.append("type", "audio");
+      formData.append("durationSeconds", String(durationSeconds));
+      formData.append("message", "🎤 Voice Note");
+
+      if (activeChatType === "individual") {
+        formData.append("chatChannelId", activeChatObject.id);
+      } else {
+        formData.append("groupId", activeChatObject.id);
+      }
+
+      formData.append("mediaUrl", audioFile);
+
+      let saved: any;
+
+      if (activeChatType === "individual") {
+        const res = await messageApiService.sendMessageToSingleConservation(formData);
+        saved = res?.data?.chatMessage;
+
+        const otherId =
+          (activeChatObject as ChatChannelType).providerA.id === loginUserUserId
+            ? (activeChatObject as ChatChannelType).providerB.id
+            : (activeChatObject as ChatChannelType).providerA.id;
+
+        socket?.emit("send_direct", { toProviderId: otherId, message: saved });
+      } else {
+        const res = await messageApiService.sendMessagesOfGroupChatChannel(formData);
+        saved = res.data.chatMessage;
+
+        socket?.emit("send_group", { message: saved });
+      }
+
+      setMessages((prev) => {
+        const alreadyExists = prev.some((m) => m.id === saved?.id);
+        if (alreadyExists) {
+          return prev.filter((m) => m.id !== tempId);
+        }
+        return prev.map((m) =>
+          m.id === tempId ? { ...saved, you: true, status: "sent" } : m,
+        );
+      });
+    } catch (error: any) {
+      console.error("❌ Error sending voice message:", error);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to send voice message.";
+      toast.error(errorMessage);
+    }
+  };
 
   const sendMessage = async (phiData?: {
     isPhi: boolean;
@@ -91,6 +175,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     setMessages((prev) => [...prev, tempMsg]);
     setSendMessageText("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
     try {
@@ -127,14 +214,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const res =
           await messageApiService.sendMessageToSingleConservation(formData);
 
-        saved = res?.data?.chatMessage;
+        saved = res?.data?.chatMessage || res?.data;
 
         const otherId =
           (activeChatObject as ChatChannelType).providerA.id === loginUserUserId
             ? (activeChatObject as ChatChannelType).providerB.id
             : (activeChatObject as ChatChannelType).providerA.id;
 
-        socket?.emit("send_direct", { toProviderId: otherId, message: saved });
+        const channelId = (activeChatObject as ChatChannelType).id;
+        const msgToEmit = saved?.chatChannelId
+          ? saved
+          : { ...saved, chatChannelId: channelId };
+
+        socket?.emit("send_direct", { toProviderId: otherId, message: msgToEmit });
       } else {
         const res =
           await messageApiService.sendMessagesOfGroupChatChannel(formData);
@@ -143,14 +235,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         socket?.emit("send_group", { message: saved });
       }
 
-      setMessages((prev) =>
-        prev.map((m) =>
+      setMessages((prev) => {
+        const alreadyExists = prev.some((m) => m.id === saved?.id);
+        if (alreadyExists) {
+          return prev.filter((m) => m.id !== tempId);
+        }
+        return prev.map((m) =>
           m.id === tempId ? { ...saved, you: true, status: "sent" } : m,
-        ),
-      );
+        );
+      });
 
-      queryClient.setQueryData<ChatChannelType[]>(
-        ["chatchannels"],
+      queryClient.setQueriesData<ChatChannelType[]>(
+        { queryKey: ["chatchannels"] },
         (oldData) => {
           if (!oldData) return oldData;
           return oldData.map((channel) =>
@@ -169,8 +265,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
           );
         },
       );
-      queryClient.setQueryData<GroupChat[]>(
-        ["groupChatchannels"],
+      queryClient.setQueriesData<GroupChat[]>(
+        { queryKey: ["groupChatchannels"] },
         (oldGroups = []) =>
           oldGroups.map((group) => {
             if (group.id === saved.groupId) {
@@ -191,9 +287,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
             return { ...group };
           }),
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error sending message:", error);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to send message.";
+      toast.error(errorMessage);
     }
   };
 
@@ -294,44 +396,78 @@ const ChatInput: React.FC<ChatInputProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between">
-          <textarea
-            className="outline-none pl-4 p-2 w-full bg-gray-100 rounded-lg resize-none overflow-hidden"
-            placeholder="Type your message..."
-            value={sendMessageText}
-            onChange={(e) => {
-              setSendMessageText(e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = `${e.target.scrollHeight}px`;
-            }}
-            rows={1}
-          />
-          <div className="flex items-center gap-x-4 p-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              multiple
-              onChange={(e) => {
-                const files = e.target.files;
-                if (files) {
-                  setSelectedFiles((prev) => [...prev, ...Array.from(files)]);
-                }
-              }}
+        <div className="flex items-center justify-between gap-2">
+          {isVoiceRecorderOpen ? (
+            <VoiceRecorder
+              onSendVoice={sendVoiceMessage}
+              onCancel={() => setIsVoiceRecorderOpen(false)}
             />
+          ) : (
+            <>
+              <textarea
+                ref={textareaRef}
+                className="outline-none pl-4 p-2 w-full bg-gray-100 rounded-lg resize-none overflow-hidden"
+                placeholder="Type your message..."
+                value={sendMessageText}
+                onChange={(e) => {
+                  setSendMessageText(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                rows={1}
+              />
+              <div className="flex items-center gap-x-3 p-2 shrink-0">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files) {
+                      setSelectedFiles((prev) => [...prev, ...Array.from(files)]);
+                    }
+                  }}
+                />
 
-            <IoAttachSharp
-              size={30}
-              className="rotate-45 cursor-pointer text-textGreyColor"
-              onClick={() => fileInputRef.current?.click()}
-            />
-            <button
-              className="h-9.5 w-9.5 bg-primaryColorDark rounded-full flex items-center justify-center text-white"
-              onClick={() => sendMessage()}
-            >
-              <IoIosSend size={24} className="cursor-pointer" />
-            </button>
-          </div>
+                <IoAttachSharp
+                  size={26}
+                  className="rotate-45 cursor-pointer text-textGreyColor hover:text-primaryColorDark transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!canUsePremiumFeature) {
+                      toast.error("Your 3-day trial for voice notes has ended. Upgrade to keep sending them.");
+                      return;
+                    }
+                    setIsVoiceRecorderOpen(true);
+                  }}
+                  className="p-2 text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
+                  title="Record Voice Note"
+                >
+                  <FaMicrophone size={20} />
+                </button>
+
+                <button
+                  type="button"
+                  className="h-9.5 w-9.5 bg-primaryColorDark hover:bg-primaryColor rounded-full flex items-center justify-center text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                  onClick={() => sendMessage()}
+                  title="Send Message"
+                >
+                  <IoIosSend size={24} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

@@ -26,6 +26,16 @@ class ProviderApiService {
         }
     }
 
+    async getProviderStats(loginUserId?: string) {
+        try {
+            const url = loginUserId ? `/provider/stats/${loginUserId}` : "/provider/stats";
+            const response = await this.api.get(url);
+            return response?.data;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : "Failed to get provider stats";
+            toast.error(errMsg);
+        }
+    }
 }
 
 const providerApiService = new ProviderApiService()

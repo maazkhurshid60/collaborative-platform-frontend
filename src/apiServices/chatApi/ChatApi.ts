@@ -34,19 +34,23 @@ class ChatApiService {
 
     async createChatChannels(data: createChatChannel) {
         try {
-
-            const response = await this.api.post("/chat-channel/create-chat-channel", data)
-            return response?.data
+            const response = await this.api.post("/chat-channel/create-chat-channel", data);
+            return response?.data;
         } catch (error) {
-
-            const errMsg = error instanceof Error ? error.message : "Failed to get total client";
+            let errMsg = "Failed to create chat channel";
+            if (axios.isAxiosError(error) && error.response?.data?.message) {
+                errMsg = error.response.data.message;
+            } else if (error instanceof Error) {
+                errMsg = error.message;
+            }
             toast.error(errMsg);
+            throw error;
         }
     }
 
-    async getAllUsersForChat(loginUserId: string) {
+    async getAllUsersForChat(loginUserId: string, search?: string) {
         try {
-            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId });
+            const response = await this.api.post("/chat-channel/get-all-users", { loginUserId, search });
             return response?.data;
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : "Failed to get users";

@@ -10,6 +10,7 @@ export interface BookingSettings {
     timezone: string | null;
     appointmentDurationMinutes: number;
     bufferMinutes: number;
+    isRecurringWeekly?: boolean;
 }
 
 export interface TimeOffEntry {

@@ -9,8 +9,6 @@ import OutletLayout from "../../../layouts/outletLayout/OutletLayout";
 // import ProviderList from "../../../components/pagesComponent/dashboard/providerList/ProviderList";
 // import TrialBanner from "../../../components/pagesComponent/dashboard/trialBanner/TrialBanner";
 import providerApiService from "../../../apiServices/providerApi/ProviderApi";
-import clientApiService from "../../../apiServices/clientApi/ClientApi";
-import { ClientType } from "../../../types/clientType/ClientType";
 import { RootState } from "../../../redux/store";
 import SubscriptionHistoryCard from "../../../components/pagesComponent/dashboard/subscriptionHistory/SubscriptionHistoryCard";
 import RecentActivities from "./RecentActivities";
@@ -23,77 +21,58 @@ const Dashboard = () => {
   );
   const { plan } = useSubscription();
 
-  // Fetch total provider using React Query
+  // Fetch provider dashboard stats from dedicated backend API
   const {
-    data: totalNoOfProvider = 0,
-    isLoading: isLoadingProviders,
-    isError: isErrorProviders,
-  } = useQuery<number>({
-    queryKey: ["dashboard_providers_count", loginUserId],
+    data: statsData,
+    isLoading: isLoadingStats,
+    isError: isErrorStats,
+  } = useQuery({
+    queryKey: ["provider_dashboard_stats", loginUserId],
     queryFn: async () => {
-      const response = await providerApiService.getAllProviders(loginUserId);
-      const providers = response?.data?.providers ?? [];
-      return providers.filter(
-        (p: any) => !p?.user?.blockedMembers?.includes(loginUserId),
-      ).length;
+      const response = await providerApiService.getProviderStats(loginUserId);
+      return response?.data || null;
     },
     enabled: Boolean(loginUserId),
     retry: 1,
     refetchOnWindowFocus: false,
   });
 
-  const {
-    data: totalNoOfClient = 0,
-    isLoading: isLoadingClients,
-    isError: isErrorClients,
-  } = useQuery<number>({
-    queryKey: ["totalclients", loginUserId],
-    queryFn: async () => {
-      const response = await clientApiService.getAllClient(loginUserId);
-      const matchedClient = response?.data?.clients?.filter(
-        (client: ClientType) =>
-          client?.providerList?.some(
-            (provider) => provider?.provider?.user?.id === loginUserId,
-          ),
-      );
-      return matchedClient?.length ?? 0;
-    },
-    enabled: Boolean(loginUserId),
-    retry: 1,
-    refetchOnWindowFocus: false,
-  });
+  const totalClients = statsData?.totalClients ?? 0;
+  const totalProviders = statsData?.totalProviders ?? 0;
+  const totalConnected =
+    statsData?.totalConnected ?? totalClients + totalProviders;
+  const currentPlan = statsData?.plan || plan || "Standard";
 
   const cardData = [
     {
       icon: Eye,
       heading: "Total Providers & Clients",
-      numbers: totalNoOfClient + totalNoOfProvider,
-      isLoading: isLoadingClients || isLoadingProviders,
-      error:
-        isErrorClients || isErrorProviders ? "Error loading total users" : "",
+      numbers: totalConnected,
+      isLoading: isLoadingStats,
+      error: isErrorStats ? "Error loading total users" : "",
       className: "",
     },
     {
       icon: Users,
       heading: "Clients",
-      numbers: totalNoOfClient,
-      isLoading: isLoadingClients,
-      error: isErrorClients ? "Error loading clients" : "",
+      numbers: totalClients,
+      isLoading: isLoadingStats,
+      error: isErrorStats ? "Error loading clients" : "",
       className: "",
     },
     {
       icon: Activity,
       heading: "Providers on the platform",
-      numbers: totalNoOfProvider,
-      isLoading: isLoadingProviders,
-      error: isErrorProviders ? "Error loading providers" : "",
+      numbers: totalProviders,
+      isLoading: isLoadingStats,
+      error: isErrorStats ? "Error loading providers" : "",
       className: "",
     },
     {
       icon: Clock,
       heading: "Current Plan",
-      numbers: plan,
-      isLoading: false,
+      numbers: currentPlan,
+      isLoading: isLoadingStats,
       error: "",
       className: "text-lg font-bold mt-4",
     },
