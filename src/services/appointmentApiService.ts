@@ -18,6 +18,8 @@ export interface AppointmentRecord {
   guestEmail: string;
   guestPhone?: string | null;
   notes?: string | null;
+  sessionNotes?: string | null;
+  notesAddedAt?: string | null;
   isMyBooking?: boolean;
   provider?: {
     id: string;
@@ -145,6 +147,13 @@ export const appointmentApiService = {
   clearAllCallLogs: async () => {
     const response = await axiosInstance.delete(
       `/appointments/me/call-logs/clear-all`,
+    );
+    return response.data;
+  },
+  addSessionNotes: async (appointmentId: string, sessionNotes: string) => {
+    const response = await axiosInstance.patch(
+      `/appointments/me/${appointmentId}/notes`,
+      { sessionNotes },
     );
     return response.data;
   },

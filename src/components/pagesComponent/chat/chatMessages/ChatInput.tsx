@@ -100,7 +100,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
       let saved: any;
 
       if (activeChatType === "individual") {
-        const res = await messageApiService.sendMessageToSingleConservation(formData);
+        const res =
+          await messageApiService.sendMessageToSingleConservation(formData);
         saved = res?.data?.chatMessage;
 
         const otherId =
@@ -110,7 +111,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         socket?.emit("send_direct", { toProviderId: otherId, message: saved });
       } else {
-        const res = await messageApiService.sendMessagesOfGroupChatChannel(formData);
+        const res =
+          await messageApiService.sendMessagesOfGroupChatChannel(formData);
         saved = res.data.chatMessage;
 
         socket?.emit("send_group", { message: saved });
@@ -226,7 +228,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
           ? saved
           : { ...saved, chatChannelId: channelId };
 
-        socket?.emit("send_direct", { toProviderId: otherId, message: msgToEmit });
+        socket?.emit("send_direct", {
+          toProviderId: otherId,
+          message: msgToEmit,
+        });
       } else {
         const res =
           await messageApiService.sendMessagesOfGroupChatChannel(formData);
@@ -431,7 +436,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   onChange={(e) => {
                     const files = e.target.files;
                     if (files) {
-                      setSelectedFiles((prev) => [...prev, ...Array.from(files)]);
+                      setSelectedFiles((prev) => [
+                        ...prev,
+                        ...Array.from(files),
+                      ]);
                     }
                   }}
                 />
@@ -446,7 +454,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   type="button"
                   onClick={() => {
                     if (!canUsePremiumFeature) {
-                      toast.error("Your 3-day trial for voice notes has ended. Upgrade to keep sending them.");
+                      toast.error(
+                        "Your 3-day trial for voice notes has ended. Upgrade to keep sending them.",
+                      );
                       return;
                     }
                     setIsVoiceRecorderOpen(true);

@@ -470,6 +470,9 @@ export const CallRoomPage: React.FC = () => {
   const loggedInUserFullName = useSelector(
     (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.fullName,
   );
+  const loggedInUserRole = useSelector(
+    (state: RootState) => state?.LoginUserDetail?.userDetails?.user?.role,
+  );
 
   const participantName = React.useMemo(() => {
     if (!callInfo) return "Participant";
@@ -529,6 +532,11 @@ export const CallRoomPage: React.FC = () => {
           <CallRoomEnded
             stageMessage={stageMessage}
             onReturn={() => navigate("/chat")}
+            appointmentId={appointmentId}
+            isProvider={callInfo?.role === "provider"}
+            isAuthenticatedClient={
+              callInfo?.role === "guest" && loggedInUserRole === "client"
+            }
           />
         ) : (
           // Kept mounted (just visually hidden via the outer card above) while

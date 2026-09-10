@@ -1,3 +1,4 @@
+import RadioButtonCard from "@/components/ui/RadionButtonCard";
 import { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 
@@ -77,27 +78,25 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
             ?
           </p>
 
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                checked={isPhi}
-                onChange={() => setIsPhi(true)}
-                className="w-4 h-4 text-amber-600"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Yes, it contains PHI
-              </span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                checked={!isPhi}
-                onChange={() => setIsPhi(false)}
-                className="w-4 h-4 text-amber-600"
-              />
-              <span className="text-sm font-medium text-gray-700">No PHI</span>
-            </label>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Yes */}
+            <RadioButtonCard
+              value="yes"
+              selectedValue={isPhi ? "yes" : "no"}
+              onChange={(value) => setIsPhi(value === "yes")}
+              title="Yes"
+              description="Contains PHI"
+            />
+
+            <RadioButtonCard
+              value="no"
+              selectedValue={isPhi ? "yes" : "no"}
+              onChange={(value) => setIsPhi(value === "yes")}
+              title="No"
+              description="No PHI"
+              selectedClassName="border-green-500 bg-green-50"
+              selectedRadioClassName="border-green-500 bg-green-500"
+            />
           </div>
 
           {isPhi && (
@@ -111,11 +110,13 @@ const PhiAttestationModal: React.FC<PhiAttestationModalProps> = ({
                 className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-amber-500 transition-colors"
               >
                 <option value="">Select a client...</option>
-                {clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.user.fullName}
-                  </option>
-                ))}
+                {clients.map((client) => {
+                  return (
+                    <option key={client.id} value={client.id}>
+                      {client.user.fullName}
+                    </option>
+                  );
+                })}
               </select>
               <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg leading-tight">
                 By selecting a client, you attest that a valid **Release of
