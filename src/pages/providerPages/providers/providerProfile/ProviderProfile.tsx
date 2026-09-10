@@ -18,6 +18,11 @@ import providerApiService from "../../../../apiServices/providerApi/ProviderApi"
 import { RootState } from "../../../../redux/store";
 import { Video } from "lucide-react";
 import BookProviderSessionModal from "@/components/modals/providerModal/BookProviderSessionModal";
+import {
+  reviewApiService,
+  type ReviewRecord,
+} from "@/services/reviewApiService";
+import { RatingStars } from "@/components/shared/RatingStars";
 
 const ProviderProfile = () => {
   const navigate = useNavigate();
@@ -52,6 +57,19 @@ const ProviderProfile = () => {
       setSelectedProviderData(selected);
     }
   }, [providerData, id]);
+
+  const { data: reviewsData } = useQuery({
+    queryKey: ["provider_reviews", id],
+    queryFn: async () => {
+      const response = await reviewApiService.getProviderReviews(
+        String(id),
+        1,
+        5,
+      );
+      return response?.data;
+    },
+    enabled: Boolean(id),
+  });
 
   if (isLoading) {
     return <Loader text="Loading..." />;
@@ -185,6 +203,47 @@ const ProviderProfile = () => {
                     ))
                 )}
               </div>
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-gray-200 p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-textColor">Reviews</p>
+                {reviewsData?.totalReviews > 0 && (
+                  <div className="flex items-center gap-2">
+                    <RatingStars
+                      value={Math.round(reviewsData.averageRating)}
+                      readOnly
+                      size={16}
+                    />
+                    <span className="text-xs font-semibold text-textGreyColor">
+                      {reviewsData.averageRating.toFixed(1)} (
+                      {reviewsData.totalReviews})
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {!reviewsData?.reviews?.length ? (
+                <p className="mt-2 text-[13px] text-textGreyColor">
+                  No reviews yet.
+                </p>
+              ) : (
+                <div className="mt-3 flex flex-col gap-3">
+                  {reviewsData.reviews.map((review: ReviewRecord) => (
+                    <div
+                      key={review.id}
+                      className="border-t border-gray-100 pt-3 first:border-t-0 first:pt-0"
+                    >
+                      <RatingStars value={review.rating} readOnly size={14} />
+                      {review.comment && (
+                        <p className="mt-1 text-[13px] text-textColor">
+                          {review.comment}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-start mt-6">

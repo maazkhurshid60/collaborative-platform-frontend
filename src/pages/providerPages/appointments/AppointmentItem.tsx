@@ -165,6 +165,14 @@ const AppointmentItem = ({ appt, onOpenConfirm }: AppointmentItemProps) => {
         {appt.notes && (
           <p className="mt-2 text-[13px] text-textColor">{appt.notes}</p>
         )}
+        {appt.displayStatus === "COMPLETED" && appt.sessionNotes && (
+          <div className="mt-2 rounded-xl border border-primaryColorLight bg-primaryColorLight/30 px-3 py-2 text-[13px] text-textColor">
+            <p className="mb-0.5 text-[11px] font-bold uppercase tracking-wide text-primaryColorDark">
+              Session notes
+            </p>
+            {appt.sessionNotes}
+          </div>
+        )}
       </div>
 
       {appt.displayStatus === "PENDING" && !appt.isMyBooking && (
